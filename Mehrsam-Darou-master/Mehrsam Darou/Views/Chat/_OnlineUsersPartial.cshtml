@@ -1,4 +1,9 @@
-﻿@model Mehrsam_Darou.ViewModel.ChatViewModel
+﻿    @using System.Globalization
+
+@{
+    PersianCalendar pc1 = new PersianCalendar();
+}
+@model Mehrsam_Darou.ViewModel.ChatViewModel
 
 <div class="offcanvas-xxl offcanvas-start h-100" tabindex="-1" id="Contactoffcanvas" aria-labelledby="ContactoffcanvasLabel">
     <div class="card position-relative overflow-hidden">
@@ -29,7 +34,18 @@
                                 </div>
                                 <div class="flex-grow-1 overflow-hidden">
                                     <h5 class="my-0">
-                                        <span class="float-end text-muted fs-13">@chat.LastMessageTime</span>
+                                        <span class="float-end text-muted fs-13">
+
+                                            @{
+                                                if (chat.LastMessageTime != null)
+                                                {
+                                                    var date = chat.LastMessageTime;
+                                                    var persianDate = $"{pc1.GetYear(date)}/{pc1.GetMonth(date):00}/{pc1.GetDayOfMonth(date):00} {date.ToString("HH:mm")}";
+                                                    <p dir="ltr">@persianDate</p>
+                                                }
+                                            }
+                                        
+                                        </span>
                                         @chat.ContactName
                                     </h5>
                                     <p class="mt-1 mb-0 fs-13 text-muted d-flex align-items-end justify-content-between">

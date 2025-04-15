@@ -276,15 +276,20 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                                         <div class="ms-2">
                                             <h5 class="mb-0 text-dark fw-semibold fs-15 lh-base">@log.User?.FirstName @log.User?.LastName ، @log.User?.Team?.Name</h5>
                                             <p class="d-flex align-items-center gap-1">
-                                                @if (log.Status == "In")
+                                                @if (log.Status == "ورود به سیستم")
                                                 {
                                                     <iconify-icon icon="iconamoon:check-circle-1-duotone" class="text-success"></iconify-icon>
                                                     <span>به سایت وارد شد</span>
                                                 }
-                                                else
+                                                else if (log.Status == "خروج از سیستم")
                                                 {
                                                     <iconify-icon icon="iconamoon:check-circle-1-duotone" class="text-danger"></iconify-icon>
                                                     <span>از سایت خارج شد</span>
+                                                }
+                                                else if (log.Status == "آنلاین")
+                                                {
+                                                    <iconify-icon icon="iconamoon:check-circle-1-duotone" class="dz-button"></iconify-icon>
+                                                    <span>آنلاین در چت</span>
                                                 }
                                             </p>
                                             @{

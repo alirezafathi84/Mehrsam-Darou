@@ -100,7 +100,7 @@ namespace Mehrsam_Darou.Controllers
                         ContactName = $"{u.FirstName} {u.LastName}",
                         ContactAvatar = u.AvatarImg ?? "",
                         LastMessagePreview = m.Content,
-                        LastMessageTime = m.SentAt.ToShortTimeString(),
+                        LastMessageTime = m.SentAt,
                         IsRead = m.IsRead,
                         LastMessageIsMine = m.SenderId == currentUserId,
                         IsActive = contactId.HasValue && contactId.Value == u.Id

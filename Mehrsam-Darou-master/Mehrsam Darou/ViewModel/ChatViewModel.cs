@@ -25,7 +25,7 @@
         public string ContactName { get; set; }
         public string ContactAvatar { get; set; }
         public string LastMessagePreview { get; set; }
-        public string LastMessageTime { get; set; }
+        public DateTime LastMessageTime { get; set; }
         public bool IsRead { get; set; }
         public bool LastMessageIsMine { get; set; }
         public bool IsActive { get; set; }

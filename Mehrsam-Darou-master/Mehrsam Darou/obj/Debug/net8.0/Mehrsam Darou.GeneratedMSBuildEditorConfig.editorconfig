@@ -17,85 +17,85 @@ build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = Mehrsam_Darou
 build_property.RootNamespace = Mehrsam_Darou
-build_property.ProjectDir = D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\
+build_property.ProjectDir = C:\TFS Project\MD\Mehrsam-Darou-master\Mehrsam Darou\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 8.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou
+build_property.MSBuildProjectDirectory = C:\TFS Project\MD\Mehrsam-Darou-master\Mehrsam Darou
 build_property._RazorSourceGeneratorDebug = 
 build_property.EffectiveAnalysisLevelStyle = 8.0
 build_property.EnableCodeStyleSeverity = 
 
-[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Chat/Chat.cshtml]
+[C:/TFS Project/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Chat/Chat.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2hhdFxDaGF0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Chat/_CurrentChatPartial.cshtml]
+[C:/TFS Project/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Chat/_CurrentChatPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2hhdFxfQ3VycmVudENoYXRQYXJ0aWFsLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Chat/_OnlineUsersPartial.cshtml]
+[C:/TFS Project/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Chat/_OnlineUsersPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2hhdFxfT25saW5lVXNlcnNQYXJ0aWFsLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Client/Login.cshtml]
+[C:/TFS Project/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Client/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2xpZW50XExvZ2luLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Home/Privacy.cshtml]
+[C:/TFS Project/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Home/UserDetails.cshtml]
+[C:/TFS Project/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Home/UserDetails.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxVc2VyRGV0YWlscy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Setting/Setting.cshtml]
+[C:/TFS Project/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Setting/Setting.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2V0dGluZ1xTZXR0aW5nLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Shared/Error.cshtml]
+[C:/TFS Project/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Shared/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Shared/_ValidationScriptsPartial.cshtml]
+[C:/TFS Project/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Team/AddTeam.cshtml]
+[C:/TFS Project/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Team/AddTeam.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGVhbVxBZGRUZWFtLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Team/EditTeam.cshtml]
+[C:/TFS Project/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Team/EditTeam.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGVhbVxFZGl0VGVhbS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Team/TeamList.cshtml]
+[C:/TFS Project/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Team/TeamList.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGVhbVxUZWFtTGlzdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/User/AddUser.cshtml]
+[C:/TFS Project/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/User/AddUser.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlclxBZGRVc2VyLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/User/EditUser.cshtml]
+[C:/TFS Project/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/User/EditUser.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlclxFZGl0VXNlci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/User/UserList.cshtml]
+[C:/TFS Project/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/User/UserList.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlclxVc2VyTGlzdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/_ViewImports.cshtml]
+[C:/TFS Project/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/_ViewStart.cshtml]
+[C:/TFS Project/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Shared/_Layout.cshtml]
+[C:/TFS Project/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Shared/_Layout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = b-hx6pu7jafp

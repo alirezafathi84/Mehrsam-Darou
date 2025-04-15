@@ -1,4 +1,9 @@
-﻿@model Mehrsam_Darou.ViewModel.ChatViewModel
+﻿    @using System.Globalization
+
+@{
+    PersianCalendar pc1 = new PersianCalendar();
+}
+@model Mehrsam_Darou.ViewModel.ChatViewModel
 
 <div>
     <div class="card-header d-flex align-items-center mh-100">
@@ -26,22 +31,36 @@
             {
                 foreach (var message in Model.CurrentChat.Messages)
                 {
-                    <li class="clearfix @(message.IsMine ? "odd" : "")">
+                    <li class="clearfix @(!message.IsMine ? "odd" : "")">
                         <div class="chat-conversation-text @(message.IsMine ? "ms-0" : "")">
-                            <div class="d-flex @(message.IsMine ? "justify-content-end" : "")">
+                            <div class="d-flex @(!message.IsMine ? "justify-content-end" : "")">
                                 <div class="chat-ctext-wrap">
                                     @if (!string.IsNullOrEmpty(message.Content))
                                     {
-                                        <p>@message.Content</p>
+                                        <p>@message.Content</p> 
+                                  
                                     }
                                 </div>
                             </div>
-                            <p class="text-muted fs-12 mb-0 mt-1 @(message.IsMine ? "" : "ms-2")">
-                                @message.SentAt.ToString("h:mm tt")
-                                @if (message.IsMine)
-                                {
-                                    <i class="bx bx-check@(message.IsRead ? "-double text-success" : " text-muted") ms-1"></i>
+                            <p class="text-muted fs-12 mb-0 mt-1 @(!message.IsMine ? "" : "ms-2")">
+                  
+                                @{
+                                    if (message.SentAt != null)
+                                    {
+                                        var date = message.SentAt;
+                                        var persianDate = $"{pc1.GetYear(date)}/{pc1.GetMonth(date):00}/{pc1.GetDayOfMonth(date):00} {date.ToString("HH:mm")}";
+                                        <p dir="ltr">@persianDate
+
+                                            @if (message.IsMine)
+                                            {
+                                            <i class="bx bx-check@(message.IsRead ? "-double text-success" : " text-muted") ms-1"></i>
+                                            }
+                                        
+                                        </p>
+                                    }
                                 }
+                              
+
                             </p>
                         </div>
                     </li>
