@@ -1,271 +1,77 @@
-﻿@using Mehrsam_Darou.ViewModel
-@model ChatViewModel
-@inject IHttpContextAccessor HttpContextAccessor
+﻿@model Mehrsam_Darou.ViewModel.ChatViewModel
 
 <div class="row g-1">
     <div class="col-xxl-3">
-        <div class="offcanvas-xxl offcanvas-start h-100" tabindex="-1" id="Contactoffcanvas" aria-labelledby="ContactoffcanvasLabel">
-            <div class="card position-relative overflow-hidden">
-                <div class="card-header border-0 d-flex justify-content-between align-items-center">
-                    <h4 class="card-title">چت</h4>
-                </div>
-
-                <form class="chat-search px-3" method="get" asp-action="SearchContacts">
-                    <div class="chat-search-box">
-                        <input class="form-control" type="text" name="searchValue" placeholder="جستجو ...">
-                        <button type="submit" class="btn btn-sm btn-link search-icon p-0"><i class="bx bx-search-alt"></i></button>
-                    </div>
-                </form>
-
-                <!-- Online Users Swiper -->
-                <div class="swiper mySwiper p-1 mx-3">
-                    <div class="swiper-wrapper"> @* id="onlineUsersSwiper" *@
-                        @if (Model?.OnlineUsers != null)
-                        {
-                            foreach (var user in Model.OnlineUsers)
-                            {
-                                <div class="swiper-slide avatar-sm">
-                                    <div class="chat-user-status-box">
-                                        <span>
-                                            <img src="@user.AvatarImg" alt="@user.Username" class="img-fluid avatar-sm rounded-circle avatar-border" />
-                                        </span>
-                                    </div>
-                                </div>
-                            }
-                        }
-               
-                    </div>
-                </div>
-
-                <ul class="nav nav-tabs nav-justified nav-bordered border-top mt-2">
-                    <li class="nav-item">
-                        <a href="#chat-list" data-bs-toggle="tab" aria-expanded="false" class="nav-link active py-2">
-                            چت
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#contact-list" data-bs-toggle="tab" aria-expanded="true" class="nav-link py-2">
-                            مخاطبین
-                        </a>
-                    </li>
-                </ul>
-
-                <div class="tab-content">
-                    <!-- Chat List Tab -->
-                    <div class="tab-pane show active" id="chat-list">
-                        <div class="px-3 mb-3 chat-setting-height" data-simplebar id="chatList">
-                            @foreach (var chat in Model.RecentChats)
-                            {
-                                <a href="@Url.Action("Chat", "Chat", new { contactId = chat.ContactId })" class="text-body">
-                                    <div class="d-flex align-items-center p-2 @(chat.IsActive ? "bg-light bg-opacity-50 rounded-1" : "")">
-                                        <div class="flex-shrink-0 position-relative">
-                                            <img src="@chat.ContactAvatar" class="me-2 rounded-circle" height="36" alt="@chat.ContactName" />
-                                        </div>
-                                        <div class="flex-grow-1 overflow-hidden">
-                                            <h5 class="my-0">
-                                                <span class="float-end text-muted fs-13">@chat.LastMessageTime</span>
-                                                @chat.ContactName
-                                            </h5>
-                                            <p class="mt-1 mb-0 fs-13 text-muted d-flex align-items-end justify-content-between">
-                                                <span class="w-75">@chat.LastMessagePreview</span>
-                                                @if (chat.IsRead)
-                                                {
-                                                    <i class="bx bx-check-double text-success"></i>
-                                                }
-                                                else if (chat.LastMessageIsMine)
-                                                {
-                                                    <i class="bx bx-check text-muted"></i>
-                                                }
-                                            </p>
-                                        </div>
-                                    </div>
-                                </a>
-                            }
-                        </div>
-                    </div>
-
-                    <!-- Contact List Tab -->
-                    <div class="tab-pane" id="contact-list">
-                        <div class="px-3 mb-3 chat-setting-height" data-simplebar id="contactList">
-                            @foreach (var contact in Model.Contacts)
-                            {
-                                <div class="d-flex align-items-center position-relative py-2">
-                                    <a href="@Url.Action("Chat", "Chat", new { contactId = contact.Id })" class="stretched-link">
-                                        <img src="@contact.AvatarImg" class="me-2 rounded-circle" height="36" alt="@contact.FullName" />
-                                    </a>
-                                    <div class="flex-grow-1">
-                                        <h5 class="my-0 fs-14">@contact.FullName</h5>
-                                        <p class="mt-1 mb-0 text-muted">
-                                            <span class="w-75">@contact.StatusMessage</span>
-                                        </p>
-                                    </div>
-                                </div>
-                            }
-                        </div>
-                    </div>
-
-                </div>
-            </div>
+        <div id="sidebar-chat">
+            @await Html.PartialAsync("_OnlineUsersPartial", Model)
         </div>
     </div>
-
-    <!-- Main Chat Area -->
     <div class="col-xxl-9">
-        <div class="card position-relative overflow-hidden" id="mainChatArea">
-            <!-- Chat Header -->
-            <div class="card-header d-flex align-items-center mh-100">
-                <button class="btn btn-light d-xxl-none d-flex align-items-center px-2 me-2" type="button"
-                        data-bs-toggle="offcanvas" data-bs-target="#Contactoffcanvas" aria-controls="Contactoffcanvas">
-                    <i class="bx bx-menu fs-18"></i>
-                </button>
-
-                <div class="d-flex align-items-center" id="currentChatHeader">
-                    @if (Model.CurrentChat != null)
-                    {
-                        <img src="@Model.CurrentChat.ContactAvatar" class="me-2 rounded" height="36" alt="@Model.CurrentChat.ContactName" />
-                        <div class="d-none d-md-flex flex-column">
-                            <h5 class="my-0 fs-16 fw-semibold">
-                                <a data-bs-toggle="offcanvas" href="#user-profile" class="text-dark">
-                                    @Model.CurrentChat.ContactName
-                                </a>
-                            </h5>
-                            <p class="mb-0 text-success fw-semibold fst-italic" id="typingIndicator" style="display: none;">در حال تایپ...</p>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="d-none d-md-flex flex-column">
-                            <h5 class="my-0 fs-16 fw-semibold">انتخاب گفتگو</h5>
-                        </div>
-                    }
-                </div>
-
-                <div class="flex-grow-1">
-                    <ul class="list-inline float-end d-flex gap-3 mb-0">
-                        <li class="list-inline-item fs-20 dropdown d-none d-md-flex">
-                            <a href="javascript: void(0);" class="dropdown-toggle arrow-none text-dark" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="bx bx-dots-vertical-rounded"></i>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-end">
-                                <a class="dropdown-item" href="@Url.Action("ClearChat", "Chat")">
-                                    <i class="bx bx-trash me-2"></i> پاک کردن گفتگو
-                                </a>
-                                <a class="dropdown-item" href="javascript: void(0);">
-                                    <i class="bx bx-right-arrow-circle me-2"></i> خروج
-                                </a>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
+        <div class="card position-relative overflow-hidden">
+            <!-- Chat header can be in the partial or here, as you prefer -->
+            <div id="current-chat-area">
+                @await Html.PartialAsync("_CurrentChatPartial", Model)
             </div>
-
-            <!-- Chat Messages -->
-            <div class="chat-box">
-                <ul class="chat-conversation-list p-3 chatbox-height" id="chatMessages">
+            <!-- The input area is STATIC and never refreshed -->
+            <div class="bg-light bg-opacity-50 p-2" id="messageInputArea" @(Model.CurrentChat == null ? "style='display:none;'" : "")>
+                <form id="chatForm" asp-action="SendMessage" method="post">
                     @if (Model.CurrentChat != null)
                     {
-                        foreach (var message in Model.CurrentChat.Messages)
-                        {
-                            <li class="clearfix @(message.IsMine ? "odd" : "")">
-                                <div class="chat-conversation-text @(message.IsMine ? "ms-0" : "")">
-                                    <div class="d-flex @(message.IsMine ? "justify-content-end" : "")">
-                                        @if (message.IsMine)
-                                        {
-                                            <div class="chat-conversation-actions dropdown dropstart">
-                                                <a href="javascript: void(0);" class="pe-1" data-bs-toggle="dropdown" aria-expanded="false">
-                                                    <i class='bx bx-dots-vertical-rounded fs-18'></i>
-                                                </a>
-                                                <div class="dropdown-menu">
-                                                    <a class="dropdown-item" href="@Url.Action("DeleteMessage", "Chat", new { messageId = message.Id })">
-                                                        <i class="bx bx-trash me-2"></i>حذف
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        }
-                                        <div class="chat-ctext-wrap">
-                                            @if (!string.IsNullOrEmpty(message.Content))
-                                            {
-                                                <p>@message.Content</p>
-                                            }
-                                            @if (!string.IsNullOrEmpty(message.Attachments))
-                                            {
-                                                var attachments = System.Text.Json.JsonSerializer.Deserialize<List<string>>(message.Attachments);
-                                                foreach (var attachment in attachments)
-                                                {
-                                                    <a href="javascript:void(0);">
-                                                        <img src="@attachment" alt="attachment" style="height: 84px;" class="img-thumbnail me-1">
-                                                    </a>
-                                                }
-                                            }
-                                        </div>
-                                        @if (!message.IsMine)
-                                        {
-                                            <div class="chat-conversation-actions dropdown dropend">
-                                                <a href="javascript:void(0);" class="ps-1" data-bs-toggle="dropdown" aria-expanded="false">
-                                                    <i class='bx bx-dots-vertical-rounded fs-18'></i>
-                                                </a>
-                                                <div class="dropdown-menu">
-                                                    <a class="dropdown-item" href="@Url.Action("DeleteMessage", "Chat", new { messageId = message.Id })">
-                                                        <i class="bx bx-trash me-2"></i>حذف
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        }
-                                    </div>
-                                    <p class="text-muted fs-12 mb-0 mt-1 @(message.IsMine ? "" : "ms-2")">
-                                        @message.SentAt.ToString("h:mm tt")
-                                        @if (message.IsMine)
-                                        {
-                                            <i class="bx bx-check@(message.IsRead ? "-double text-success" : " text-muted") ms-1"></i>
-                                        }
-                                    </p>
-                                </div>
-                            </li>
-                        }
+                        <input type="hidden" name="ReceiverId" value="@Model.CurrentChat.ContactId" />
                     }
-                    else
-                    {
-                        <li class="text-center py-5">
-                            <div class="alert alert-info">
-                                لطفاً یک گفتگو را برای شروع انتخاب کنید
-                            </div>
-                        </li>
-                    }
-                </ul>
 
-                <!-- Message Input -->
-                <div class="bg-light bg-opacity-50 p-2" @(Model.CurrentChat == null ? "style='display:none;'" : "") id="messageInputArea">
-                    <form id="chatForm" asp-action="SendMessage" method="post">
-                        @if (Model.CurrentChat != null)
-                        {
-                            <input type="hidden" name="ReceiverId" value="@Model.CurrentChat.ContactId" />
-                        }
-
-
-                        <div class="row align-items-center">
-                            <div class="col mb-2 mb-sm-0 d-flex">
-                                <div class="input-group">
-                                    <input type="text" class="form-control border-0" id="messageInput" name="Content" placeholder="پیام خود را وارد کنید" />
-
-                                    <!-- File input for attachments -->
-                                    <input type="file" id="fileInput" name="Attachments" style="display:none;" />
-
-                                    <a href="javascript:void(0);" class="btn btn-sm btn-light d-flex align-items-center input-group-text" onclick="document.getElementById('fileInput').click();">
-                                        <i class="bx bx-paperclip fs-18"></i>
-                                    </a>
-                                </div>
-                            </div>
-
-                            <div class="col-sm-auto">
-                                <div class="btn-group btn-toolbar">
-                                    <button type="submit" class="btn btn-sm btn-primary chat-send">ارسال</button>
-                                </div>
+                    <div class="row align-items-center">
+                        <div class="col mb-2 mb-sm-0 d-flex">
+                            <div class="input-group">
+                                <input type="text" class="form-control border-0" id="messageInput" name="Content" placeholder="پیام خود را وارد کنید" autocomplete="off" />
                             </div>
                         </div>
-                    </form>
-
-                </div>
+                        <div class="col-sm-auto">
+                            <div class="btn-group btn-toolbar">
+                                <button type="submit" class="btn btn-sm btn-primary chat-send">ارسال</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    function refreshSidebar() {
+        fetch('@Url.Action("OnlineUsersPartial", "Chat", new { contactId = Model.CurrentChat?.ContactId })')
+            .then(r => r.text())
+            .then(html => document.getElementById('sidebar-chat').innerHTML = html);
+    }
+
+    function refreshCurrentChat() {
+        const area = document.getElementById('current-chat-area');
+        const messagesList = area.querySelector('#chatMessages');
+        let atBottom = false;
+        if(messagesList){
+            atBottom = messagesList.scrollTop + messagesList.clientHeight >= messagesList.scrollHeight - 1;
+        }
+        fetch('@Url.Action("CurrentChatPartial", "Chat", new { contactId = Model.CurrentChat?.ContactId })')
+            .then(r => r.text())
+            .then(html => {
+                area.innerHTML = html;
+                // After rendering, scroll to bottom if we were at bottom before
+                const newMessagesList = area.querySelector('#chatMessages');
+                if(newMessagesList && atBottom){
+                    newMessagesList.scrollTop = newMessagesList.scrollHeight;
+                }
+            });
+    }
+
+    setInterval(refreshSidebar, 20000);
+    setInterval(refreshCurrentChat, 3000);
+
+    // Optional: auto-scroll to bottom once on load (for new chat)
+    window.onload = function () {
+        setTimeout(function () {
+            var chatList = document.getElementById('chatMessages');
+            if (chatList) chatList.scrollTop = chatList.scrollHeight;
+        }, 500);
+    }
+</script>

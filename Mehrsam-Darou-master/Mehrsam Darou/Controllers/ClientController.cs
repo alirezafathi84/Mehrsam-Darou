@@ -59,7 +59,7 @@ namespace Mehrsam_Darou.Controllers
             UserEnterLog eul = new UserEnterLog();
             eul.CreatedDate = DateTime.Now;
             eul.UserId = user.Id;
-            eul.Status = "In";
+            eul.Status = "ورود به سیستم";
             AddUserEnterLog(eul);
 
             return RedirectToAction("UserList", "User");
@@ -72,7 +72,7 @@ namespace Mehrsam_Darou.Controllers
             UserEnterLog eul = new UserEnterLog();
             eul.CreatedDate = DateTime.Now;
             eul.UserId = new Guid(HttpContext.Session.GetString("UserId"));
-            eul.Status = "Out";
+            eul.Status = "خروج از سیستم";
             AddUserEnterLog(eul);
 
             // Clear the session
