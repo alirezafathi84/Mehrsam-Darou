@@ -1,0 +1,108 @@
+﻿@model List<Mehrsam_Darou.Models.Team>
+
+<h2>ویرایش کاربر</h2>
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Success and Error Alerts -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success px-2" role="alert">
+                        <p class="mb-0">با موفقیت انجام شد</p>
+                        <p class="mb-0">@TempData["SuccessMessage"]</p>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-primary px-2" role="alert">
+                        <p class="mb-0">خطا</p>
+                        <p class="mb-0">@TempData["ErrorMessage"]</p>
+                    </div>
+                }
+
+                <!-- Check if ViewBag.User is null -->
+                @if (ViewBag.User == null)
+                {
+                    <div class="alert alert-danger px-2" role="alert">
+                        <p class="mb-0">خطا: اطلاعات کاربر یافت نشد.</p>
+                    </div>
+                }
+                else
+                {
+                    <form asp-action="EditUser" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="Id" value="@ViewBag.User.Id" />
+
+                        <div class="row">
+                            <!-- Column 1 -->
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="FirstName">نام</label>
+                                    <input type="text" class="form-control" id="FirstName" name="FirstName" value="@ViewBag.User.FirstName" required />
+                                </div>
+                                <div class="form-group">
+                                    <label for="LastName">نام خانوادگی</label>
+                                    <input type="text" class="form-control" id="LastName" name="LastName" value="@ViewBag.User.LastName" required />
+                                </div>
+                            </div>
+
+                            <!-- Column 2 -->
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="Username">نام کاربری</label>
+                                    <input type="text" class="form-control" id="Username" name="Username" value="@ViewBag.User.Username" readonly />
+                                </div>
+                                <div class="form-group">
+                                    <label for="AvatarImg">آپلود تصویر پروفایل</label>
+                                    <input type="file" class="form-control" id="AvatarImg" name="AvatarImg" />
+                                </div>
+                            </div>
+
+                            <!-- Column 3 -->
+                            <div class="col-md-4">
+
+                                <div class="form-group">
+                                    <label for="Password">رمز عبور (در صورت عدم تغییر، خالی بگذارید)</label>
+                                    <input type="password" class="form-control" id="Password" name="Password" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="ConfirmPassword">تأیید رمز عبور</label>
+                                    <input type="password" class="form-control" id="ConfirmPassword" name="ConfirmPassword" />
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Full-width Dropdown -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="form-label" for="TeamDDL">تیم</label>
+                                    <select class="form-control" id="TeamDDL" name="TeamDDL" data-choices data-choices-search-enabled="true" data-choices-removeItem="true">
+                                        @if (Model != null && Model.OrderBy(e => e.Name).Any())
+                                        {
+                                            @foreach (var team in Model)
+                                            {
+                                                <option value="@team.Id">@team.Name</option>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <option value="">هیچ موردی برای نمایش وجود ندارد</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="text-end mt-3">
+                            <button type="submit" class="btn btn-success">بروز رسانی</button>
+                        </div>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>

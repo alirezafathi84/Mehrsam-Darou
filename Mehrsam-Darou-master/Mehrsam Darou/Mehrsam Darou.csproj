@@ -1,0 +1,176 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Mehrsam_Darou</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.1">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\assets\libs\chart.js\docs\" />
+    <Folder Include="wwwroot\assets\libs\choices.js\public\types\cypress\e2e\" />
+    <Folder Include="wwwroot\assets\libs\choices.js\public\types\cypress\integration\" />
+    <Folder Include="wwwroot\assets\libs\choices.js\public\types\cypress\plugins\" />
+    <Folder Include="wwwroot\assets\libs\choices.js\public\types\cypress\support\" />
+    <Folder Include="wwwroot\assets\libs\choices.js\public\types\src\" />
+    <Folder Include="wwwroot\assets\libs\choices.js\src\" />
+    <Folder Include="wwwroot\assets\libs\daterangepicker\example\" />
+    <Folder Include="wwwroot\assets\libs\flatpickr\types\" />
+    <Folder Include="wwwroot\assets\libs\flatpickr\utils\" />
+    <Folder Include="wwwroot\assets\libs\gmaps\docs\" />
+    <Folder Include="wwwroot\assets\libs\gmaps\examples\" />
+    <Folder Include="wwwroot\assets\libs\gmaps\test\" />
+    <Folder Include="wwwroot\assets\libs\gridjs\src\" />
+    <Folder Include="wwwroot\assets\libs\rater-js\example\" />
+    <Folder Include="wwwroot\assets\libs\rater-js\test\" />
+    <Folder Include="wwwroot\assets\libs\swiper\angular\angular\src\" />
+    <Folder Include="wwwroot\assets\libs\swiper\angular\esm2020\angular\src\" />
+    <Folder Include="wwwroot\assets\libs\swiper\types\modules\" />
+    <Folder Include="wwwroot\assets\libs\toastify-js\example\" />
+    <Folder Include="wwwroot\assets\libs\toastify-js\src\" />
+    <Folder Include="wwwroot\images\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\images\404-error.png" />
+    <None Include="wwwroot\images\app-calendar\facebook.png" />
+    <None Include="wwwroot\images\app-calendar\google-analytics.png" />
+    <None Include="wwwroot\images\app-calendar\google-chrome.png" />
+    <None Include="wwwroot\images\app-calendar\google-mail.png" />
+    <None Include="wwwroot\images\app-calendar\google-meet.png" />
+    <None Include="wwwroot\images\app-calendar\help-1.png" />
+    <None Include="wwwroot\images\app-calendar\help-2.png" />
+    <None Include="wwwroot\images\app-calendar\help-3.png" />
+    <None Include="wwwroot\images\app-calendar\help-4.png" />
+    <None Include="wwwroot\images\app-calendar\help-5.png" />
+    <None Include="wwwroot\images\app-calendar\help-6.png" />
+    <None Include="wwwroot\images\app-calendar\hubspot.png" />
+    <None Include="wwwroot\images\app-calendar\intercom.png" />
+    <None Include="wwwroot\images\app-calendar\microsoft-outlook.png" />
+    <None Include="wwwroot\images\app-calendar\microsoft-team-conference.png" />
+    <None Include="wwwroot\images\app-calendar\sales-force.png" />
+    <None Include="wwwroot\images\app-calendar\slack.png" />
+    <None Include="wwwroot\images\app-calendar\stripe.png" />
+    <None Include="wwwroot\images\app-calendar\web-hooks.png" />
+    <None Include="wwwroot\images\app-calendar\zapier.png" />
+    <None Include="wwwroot\images\app-calendar\zoom.png" />
+    <None Include="wwwroot\images\app-social\acc-wallpaper.jpg" />
+    <None Include="wwwroot\images\app-social\favorite-1.jpg" />
+    <None Include="wwwroot\images\app-social\favorite-2.jpg" />
+    <None Include="wwwroot\images\app-social\favorite-3.jpg" />
+    <None Include="wwwroot\images\app-social\favorite-4.jpg" />
+    <None Include="wwwroot\images\app-social\group-1.jpg" />
+    <None Include="wwwroot\images\app-social\group-2.jpg" />
+    <None Include="wwwroot\images\app-social\group-3.jpg" />
+    <None Include="wwwroot\images\app-social\group-4.jpg" />
+    <None Include="wwwroot\images\app-social\group-5.jpg" />
+    <None Include="wwwroot\images\app-social\group-6.jpg" />
+    <None Include="wwwroot\images\app-social\group-7.jpg" />
+    <None Include="wwwroot\images\app-social\group-8.jpg" />
+    <None Include="wwwroot\images\app-social\group-9.jpg" />
+    <None Include="wwwroot\images\app-social\memory.jpg" />
+    <None Include="wwwroot\images\app-social\post-1.jpg" />
+    <None Include="wwwroot\images\app-social\post-2.jpg" />
+    <None Include="wwwroot\images\app-social\post-3.jpg" />
+    <None Include="wwwroot\images\app-social\post-4.jpg" />
+    <None Include="wwwroot\images\app-social\post-6.jpg" />
+    <None Include="wwwroot\images\app-social\post-7.jpg" />
+    <None Include="wwwroot\images\app-social\wallpaper.jpg" />
+    <None Include="wwwroot\images\brands\bitbucket.svg" />
+    <None Include="wwwroot\images\brands\dhl.png" />
+    <None Include="wwwroot\images\brands\dribbble.svg" />
+    <None Include="wwwroot\images\brands\dropbox.svg" />
+    <None Include="wwwroot\images\brands\fedex.png" />
+    <None Include="wwwroot\images\brands\github.svg" />
+    <None Include="wwwroot\images\brands\slack.svg" />
+    <None Include="wwwroot\images\brands\ups.png" />
+    <None Include="wwwroot\images\card\mastercard.svg" />
+    <None Include="wwwroot\images\card\paypal.svg" />
+    <None Include="wwwroot\images\card\stripe.svg" />
+    <None Include="wwwroot\images\card\visa.svg" />
+    <None Include="wwwroot\images\check-2.png" />
+    <None Include="wwwroot\images\coming-soon.png" />
+    <None Include="wwwroot\images\double.png" />
+    <None Include="wwwroot\images\favicon.ico" />
+    <None Include="wwwroot\images\flags\french.jpg" />
+    <None Include="wwwroot\images\flags\germany.jpg" />
+    <None Include="wwwroot\images\flags\italy.jpg" />
+    <None Include="wwwroot\images\flags\russia.jpg" />
+    <None Include="wwwroot\images\flags\spain.jpg" />
+    <None Include="wwwroot\images\flags\us.jpg" />
+    <None Include="wwwroot\images\logo-dark.png" />
+    <None Include="wwwroot\images\logo-light.png" />
+    <None Include="wwwroot\images\logo-sm.png" />
+    <None Include="wwwroot\images\maintenance-2.png" />
+    <None Include="wwwroot\images\party.png" />
+    <None Include="wwwroot\images\products\product-1%281%29.png" />
+    <None Include="wwwroot\images\products\product-1%282%29.png" />
+    <None Include="wwwroot\images\products\product-1%283%29.png" />
+    <None Include="wwwroot\images\products\product-1%284%29.png" />
+    <None Include="wwwroot\images\products\product-2.png" />
+    <None Include="wwwroot\images\products\product-3.png" />
+    <None Include="wwwroot\images\products\product-4.png" />
+    <None Include="wwwroot\images\products\product-5.png" />
+    <None Include="wwwroot\images\products\product-6.png" />
+    <None Include="wwwroot\images\product\e-shoes.png" />
+    <None Include="wwwroot\images\product\p-1.png" />
+    <None Include="wwwroot\images\product\p-10.png" />
+    <None Include="wwwroot\images\product\p-11.png" />
+    <None Include="wwwroot\images\product\p-12.png" />
+    <None Include="wwwroot\images\product\p-13.png" />
+    <None Include="wwwroot\images\product\p-14.png" />
+    <None Include="wwwroot\images\product\p-2.png" />
+    <None Include="wwwroot\images\product\p-3.png" />
+    <None Include="wwwroot\images\product\p-4.png" />
+    <None Include="wwwroot\images\product\p-5.png" />
+    <None Include="wwwroot\images\product\p-6.png" />
+    <None Include="wwwroot\images\product\p-7.png" />
+    <None Include="wwwroot\images\product\p-8.png" />
+    <None Include="wwwroot\images\product\p-9.png" />
+    <None Include="wwwroot\images\qr-code.png" />
+    <None Include="wwwroot\images\seller\dyson.svg" />
+    <None Include="wwwroot\images\seller\gopro.svg" />
+    <None Include="wwwroot\images\seller\h&amp;m.svg" />
+    <None Include="wwwroot\images\seller\huawei.svg" />
+    <None Include="wwwroot\images\seller\nike.svg" />
+    <None Include="wwwroot\images\seller\rolex.svg" />
+    <None Include="wwwroot\images\seller\thenorthface.svg" />
+    <None Include="wwwroot\images\seller\zara.svg" />
+    <None Include="wwwroot\images\small\img-1.jpg" />
+    <None Include="wwwroot\images\small\img-10.jpg" />
+    <None Include="wwwroot\images\small\img-2.jpg" />
+    <None Include="wwwroot\images\small\img-3.jpg" />
+    <None Include="wwwroot\images\small\img-4.jpg" />
+    <None Include="wwwroot\images\small\img-5.jpg" />
+    <None Include="wwwroot\images\small\img-6.jpg" />
+    <None Include="wwwroot\images\small\img-7.jpg" />
+    <None Include="wwwroot\images\small\img-8.jpg" />
+    <None Include="wwwroot\images\small\img-9.jpg" />
+    <None Include="wwwroot\images\user-profile.png" />
+    <None Include="wwwroot\images\users\avatar-1.jpg" />
+    <None Include="wwwroot\images\users\avatar-10.jpg" />
+    <None Include="wwwroot\images\users\avatar-11.jpg" />
+    <None Include="wwwroot\images\users\avatar-12.jpg" />
+    <None Include="wwwroot\images\users\avatar-2.jpg" />
+    <None Include="wwwroot\images\users\avatar-3.jpg" />
+    <None Include="wwwroot\images\users\avatar-4.jpg" />
+    <None Include="wwwroot\images\users\avatar-5.jpg" />
+    <None Include="wwwroot\images\users\avatar-6.jpg" />
+    <None Include="wwwroot\images\users\avatar-7.jpg" />
+    <None Include="wwwroot\images\users\avatar-8.jpg" />
+    <None Include="wwwroot\images\users\avatar-9.jpg" />
+    <None Include="wwwroot\images\users\chat.jpg" />
+    <None Include="wwwroot\images\users\dummy-avatar.jpg" />
+  </ItemGroup>
+
+</Project>

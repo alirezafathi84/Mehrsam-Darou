@@ -1,0 +1,869 @@
+﻿USE [DarouApp]
+GO
+/****** Object:  StoredProcedure [dbo].[sp_UpdateUserStatus]    Script Date: 4/14/2025 11:08:35 PM ******/
+DROP PROCEDURE [dbo].[sp_UpdateUserStatus]
+GO
+ALTER TABLE [dbo].[UserStatus] DROP CONSTRAINT [FK_UserStatus_User]
+GO
+ALTER TABLE [dbo].[Users] DROP CONSTRAINT [FK_Users_Teams]
+GO
+ALTER TABLE [dbo].[UserEnterLogs] DROP CONSTRAINT [FK_UserEnterLogs_Users]
+GO
+ALTER TABLE [dbo].[ChatMessages] DROP CONSTRAINT [FK_ChatMessages_Sender]
+GO
+ALTER TABLE [dbo].[ChatMessages] DROP CONSTRAINT [FK_ChatMessages_Receiver]
+GO
+ALTER TABLE [dbo].[UserStatus] DROP CONSTRAINT [DF__UserStatu__LastS__30C33EC3]
+GO
+ALTER TABLE [dbo].[UserStatus] DROP CONSTRAINT [DF__UserStatu__Statu__2FCF1A8A]
+GO
+ALTER TABLE [dbo].[Users] DROP CONSTRAINT [DF_Users_Version]
+GO
+ALTER TABLE [dbo].[Users] DROP CONSTRAINT [DF_Users_id]
+GO
+ALTER TABLE [dbo].[UserEnterLogs] DROP CONSTRAINT [DF_UserEnterLogs_id]
+GO
+ALTER TABLE [dbo].[Teams] DROP CONSTRAINT [DF_Teams_PMO]
+GO
+ALTER TABLE [dbo].[Teams] DROP CONSTRAINT [DF_Teams_QA]
+GO
+ALTER TABLE [dbo].[Teams] DROP CONSTRAINT [DF_Teams_QC]
+GO
+ALTER TABLE [dbo].[Teams] DROP CONSTRAINT [DF_Teams_RAndD]
+GO
+ALTER TABLE [dbo].[Teams] DROP CONSTRAINT [DF_Teams_BuyCommercial]
+GO
+ALTER TABLE [dbo].[Teams] DROP CONSTRAINT [DF_Teams_Product]
+GO
+ALTER TABLE [dbo].[Teams] DROP CONSTRAINT [DF_Teams_Financial]
+GO
+ALTER TABLE [dbo].[Teams] DROP CONSTRAINT [DF_Teams_SystemUsers]
+GO
+ALTER TABLE [dbo].[Teams] DROP CONSTRAINT [DF_Teams_Setting]
+GO
+ALTER TABLE [dbo].[Teams] DROP CONSTRAINT [DF_Teams_ManagmentDashboard]
+GO
+ALTER TABLE [dbo].[Teams] DROP CONSTRAINT [DF_Teams_id]
+GO
+ALTER TABLE [dbo].[Settings] DROP CONSTRAINT [DF_Settings_IsMenuDark]
+GO
+ALTER TABLE [dbo].[Settings] DROP CONSTRAINT [DF_Settings_IsNavDark]
+GO
+ALTER TABLE [dbo].[Settings] DROP CONSTRAINT [DF_Settings_DefaultColor]
+GO
+ALTER TABLE [dbo].[Settings] DROP CONSTRAINT [DF_Settings_id]
+GO
+ALTER TABLE [dbo].[Organizations] DROP CONSTRAINT [DF_Organizations_Priority]
+GO
+ALTER TABLE [dbo].[Organizations] DROP CONSTRAINT [DF_Organizations_id]
+GO
+ALTER TABLE [dbo].[ChatMessages] DROP CONSTRAINT [DF__ChatMessa__IsRea__2B0A656D]
+GO
+ALTER TABLE [dbo].[ChatMessages] DROP CONSTRAINT [DF__ChatMessa__SentA__2A164134]
+GO
+ALTER TABLE [dbo].[ChatMessages] DROP CONSTRAINT [DF__ChatMessages__Id__29221CFB]
+GO
+/****** Object:  Table [dbo].[UserEnterLogs]    Script Date: 4/14/2025 11:08:35 PM ******/
+DROP TABLE [dbo].[UserEnterLogs]
+GO
+/****** Object:  Table [dbo].[Teams]    Script Date: 4/14/2025 11:08:35 PM ******/
+DROP TABLE [dbo].[Teams]
+GO
+/****** Object:  Table [dbo].[Settings]    Script Date: 4/14/2025 11:08:35 PM ******/
+DROP TABLE [dbo].[Settings]
+GO
+/****** Object:  Table [dbo].[Organizations]    Script Date: 4/14/2025 11:08:35 PM ******/
+DROP TABLE [dbo].[Organizations]
+GO
+/****** Object:  Table [dbo].[ChatMessages]    Script Date: 4/14/2025 11:08:35 PM ******/
+DROP TABLE [dbo].[ChatMessages]
+GO
+/****** Object:  View [dbo].[vw_OnlineUsers]    Script Date: 4/14/2025 11:08:35 PM ******/
+DROP VIEW [dbo].[vw_OnlineUsers]
+GO
+/****** Object:  Table [dbo].[Users]    Script Date: 4/14/2025 11:08:35 PM ******/
+DROP TABLE [dbo].[Users]
+GO
+/****** Object:  Table [dbo].[UserStatus]    Script Date: 4/14/2025 11:08:35 PM ******/
+DROP TABLE [dbo].[UserStatus]
+GO
+/****** Object:  Table [dbo].[UserStatus]    Script Date: 4/14/2025 11:08:35 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[UserStatus](
+	[UserId] [uniqueidentifier] NOT NULL,
+	[Status] [nvarchar](20) NOT NULL,
+	[LastSeen] [datetime] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[UserId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Users]    Script Date: 4/14/2025 11:08:35 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Users](
+	[id] [uniqueidentifier] NOT NULL,
+	[FirstName] [nvarchar](50) NULL,
+	[LastName] [nvarchar](50) NULL,
+	[Username] [varchar](150) NULL,
+	[Password] [varchar](150) NULL,
+	[DateCreated] [datetime] NULL,
+	[DateModified] [datetime] NULL,
+	[Version] [int] NOT NULL,
+	[TeamId] [uniqueidentifier] NULL,
+	[AvatarImg] [nvarchar](150) NULL,
+ CONSTRAINT [PK_Users] PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  View [dbo].[vw_OnlineUsers]    Script Date: 4/14/2025 11:08:35 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- Create a view for online users (active within last 30 minutes)
+CREATE VIEW [dbo].[vw_OnlineUsers] AS
+SELECT 
+    u.Id,
+    u.FirstName,
+    u.LastName,
+    u.Username,
+    u.AvatarImg,
+    us.Status,
+    us.LastSeen
+FROM 
+    Users u
+JOIN 
+    UserStatus us ON u.Id = us.UserId
+WHERE 
+    us.LastSeen >= DATEADD(MINUTE, -30, GETUTCDATE());
+GO
+/****** Object:  Table [dbo].[ChatMessages]    Script Date: 4/14/2025 11:08:35 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ChatMessages](
+	[Id] [uniqueidentifier] NOT NULL,
+	[Content] [nvarchar](max) NOT NULL,
+	[SentAt] [datetime] NOT NULL,
+	[IsRead] [bit] NOT NULL,
+	[SenderId] [uniqueidentifier] NOT NULL,
+	[ReceiverId] [uniqueidentifier] NOT NULL,
+	[Attachments] [nvarchar](max) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Organizations]    Script Date: 4/14/2025 11:08:35 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Organizations](
+	[id] [uniqueidentifier] NOT NULL,
+	[Name] [nvarchar](100) NULL,
+	[Priority] [int] NOT NULL,
+ CONSTRAINT [PK_Organizations] PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Settings]    Script Date: 4/14/2025 11:08:35 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Settings](
+	[id] [uniqueidentifier] NOT NULL,
+	[NumberPerPage] [int] NULL,
+	[DefaultColor] [bit] NULL,
+	[IsNavDark] [bit] NULL,
+	[IsMenuDark] [bit] NULL,
+ CONSTRAINT [PK_Settings] PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Teams]    Script Date: 4/14/2025 11:08:35 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Teams](
+	[id] [uniqueidentifier] NOT NULL,
+	[Name] [nvarchar](100) NULL,
+	[DefaultPageForTeam] [nvarchar](100) NULL,
+	[IsActive] [bit] NULL,
+	[ManagmentDashboard] [bit] NULL,
+	[Setting] [bit] NULL,
+	[SystemUsers] [bit] NULL,
+	[Financial] [bit] NULL,
+	[Inventory] [bit] NULL,
+	[Product] [bit] NULL,
+	[SellCommercial] [bit] NULL,
+	[BuyCommercial] [bit] NULL,
+	[RAndD] [bit] NULL,
+	[QC] [bit] NULL,
+	[QA] [bit] NULL,
+	[PMO] [bit] NULL,
+ CONSTRAINT [PK_Teams] PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[UserEnterLogs]    Script Date: 4/14/2025 11:08:35 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[UserEnterLogs](
+	[id] [uniqueidentifier] NOT NULL,
+	[UserId] [uniqueidentifier] NULL,
+	[CreatedDate] [datetime] NULL,
+	[status] [varchar](3) NULL,
+ CONSTRAINT [PK_UserEnterLogs] PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+INSERT [dbo].[ChatMessages] ([Id], [Content], [SentAt], [IsRead], [SenderId], [ReceiverId], [Attachments]) VALUES (N'e0b86dda-36ea-4239-bbc3-11f4d7eb27d6', N'درود فراوان', CAST(N'2025-04-11T23:59:29.147' AS DateTime), 0, N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'd89826f5-f5a3-48f4-b92b-95d362d8f074', NULL)
+GO
+INSERT [dbo].[ChatMessages] ([Id], [Content], [SentAt], [IsRead], [SenderId], [ReceiverId], [Attachments]) VALUES (N'356ab1ff-2128-4889-9c9f-22b24a2fb20a', N'سیبل', CAST(N'2025-04-12T00:27:25.030' AS DateTime), 1, N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', NULL)
+GO
+INSERT [dbo].[ChatMessages] ([Id], [Content], [SentAt], [IsRead], [SenderId], [ReceiverId], [Attachments]) VALUES (N'9babf51c-4ef1-4e43-92a4-2b0f0682e776', N'سلام دوباره', CAST(N'2025-04-12T00:26:05.123' AS DateTime), 0, N'5e0c2a9c-1a25-4359-9244-fe8727b55a5f', N'932727e8-ec89-4104-b45b-286c00e03dc7', NULL)
+GO
+INSERT [dbo].[ChatMessages] ([Id], [Content], [SentAt], [IsRead], [SenderId], [ReceiverId], [Attachments]) VALUES (N'3f6405f8-fcbe-46bf-b9a5-333fcb78befb', N'ممنونم', CAST(N'2025-04-11T23:58:24.570' AS DateTime), 0, N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', NULL)
+GO
+INSERT [dbo].[ChatMessages] ([Id], [Content], [SentAt], [IsRead], [SenderId], [ReceiverId], [Attachments]) VALUES (N'6e04c15c-120c-4be8-9ca5-466bed212a61', N'dfdsf', CAST(N'2025-04-10T16:16:48.710' AS DateTime), 1, N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', NULL)
+GO
+INSERT [dbo].[ChatMessages] ([Id], [Content], [SentAt], [IsRead], [SenderId], [ReceiverId], [Attachments]) VALUES (N'4cdfee5c-d15b-44af-b53f-47806eb16fba', N'لبیس', CAST(N'2025-04-12T00:17:08.263' AS DateTime), 1, N'5e0c2a9c-1a25-4359-9244-fe8727b55a5f', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', NULL)
+GO
+INSERT [dbo].[ChatMessages] ([Id], [Content], [SentAt], [IsRead], [SenderId], [ReceiverId], [Attachments]) VALUES (N'37225d8c-d94a-4b66-abc9-5795c290c068', N'سلام حسن', CAST(N'2025-04-12T00:13:51.460' AS DateTime), 1, N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'5e0c2a9c-1a25-4359-9244-fe8727b55a5f', NULL)
+GO
+INSERT [dbo].[ChatMessages] ([Id], [Content], [SentAt], [IsRead], [SenderId], [ReceiverId], [Attachments]) VALUES (N'78da0194-c246-4877-bdef-61271d8e5039', N'سلام', CAST(N'2025-04-10T00:00:00.000' AS DateTime), 0, N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', NULL)
+GO
+INSERT [dbo].[ChatMessages] ([Id], [Content], [SentAt], [IsRead], [SenderId], [ReceiverId], [Attachments]) VALUES (N'ad989f86-6aee-47a6-b7d5-68ff57963daa', N'mn', CAST(N'2025-04-12T00:24:04.030' AS DateTime), 1, N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'5e0c2a9c-1a25-4359-9244-fe8727b55a5f', NULL)
+GO
+INSERT [dbo].[ChatMessages] ([Id], [Content], [SentAt], [IsRead], [SenderId], [ReceiverId], [Attachments]) VALUES (N'f787faf4-e21d-4be4-b694-6e33e4964d82', N'ممکنه بگی چه خبر؟', CAST(N'2025-04-12T00:14:31.480' AS DateTime), 1, N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'5e0c2a9c-1a25-4359-9244-fe8727b55a5f', NULL)
+GO
+INSERT [dbo].[ChatMessages] ([Id], [Content], [SentAt], [IsRead], [SenderId], [ReceiverId], [Attachments]) VALUES (N'001002dd-a89f-4ae9-9d53-744d23571d1e', N'f', CAST(N'2025-04-12T00:12:13.903' AS DateTime), 1, N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', NULL)
+GO
+INSERT [dbo].[ChatMessages] ([Id], [Content], [SentAt], [IsRead], [SenderId], [ReceiverId], [Attachments]) VALUES (N'c59f69fa-a3b5-4314-b407-a19e7e278ec2', N'hkj', CAST(N'2025-04-12T00:44:47.910' AS DateTime), 0, N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'256d0300-3c52-4ebb-a8bf-f004d916815f', NULL)
+GO
+INSERT [dbo].[ChatMessages] ([Id], [Content], [SentAt], [IsRead], [SenderId], [ReceiverId], [Attachments]) VALUES (N'bf92cc3d-2a57-49dc-a015-ad6310d5985c', N'سلام خوبی', CAST(N'2025-04-12T00:08:29.950' AS DateTime), 0, N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'0d51ca8e-96ec-4a5e-aa5f-fd2f11f725b8', NULL)
+GO
+INSERT [dbo].[ChatMessages] ([Id], [Content], [SentAt], [IsRead], [SenderId], [ReceiverId], [Attachments]) VALUES (N'6f74a4f2-a6d4-48ca-ab71-adbff2dc0b15', N'سلام دوباره', CAST(N'2025-04-12T00:09:24.897' AS DateTime), 1, N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', NULL)
+GO
+INSERT [dbo].[ChatMessages] ([Id], [Content], [SentAt], [IsRead], [SenderId], [ReceiverId], [Attachments]) VALUES (N'b52f0195-5dff-45fa-a576-bd719f6bc6d6', N'سبیاتنمس', CAST(N'2025-04-12T00:35:06.697' AS DateTime), 0, N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'0d51ca8e-96ec-4a5e-aa5f-fd2f11f725b8', NULL)
+GO
+INSERT [dbo].[ChatMessages] ([Id], [Content], [SentAt], [IsRead], [SenderId], [ReceiverId], [Attachments]) VALUES (N'e2879254-1f29-4d4c-8cab-cd5cd8e62490', N'با همه چت', CAST(N'2025-04-12T00:15:57.977' AS DateTime), 0, N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'256d0300-3c52-4ebb-a8bf-f004d916815f', NULL)
+GO
+INSERT [dbo].[ChatMessages] ([Id], [Content], [SentAt], [IsRead], [SenderId], [ReceiverId], [Attachments]) VALUES (N'7d56673a-ab2d-4ac1-9b0e-d52a83919f9f', N'خوبی؟', CAST(N'2025-04-12T00:14:10.770' AS DateTime), 1, N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'5e0c2a9c-1a25-4359-9244-fe8727b55a5f', NULL)
+GO
+INSERT [dbo].[ChatMessages] ([Id], [Content], [SentAt], [IsRead], [SenderId], [ReceiverId], [Attachments]) VALUES (N'40ede344-dd2d-4304-8782-e4539eb25d07', N'سلام دوباره', CAST(N'2025-04-12T00:11:00.063' AS DateTime), 0, N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', N'227e3264-8e87-40eb-a204-b4b55dac1349', NULL)
+GO
+INSERT [dbo].[ChatMessages] ([Id], [Content], [SentAt], [IsRead], [SenderId], [ReceiverId], [Attachments]) VALUES (N'fa303c67-149f-4d1e-9375-f2c0cf8f051d', N'نتمشسیاتنامشتنیسبنتم', CAST(N'2025-04-12T00:27:03.427' AS DateTime), 0, N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', NULL)
+GO
+INSERT [dbo].[ChatMessages] ([Id], [Content], [SentAt], [IsRead], [SenderId], [ReceiverId], [Attachments]) VALUES (N'02079bab-4220-4693-9ea4-f762a4c86a29', N'چه خبر', CAST(N'2025-04-12T00:08:43.203' AS DateTime), 0, N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'0d51ca8e-96ec-4a5e-aa5f-fd2f11f725b8', NULL)
+GO
+INSERT [dbo].[ChatMessages] ([Id], [Content], [SentAt], [IsRead], [SenderId], [ReceiverId], [Attachments]) VALUES (N'4e1b6422-11e7-440d-8863-fbebc9c4ed59', N'hi', CAST(N'2025-04-12T00:09:53.053' AS DateTime), 0, N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', NULL)
+GO
+INSERT [dbo].[Organizations] ([id], [Name], [Priority]) VALUES (N'008f672c-71a2-4038-9cc6-0450382945cd', N'آریا فارمد', 2)
+GO
+INSERT [dbo].[Organizations] ([id], [Name], [Priority]) VALUES (N'cc238ac4-88f5-47a3-b32c-21bc367c2a87', N'مهرسام دارو', 1)
+GO
+INSERT [dbo].[Settings] ([id], [NumberPerPage], [DefaultColor], [IsNavDark], [IsMenuDark]) VALUES (N'a42125b6-0926-4b7f-b2aa-d81ae595d1ed', 10, 1, 1, 1)
+GO
+INSERT [dbo].[Teams] ([id], [Name], [DefaultPageForTeam], [IsActive], [ManagmentDashboard], [Setting], [SystemUsers], [Financial], [Inventory], [Product], [SellCommercial], [BuyCommercial], [RAndD], [QC], [QA], [PMO]) VALUES (N'a6133e3d-73b8-42af-a597-2400f1fdb95f', N'تیم مدیریت', N'Dashboard', 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+GO
+INSERT [dbo].[Teams] ([id], [Name], [DefaultPageForTeam], [IsActive], [ManagmentDashboard], [Setting], [SystemUsers], [Financial], [Inventory], [Product], [SellCommercial], [BuyCommercial], [RAndD], [QC], [QA], [PMO]) VALUES (N'b6897eed-c9ac-4fd1-934d-2b0b0790fc6c', N'کنترل کیفیت', N'QC', 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1)
+GO
+INSERT [dbo].[Teams] ([id], [Name], [DefaultPageForTeam], [IsActive], [ManagmentDashboard], [Setting], [SystemUsers], [Financial], [Inventory], [Product], [SellCommercial], [BuyCommercial], [RAndD], [QC], [QA], [PMO]) VALUES (N'96fd03cb-b814-4bc9-9891-8b4d6f51fcdc', N'مالی', N'Financial', 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0)
+GO
+INSERT [dbo].[Teams] ([id], [Name], [DefaultPageForTeam], [IsActive], [ManagmentDashboard], [Setting], [SystemUsers], [Financial], [Inventory], [Product], [SellCommercial], [BuyCommercial], [RAndD], [QC], [QA], [PMO]) VALUES (N'c9e6c24d-4ae7-4f27-ba3f-ec6747aa265c', N'بخش تولید', N'Products', 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0)
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'ccf5846b-cca3-4f7f-b71c-00a808302fd0', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-12T00:03:57.730' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'15b94d4a-a9d4-4012-a440-01051055434e', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T02:29:02.590' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'654eeeeb-bcac-43d3-91b9-011437c9b422', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-03-24T02:51:15.690' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'79c5d2b6-d1a9-44df-8388-014d78f2804c', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-24T17:16:26.793' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'82de92c7-384b-4ecd-9cc4-024ecfb485b3', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-27T16:32:45.297' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'760a8012-cf53-489d-9708-04774b2866b0', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-26T14:27:38.613' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'97eeb005-9ad7-4bf5-9d89-048174b0eefc', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T02:26:20.757' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'8e859d92-6729-4560-ab42-05b1b33169fa', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-08T22:48:21.753' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'd43e95d8-81e2-4527-bafb-0731794677fc', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T02:32:03.417' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'd625fe63-4e83-4f32-b68a-0820c286cde0', N'0c154298-a6c0-4429-99a2-6414d4cd9997', CAST(N'2025-03-25T03:14:03.283' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'f32632d5-e73b-41da-b90a-0afd04a7ff10', N'5e0c2a9c-1a25-4359-9244-fe8727b55a5f', CAST(N'2025-04-12T00:26:23.453' AS DateTime), N'Out')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'7710b2c1-3e8d-43f7-a706-0bea03176d71', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T18:46:15.830' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'3da479bb-a068-454b-aa62-0bff945f616e', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-25T03:06:58.393' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'5bb77b95-724e-4e9c-b29e-0c6a40a503b5', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-03-21T03:08:45.853' AS DateTime), N'Out')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'2baffb02-86f2-4755-befd-0d011d2488bd', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-24T02:33:54.443' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'956c1fc1-ee48-4234-b2e9-0e9c6db1a47c', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T19:31:08.717' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'a2587271-5c06-42be-b16a-0e9dc5c5c261', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-03-22T02:00:22.140' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'a7b7e6b0-ee44-4e39-836b-11507231b4de', N'932727e8-ec89-4104-b45b-286c00e03dc7', CAST(N'2025-03-22T02:02:20.660' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'fa47c258-1fb6-4693-9f4f-115af5f47f36', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-08T22:53:07.620' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'22fc441a-01e0-40c9-b2d2-1264bb288366', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T02:08:47.200' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'2de77d6d-5b47-46e5-a891-12d00b4a7c0b', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T13:58:48.690' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'b75d95a9-133c-4e59-9556-137d6c5d8eb2', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-24T16:51:43.457' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'ca9a7e71-db93-4005-a1c0-137e08f9961c', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-21T23:59:13.477' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'a76729f2-870b-4343-8172-14a011866d30', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T23:43:49.540' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'737dad18-520c-43bf-9798-16a1ce6fe87d', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-03-24T02:34:46.517' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'43592eb8-421b-4d8e-b921-1779b58576f2', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-10T19:55:14.967' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'bb652100-a83a-4c3f-a8e4-18182b09238d', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T01:56:03.913' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'37ff2663-da7a-4f25-b044-199a46f202c2', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T23:57:29.553' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'c1b1a3e5-bead-4a60-ae4f-19bb6b6e63be', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-12T00:23:42.680' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'57e6470c-71cf-46d0-a9db-19cfcaa1d4ec', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T02:06:18.150' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'5b1e78ae-f8b9-4b2f-ad86-1a945fe0b7a3', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T22:08:03.587' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'51e9331c-8800-46df-a80e-1e0f0c339983', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-03-25T03:13:09.020' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'a82416b7-2878-4643-b22b-1e509b8cbaff', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T23:24:05.233' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'b228f4ed-b03e-4ed4-bbe2-1e6c0e8e6ad3', N'5e0c2a9c-1a25-4359-9244-fe8727b55a5f', CAST(N'2025-04-12T00:16:49.623' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'4959596b-1ae2-4bcc-8afb-1edd1186dd32', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-26T14:50:00.410' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'74bdfd6d-32c4-4be2-8127-20a1f66566c7', N'932727e8-ec89-4104-b45b-286c00e03dc7', CAST(N'2025-03-22T01:56:39.940' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'2d5f0a95-950e-4aa3-a5bb-219e4c185f90', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-26T15:09:52.037' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'e4329850-2fc2-4774-a081-236bc926dad8', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-27T16:33:56.633' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'e79a7082-c972-425f-8fa6-2372996ebb4c', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-25T03:08:21.210' AS DateTime), N'Out')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'b503f80e-4846-4239-94e6-23aaca08c8e5', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T01:50:38.557' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'd847f700-5c92-4e80-ac73-23bfdf891395', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T18:34:05.890' AS DateTime), N'Out')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'9cadca37-9a02-4354-a07e-23c9b6a0e817', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T18:20:29.747' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'effb79a6-e6fd-48d9-aef0-2767b1b61f16', N'932727e8-ec89-4104-b45b-286c00e03dc7', CAST(N'2025-03-22T01:52:34.550' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'82fa711c-402a-4e7b-9e9c-2bae610d1e62', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T15:47:15.293' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'556e70f9-6d0a-4db4-b5c3-2c96924f7d6a', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-21T03:25:32.607' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'1327d056-71c8-40f4-86a2-2d9cc138fcb3', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-23T00:01:03.440' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'd8498755-1ba3-4682-a925-2ed5ae41e425', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T12:34:39.903' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'8b29b45c-6d54-4841-8208-30769462bd35', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-25T01:04:01.697' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'1ac1f545-31d9-4f79-9921-35c31d5daafa', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T00:11:58.050' AS DateTime), N'Out')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'a1b6e678-7075-45b0-94d2-35d2e76b62a5', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-03-22T01:33:46.377' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'e7d72ccb-719f-4a21-bbb0-36eadc5580d2', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T01:24:31.620' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'd5722dbf-eb34-450e-a986-3897fcf4fb25', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-26T14:32:15.057' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'73ec66fe-205e-4fe7-8ceb-3959b1f60660', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T01:35:18.257' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'd7598e69-a43e-40eb-970a-3ceec6ed901d', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T23:49:06.890' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'fcf61bfb-fc62-4095-bcba-3e628422c757', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T01:45:36.790' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'a67bd944-65ac-44a4-a9f8-3f5c5785e6a1', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T15:33:15.000' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'5bf762a5-38e0-47af-9c83-417fc2e7583c', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T01:40:59.210' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'75f87f95-ff80-4fe9-946d-4257d246088c', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T16:11:16.720' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'2d697049-9382-4848-be81-42a6cd37848c', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T23:28:21.827' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'634b9f99-0fb1-4726-9c2c-43930fa47873', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-25T02:12:56.307' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'd9c99735-92cc-44c9-99a6-44f029e97950', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T16:14:49.943' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'befacfce-d91d-42fd-8c6a-45136f02074f', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T20:51:07.800' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'8fb1073c-78ba-4953-a2d4-458043a546c5', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-25T01:37:37.773' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'fd17367c-cdd4-4073-b90c-461572cb456f', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T18:37:42.320' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'b73e98e9-a993-4e90-8fd6-46d7bc61edbd', N'5e0c2a9c-1a25-4359-9244-fe8727b55a5f', CAST(N'2025-04-12T00:43:34.377' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'70056640-c6da-4001-99cc-48b1ba880d34', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-27T00:14:17.260' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'236c6516-951a-4ab1-92c1-4c8b4a707a40', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-08T23:05:38.970' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'0cb551ab-87a3-4794-8173-4e8573614613', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T19:51:37.633' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'fdb62e77-69e5-452b-b28f-4ebb9bd92268', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T14:05:32.030' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'1b536c8e-802b-48e3-886d-4f7fc5da496a', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T01:55:22.827' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'b908cf8d-38d9-4864-8ab8-51c3cef2ce26', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T02:30:24.307' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'18b7bb9b-af31-4cb7-bfbe-5333a6f48460', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T00:57:59.583' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'87c57d6b-5b6c-4d0f-85d1-558de8be5cc2', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-12T00:07:42.353' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'fcde6414-dcf6-43bb-bbf9-55957cf5d569', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-08T22:34:36.950' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'd013a9b1-e681-445e-b2a3-566f0269a03c', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T23:27:24.500' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'37470f68-1c17-4b9c-ade1-5889a8d3cea3', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T21:52:41.200' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'e329ad6c-656e-4aa9-bf74-589596a5c986', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T19:10:09.110' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'c5eac7c6-c2d3-46d9-bdef-597db53b3deb', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-08T22:55:35.780' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'18ee900d-edce-4e22-b547-59d8dace1fdd', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-25T02:12:18.280' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'72b70e64-9751-4421-af6d-5c033e66c379', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T21:39:08.380' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'c8a1682d-a9bb-40bc-b482-60df271c7869', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-12T00:26:28.523' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'74ac903a-48d1-4ef5-9382-61a2d5c0ed2f', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-10T16:16:56.877' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'df06aefb-9f2f-49b9-8494-6495a2098e8e', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-08T22:45:09.077' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'30c00a97-af08-48ea-b0d8-64b386ca53c5', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-27T16:30:19.137' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'a4c868fa-1b5c-40e0-98aa-64f3859066a0', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-24T17:27:43.967' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'acaa0ace-9540-415a-9c22-652fbd657dcd', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-08T23:12:21.520' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'b60cc456-bd7a-4c91-af98-653ede20e754', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-25T02:20:53.327' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'd61c391a-7f6a-445f-80dd-66d80e7b0ff4', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T22:13:35.700' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'671dde5a-927d-4d73-9f3c-677e10d19014', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-24T17:29:36.040' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'02158f01-ecab-4ace-86c4-69454e64feb6', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-21T02:52:33.677' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'e0d7aff5-67fd-49b2-8318-69706e18b84d', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T19:54:27.313' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'cd19a00e-f926-4e68-ac3f-69917b2b6229', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-21T02:49:22.890' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'5d92a058-c112-4a31-a0ea-6b18ac7e987f', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T19:35:58.987' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'c5a3bd6e-ce7e-4dfd-8ff3-6bd5a1e2bc79', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-08T23:13:27.540' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'4bfc5e6f-c326-46dd-9ef6-6be594b97e8c', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-08T23:31:23.200' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'7d090951-dd9d-4731-bf10-6bed251bad3f', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-12T00:30:08.157' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'a5816a91-ef40-480a-8e95-6df7514086f4', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T22:04:27.450' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'095bf269-0c33-4fbc-ac37-6f493d2d652d', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-24T17:30:56.513' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'ea2bf8e2-1cac-4fb8-932b-6ff87930356c', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T23:33:59.307' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'5d30bb96-10b4-402f-8885-700044b9423d', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-25T01:53:33.600' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'5c01a2d5-034e-4132-a4b8-70b2660e063a', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T21:36:20.077' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'ab624a70-3c9c-42f8-8594-72021b270d05', N'5e0c2a9c-1a25-4359-9244-fe8727b55a5f', CAST(N'2025-04-10T19:55:03.777' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'a46473af-3d58-47e1-a324-73ad393719e9', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-24T02:47:20.543' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'f2b6fd9e-65ad-4989-b101-742006822a02', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-12T00:13:23.090' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'd27d472f-5db5-4a42-b32a-744193dd4fd7', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-08T23:17:03.203' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'bfc96f19-4762-49ce-80da-7447d539e39c', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-24T02:36:26.163' AS DateTime), N'Out')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'c2082304-59d7-4dfa-a2f5-75aa99d8d9a4', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T12:39:52.903' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'f29e17f9-5154-4676-b98f-760d5df6013c', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-25T02:11:39.933' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'922a46ba-9e9d-4e95-b3b2-764c89cbd9cf', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-21T03:08:54.517' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'2962d865-504c-4ea0-92eb-77a9037b3c3f', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-03-21T03:12:48.103' AS DateTime), N'Out')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'4c320f72-7b91-4e8a-9947-7ad7e8d1bf92', N'0c154298-a6c0-4429-99a2-6414d4cd9997', CAST(N'2025-03-22T23:51:17.853' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'17e853e6-ed85-409b-ba84-7d816ec2bdbb', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T01:58:09.163' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'a3482f1e-f607-4171-a005-7ee9af607572', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-24T02:37:40.820' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'3eab10f8-cdb7-49f4-9ef4-800e396e72fe', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-03-21T02:20:55.683' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'8bc2b33b-6de0-4e5a-8fa1-810f051675d4', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T13:53:39.540' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'05cec3d6-eb7a-4290-9025-827ce6bbc487', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T19:09:09.347' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'3300159f-63f7-4289-98cc-83a799b2fb00', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-03-21T03:07:36.743' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'2e48bc77-07de-44b4-a4b5-85d305fdc8bf', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T01:42:16.453' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'9f53abe3-3907-4f27-b12d-869fd1971b38', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-24T02:54:02.320' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'48a0557b-974a-43e2-9629-876b0e5457f5', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-12T00:09:03.967' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'471f1ec0-39f4-4a30-a63b-8aa32f7f8ec3', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T18:55:12.397' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'2691a6ab-bc22-4812-9cf3-8b949b0f9bd7', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T21:37:56.813' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'a2e7c362-2251-4e30-ba40-8baedc4508bc', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T02:23:44.657' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'68993b41-430d-481b-beb3-8cfaea890862', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T19:10:57.257' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'1bd78866-aba2-404d-9af1-8d9d130ec048', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T01:38:16.287' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'f1dba0e9-d91f-4997-b4f4-8dfa15d70ae7', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-24T02:49:59.640' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'deacfc24-73b4-4e39-95c5-8f53b6d254d5', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-26T14:39:34.300' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'7c4d9c9b-f4c2-422e-8aa6-90e900b5045e', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T13:46:12.837' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'bc34398d-9768-4be7-920e-91040752b57d', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T23:52:47.940' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'6eed8c99-b214-4728-a428-917b8e38e713', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-25T03:17:24.020' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'303b07e4-998b-415e-bb04-928c70899bd8', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T16:22:20.413' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'82d9110b-4506-42c8-a31e-9393143dc35a', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-03-21T03:11:59.853' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'641ce60e-c1ea-4c7d-b4f7-94671475a97e', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-03-22T00:04:23.977' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'7199507d-fb44-410e-96c3-95d7c633ba09', N'932727e8-ec89-4104-b45b-286c00e03dc7', CAST(N'2025-03-22T01:36:23.023' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'ee28a9ef-71cd-4fe4-8784-973d214ce419', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T16:27:42.787' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'1b36fb6d-d6ff-4afc-b1be-984dae207500', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-03-22T23:55:10.523' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'3e8ee49d-0864-46eb-81d5-9a47f2a67d1c', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-21T03:15:16.600' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'4b0198dd-579b-4c87-b3be-9afb1e07e0b3', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T21:58:51.363' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'75f0b2a0-8794-4c91-96ad-9bc73c919095', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-03-22T02:50:49.013' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'962ccc23-222d-4292-9b7c-9eb4f4a13d4e', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-03-24T02:54:31.167' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'4b3d7d2b-cc3c-4a79-b857-9fccea73ea87', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T23:50:26.053' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'070333cc-b07f-46fd-8cfe-a24c4d52d02a', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T21:49:40.100' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'78d118d1-55cd-456d-801c-a24ca849b992', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T18:34:27.390' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'c7b83f0a-ea9e-4a79-8648-a269b8edc35f', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T02:43:53.617' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'54586a4a-300e-47fa-ad97-a4da755d6e62', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-24T02:47:32.753' AS DateTime), N'Out')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'27b94808-32f8-4a65-b372-a5bb5730a4a5', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-08T22:59:02.567' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'58ffea11-f1b4-43ca-965f-a69c235cc33b', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T18:37:24.847' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'a008eb02-ea40-4fb5-9536-a6af11774720', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-21T02:43:30.183' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'4e3227b5-019e-4542-bcd9-a705064ae105', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-24T02:40:53.943' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'29bf7919-62df-4ee8-904b-a7b0b11b4c93', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T23:25:57.493' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'b501bd45-77ce-4656-85f5-a8ecc5ab39bf', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-24T02:36:08.137' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'cc5ad0a2-e3bf-4ff0-a372-a9b27c087520', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-08T22:54:22.730' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'46f673ad-d141-4c02-bb1e-a9ecbc1f16a7', N'5e0c2a9c-1a25-4359-9244-fe8727b55a5f', CAST(N'2025-04-10T19:55:09.903' AS DateTime), N'Out')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'06cd3a28-ab9c-413f-acaa-aa415f9640cc', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-10T18:34:10.963' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'644c3393-3fda-476e-bb3f-ab02b07ec02f', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T00:10:06.290' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'4262a27e-656f-46a9-9b52-ab3642e122c0', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T19:33:14.580' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'243d5f74-cc79-46d6-bdf3-ae0eb6cf153b', N'5e0c2a9c-1a25-4359-9244-fe8727b55a5f', CAST(N'2025-04-12T00:25:39.543' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'7368da06-27f3-45df-aafe-b2f60c05bc0e', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-24T19:24:21.560' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'f8dd15f2-cb10-4a3d-8f8c-b4d1d7c9de90', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T23:35:28.537' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'aaa96bca-7bbf-498d-8765-b60765f08c60', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T18:59:02.297' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'096d5f3a-7afd-4abf-9309-b6697779b23c', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T18:32:27.607' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'4c89c75f-46dd-41f5-9b23-b6ce5a944139', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-21T02:20:17.387' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'784e61c2-1e11-4db4-ab92-b71656342508', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-03-24T02:47:39.750' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'412e82e4-7453-428c-9e90-b77778fdce51', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-08T23:10:22.343' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'ce9acab0-9a58-48b4-b577-b7d44b2b3b3e', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-24T02:39:59.247' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'c7dc0181-aa64-4a88-a30f-b91f6906f8f1', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-25T01:47:32.753' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'c9621b64-9875-4697-855f-b9aded5f70ec', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-11T21:48:06.290' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'44d41be6-adb4-488f-890f-ba2fd5bfbd82', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T02:27:44.137' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'b4d43fab-0eb7-41fe-b494-ba70f53a7f7b', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T02:46:29.533' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'87174ea9-8fdb-4b34-9e9e-bdc1f6f9487c', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-21T02:41:24.550' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'7b189f5d-0774-4e26-b6a0-bdc79562ed7c', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T01:47:47.947' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'fc21b752-eee9-493a-95ef-c107eceb0b31', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T11:41:46.933' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'fd583aa0-4203-401b-ac1a-c2fc2a2e5622', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T22:59:35.577' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'602a105e-2857-4109-b00b-c52fd1ab575b', N'0c154298-a6c0-4429-99a2-6414d4cd9997', CAST(N'2025-03-22T23:55:02.503' AS DateTime), N'Out')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'4f2aa9d7-df09-4691-8832-c670e8a2f187', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T16:01:25.653' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'5bd229dd-5296-477c-9c95-c6ed8c5b1fd5', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T21:54:10.090' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'7b6636b9-64c2-4b4d-986c-c75f8a524d29', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-25T00:55:57.887' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'08d23800-dfab-46f5-867d-c7eadc0635e4', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-21T02:22:49.330' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'80acec23-8621-404e-aff2-c85e3797029a', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-03-21T02:24:54.487' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'9794d6b9-ff8b-4fd6-b11a-cd0d4d23cf12', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-25T03:12:39.107' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'008e22fb-7883-4fab-a727-cdd61fd261b7', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-10T19:20:30.867' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'0b0bf71d-f3b3-417b-a5c2-d020e552dd95', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-24T02:56:30.013' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'78d1a1f4-d462-40ad-8fcb-d02c1de3b722', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-24T02:34:38.720' AS DateTime), N'Out')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'694ba3fe-66ae-4aef-9407-d2aaaefb7c4f', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-26T15:46:47.563' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'26fa39e2-4020-4088-8a15-d48650113d95', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-25T02:05:12.043' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'cb522588-ad7c-4b56-9671-d71b1ca5aec7', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-25T02:00:19.957' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'a3b8ca8a-8f1f-4c34-afaf-d7dda9729665', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T19:04:37.250' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'99cdf0f3-1ac9-423a-a0e2-dc4e56c4b4cb', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T19:24:21.317' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'58c34253-614f-4918-8c51-dd37585b299d', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T23:37:41.703' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'55ce4ead-7063-4a1d-99f5-dd3aba10ee1b', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-24T17:21:20.103' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'eeccce22-1b12-4983-b41d-df67942b72a5', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-12T00:42:34.083' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'5526d4d4-551d-4309-9747-dfed48a88b8e', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-21T02:20:47.517' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'3b50beb5-dc2a-40e3-9fe0-e01b4307fb3c', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-25T01:44:25.030' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'925a9c34-3e52-4ab0-9b27-e0825ae2dae2', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-03-24T02:36:32.657' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'95007fe3-4244-4d64-ad55-e2aca0ed7e26', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T18:29:24.667' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'62dd9538-be19-4c79-835b-e301ba54bdc5', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-08T20:47:56.857' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'2a6f17e7-274c-481c-bac6-e37501bc5638', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-03-24T02:37:32.490' AS DateTime), N'Out')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'b73c26a2-b0d7-44c7-8cc0-e4bc2b9748d5', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T18:17:55.210' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'3b94e567-d3fe-471f-8601-e4e72ff7f9bd', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-08T23:02:23.340' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'acfa69e3-703f-4461-ab7c-e60e716bce4d', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T23:13:53.137' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'bbbc64db-8576-4a00-8734-eaca7acd45c7', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T15:48:59.057' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'36856244-d3fd-44a1-92a7-ee94dc220a91', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T22:11:01.250' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'fe719e98-dc0f-40c6-ab9d-f09c5e10f5c8', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-21T03:12:54.993' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'1ab05f4a-93df-4d73-8eaa-f385afc5273b', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-25T03:12:54.927' AS DateTime), N'Out')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'4d47099f-07b4-4681-9a5e-f51961851bfe', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-08T22:58:00.307' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'20cd326a-07c5-4a3a-97ed-f53b56a4a262', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T01:58:40.363' AS DateTime), N'Out')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'd6342da6-5b79-454b-b140-f64338dab049', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-27T16:31:38.000' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'41ad17af-89a4-4443-b319-f65eb9594c98', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T18:42:07.340' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'63ab58b5-a776-45ec-9688-f710bc3c423f', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T23:23:29.890' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'f17f01ad-fc08-4fdf-950a-f712878323e0', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-12T00:34:06.230' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'b6c73a3c-6ddc-4f2c-9e1a-f73633e445b5', N'932727e8-ec89-4104-b45b-286c00e03dc7', CAST(N'2025-03-22T01:49:14.917' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'292d036e-115e-4100-8b0a-f7b269bf4bf7', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-25T02:36:36.267' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'6b60eb23-5ce0-442a-b59d-f8cab98567aa', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T02:49:20.167' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'43cdb86c-0079-43df-aeb9-fcb7a3dd62e7', N'932727e8-ec89-4104-b45b-286c00e03dc7', CAST(N'2025-03-22T00:12:07.107' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'97ecbbe2-ed53-48b2-a7b2-fd8530844930', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T16:18:18.447' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'930c9f3a-ee54-4046-b3be-fe0f2c49313b', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-21T03:03:05.080' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'96bf405d-4462-4c57-b088-fe43603a5c61', N'0c154298-a6c0-4429-99a2-6414d4cd9997', CAST(N'2025-03-22T12:25:44.983' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'866c5d96-a32a-4e0d-bbff-fe5db2aa7d70', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-24T02:54:20.953' AS DateTime), N'Out')
+GO
+INSERT [dbo].[Users] ([id], [FirstName], [LastName], [Username], [Password], [DateCreated], [DateModified], [Version], [TeamId], [AvatarImg]) VALUES (N'932727e8-ec89-4104-b45b-286c00e03dc7', N'محمد', N'امیر زاده', N'm', N'5CCPTgYwA+oFPuKHdOqmQg==:1YQJDuAmTyZAhynu7G/hBfBZ1t2Ji6wSLkvRDPqoTrs=', CAST(N'2025-02-27T18:33:43.720' AS DateTime), CAST(N'2025-03-22T00:13:20.030' AS DateTime), 3, N'a6133e3d-73b8-42af-a597-2400f1fdb95f', N'\images\users\a76bd40f-1b53-4890-a5dd-9c2d29f1f713.jpg')
+GO
+INSERT [dbo].[Users] ([id], [FirstName], [LastName], [Username], [Password], [DateCreated], [DateModified], [Version], [TeamId], [AvatarImg]) VALUES (N'0c154298-a6c0-4429-99a2-6414d4cd9997', N'ادمین', N'ادمین', N'admin', N'cMB3b/bLHb3T7kBvvhJv3g==:9jzwY7A6zv//IaI1+Zgar4ogyG5CsvNbmThqaD0IeZA=', NULL, CAST(N'2025-03-13T21:33:51.003' AS DateTime), 5, N'a6133e3d-73b8-42af-a597-2400f1fdb95f', N'\images\users\4a5d7284-f6d3-41e3-842b-4fab7f29a0f7.jpg')
+GO
+INSERT [dbo].[Users] ([id], [FirstName], [LastName], [Username], [Password], [DateCreated], [DateModified], [Version], [TeamId], [AvatarImg]) VALUES (N'd89826f5-f5a3-48f4-b92b-95d362d8f074', N'محمود', N'رضوانی', N'mahmood', N'VARizs3H0vuQCLGwWAVLpg==:Qa/rS6VLAxlHqUf3M34NL5jHcbG9xdLH1FU54OHk0oc=', NULL, CAST(N'2025-02-27T18:20:00.470' AS DateTime), 4, N'a6133e3d-73b8-42af-a597-2400f1fdb95f', N'\images\users\e91c676b-4039-4f4c-8ea6-46bf7a2ee88b.jpg')
+GO
+INSERT [dbo].[Users] ([id], [FirstName], [LastName], [Username], [Password], [DateCreated], [DateModified], [Version], [TeamId], [AvatarImg]) VALUES (N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', N'نیما', N'شادمهر', N'n', N'5Te+6KceBMK5NylK5Saa7g==:r7HG0iXjuV5cXZmL1M5yoajJlJRHgcWcdShb0YC5kh8=', CAST(N'2025-03-21T01:49:06.533' AS DateTime), CAST(N'2025-04-10T13:47:30.680' AS DateTime), 3, N'96fd03cb-b814-4bc9-9891-8b4d6f51fcdc', N'\images\users\f5292c97-1586-4e35-9624-92c13f881fb8.jpg')
+GO
+INSERT [dbo].[Users] ([id], [FirstName], [LastName], [Username], [Password], [DateCreated], [DateModified], [Version], [TeamId], [AvatarImg]) VALUES (N'227e3264-8e87-40eb-a204-b4b55dac1349', N'سارا', N'حسینی فرد', N'sara', N'TfegdpWrm4zr8D8R/uWBRQ==:GM4HR428W8Iw0ep0O28IoHi3ULL3pDp3q77poxTR+r8=', CAST(N'2025-02-28T23:14:23.733' AS DateTime), CAST(N'2025-04-10T15:47:31.897' AS DateTime), 2, N'a6133e3d-73b8-42af-a597-2400f1fdb95f', N'\images\users\1abcd8e2-61bd-4950-9592-9e789f868db0.jpg')
+GO
+INSERT [dbo].[Users] ([id], [FirstName], [LastName], [Username], [Password], [DateCreated], [DateModified], [Version], [TeamId], [AvatarImg]) VALUES (N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'علیرضا', N'فتحی', N'a', N'qV96rp4piKwe6sEySGJ2TQ==:wL0iV0bdb8fIsCXgLvUtvbP2gZ9naylj4bJ5ulnlhzU=', CAST(N'2025-02-15T16:28:37.020' AS DateTime), CAST(N'2025-03-21T03:13:21.060' AS DateTime), 11, N'a6133e3d-73b8-42af-a597-2400f1fdb95f', N'\images\users\cf3f638b-1bd4-4613-af46-cafdd1b1ae71.jpg')
+GO
+INSERT [dbo].[Users] ([id], [FirstName], [LastName], [Username], [Password], [DateCreated], [DateModified], [Version], [TeamId], [AvatarImg]) VALUES (N'f248b479-52fa-4b7f-ab05-e8d26e6e40a6', N'حامد', N'رضایی', N'hamed', NULL, CAST(N'2025-02-18T11:56:03.233' AS DateTime), CAST(N'2025-03-13T21:34:09.130' AS DateTime), 5, N'a6133e3d-73b8-42af-a597-2400f1fdb95f', N'\images\users\691e6c82-545f-430b-812b-7f40284b22e1.jpg')
+GO
+INSERT [dbo].[Users] ([id], [FirstName], [LastName], [Username], [Password], [DateCreated], [DateModified], [Version], [TeamId], [AvatarImg]) VALUES (N'256d0300-3c52-4ebb-a8bf-f004d916815f', N'حسن', N'مجیدی', N'majidi', NULL, CAST(N'2025-02-15T13:41:31.023' AS DateTime), CAST(N'2025-02-28T23:13:14.780' AS DateTime), 4, N'a6133e3d-73b8-42af-a597-2400f1fdb95f', N'\images\users\3a5d6f03-39d0-4b97-af10-dacf881a0737.jpg')
+GO
+INSERT [dbo].[Users] ([id], [FirstName], [LastName], [Username], [Password], [DateCreated], [DateModified], [Version], [TeamId], [AvatarImg]) VALUES (N'6421f94c-4413-492c-8ef2-f21a1c4e0911', N's', N's', N's', N'f/ZQmpAS1l9A8E1H2yNU+g==:8zLx/E7VYEdLq6pTzHmAZ28ibo4NbjSOecvXNGJMPCI=', CAST(N'2025-02-27T18:19:21.753' AS DateTime), CAST(N'2025-02-28T23:13:30.770' AS DateTime), 2, N'a6133e3d-73b8-42af-a597-2400f1fdb95f', N'\images\users\25be6381-ebcc-46af-934f-ad81b06a1d2a.jpg')
+GO
+INSERT [dbo].[Users] ([id], [FirstName], [LastName], [Username], [Password], [DateCreated], [DateModified], [Version], [TeamId], [AvatarImg]) VALUES (N'0d51ca8e-96ec-4a5e-aa5f-fd2f11f725b8', N'بهناز', N'صدیق', N'seddigh', N'60teVASJRzJBRIVUuk5CxLBCWwCaB3msoOI4KHDU5xg=', CAST(N'2025-02-09T15:00:58.787' AS DateTime), CAST(N'2025-02-27T17:09:42.717' AS DateTime), 1, N'c9e6c24d-4ae7-4f27-ba3f-ec6747aa265c', N'\images\users\b6888116-9657-4d37-8900-0d9ad047e661.jpg')
+GO
+INSERT [dbo].[Users] ([id], [FirstName], [LastName], [Username], [Password], [DateCreated], [DateModified], [Version], [TeamId], [AvatarImg]) VALUES (N'5e0c2a9c-1a25-4359-9244-fe8727b55a5f', N'حسن', N'رضایی', N'rezayi', N'ahw6C7aSuEvR3vcBQ5YfYg==:dvHfNpKFphNwdSioKERhHHW3lvWBHuOUBQJOqcJC6BE=', NULL, CAST(N'2025-03-13T21:34:16.937' AS DateTime), 5, N'a6133e3d-73b8-42af-a597-2400f1fdb95f', N'\images\users\c04cd78e-3aea-4dff-8891-2387945062c0.jpg')
+GO
+INSERT [dbo].[UserStatus] ([UserId], [Status], [LastSeen]) VALUES (N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', N'online', CAST(N'2025-04-12T00:27:25.170' AS DateTime))
+GO
+INSERT [dbo].[UserStatus] ([UserId], [Status], [LastSeen]) VALUES (N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'online', CAST(N'2025-04-12T00:44:48.023' AS DateTime))
+GO
+INSERT [dbo].[UserStatus] ([UserId], [Status], [LastSeen]) VALUES (N'5e0c2a9c-1a25-4359-9244-fe8727b55a5f', N'online', CAST(N'2025-04-12T00:44:15.623' AS DateTime))
+GO
+ALTER TABLE [dbo].[ChatMessages] ADD  DEFAULT (newid()) FOR [Id]
+GO
+ALTER TABLE [dbo].[ChatMessages] ADD  DEFAULT (getutcdate()) FOR [SentAt]
+GO
+ALTER TABLE [dbo].[ChatMessages] ADD  DEFAULT ((0)) FOR [IsRead]
+GO
+ALTER TABLE [dbo].[Organizations] ADD  CONSTRAINT [DF_Organizations_id]  DEFAULT (newid()) FOR [id]
+GO
+ALTER TABLE [dbo].[Organizations] ADD  CONSTRAINT [DF_Organizations_Priority]  DEFAULT ((0)) FOR [Priority]
+GO
+ALTER TABLE [dbo].[Settings] ADD  CONSTRAINT [DF_Settings_id]  DEFAULT (newid()) FOR [id]
+GO
+ALTER TABLE [dbo].[Settings] ADD  CONSTRAINT [DF_Settings_DefaultColor]  DEFAULT ((0)) FOR [DefaultColor]
+GO
+ALTER TABLE [dbo].[Settings] ADD  CONSTRAINT [DF_Settings_IsNavDark]  DEFAULT ((0)) FOR [IsNavDark]
+GO
+ALTER TABLE [dbo].[Settings] ADD  CONSTRAINT [DF_Settings_IsMenuDark]  DEFAULT ((0)) FOR [IsMenuDark]
+GO
+ALTER TABLE [dbo].[Teams] ADD  CONSTRAINT [DF_Teams_id]  DEFAULT (newid()) FOR [id]
+GO
+ALTER TABLE [dbo].[Teams] ADD  CONSTRAINT [DF_Teams_ManagmentDashboard]  DEFAULT ((0)) FOR [ManagmentDashboard]
+GO
+ALTER TABLE [dbo].[Teams] ADD  CONSTRAINT [DF_Teams_Setting]  DEFAULT ((0)) FOR [Setting]
+GO
+ALTER TABLE [dbo].[Teams] ADD  CONSTRAINT [DF_Teams_SystemUsers]  DEFAULT ((0)) FOR [SystemUsers]
+GO
+ALTER TABLE [dbo].[Teams] ADD  CONSTRAINT [DF_Teams_Financial]  DEFAULT ((0)) FOR [Financial]
+GO
+ALTER TABLE [dbo].[Teams] ADD  CONSTRAINT [DF_Teams_Product]  DEFAULT ((0)) FOR [Product]
+GO
+ALTER TABLE [dbo].[Teams] ADD  CONSTRAINT [DF_Teams_BuyCommercial]  DEFAULT ((0)) FOR [BuyCommercial]
+GO
+ALTER TABLE [dbo].[Teams] ADD  CONSTRAINT [DF_Teams_RAndD]  DEFAULT ((0)) FOR [RAndD]
+GO
+ALTER TABLE [dbo].[Teams] ADD  CONSTRAINT [DF_Teams_QC]  DEFAULT ((0)) FOR [QC]
+GO
+ALTER TABLE [dbo].[Teams] ADD  CONSTRAINT [DF_Teams_QA]  DEFAULT ((0)) FOR [QA]
+GO
+ALTER TABLE [dbo].[Teams] ADD  CONSTRAINT [DF_Teams_PMO]  DEFAULT ((0)) FOR [PMO]
+GO
+ALTER TABLE [dbo].[UserEnterLogs] ADD  CONSTRAINT [DF_UserEnterLogs_id]  DEFAULT (newid()) FOR [id]
+GO
+ALTER TABLE [dbo].[Users] ADD  CONSTRAINT [DF_Users_id]  DEFAULT (newid()) FOR [id]
+GO
+ALTER TABLE [dbo].[Users] ADD  CONSTRAINT [DF_Users_Version]  DEFAULT ((0)) FOR [Version]
+GO
+ALTER TABLE [dbo].[UserStatus] ADD  DEFAULT ('offline') FOR [Status]
+GO
+ALTER TABLE [dbo].[UserStatus] ADD  DEFAULT (getutcdate()) FOR [LastSeen]
+GO
+ALTER TABLE [dbo].[ChatMessages]  WITH CHECK ADD  CONSTRAINT [FK_ChatMessages_Receiver] FOREIGN KEY([ReceiverId])
+REFERENCES [dbo].[Users] ([id])
+GO
+ALTER TABLE [dbo].[ChatMessages] CHECK CONSTRAINT [FK_ChatMessages_Receiver]
+GO
+ALTER TABLE [dbo].[ChatMessages]  WITH CHECK ADD  CONSTRAINT [FK_ChatMessages_Sender] FOREIGN KEY([SenderId])
+REFERENCES [dbo].[Users] ([id])
+GO
+ALTER TABLE [dbo].[ChatMessages] CHECK CONSTRAINT [FK_ChatMessages_Sender]
+GO
+ALTER TABLE [dbo].[UserEnterLogs]  WITH CHECK ADD  CONSTRAINT [FK_UserEnterLogs_Users] FOREIGN KEY([UserId])
+REFERENCES [dbo].[Users] ([id])
+GO
+ALTER TABLE [dbo].[UserEnterLogs] CHECK CONSTRAINT [FK_UserEnterLogs_Users]
+GO
+ALTER TABLE [dbo].[Users]  WITH CHECK ADD  CONSTRAINT [FK_Users_Teams] FOREIGN KEY([TeamId])
+REFERENCES [dbo].[Teams] ([id])
+GO
+ALTER TABLE [dbo].[Users] CHECK CONSTRAINT [FK_Users_Teams]
+GO
+ALTER TABLE [dbo].[UserStatus]  WITH CHECK ADD  CONSTRAINT [FK_UserStatus_User] FOREIGN KEY([UserId])
+REFERENCES [dbo].[Users] ([id])
+GO
+ALTER TABLE [dbo].[UserStatus] CHECK CONSTRAINT [FK_UserStatus_User]
+GO
+/****** Object:  StoredProcedure [dbo].[sp_UpdateUserStatus]    Script Date: 4/14/2025 11:08:35 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- Create a stored procedure to update user status
+CREATE PROCEDURE [dbo].[sp_UpdateUserStatus]
+    @UserId UNIQUEIDENTIFIER,
+    @Status NVARCHAR(20)
+AS
+BEGIN
+    IF EXISTS (SELECT 1 FROM UserStatus WHERE UserId = @UserId)
+    BEGIN
+        UPDATE UserStatus 
+        SET Status = @Status, 
+            LastSeen = GETUTCDATE() 
+        WHERE UserId = @UserId;
+    END
+    ELSE
+    BEGIN
+        INSERT INTO UserStatus (UserId, Status, LastSeen)
+        VALUES (@UserId, @Status, GETUTCDATE());
+    END
+END;
+GO
+
+
+ dotnet ef dbcontext scaffold "Server=(LocalDB)\MSSQLLocalDB;Database=DarouApp;Trusted_Connection=True;" Microsoft.EntityFrameworkCore.SqlServer -o Models -c DarouAppContext -f --project "C:\Projects\Mehrsam-Darou-master\Mehrsam Darou\Mehrsam Darou.csproj"
+
+
+

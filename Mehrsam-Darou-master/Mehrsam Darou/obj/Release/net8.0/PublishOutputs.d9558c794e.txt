@@ -1,0 +1,61 @@
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\Mehrsam Darou.exe
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\appsettings.Development.json
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\appsettings.json
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\Mehrsam Darou.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\Mehrsam Darou.runtimeconfig.json
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\Mehrsam Darou.pdb
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\Azure.Core.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\Azure.Identity.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\Microsoft.Bcl.AsyncInterfaces.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\Microsoft.Data.SqlClient.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\Microsoft.EntityFrameworkCore.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\Microsoft.EntityFrameworkCore.Abstractions.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\Microsoft.EntityFrameworkCore.Relational.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\Microsoft.EntityFrameworkCore.SqlServer.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\Microsoft.Extensions.Caching.Abstractions.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\Microsoft.Extensions.Caching.Memory.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\Microsoft.Extensions.Configuration.Abstractions.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\Microsoft.Extensions.DependencyInjection.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\Microsoft.Extensions.Logging.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\Microsoft.Extensions.Logging.Abstractions.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\Microsoft.Extensions.Options.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\Microsoft.Extensions.Primitives.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\Microsoft.Identity.Client.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\Microsoft.Identity.Client.Extensions.Msal.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\Microsoft.IdentityModel.Abstractions.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\Microsoft.IdentityModel.JsonWebTokens.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\Microsoft.IdentityModel.Logging.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\Microsoft.IdentityModel.Protocols.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\Microsoft.IdentityModel.Tokens.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\Microsoft.SqlServer.Server.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\Microsoft.Win32.SystemEvents.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\System.ClientModel.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\System.Configuration.ConfigurationManager.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\System.Diagnostics.DiagnosticSource.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\System.Drawing.Common.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\System.Formats.Asn1.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\System.IdentityModel.Tokens.Jwt.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\System.IO.Pipelines.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\System.Memory.Data.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\System.Runtime.Caching.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\System.Security.Cryptography.ProtectedData.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\System.Security.Permissions.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\System.Text.Encodings.Web.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\System.Text.Json.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\System.Windows.Extensions.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\runtimes\unix\lib\net6.0\Microsoft.Data.SqlClient.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\runtimes\win\lib\net6.0\Microsoft.Data.SqlClient.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\runtimes\win-arm\native\Microsoft.Data.SqlClient.SNI.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\runtimes\win-arm64\native\Microsoft.Data.SqlClient.SNI.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\runtimes\win-x64\native\Microsoft.Data.SqlClient.SNI.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\runtimes\win-x86\native\Microsoft.Data.SqlClient.SNI.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\runtimes\win\lib\net6.0\Microsoft.Win32.SystemEvents.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\runtimes\unix\lib\net6.0\System.Drawing.Common.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\runtimes\win\lib\net6.0\System.Drawing.Common.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\runtimes\win\lib\net6.0\System.Runtime.Caching.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\runtimes\win\lib\net6.0\System.Security.Cryptography.ProtectedData.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\runtimes\browser\lib\net8.0\System.Text.Encodings.Web.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
+D:\Mehrsam-Darou-master\Mehrsam-Darou-master\Mehrsam Darou\obj\Release\net8.0\PubTmp\Out\Mehrsam Darou.deps.json

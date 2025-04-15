@@ -1,0 +1,120 @@
+﻿@model List<Mehrsam_Darou.Models.Organization>
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html dir="rtl" lang="fa" class="h-100" data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"]</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A fully responsive premium admin dashboard template" />
+    <meta name="author" content="Techzaa" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="shortcut icon" href="/assets/images/favicon.ico">
+    <link rel="stylesheet" href="/assets/libs/choices.js/public/assets/styles/choices.min.css">
+    <link rel="stylesheet" href="/assets/css/app.css">
+    <link rel="stylesheet" href="/assets/css/icons.css">
+    <link rel="stylesheet" href="/assets/css/fontiran.min.css">
+    <script src="/assets/js/config.js"></script>
+</head>
+
+<body class="h-100 d-flex align-items-center justify-content-center">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xxl-6 col-lg-8 col-md-10">
+            
+
+                <div class="auth-logo text-right mb-4">
+                    <a href="index.html" class="logo-dark">
+                        <img src="/images/logo-dark.png" height="24" alt="لوگوی تاریک">
+                    </a>
+                    <a href="index.html" class="logo-light">
+                        <img src="/images/logo-light.png" height="24" alt="لوگوی روشن">
+                    </a>
+                </div>
+
+                <div class="card">
+                    <div class="card-body p-4">
+                        @if (ViewBag.ErrorMessage != null)
+                        {
+                            <div class="alert alert-danger">
+                                @ViewBag.ErrorMessage
+                            </div>
+                        }
+                        <form method="POST" asp-action="LoginByUserPass" class="authentication-form">
+                            <!-- Username Input -->
+                            <div class="mb-3">
+                                <label class="form-label" for="example-email">نام کاربری</label>
+                                <input type="text" id="example-email" name="username" class="form-control" placeholder="نام کاربری خود را وارد کنید" value="">
+                            </div>
+
+                            <!-- Password Input -->
+                            <div class="mb-3">
+                                <label class="form-label" for="example-password">کلمه عبور</label>
+                                <input type="password" id="example-password" class="form-control" placeholder="کلمه عبور خود را وارد کنید" name="password" value="">
+                                <a href="reset-password.html" class="float-end text-muted text-unline-dashed mt-2">بازیابی کلمه عبور</a>
+                            </div>
+
+                            <!-- Organization Dropdown -->
+                            <div class="mb-3">
+                                <label class="form-label" for="OrgDDL">نام شرکت</label>
+                                <select class="form-control" id="OrgDDL" name="OrgDDL" data-choices data-choices-search-enabled="true" data-choices-removeItem="true">
+                                    @if (Model != null && Model.OrderBy(e => e.Priority).Any())
+                                    {
+                                        @foreach (var org in Model)
+                                        {
+                                            <option value="@org.Id">@org.Name</option>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <option value="">هیچ شرکتی برای نمایش وجود ندارد</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <!-- Remember Me Checkbox -->
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="checkbox-signin">
+                                    <label class="form-check-label" for="checkbox-signin">مرا به خاطر بسپار</label>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="mb-3 text-center">
+                                <button class="btn btn-soft-primary w-100" type="submit">ورود</button>
+                            </div>
+                     
+                        
+                        
+                        
+                        
+                        </form>
+
+                        <footer class="footer">
+                            <div class="container-fluid">
+
+                                <div class="col-12 text-center">
+                                    <script>document.write(new Date().getFullYear())</script> &copy; ساخته شده توسط گروه نرم افزاری
+                                    <iconify-icon icon="iconamoon:heart-duotone" class="fs-18 align-middle text-danger"></iconify-icon>
+                                    <a href="" class="fw-bold footer-text" target="_blank">گروه هلدینگ هورخش</a>
+                                </div>
+                            </div>
+                    </div>
+                    </footer>
+                    </div>
+                </div>
+
+ 
+            </div>
+        </div>
+    </div>
+
+    <script src="/assets/js/app.js"></script>
+    <script src="/assets/js/layout.js"></script>
+</body>
+</html>

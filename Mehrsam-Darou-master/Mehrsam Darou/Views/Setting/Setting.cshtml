@@ -1,0 +1,110 @@
+﻿@model Mehrsam_Darou.Models.Setting
+@{
+    ViewData["Title"] = "تنظیمات";
+}
+
+<h2>تنظیمات</h2>
+<div class="col-lg-12">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <form asp-action="Edit" method="post">
+        <div class="row">
+            <!-- تنظیمات رنگ و صفحه -->
+            <div class="col-lg-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title d-flex align-items-center gap-1">
+                            <iconify-icon icon="solar:box-bold-duotone" class="text-primary fs-20"></iconify-icon>
+                            تنظیمات رنگ و صفحه
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <p>تم و تعداد در هر صفحه</p>
+                        <div class="d-flex gap-2 align-items-center mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" asp-for="DefaultColor" id="flexRadioDark" value="true" checked="@(Model.DefaultColor == true ? "checked" : null)">
+                                <label class="form-check-label" for="flexRadioDark">
+                                    تم تاریک
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" asp-for="DefaultColor" id="flexRadioLight" value="false" checked="@(Model.DefaultColor == false ? "checked" : null)">
+                                <label class="form-check-label" for="flexRadioLight">
+                                    تم روشن
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-1 pb-1">
+                            <label asp-for="NumberPerPage" class="form-label">تعداد آیتم‌ها در هر صفحه</label>
+                            <input type="number" asp-for="NumberPerPage" class="form-control" placeholder="0" min="1">
+                            <span asp-validation-for="NumberPerPage" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- تنظیمات نوار بالایی و منو -->
+            <div class="col-lg-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title d-flex align-items-center gap-1">
+                            <iconify-icon icon="solar:box-bold-duotone" class="text-primary fs-20"></iconify-icon>
+                            تنظیمات نوار بالایی و منو
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <p>رنگ نوار بالایی</p>
+                        <div class="d-flex gap-2 align-items-center mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" asp-for="IsNavDark" id="topbar-color-light" value="false" checked="@(Model.IsNavDark == false ? "checked" : null)">
+                                <label class="form-check-label" for="topbar-color-light">
+                                    روشن
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" asp-for="IsNavDark" id="topbar-color-dark" value="true" checked="@(Model.IsNavDark == true ? "checked" : null)">
+                                <label class="form-check-label" for="topbar-color-dark">
+                                    تاریک
+                                </label>
+                            </div>
+                        </div>
+
+                        <p>رنگ منو</p>
+                        <div class="d-flex gap-2 align-items-center mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" asp-for="IsMenuDark" id="leftbar-color-light" value="false" checked="@(Model.IsMenuDark == false ? "checked" : null)">
+                                <label class="form-check-label" for="leftbar-color-light">
+                                    روشن
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" asp-for="IsMenuDark" id="leftbar-color-dark" value="true" checked="@(Model.IsMenuDark == true ? "checked" : null)">
+                                <label class="form-check-label" for="leftbar-color-dark">
+                                    تاریک
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- دکمه ذخیره تغییرات -->
+        <div class="text-end mt-3">
+            <button type="submit" class="btn btn-success">ذخیره تغییرات</button>
+        </div>
+    </form>
+</div>

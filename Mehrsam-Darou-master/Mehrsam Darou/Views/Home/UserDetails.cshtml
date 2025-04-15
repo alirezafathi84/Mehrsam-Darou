@@ -1,0 +1,17 @@
+﻿@model Mehrsam_Darou.Models.User
+
+<h2>User Details</h2>
+
+@if (Model != null)
+{
+    <div>
+        <p><strong>First Name:</strong> @Model.FirstName</p>
+        <p><strong>Last Name:</strong> @Model.LastName</p>
+        <p><strong>Username:</strong> @Model.Username</p>
+        <p><strong>Date Created:</strong> @Model.DateCreated?.ToString("MM/dd/yyyy")</p>
+    </div>
+}
+else
+{
+    <p>User not found.</p>
+}

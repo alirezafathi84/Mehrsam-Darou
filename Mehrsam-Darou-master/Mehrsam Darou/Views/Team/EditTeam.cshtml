@@ -1,0 +1,159 @@
+﻿@model Mehrsam_Darou.Models.Team
+
+<h2>ویرایش تیم</h2>
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Success and Error Alerts -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success px-2" role="alert">
+                        <p class="mb-0">با موفقیت انجام شد</p>
+                        <p class="mb-0">@TempData["SuccessMessage"]</p>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-primary px-2" role="alert">
+                        <p class="mb-0">خطا</p>
+                        <p class="mb-0">@TempData["ErrorMessage"]</p>
+                    </div>
+                }
+
+                <form asp-action="EditTeam" method="post">
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="row">
+                        <!-- Main Fields -->
+                        <div class="col-md-12 mb-4">
+                            <div class="form-group">
+                                <label asp-for="Name">نام تیم</label>
+                                <input asp-for="Name" class="form-control" required />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="DefaultPageForTeam">صفحه پیش‌فرض تیم</label>
+                                <input asp-for="DefaultPageForTeam" class="form-control" />
+                                <span asp-validation-for="DefaultPageForTeam" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- First Row of 4 Checkboxes -->
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" class="form-check-input" role="switch" id="IsActive" name="IsActive" value="true" checked="@Model.IsActive" />
+                                    <input type="hidden" name="IsActive" value="false" />
+                                    <label class="form-check-label" for="IsActive">فعال</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" class="form-check-input" role="switch" id="ManagmentDashboard" name="ManagmentDashboard" value="true" checked="@Model.ManagmentDashboard" />
+                                    <input type="hidden" name="ManagmentDashboard" value="false" />
+                                    <label class="form-check-label" for="ManagmentDashboard">داشبورد مدیریت</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" class="form-check-input" role="switch" id="Setting" name="Setting" value="true" checked="@Model.Setting" />
+                                    <input type="hidden" name="Setting" value="false" />
+                                    <label class="form-check-label" for="Setting">تنظیمات</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" class="form-check-input" role="switch" id="SystemUsers" name="SystemUsers" value="true" checked="@Model.SystemUsers" />
+                                    <input type="hidden" name="SystemUsers" value="false" />
+                                    <label class="form-check-label" for="SystemUsers">کاربران سیستم</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Second Row of 4 Checkboxes -->
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" class="form-check-input" role="switch" id="Financial" name="Financial" value="true" checked="@Model.Financial" />
+                                    <input type="hidden" name="Financial" value="false" />
+                                    <label class="form-check-label" for="Financial">مالی</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" class="form-check-input" role="switch" id="Inventory" name="Inventory" value="true" checked="@Model.Inventory" />
+                                    <input type="hidden" name="Inventory" value="false" />
+                                    <label class="form-check-label" for="Inventory">انبار</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" class="form-check-input" role="switch" id="Product" name="Product" value="true" checked="@Model.Product" />
+                                    <input type="hidden" name="Product" value="false" />
+                                    <label class="form-check-label" for="Product">محصول</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" class="form-check-input" role="switch" id="SellCommercial" name="SellCommercial" value="true" checked="@Model.SellCommercial" />
+                                    <input type="hidden" name="SellCommercial" value="false" />
+                                    <label class="form-check-label" for="SellCommercial">بازرگانی فروش</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Third Row of 4 Checkboxes -->
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" class="form-check-input" role="switch" id="BuyCommercial" name="BuyCommercial" value="true" checked="@Model.BuyCommercial" />
+                                    <input type="hidden" name="BuyCommercial" value="false" />
+                                    <label class="form-check-label" for="BuyCommercial">بازرگانی خرید</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" class="form-check-input" role="switch" id="RandD" name="RandD" value="true" checked="@Model.RandD" />
+                                    <input type="hidden" name="RandD" value="false" />
+                                    <label class="form-check-label" for="RandD">تحقیق و توسعه</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" class="form-check-input" role="switch" id="Qc" name="Qc" value="true" checked="@Model.Qc" />
+                                    <input type="hidden" name="Qc" value="false" />
+                                    <label class="form-check-label" for="Qc">کنترل کیفیت</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" class="form-check-input" role="switch" id="Qa" name="Qa" value="true" checked="@Model.Qa" />
+                                    <input type="hidden" name="Qa" value="false" />
+                                    <label class="form-check-label" for="Qa">تضمین کیفیت</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Fourth Row (with only PMO checkbox) -->
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" class="form-check-input" role="switch" id="Pmo" name="Pmo" value="true" checked="@Model.Pmo" />
+                                    <input type="hidden" name="Pmo" value="false" />
+                                    <label class="form-check-label" for="Pmo">مدیریت پروژه</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="text-end mt-4">
+                        <button type="submit" class="btn btn-success">ذخیره تغییرات</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
