@@ -25,14 +25,19 @@ namespace Mehrsam_Darou.Controllers
         private async Task<ChatViewModel> BuildChatViewModel(Guid currentUserId, Guid? contactId)
         {
             var now = DateTime.Now;
-            var awayThreshold = now.AddMinutes(-30);
+            var awayThreshold = now.AddMinutes(-15);
             var onlineThreshold = now.AddMinutes(-5);
 
-            var allUsers = await _context.Users.OrderBy(u => u.FirstName).ThenBy(u => u.LastName).ToListAsync();
+            var allUsers = await _context.Users
+                .OrderBy(u => u.FirstName)
+                .ThenBy(u => u.LastName)
+                .ToListAsync();
+
             var allLogs = await _context.UserEnterLogs
                 .Where(log => log.CreatedDate >= awayThreshold)
                 .OrderByDescending(log => log.CreatedDate)
                 .ToListAsync();
+
             var latestLogByUser = allLogs
                 .GroupBy(l => l.UserId)
                 .ToDictionary(g => g.Key, g => g.First());
@@ -105,6 +110,19 @@ namespace Mehrsam_Darou.Controllers
             CurrentChatDto currentChat = null;
             if (contactId.HasValue)
             {
+                // --- Mark unread incoming messages as read ---
+                var unreadMessages = await _context.ChatMessages
+                    .Where(m => m.SenderId == contactId.Value && m.ReceiverId == currentUserId && !m.IsRead)
+                    .ToListAsync();
+
+                if (unreadMessages.Any())
+                {
+                    foreach (var m in unreadMessages)
+                        m.IsRead = true;
+                    await _context.SaveChangesAsync();
+                }
+
+                // --- Now load all chat messages for this conversation ---
                 var chatMessages = await _context.ChatMessages
                     .Where(m => (m.SenderId == currentUserId && m.ReceiverId == contactId.Value) ||
                                 (m.ReceiverId == currentUserId && m.SenderId == contactId.Value))
@@ -143,6 +161,8 @@ namespace Mehrsam_Darou.Controllers
                 CurrentChat = currentChat
             };
         }
+
+
 
         // -- FULL PAGE --
         public async Task<IActionResult> Chat(Guid? contactId)
