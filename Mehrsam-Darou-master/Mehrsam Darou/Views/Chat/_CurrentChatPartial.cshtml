@@ -1,0 +1,60 @@
+﻿@model Mehrsam_Darou.ViewModel.ChatViewModel
+
+<div>
+    <div class="card-header d-flex align-items-center mh-100">
+        <div class="d-flex align-items-center" id="currentChatHeader">
+            @if (Model.CurrentChat != null)
+            {
+                <img src="@Model.CurrentChat.ContactAvatar" class="me-2 rounded" height="36" alt="@Model.CurrentChat.ContactName" />
+                <div class="d-none d-md-flex flex-column">
+                    <h5 class="my-0 fs-16 fw-semibold">
+                        @Model.CurrentChat.ContactName
+                    </h5>
+                </div>
+            }
+            else
+            {
+                <div class="d-none d-md-flex flex-column">
+                    <h5 class="my-0 fs-16 fw-semibold">انتخاب گفتگو</h5>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="chat-box">
+        <ul class="chat-conversation-list p-3 chatbox-height" id="chatMessages" style="max-height:450px; overflow-y:auto;">
+            @if (Model.CurrentChat != null)
+            {
+                foreach (var message in Model.CurrentChat.Messages)
+                {
+                    <li class="clearfix @(message.IsMine ? "odd" : "")">
+                        <div class="chat-conversation-text @(message.IsMine ? "ms-0" : "")">
+                            <div class="d-flex @(message.IsMine ? "justify-content-end" : "")">
+                                <div class="chat-ctext-wrap">
+                                    @if (!string.IsNullOrEmpty(message.Content))
+                                    {
+                                        <p>@message.Content</p>
+                                    }
+                                </div>
+                            </div>
+                            <p class="text-muted fs-12 mb-0 mt-1 @(message.IsMine ? "" : "ms-2")">
+                                @message.SentAt.ToString("h:mm tt")
+                                @if (message.IsMine)
+                                {
+                                    <i class="bx bx-check@(message.IsRead ? "-double text-success" : " text-muted") ms-1"></i>
+                                }
+                            </p>
+                        </div>
+                    </li>
+                }
+            }
+            else
+            {
+                <li class="text-center py-5">
+                    <div class="alert alert-info">
+                        لطفاً یک گفتگو را برای شروع انتخاب کنید
+                    </div>
+                </li>
+            }
+        </ul>
+    </div>
+</div>
