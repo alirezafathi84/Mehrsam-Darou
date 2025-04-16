@@ -1,4 +1,5 @@
-﻿using Mehrsam_Darou.Models;
+
+using Mehrsam_Darou.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -27,7 +28,7 @@ namespace Mehrsam_Darou.Controllers
             
             if (notification.Type == "chat")
                 {
-                    await MarkNotificationSeen(notificationId);
+                    await MarkNotificationSeen(notificationId,"chat");
 
 
                
@@ -68,15 +69,42 @@ namespace Mehrsam_Darou.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> MarkNotificationSeen(Guid notificationId)
+        public async Task<IActionResult> MarkNotificationSeen(Guid notificationId, string type)
         {
             var notification = await _context.Notifications.FindAsync(notificationId);
             if (notification == null)
                 return NotFound();
 
-            notification.Seen = true;
-            _context.Notifications.Update(notification);
-            await _context.SaveChangesAsync();
+            switch (type)
+            {
+                case "chat":
+
+
+                    var notifications = await _context.Notifications
+  .Where(m => m.RelatedId.Equals(notification.RelatedId) && m.Type == "chat" && !m.Seen)
+  .ToListAsync();
+
+                    if (notifications.Any())
+                    {
+                        foreach (var n in notifications)
+                            n.Seen = true;
+                        await _context.SaveChangesAsync();
+
+                    }
+
+
+
+                    break;
+
+
+
+                default:
+                    break;
+            }
+
+ 
+
+
 
             return Ok("Notification marked as seen.");
         }
