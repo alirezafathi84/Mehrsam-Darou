@@ -1,4 +1,4 @@
-﻿using Mehrsam_Darou.Models;
+using Mehrsam_Darou.Models;
 using Mehrsam_Darou.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -215,7 +215,7 @@ namespace Mehrsam_Darou.Controllers
         public async Task<IActionResult> CurrentChatPartial(Guid? contactId)
         {
             var user = await ValidateSessionAndGetUser();
-            if (user == null) return Unauthorized();
+
             // Mark unread as read
             if (contactId != null)
             {
@@ -234,8 +234,10 @@ namespace Mehrsam_Darou.Controllers
         [HttpPost("SendMessage")]
         public async Task<IActionResult> SendMessage([FromForm] SendMessageDto dto)
         {
-            var user = await ValidateSessionAndGetUser();
-            if (user == null) return Unauthorized();
+            try
+            {
+                var user = await ValidateSessionAndGetUser();
+       
 
             var message = new ChatMessage
             {
@@ -264,16 +266,20 @@ namespace Mehrsam_Darou.Controllers
             //    IsMine = false
             //});
             // Call SetForNoti, ignore all errors
-            try
-            {
+       
                 await Helper.Helper.SetForNoti(_context, dto.ReceiverId);
+
+                return RedirectToAction("Chat", "Chat", new { contactId = dto.ReceiverId });
             }
-            catch
+         
+                        catch (Exception ex)
             {
-                // Do nothing on error
+                return RedirectToAction("Chat", "Chat", new { contactId = new Guid("00000000-0000-0000-0000-000000000000") });
+
             }
-            return RedirectToAction("Chat", "Chat", new { contactId = dto.ReceiverId });
         }
+        
+        
 
         // DELETE MESSAGE (by POST)
         [HttpPost("DeleteMessage")]
