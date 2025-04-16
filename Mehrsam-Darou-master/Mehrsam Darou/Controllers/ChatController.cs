@@ -120,6 +120,7 @@ namespace Mehrsam_Darou.Controllers
                     foreach (var m in unreadMessages)
                         m.IsRead = true;
                     await _context.SaveChangesAsync();
+
                 }
 
                 // --- Now load all chat messages for this conversation ---
@@ -150,7 +151,12 @@ namespace Mehrsam_Darou.Controllers
                         Messages = chatMessages
                     };
                 }
+
+
+
             }
+
+     
 
             return new ChatViewModel
             {
@@ -245,19 +251,27 @@ namespace Mehrsam_Darou.Controllers
             _context.ChatMessages.Add(message);
             await _context.SaveChangesAsync();
 
-            // SignalR (optional, for real-time)
-            await _hubContext.Clients.User(dto.ReceiverId.ToString()).SendAsync("ReceiveMessage", new
+            //// SignalR (optional, for real-time)
+            //await _hubContext.Clients.User(dto.ReceiverId.ToString()).SendAsync("ReceiveMessage", new
+            //{
+            //    message.Id,
+            //    message.Content,
+            //    SenderId = message.SenderId,
+            //    SenderName = user.FirstName + " " + user.LastName,
+            //    SenderAvatar = user.AvatarImg,
+            //    message.SentAt,
+            //    message.Attachments,
+            //    IsMine = false
+            //});
+            // Call SetForNoti, ignore all errors
+            try
             {
-                message.Id,
-                message.Content,
-                SenderId = message.SenderId,
-                SenderName = user.FirstName + " " + user.LastName,
-                SenderAvatar = user.AvatarImg,
-                message.SentAt,
-                message.Attachments,
-                IsMine = false
-            });
-
+                await Helper.Helper.SetForNoti(_context, dto.ReceiverId);
+            }
+            catch
+            {
+                // Do nothing on error
+            }
             return RedirectToAction("Chat", "Chat", new { contactId = dto.ReceiverId });
         }
 

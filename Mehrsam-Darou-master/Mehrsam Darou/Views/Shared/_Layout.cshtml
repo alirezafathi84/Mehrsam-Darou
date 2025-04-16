@@ -68,7 +68,7 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                             </button>
                         </div>
 
-                        <!-- اعلان‌ها -->
+          @*               <!-- اعلان‌ها -->
                         <div class="dropdown topbar-item">
                             <button type="button" class="topbar-button position-relative"
                             id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-haspopup="true"
@@ -176,7 +176,82 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                                     </a>
                                 </div>
                             </div>
+                        </div> *@
+
+
+                        <!-- اعلان‌ها -->
+                        <div class="dropdown topbar-item">
+                            <button type="button" class="topbar-button position-relative"
+                                    id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-haspopup="true"
+                                    aria-expanded="false">
+                                <iconify-icon icon="solar:bell-bing-bold-duotone" class="fs-24 align-middle"></iconify-icon>
+                                <span class="position-absolute topbar-badge fs-10 translate-middle badge bg-danger rounded-pill"
+                                      style="@( ((int)ViewData["UnreadNotificationsCount"]) > 0 ? "display:inline-block;" : "display:none;" )">
+                                    @(ViewData["UnreadNotificationsCount"])
+                                    <span class="visually-hidden">پیام‌های خوانده نشده</span>
+                                </span>
+                            </button>
+                            <div class="dropdown-menu py-0 dropdown-lg dropdown-menu-end"
+                                 aria-labelledby="page-header-notifications-dropdown">
+                                <div class="p-3 border-top-0 border-start-0 border-end-0 border-dashed border">
+                                    <div class="row align-items-center">
+                                        <div class="col">
+                                            <h6 class="m-0 fs-16 fw-semibold"> اعلان‌ها</h6>
+                                        </div>
+                                        <div class="col-auto">
+                                            <a href="javascript:void(0);" class="text-dark text-decoration-underline">
+                                                <small>پاک کردن همه</small>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div data-simplebar style="max-height: 280px;">
+                                    @if (ViewData["Notifications"] != null && ((List<Notification>)ViewData["Notifications"]).Any())
+                                    {
+                                        var notifications = (List<Notification>)ViewData["Notifications"];
+                                        foreach (var n in notifications)
+                                        {
+                                            <a href="@Url.Action("Noti", "Notification",new {notificationId = n.Id})" class="dropdown-item py-1 border-bottom text-wrap">
+                                                <div class="d-flex">
+                                                    <div class="flex-shrink-0">
+                                                        @* Use avatar url if available, otherwise fallback to default *@
+                                                        <img src="@(!string.IsNullOrEmpty(n.Img) ? n.Img : "images/users/dummy-avatar.jpg")"
+                                                             class="img-fluid me-2 avatar-sm rounded-circle"
+                                                             alt="avatar-@n.Id" />
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <p class="mb-0 fw-semibold">@n.Title</p>
+                                                        <p class="fs-12 mb-0 mt-1 text-wrap">@n.Message</p>
+
+                                                        @if (n.CreatedDate != null)
+                                                        {
+                                                            var date = n.CreatedDate;
+                                                            var persianDate = $"{pc1.GetYear(date)}/{pc1.GetMonth(date):00}/{pc1.GetDayOfMonth(date):00} {date.ToString("HH:mm")}";
+                                                            <p class="text-muted fs-12 mb-0 mt-1" style="text-align:left;">
+                                                                <span dir="ltr">@persianDate</span>
+                                                            </p>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <p class="text-center text-muted py-3">اعلانی وجود ندارد</p>
+                                    }
+                                </div>
+                                <div class="text-center py-3">
+                                    <a href="javascript:void(0);" class="btn btn-primary btn-sm">
+                                        مشاهده تمامی اعلان‌ها <i class="bx bx-left-arrow-alt ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
                         </div>
+                    
+
+
+
 
                         <!-- تنظیمات تم -->
                         <div class="topbar-item d-none d-md-flex">
@@ -461,26 +536,29 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                             <div class="collapse" id="sidebarInventory">
                                 <ul class="nav sub-navbar-nav">
                                     <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("AddNewUser", "User")">
+                                        <form method="post" action="@Url.Action("InventoryList", "Inventory")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
 
                                                 <span class="nav-text">انبار</span>
                                             </button>
                                         </form>
                                     </li>
-
-
-
-
                                     <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("UserList", "User")">
+                                        <form method="post" action="@Url.Action("RawmaterialsList", "Rawmaterials")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
 
-                                                <span class="nav-text">موجودی</span>
+                                                <span class="nav-text">مواد اولیه</span>
                                             </button>
                                         </form>
                                     </li>
-                        
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("MedicinesList", "Medicines")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+
+                                                <span class="nav-text">دارو ها</span>
+                                            </button>
+                                        </form>
+                                    </li>                                      
                                 </ul>
                             </div>
                         </li>

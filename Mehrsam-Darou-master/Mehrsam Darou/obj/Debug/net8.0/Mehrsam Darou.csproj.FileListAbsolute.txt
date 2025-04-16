@@ -513,7 +513,6 @@ D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\refint\Mehrsa
 D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\Mehrsam Darou.pdb
 D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\Mehrsam Darou.genruntimeconfig.cache
 D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\ref\Mehrsam Darou.dll
-D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\TFS Project\MD\Mehrsam-Darou-master\Mehrsam Darou\bin\Debug\net8.0\appsettings.Development.json
 C:\TFS Project\MD\Mehrsam-Darou-master\Mehrsam Darou\bin\Debug\net8.0\appsettings.json
 C:\TFS Project\MD\Mehrsam-Darou-master\Mehrsam Darou\bin\Debug\net8.0\Mehrsam Darou.staticwebassets.runtime.json
@@ -688,3 +687,4 @@ C:\TFS Project\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\Mehrsam Da
 C:\TFS Project\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\Mehrsam Darou.genruntimeconfig.cache
 C:\TFS Project\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\ref\Mehrsam Darou.dll
 C:\TFS Project\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
+D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

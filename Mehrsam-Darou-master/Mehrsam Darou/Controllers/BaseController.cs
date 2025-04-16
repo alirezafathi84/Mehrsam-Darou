@@ -105,10 +105,10 @@ public class BaseController : Controller
         }
 
         var logEntries = await _context.UserEnterLogs
-    .Include(log => log.User) // Include the related User data
-    .OrderByDescending(log => log.CreatedDate)
-    .Take(10) // Limit to the last 10 entries
-    .ToListAsync();
+            .Include(log => log.User) // Include the related User data
+            .OrderByDescending(log => log.CreatedDate)
+            .Take(50) // Limit to the last 50 entries
+            .ToListAsync();
 
         // Pass the log entries to the layout
         ViewData["LogEntries"] = logEntries;
@@ -118,31 +118,62 @@ public class BaseController : Controller
         ViewData["IsNavDark"] = setting?.IsNavDark ?? false;
         ViewData["IsMenuDark"] = setting?.IsMenuDark ?? false;
 
+        Team t = _context.Teams.SingleOrDefault(t => t.Id.Equals(user.TeamId));
+        if (t != null)
+        {
+            ViewData["ManagmentMenu"] = t.ManagmentDashboard;
+            ViewData["SettingMenu"] = t.Setting;
+            ViewData["SystemUsersMenu"] = t.SystemUsers;
+            ViewData["FinancialMenu"] = t.Financial;
+            ViewData["InventoryMenu"] = t.Inventory;
+            ViewData["ProductMenu"] = t.Product;
+            ViewData["SellCommercialMenu"] = t.SellCommercial;
+            ViewData["BuyCommercialMenu"] = t.BuyCommercial;
+            ViewData["RandDMenu"] = t.RandD;
+            ViewData["QcMenu"] = t.Qc;
+            ViewData["QaMenu"] = t.Qa;
+            ViewData["PmoMenu"] = t.Pmo;
+        }
+        else
+        {
+            ViewData["ManagmentMenu"] = false;
+            ViewData["SettingMenu"] = false;
+            ViewData["SystemUsersMenu"] = false;
+            ViewData["FinancialMenu"] = false;
+            ViewData["InventoryMenu"] = false;
+            ViewData["ProductMenu"] = false;
+            ViewData["SellCommercialMenu"] = false;
+            ViewData["BuyCommercialMenu"] = false;
+            ViewData["RandDMenu"] = false;
+            ViewData["QcMenu"] = false;
+            ViewData["QaMenu"] = false;
+            ViewData["PmoMenu"] = false;
+        }
 
-        Team t = new Team();
-        t = _context.Teams.SingleOrDefault(t => t.Id.Equals(user.TeamId));
-        ViewData["ManagmentMenu"] = t.ManagmentDashboard;
-        ViewData["SettingMenu"] = t.Setting;
-        ViewData["SystemUsersMenu"] = t.SystemUsers;
-        ViewData["FinancialMenu"] = t.Financial;
-        ViewData["InventoryMenu"] = t.Inventory;
-        ViewData["ProductMenu"] = t.Product;
-        ViewData["SellCommercialMenu"] = t.SellCommercial;
-        ViewData["BuyCommercialMenu"] = t.BuyCommercial;
-        ViewData["RandDMenu"] = t.RandD;
-        ViewData["QcMenu"] = t.Qc;
-        ViewData["QaMenu"] = t.Qa;
-        ViewData["PmoMenu"] = t.Pmo;
 
+        // Load unread notifications count for current user
+        var unreadCount = await _context.Notifications
+            .Where(n => !n.Seen && n.UserId == user.Id)
+            .CountAsync();
 
+        // Load latest 10 notifications for current user
+        var notifications = await _context.Notifications
+            .Where(n => n.UserId == user.Id && !n.Seen)
+            .OrderByDescending(n => n.CreatedDate)
+            .Take(10)
+            .ToListAsync();
 
-
-
-
+        // Pass notification data to the layout/views via ViewData
+        ViewData["UnreadNotificationsCount"] = unreadCount;
+        ViewData["Notifications"] = notifications;
 
         // Continue to the action if the user is authenticated
         await next();
     }
+
+
+
+
 
 
 }

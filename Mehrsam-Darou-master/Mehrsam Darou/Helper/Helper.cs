@@ -114,5 +114,44 @@ namespace Mehrsam_Darou.Helper
 
 
 
+        public static async Task<string> SetForNoti(DarouAppContext _context,Guid userId)
+        {
+            var unreadMessages = await _context.ChatMessages
+.Where(m => m.ReceiverId == userId && !m.IsRead)
+.ToListAsync();
+
+            if (unreadMessages.Any())
+            {
+                // Get distinct sender IDs from unread messages
+                var senderIds = unreadMessages.Select(m => m.SenderId).Distinct();
+
+                foreach (var senderId in senderIds)
+                {
+                    var userrelated = await _context.Users.FirstOrDefaultAsync(u => u.Id == senderId);
+                    if (userrelated != null)
+                    {
+                        var notification = new Notification
+                        {
+                            Id = Guid.NewGuid(),
+                            RelatedId = senderId,         // related entity, here the contact user id
+                            Type = "chat",
+                            Seen = false,
+                            Title = "پیام خوانده شده",    // "Message read"
+                            Message = $"شما پیام‌های جدیدی از {userrelated.FirstName} دارید" ,
+                            CreatedDate = DateTime.Now,
+                            UserId = userId,             // The current user receiving notification
+                            Img = userrelated.AvatarImg
+                        };
+
+                        _context.Notifications.Add(notification);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            return "Done";
+        }
+
+
     }
 }

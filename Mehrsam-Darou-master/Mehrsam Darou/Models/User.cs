@@ -29,6 +29,8 @@ public partial class User
 
     public virtual ICollection<ChatMessage> ChatMessageSenders { get; set; } = new List<ChatMessage>();
 
+    public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+
     public virtual Team? Team { get; set; }
 
     public virtual ICollection<UserEnterLog> UserEnterLogs { get; set; } = new List<UserEnterLog>();
