@@ -298,12 +298,6 @@ namespace Mehrsam_Darou.Controllers
             return Ok();
         }
     }
-
     // DTO for Sending Messages
-    public class SendMessageDto
-    {
-        public Guid ReceiverId { get; set; }
-        public string Content { get; set; }
-        public string Attachments { get; set; }
-    }
+
 }
