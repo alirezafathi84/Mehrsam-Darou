@@ -879,17 +879,48 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                     @if ((bool)ViewData["SettingMenu"])
                     {
                         
-                              <li class="nav-item">
-                        <form method="post" action="@Url.Action("Setting", "Setting")">
-                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                <span class="nav-icon">
-                                    <iconify-icon icon="solar:settings-bold-duotone"></iconify-icon>
-                                </span>
-                                <span class="nav-text">تنظیمات</span>
-                            </button>
-                        </form>
-                    </li>
-                      }
+                       <li class="nav-item">
+
+                        <a class="nav-link menu-arrow" href="#sidebarSetting" data-bs-toggle="collapse" role="button"
+                               aria-expanded="false" aria-controls="sidebarSetting">
+                            <span class="nav-icon">
+                                <iconify-icon icon="solar:settings-bold-duotone"></iconify-icon>
+                            </span>
+                            <span class="nav-text"> تنظیمات </span>
+                        </a>
+                            <div class="collapse" id="sidebarSetting">
+                            <ul class="nav sub-navbar-nav">
+                                <li class="sub-nav-item">
+                                    <form method="post" action="@Url.Action("Setting", "Setting")">
+                                        <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+
+                                                <span class="nav-text">تنظیمات</span>
+                                        </button>
+                                    </form>
+                                </li>
+
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("OrganizationList", "Organization")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+
+                                                <span class="nav-text">شرکت ها</span>
+                                            </button>
+                                        </form>
+                                    </li>
+
+
+                                
+
+
+                            </ul>
+                        </div>
+                        </li>
+                }
+                
+                
+           
+
+
                               
 
                 </ul>
