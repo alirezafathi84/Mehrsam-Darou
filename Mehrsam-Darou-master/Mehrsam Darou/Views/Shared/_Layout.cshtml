@@ -578,6 +578,20 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                             </a>
                             <div class="collapse" id="sidebarProduct">
                                 <ul class="nav sub-navbar-nav">
+
+
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("MedicineList", "Medicine")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+
+                                                <span class="nav-text">دارو</span>
+                                            </button>
+                                        </form>
+                                    </li>
+                                    
+                                    
+                                    
+                                    
                                     <li class="sub-nav-item">
                                         <form method="post" action="@Url.Action("AddNewUser", "User")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
