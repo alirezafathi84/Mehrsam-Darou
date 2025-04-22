@@ -68,7 +68,20 @@
                                         <td>
                                             <span class="badge bg-primary">@medicine.Priority</span>
                                         </td>
-                                        <td>@medicine.CreatedDate?.ToString("yyyy/MM/dd HH:mm")</td>
+                                   
+                                        <td dir="ltr" align="right">
+                                            @{
+                                                if (medicine.CreatedDate.HasValue)
+                                                {
+                                                    var date = medicine.CreatedDate.Value;
+                                                    var persianDate = $"{pc.GetYear(date)}/{pc.GetMonth(date):00}/{pc.GetDayOfMonth(date):00} {date:HH:mm}";
+                                                    @persianDate
+                                                }
+                                            }
+                                        </td>
+                                        
+                                     
+                                        
                                         <td>
                                             <div class="d-flex gap-2">
                                                 <a href="@Url.Action("EditMedicine", "Medicine", new { id = medicine.Id })" class="btn btn-soft-primary btn-sm">

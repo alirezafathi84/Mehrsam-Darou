@@ -105,6 +105,8 @@ namespace Mehrsam_Darou.Controllers
             {
                 try
                 {
+                    medicine.CreatedDate = DateTime.Now;
+
                     _context.Update(medicine);
                     await _context.SaveChangesAsync();
 
