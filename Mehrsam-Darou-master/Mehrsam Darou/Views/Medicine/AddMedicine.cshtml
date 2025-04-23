@@ -17,27 +17,57 @@
                     </div>
                 }
 
-                <form asp-action="AddMedicine">
+                <form asp-action="AddMedicine" method="post">
                     <div class="row">
+
                         <div class="col-md-6 mb-3">
-                            <div class="form-group">
-                                <label asp-for="MedicineName" class="form-label">نام دارو</label>
-                                <input asp-for="MedicineName" class="form-control" required />
-                                <span asp-validation-for="MedicineName" class="text-danger"></span>
-                            </div>
+                            <label asp-for="BrandName" class="form-label">نام برند</label>
+                            <input asp-for="BrandName" class="form-control" required />
+                            <span asp-validation-for="BrandName" class="text-danger"></span>
                         </div>
+
                         <div class="col-md-6 mb-3">
-                            <div class="form-group">
-                                <label asp-for="MedicineCode" class="form-label">کد دارو</label>
-                                <input asp-for="MedicineCode" class="form-control" required />
-                                <span asp-validation-for="MedicineCode" class="text-danger"></span>
-                            </div>
+                            <label asp-for="MedicineCode" class="form-label">کد دارو</label>
+                            <input asp-for="MedicineCode" class="form-control" required />
+                            <span asp-validation-for="MedicineCode" class="text-danger"></span>
                         </div>
+
+                        <!-- لیست دسته‌بندی دارو -->
                         <div class="col-md-6 mb-3">
-                            <div class="form-group">
-                                <label asp-for="Priority" class="form-label">اولویت</label>
-                                <input asp-for="Priority" type="number" class="form-control" />
-                                <span asp-validation-for="Priority" class="text-danger"></span>
+                            <label asp-for="CategoryId" class="form-label">دسته‌بندی دارو</label>
+                            <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.Categories">
+                                <option value="">انتخاب دسته‌بندی</option>
+                            </select>
+                            <span asp-validation-for="CategoryId" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Strength" class="form-label">غلظت</label>
+                            <input asp-for="Strength" type="number" step="0.0001" class="form-control" />
+                            <span asp-validation-for="Strength" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="ShelfLifeMonths" class="form-label">طول عمر (ماه)</label>
+                            <input asp-for="ShelfLifeMonths" type="number" class="form-control" />
+                            <span asp-validation-for="ShelfLifeMonths" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="StrengthUnitId" class="form-label">واحد غلظت</label>
+                            <select asp-for="StrengthUnitId" class="form-select" asp-items="ViewBag.StrengthUnits">
+                                <option value="">انتخاب واحد</option>
+                            </select>
+                            <span asp-validation-for="StrengthUnitId" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3 d-flex align-items-center">
+                            <div class="form-check mt-4">
+                                <input type="checkbox"
+                                       name="IsActive"
+                                       value="true"
+                                @(Model.IsActive == true ? "checked" : "") />
+                                <label asp-for="IsActive" class="form-check-label">فعال باشد</label>
                             </div>
                         </div>
                     </div>

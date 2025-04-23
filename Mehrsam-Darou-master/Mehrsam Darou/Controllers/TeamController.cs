@@ -56,21 +56,6 @@ namespace Mehrsam_Darou.Controllers
         }
 
 
-        // Action to display a specific user's details by their ID
-        [HttpGet("User/UserDetails/{id}")]
-        public async Task<IActionResult> UserDetails(Guid id)
-        {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
-
-            if (user == null)
-            {
-                ViewData["Error"] = "رکوردی یافت نشد";
-                return View(); // Return view with an error message
-            }
-
-            return View(user);  // Pass the user object as the model to the view
-        }
-
 
         public async Task<IActionResult> AddNewTeam()
         {

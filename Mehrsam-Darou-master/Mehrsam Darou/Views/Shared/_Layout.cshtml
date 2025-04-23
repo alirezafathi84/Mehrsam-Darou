@@ -922,7 +922,14 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                                         </form>
                                     </li>
 
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("UnitList", "Unit")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
 
+                                                <span class="nav-text">واحد ها</span>
+                                            </button>
+                                        </form>
+                                    </li>
                                 
 
 

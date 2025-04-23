@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using static Mehrsam_Darou.Helper.Helper;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Mehrsam_Darou.Controllers
 {
@@ -31,9 +32,9 @@ namespace Mehrsam_Darou.Controllers
             if (!string.IsNullOrWhiteSpace(SearchKey))
             {
                 query = query.Where(m =>
-                    m.MedicineName.Contains(SearchKey) ||
+                    m.BrandName.Contains(SearchKey) ||
                     m.MedicineCode.Contains(SearchKey))
-                    .OrderBy(m => m.MedicineName);
+                    .OrderBy(m => m.BrandName);
             }
 
             // Get total count after filtering
@@ -41,7 +42,7 @@ namespace Mehrsam_Darou.Controllers
 
             // Fetch paginated results
             var Items = await query
-                .OrderBy(m => m.Priority)
+                .OrderBy(m => m.BrandName)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -53,22 +54,26 @@ namespace Mehrsam_Darou.Controllers
             return View(paginatedMedicines);
         }
 
-        // GET: Medicine/Add
         public IActionResult AddMedicine()
         {
-            return View();
+            var model = new Medicine
+            {
+                IsActive = true // مقدار پیش فرض
+            };
+
+            ViewBag.StrengthUnits = new SelectList(_context.Units.ToList(), "UnitId", "UnitName");
+            ViewBag.Categories = new SelectList(_context.MedicineCategories.Where(c => c.IsActive == true).ToList(), "CategoryId", "CategoryName");
+
+            return View(model);
         }
 
-        // POST: Medicine/Add
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddMedicine(Medicine medicine)
         {
             if (ModelState.IsValid)
             {
-                medicine.Id = Guid.NewGuid();
-                medicine.CreatedDate = DateTime.Now;
-
+                medicine.MedicineId = Guid.NewGuid();
                 _context.Add(medicine);
                 await _context.SaveChangesAsync();
 
@@ -77,6 +82,9 @@ namespace Mehrsam_Darou.Controllers
             }
 
             TempData["ErrorMessage"] = "لطفاً اطلاعات را صحیح وارد نمایید";
+            ViewBag.StrengthUnits = new SelectList(_context.Units.ToList(), "UnitId", "UnitName");
+            ViewBag.Categories = new SelectList(_context.MedicineCategories.Where(c => c.IsActive == true).ToList(), "CategoryId", "CategoryName");
+
             return View(medicine);
         }
 
@@ -96,7 +104,7 @@ namespace Mehrsam_Darou.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditMedicine(Guid id, Medicine medicine)
         {
-            if (id != medicine.Id)
+            if (id != medicine.MedicineId)
             {
                 return NotFound();
             }
@@ -105,7 +113,7 @@ namespace Mehrsam_Darou.Controllers
             {
                 try
                 {
-                    medicine.CreatedDate = DateTime.Now;
+                    //medicine. = DateTime.Now;
 
                     _context.Update(medicine);
                     await _context.SaveChangesAsync();
@@ -114,7 +122,7 @@ namespace Mehrsam_Darou.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!MedicineExists(medicine.Id))
+                    if (!MedicineExists(medicine.MedicineId))
                     {
                         return NotFound();
                     }
@@ -158,7 +166,7 @@ namespace Mehrsam_Darou.Controllers
 
         private bool MedicineExists(Guid id)
         {
-            return _context.Medicines.Any(e => e.Id == id);
+            return _context.Medicines.Any(e => e.MedicineId == id);
         }
     }
 }

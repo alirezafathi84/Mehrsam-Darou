@@ -13,6 +13,7 @@
     <div class="col-xl-12">
         <div class="card">
             <div class="card-body">
+
                 <!-- Success and Error Alerts -->
                 @if (TempData["SuccessMessage"] != null)
                 {
@@ -50,9 +51,11 @@
                     <table class="table align-middle mb-0 table-hover table-centered">
                         <thead class="bg-light-subtle">
                             <tr>
-                                <th>نام دارو</th>
+                                <th>نام برند</th>
                                 <th>کد دارو</th>
-                                <th>اولویت</th>
+                                <th>غلظت</th>
+                                <th>طول عمر (ماه)</th>
+                                <th>وضعیت</th>
                                 <th>تاریخ ایجاد</th>
                                 <th>اقدامات</th>
                             </tr>
@@ -60,38 +63,60 @@
                         <tbody>
                             @if (Model != null && Model.Any())
                             {
-                                @foreach (var medicine in Model)
+                                foreach (var medicine in Model)
                                 {
                                     <tr>
-                                        <td>@medicine.MedicineName</td>
+                                        <td>@medicine.BrandName</td>
                                         <td>@medicine.MedicineCode</td>
                                         <td>
-                                            <span class="badge bg-primary">@medicine.Priority</span>
-                                        </td>
-                                   
-                                        <td dir="ltr" align="right">
-                                            @{
-                                                if (medicine.CreatedDate.HasValue)
+                                            @if (medicine.Strength.HasValue)
+                                            {
+                                                @medicine.Strength.Value.ToString("0.####")
+                                                @if (medicine.StrengthUnit != null && !string.IsNullOrEmpty(medicine.StrengthUnit.UnitSymbol))
                                                 {
-                                                    var date = medicine.CreatedDate.Value;
-                                                    var persianDate = $"{pc.GetYear(date)}/{pc.GetMonth(date):00}/{pc.GetDayOfMonth(date):00} {date:HH:mm}";
-                                                    @persianDate
+                                                    @($" {medicine.StrengthUnit.UnitSymbol}")
                                                 }
                                             }
                                         </td>
-                                        
-                                     
-                                        
+                                        <td>@(medicine.ShelfLifeMonths ?? 0)</td>
+                                        <td>
+                                            @if (medicine.IsActive.HasValue && medicine.IsActive.Value)
+                                            {
+                                                <span class="badge bg-success">فعال</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">غیرفعال</span>
+                                            }
+                                        </td>
+                                        <td dir="ltr" align="right">
+                                            @{
+                                                // Assuming you have CreatedDate property in Medicine model,
+                                                // if not, please add one or remove this block.
+                                                var createdDateProperty = medicine.GetType().GetProperty("CreatedDate");
+                                                if (createdDateProperty != null)
+                                                {
+                                                    var createdDate = createdDateProperty.GetValue(medicine) as DateTime?;
+                                                    if (createdDate.HasValue)
+                                                    {
+                                                        var date = createdDate.Value;
+                                                        var persianDate = $"{pc.GetYear(date)}/{pc.GetMonth(date):00}/{pc.GetDayOfMonth(date):00} {date:HH:mm}";
+                                                        @persianDate
+                                                    }
+                                                }
+                                            }
+                                        </td>
                                         <td>
                                             <div class="d-flex gap-2">
-                                                <a href="@Url.Action("EditMedicine", "Medicine", new { id = medicine.Id })" class="btn btn-soft-primary btn-sm">
+                                                <a href="@Url.Action("EditMedicine", "Medicine", new { id = medicine.MedicineId })" class="btn btn-soft-primary btn-sm" title="ویرایش">
                                                     <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
                                                 </a>
                                                 <button type="button" class="btn btn-soft-danger btn-sm"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#deleteModal"
-                                                        data-bs-id="@medicine.Id"
-                                                        data-bs-name="@medicine.MedicineName">
+                                                        data-bs-id="@medicine.MedicineId"
+                                                        data-bs-name="@medicine.BrandName"
+                                                        title="حذف">
                                                     <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
                                                 </button>
                                             </div>
@@ -102,7 +127,7 @@
                             else
                             {
                                 <tr>
-                                    <td colspan="5" class="text-center py-4">
+                                    <td colspan="7" class="text-center py-4">
                                         <i class="bx bx-package text-muted fs-1"></i>
                                         <p class="mt-2">هیچ دارویی یافت نشد.</p>
                                     </td>
@@ -173,14 +198,14 @@
             </div>
             <div class="modal-body">
                 <p>آیا از حذف این دارو مطمئن هستید؟</p>
-                <p id="medicineNameToDelete"></p>
+                <p id="medicineNameToDelete" class="fw-bold"></p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
-                <form id="deleteForm" method="post" asp-action="DeleteMedicine">
+                <form id="deleteForm" method="post" asp-action="DeleteMedicine" asp-controller="Medicine">
                     <input type="hidden" id="medicineIdToDelete" name="id" />
                     @Html.AntiForgeryToken()
                     <button type="submit" class="btn btn-danger">حذف</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
                 </form>
             </div>
         </div>
@@ -189,9 +214,9 @@
 
 @section Scripts {
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             var deleteModal = document.getElementById('deleteModal');
-            deleteModal.addEventListener('show.bs.modal', function(event) {
+            deleteModal.addEventListener('show.bs.modal', function (event) {
                 var button = event.relatedTarget;
                 var medicineId = button.getAttribute('data-bs-id');
                 var medicineName = button.getAttribute('data-bs-name');
@@ -201,9 +226,9 @@
             });
 
             // Auto-dismiss alerts after 5 seconds
-            setTimeout(function() {
+            setTimeout(function () {
                 var alerts = document.querySelectorAll('.alert');
-                alerts.forEach(function(alert) {
+                alerts.forEach(function (alert) {
                     var bsAlert = new bootstrap.Alert(alert);
                     bsAlert.close();
                 });

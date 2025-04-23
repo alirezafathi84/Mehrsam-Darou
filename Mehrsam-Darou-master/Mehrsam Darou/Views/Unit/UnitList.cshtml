@@ -1,0 +1,219 @@
+﻿@using static Mehrsam_Darou.Helper.Helper
+@model PaginatedList<Mehrsam_Darou.Models.Unit>
+
+@{
+    ViewData["Title"] = "لیست واحدها";
+    var pc = new System.Globalization.PersianCalendar();
+}
+
+<h2 class="mb-4">لیست واحدها</h2>
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success px-2" role="alert">
+                        <p class="mb-0">@TempData["SuccessMessage"]</p>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger px-2" role="alert">
+                        <p class="mb-0">@TempData["ErrorMessage"]</p>
+                    </div>
+                }
+
+                <div class="d-flex flex-wrap justify-content-between gap-3 mb-3">
+                    <form method="get" asp-action="UnitList">
+                        <div class="search-bar">
+                            <span><i class="bx bx-search-alt"></i></span>
+                            <input type="search" name="SearchKey" value="@Context.Request.Query["SearchKey"]" class="form-control" placeholder="جستجو...">
+                        </div>
+                    </form>
+                    <div>
+                        <a href="@Url.Action("AddUnit", "Unit")" class="btn btn-primary">
+                            <i class="bx bx-plus me-1"></i> واحد جدید
+                        </a>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0 table-hover table-centered">
+                        <thead class="bg-light-subtle">
+                            <tr>
+                                <th>نام واحد</th>
+                                <th>نماد واحد</th>
+                                <th>نوع واحد</th>
+                                <th>واحد پایه</th>
+                                <th>عامل تبدیل</th>
+                                <th>فعال</th>
+                                <th>توضیحات</th>
+                                <th>اقدامات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Any())
+                            {
+                                foreach (var unit in Model)
+                                {
+                                    <tr>
+                                        <td>@unit.UnitName</td>
+                                        <td>@unit.UnitSymbol</td>
+                                        <td>@unit.UnitType.TypeName</td>
+                                        <td>
+                                            @if (unit.IsBaseUnit == true)
+                                            {
+                                                <span class="badge bg-success">بله</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">خیر</span>
+                                            }
+                                        </td>
+                                        <td>@unit.ConversionFactor?.ToString("0.####")</td>
+                                        <td>
+                                            @if (unit.IsActive == true)
+                                            {
+                                                <span class="badge bg-success">فعال</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">غیرفعال</span>
+                                            }
+                                        </td>
+                                        <td>@unit.Description</td>
+                                        <td>
+                                            <div class="d-flex gap-2">
+                                                <a href="@Url.Action("EditUnit", "Unit", new { id = unit.UnitId })" class="btn btn-soft-primary btn-sm" title="ویرایش">
+                                                    <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
+                                                </a>
+                                                <button type="button" class="btn btn-soft-danger btn-sm"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#deleteModal"
+                                                        data-bs-id="@unit.UnitId"
+                                                        data-bs-name="@unit.UnitName"
+                                                        title="حذف">
+                                                    <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="8" class="text-center py-4">
+                                        <i class="bx bx-box text-muted fs-1"></i>
+                                        <p class="mt-2">هیچ واحدی یافت نشد.</p>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+            <div class="card-footer border-top">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-end mb-0">
+                        @if (Model.HasPreviousPage)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("UnitList", new { page = Model.PageIndex - 1, SearchKey = Context.Request.Query["SearchKey"] })">
+                                    <i class="bx bx-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                    <i class="bx bx-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("UnitList", new { page = i, SearchKey = Context.Request.Query["SearchKey"] })">@i</a>
+                            </li>
+                        }
+
+                        @if (Model.HasNextPage)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("UnitList", new { page = Model.PageIndex + 1, SearchKey = Context.Request.Query["SearchKey"] })">
+                                    <i class="bx bx-chevron-left"></i>
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                    <i class="bx bx-chevron-left"></i>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">حذف واحد</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <div class="modal-body">
+                <p>آیا از حذف این واحد مطمئن هستید؟</p>
+                <p id="unitNameToDelete" class="fw-bold"></p>
+            </div>
+            <div class="modal-footer">
+                <form id="deleteForm" method="post" asp-action="DeleteUnit" asp-controller="Unit">
+                    <input type="hidden" id="unitIdToDelete" name="id" />
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">حذف</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var deleteModal = document.getElementById('deleteModal');
+            deleteModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                var unitId = button.getAttribute('data-bs-id');
+                var unitName = button.getAttribute('data-bs-name');
+
+                document.getElementById('unitNameToDelete').textContent = unitName;
+                document.getElementById('unitIdToDelete').value = unitId;
+            });
+
+            // Auto-dismiss alerts after 5 seconds
+            setTimeout(function () {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function (alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+        });
+    </script>
+}
