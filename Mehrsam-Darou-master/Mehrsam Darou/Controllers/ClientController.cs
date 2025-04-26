@@ -62,7 +62,7 @@ namespace Mehrsam_Darou.Controllers
             eul.Status = "ورود به سیستم";
             AddUserEnterLog(eul);
 
-            return RedirectToAction("UserList", "User");
+            return RedirectToAction("Dashboard", "Dashboard");
         }
 
 

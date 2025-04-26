@@ -1,0 +1,638 @@
+﻿@model DashboardViewModel
+@using Mehrsam_Darou.ViewModel
+@using Newtonsoft.Json
+
+
+    <div class="row">
+        <div class="col-xxl-5">
+            <div class="row">
+        @*         <div class="col-12">
+                    <div class="alert alert-primary text-truncate mb-3" role="alert">
+                        متاسفانه باید اعلام کنیم که سرور ما در حال حاضر با مشکلات فنی مواجه است.
+                    </div>
+                </div> *@
+
+                <div class="col-md-6">
+                    <div class="card overflow-hidden">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="avatar-md bg-soft-primary rounded">
+                                        <iconify-icon icon="solar:cart-5-bold-duotone"
+                                                      class="avatar-title fs-32 text-primary"></iconify-icon>
+                                    </div>
+                                </div> <!-- end col -->
+                                <div class="col-6 text-end">
+                                    <p class="text-muted mb-0 text-truncate">تعداد سفارشات</p>
+                                    <h3 class="text-dark mt-1 mb-0">13, 647</h3>
+                                </div> <!-- end col -->
+                            </div> <!-- end row-->
+                        </div> <!-- end card body -->
+                        <div class="card-footer py-2 bg-light bg-opacity-50">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <span class="text-success"> <i class="bx bxs-up-arrow fs-12"></i> 2.3%</span>
+                                    <span class="text-muted ms-1 fs-12">هفته گذشته</span>
+                                </div>
+                                <a href="#!" class="text-reset fw-semibold fs-12">مشاهده بیشتر</a>
+                            </div>
+                        </div> <!-- end card body -->
+                    </div> <!-- end card -->
+                </div> <!-- end col -->
+                <div class="col-md-6">
+                    <div class="card overflow-hidden">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="avatar-md bg-soft-primary rounded">
+                                        <i class="bx bx-award avatar-title fs-24 text-primary"></i>
+                                    </div>
+                                </div> <!-- end col -->
+                                <div class="col-6 text-end">
+                                    <p class="text-muted mb-0 text-truncate">لیدهای جدید</p>
+                                    <h3 class="text-dark mt-1 mb-0">9, 526</h3>
+                                </div> <!-- end col -->
+                            </div> <!-- end row-->
+                        </div> <!-- end card body -->
+                        <div class="card-footer py-2 bg-light bg-opacity-50">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <span class="text-success"> <i class="bx bxs-up-arrow fs-12"></i> 8.1%</span>
+                                    <span class="text-muted ms-1 fs-12">ماه گذشته</span>
+                                </div>
+                                <a href="#!" class="text-reset fw-semibold fs-12">مشاهده بیشتر</a>
+                            </div>
+                        </div> <!-- end card body -->
+                    </div> <!-- end card -->
+                </div> <!-- end col -->
+                <div class="col-md-6">
+                    <div class="card overflow-hidden">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="avatar-md bg-soft-primary rounded">
+                                        <i class="bx bxs-backpack avatar-title fs-24 text-primary"></i>
+                                    </div>
+                                </div> <!-- end col -->
+                                <div class="col-6 text-end">
+                                    <p class="text-muted mb-0 text-truncate">معاملات</p>
+                                    <h3 class="text-dark mt-1 mb-0">976</h3>
+                                </div> <!-- end col -->
+                            </div> <!-- end row-->
+                        </div> <!-- end card body -->
+                        <div class="card-footer py-2 bg-light bg-opacity-50">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <span class="text-danger"> <i class="bx bxs-down-arrow fs-12"></i> 0.3%</span>
+                                    <span class="text-muted ms-1 fs-12">ماه گذشته</span>
+                                </div>
+                                <a href="#!" class="text-reset fw-semibold fs-12">مشاهده بیشتر</a>
+                            </div>
+                        </div> <!-- end card body -->
+                    </div> <!-- end card -->
+                </div> <!-- end col -->
+                <div class="col-md-6">
+                    <div class="card overflow-hidden">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="avatar-md bg-soft-primary rounded">
+                                        <i class="bx bx-dollar-circle avatar-title text-primary fs-24"></i>
+                                    </div>
+                                </div> <!-- end col -->
+                                <div class="col-6 text-end">
+                                    <p class="text-muted mb-0 text-truncate">درآمد رزرو شده</p>
+                                    <h3 class="text-dark mt-1 mb-0">$123.6k</h3>
+                                </div> <!-- end col -->
+                            </div> <!-- end row-->
+                        </div> <!-- end card body -->
+                        <div class="card-footer py-2 bg-light bg-opacity-50">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <span class="text-danger"> <i class="bx bxs-down-arrow fs-12"></i> 10.6%</span>
+                                    <span class="text-muted ms-1 fs-12">ماه گذشته</span>
+                                </div>
+                                <a href="#!" class="text-reset fw-semibold fs-12">مشاهده بیشتر</a>
+                            </div>
+                        </div> <!-- end card body -->
+                    </div> <!-- end card -->
+                </div> <!-- end col -->
+            </div> <!-- end row -->
+        </div> <!-- end col -->
+    <!-- Make sure these scripts are included -->
+
+
+    <div class="col-xxl-7">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="card-title">عملکرد</h4>
+                    <div>
+@*                         <button type="button" class="btn btn-sm btn-outline-light">همه</button>
+                        <button type="button" class="btn btn-sm btn-outline-light">1M</button>
+                        <button type="button" class="btn btn-sm btn-outline-light">6M</button>
+                        <button type="button" class="btn btn-sm btn-outline-light active">1Y</button> *@
+                    </div>
+                </div>
+
+                <!-- Chart container -->
+                <div dir="ltr">
+                    <div id="dash-performance-chart1" class="apex-charts" style="min-height: 350px;"></div>
+                </div>
+            </div>
+        </div>
+        @section Scripts {
+               <script>
+                // Data for Conversions radial chart
+                var conversionsData = {
+                    conversionRate: @Model.ConversionRate,
+                    label: '@Model.ConversionLabel',
+                    colors: @Html.Raw(JsonConvert.SerializeObject(Model.ConversionColors))
+                };
+
+                // Render conversions radial chart
+                var conversionsOptions = {
+                    chart: {
+                        height: 292,
+                        type: 'radialBar',
+                    },
+                    plotOptions: {
+                        radialBar: {
+                            startAngle: -135,
+                            endAngle: 135,
+                            dataLabels: {
+                                name: { fontSize: '14px', offsetY: 100 },
+                                value: {
+                                    offsetY: 55,
+                                    fontSize: '20px',
+                                    formatter: function (val) { return val + "%"; }
+                                },
+                            },
+                            track: { background: "rgba(170,184,197, 0.2)", margin: 0 }
+                        }
+                    },
+                    fill: {
+                        gradient: {
+                            enabled: true,
+                            shade: 'dark',
+                            shadeIntensity: 0.2,
+                            inverseColors: false,
+                            opacityFrom: 1,
+                            opacityTo: 1,
+                            stops: [0, 50, 65, 91]
+                        }
+                    },
+                    stroke: { dashArray: 4 },
+                    colors: conversionsData.colors,
+                    series: [conversionsData.conversionRate],
+                    labels: [conversionsData.label],
+                    responsive: [{
+                        breakpoint: 380,
+                        options: { chart: { height: 180 } }
+                    }],
+                    grid: { padding: { top: 0, right: 0, bottom: 0, left: 0 } }
+                };
+
+                var conversionsChart = new ApexCharts(document.querySelector("#conversions1"), conversionsOptions);
+                conversionsChart.render();
+
+
+                // Data for performance chart
+                var performanceData = {
+                    PageViews: @Html.Raw(JsonConvert.SerializeObject(Model.PageViews)),
+                    Clicks: @Html.Raw(JsonConvert.SerializeObject(Model.Clicks)),
+                    PersianMonths: @Html.Raw(JsonConvert.SerializeObject(Model.PersianMonths))
+                };
+
+                // Render performance chart
+                var performanceOptions = {
+                    series: [{
+                        name: "بازدید صفحات",
+                        type: "bar",
+                        data: performanceData.PageViews,
+                    }, {
+                        name: "کلیک ها",
+                        type: "area",
+                        data: performanceData.Clicks,
+                    }],
+                    chart: {
+                        height: 313,
+                        type: "line",
+                        toolbar: { show: false },
+                    },
+                    stroke: {
+                        dashArray: [0, 0],
+                        width: [0, 2],
+                        curve: 'smooth'
+                    },
+                    fill: {
+                        opacity: [1, 1],
+                        type: ['solid', 'gradient'],
+                        gradient: {
+                            type: "vertical",
+                            inverseColors: false,
+                            opacityFrom: 0.5,
+                            opacityTo: 0,
+                            stops: [0, 90]
+                        },
+                    },
+                    markers: { size: [0, 0], strokeWidth: 2, hover: { size: 4 } },
+                    xaxis: {
+                        categories: performanceData.PersianMonths,
+                        axisTicks: { show: false },
+                        axisBorder: { show: false }
+                    },
+                    yaxis: { min: 0, axisBorder: { show: false } },
+                    grid: {
+                        show: true,
+                        strokeDashArray: 3,
+                        xaxis: { lines: { show: false } },
+                        yaxis: { lines: { show: true } },
+                        padding: { top: 0, right: -2, bottom: 0, left: 10 }
+                    },
+                    legend: {
+                        show: true,
+                        horizontalAlign: "center",
+                        offsetX: 0,
+                        offsetY: 5,
+                        markers: { width: 9, height: 9, radius: 6 },
+                        itemMargin: { horizontal: 10, vertical: 0 }
+                    },
+                    plotOptions: {
+                        bar: { columnWidth: "30%", barHeight: "70%", borderRadius: 3 }
+                    },
+                    colors: ["#ff6c2f", "#22c55e"],
+                    tooltip: {
+                        shared: true,
+                        y: [{
+                            formatter: function (y) { return (typeof y !== "undefined") ? y.toFixed(1) : y; }
+                        }, {
+                            formatter: function (y) { return (typeof y !== "undefined") ? y.toFixed(1) : y; }
+                        }],
+                    }
+                };
+
+                var performanceChart = new ApexCharts(document.querySelector("#dash-performance-chart1"), performanceOptions);
+                performanceChart.render();
+            </script>
+        }
+    </div> <!-- end row -->
+
+
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">تبدیل‌ها</h5>
+                    <div id="conversions1" class="apex-charts mb-2 mt-n2"></div>
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <p class="text-muted mb-2">این هفته</p>
+                            <h3 class="text-dark mb-3">@Model.ThisWeekConversions</h3>
+                        </div>
+                        <div class="col-6">
+                            <p class="text-muted mb-2">هفته گذشته</p>
+                            <h3 class="text-dark mb-3">@Model.LastWeekConversions</h3>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <button type="button" class="btn btn-light shadow-none w-100">مشاهده جزئیات</button>
+                    </div> <!-- end row -->
+                </div>
+            </div>
+        </div> <!-- end left chart card -->
+
+
+
+        <div class="col-lg-8">
+            <div class="card card-height-100">
+                <div class="card-header d-flex align-items-center justify-content-between gap-2">
+                    <h4 class="card-title flex-grow-1">صفحات برتر</h4>
+
+                    <a href="#" class="btn btn-sm btn-soft-primary">مشاهده همه</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover table-nowrap table-centered m-0">
+                        <thead class="bg-light bg-opacity-50">
+                            <tr>
+                                <th class="text-muted ps-3">آدرس صفحه</th>
+                                <th class="text-muted">مشاهده صفحات</th>
+                                <th class="text-muted">نرخ خروج</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="ps-3"><a href="#" class="text-muted">larkon/ecommerce.html</a></td>
+                                <td>465</td>
+                                <td><span class="badge badge-soft-success">4.4%</span></td>
+                            </tr>
+                            <tr>
+                                <td class="ps-3"><a href="#" class="text-muted">larkon/dashboard.html</a></td>
+                                <td> 426</td>
+                                <td><span class="badge badge-soft-danger">20.4%</span></td>
+                            </tr>
+                            <tr>
+                                <td class="ps-3"><a href="#" class="text-muted">larkon/chat.html</a></td>
+                                <td>254</td>
+                                <td><span class="badge badge-soft-warning">12.25%</span></td>
+                            </tr>
+                            <tr>
+                                <td class="ps-3"><a href="#" class="text-muted">larkon/auth-login.html</a></td>
+                                <td> 3369</td>
+                                <td><span class="badge badge-soft-success">5.2%</span></td>
+                            </tr>
+                            <tr>
+                                <td class="ps-3"><a href="#" class="text-muted">larkon/email.html</a></td>
+                                <td>985</td>
+                                <td><span class="badge badge-soft-danger">64.2%</span></td>
+                            </tr>
+                            <tr>
+                                <td class="ps-3"><a href="#" class="text-muted">larkon/social.html</a></td>
+                                <td>653</td>
+                                <td><span class="badge badge-soft-success">2.4%</span></td>
+                            </tr>
+                            <tr>
+                                <td class="ps-3"><a href="#" class="text-muted">larkon/blog.html</a></td>
+                                <td>478</td>
+                                <td><span class="badge badge-soft-danger">1.4%</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div> <!-- end col -->
+
+        <div class="col-xl-4 d-none">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="card-title">معاملات اخیر</h4>
+                    <div>
+                        <a href="#!" class="btn btn-sm btn-primary">
+                            <i class="bx bx-plus me-1"></i>اضافه کردن
+                        </a>
+                    </div>
+                </div> <!-- end card-header-->
+                <div class="card-body p-0">
+                    <div class="px-3" data-simplebar style="max-height: 398px;">
+                        <table class="table table-hover mb-0 table-centered">
+                            <tbody>
+                                <tr>
+                                    <td>24 فروردین، 2024</td>
+                                    <td>$120.55</td>
+                                    <td><span class="badge bg-success">واریز</span></td>
+                                    <td>کمیسیون‌ها</td>
+                                </tr>
+                                <tr>
+                                    <td>24 فروردین، 2024</td>
+                                    <td>$9.68</td>
+                                    <td><span class="badge bg-success">واریز</span></td>
+                                    <td>همکاران</td>
+                                </tr>
+                                <tr>
+                                    <td>20 فروردین، 2024</td>
+                                    <td>$105.22</td>
+                                    <td><span class="badge bg-danger">برداشت</span></td>
+                                    <td>خواربار</td>
+                                </tr>
+                                <tr>
+                                    <td>18 فروردین، 2024</td>
+                                    <td>$80.59</td>
+                                    <td><span class="badge bg-success">واریز</span></td>
+                                    <td>بازپرداخت‌ها</td>
+                                </tr>
+                                <tr>
+                                    <td>18 فروردین، 2024</td>
+                                    <td>$750.95</td>
+                                    <td><span class="badge bg-danger">برداشت</span></td>
+                                    <td>پرداخت قبض‌ها</td>
+                                </tr>
+                                <tr>
+                                    <td>17 فروردین، 2024</td>
+                                    <td>$455.62</td>
+                                    <td><span class="badge bg-danger">برداشت</span></td>
+                                    <td>برق</td>
+                                </tr>
+                                <tr>
+                                    <td>17 فروردین، 2024</td>
+                                    <td>$102.77</td>
+                                    <td><span class="badge bg-success">واریز</span></td>
+                                    <td>بهره</td>
+                                </tr>
+                                <tr>
+                                    <td>16 فروردین، 2024</td>
+                                    <td>$79.49</td>
+                                    <td><span class="badge bg-success">واریز</span></td>
+                                    <td>بازپرداخت‌ها</td>
+                                </tr>
+                                <tr>
+                                    <td>05 فروردین، 2024</td>
+                                    <td>$980.00</td>
+                                    <td><span class="badge bg-danger">برداشت</span></td>
+                                    <td>خرید</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div> <!-- end card body -->
+            </div> <!-- end card-->
+        </div> <!-- end col-->
+    </div> <!-- end row -->
+
+
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <h4 class="card-title">
+                            سفارشات اخیر
+                        </h4>
+
+                        <a href="#!" class="btn btn-sm btn-soft-primary">
+                            <i class="bx bx-plus me-1"></i>ایجاد سفارش
+                        </a>
+                    </div>
+                </div>
+                <!-- end card body -->
+                <div class="table-responsive table-centered">
+                    <table class="table mb-0">
+                        <thead class="bg-light bg-opacity-50">
+                            <tr>
+                                <th class="ps-3">
+                                    شناسه سفارش
+                                </th>
+                                <th>
+                                    تاریخ
+                                </th>
+                                <th>
+                                    محصول
+                                </th>
+                                <th>
+                                    نام مشتری
+                                </th>
+                                <th>
+                                    ایمیل
+                                </th>
+                                <th>
+                                    شماره تلفن
+                                </th>
+                                <th>
+                                    آدرس
+                                </th>
+                                <th>
+                                    نوع پرداخت
+                                </th>
+                                <th>
+                                    وضعیت
+                                </th>
+                            </tr>
+                        </thead>
+                        <!-- end thead-->
+                        <tbody>
+                            <tr>
+                                <td class="ps-3">
+                                    <a href="apps-ecommerce-order-detail.html">#RB5625</a>
+                                </td>
+                                <td>29 آوریل 2024</td>
+                                <td>
+                                    <img src="/images/products/product-1(1).png" alt="product-1(1)"
+                                         class="img-fluid avatar-sm">
+                                </td>
+                                <td>
+                                    <a href="#!">آنا م. هاینز</a>
+                                </td>
+                                <td>anna.hines@mail.com</td>
+                                <td>02171996</td>
+                                <td>بِر ریدج/ایلی‌نوی</td>
+                                <td>کارت اعتباری</td>
+                                <td>
+                                    <i class="bx bxs-circle text-success me-1"></i>تکمیل شده
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="ps-3">
+                                    <a href="apps-ecommerce-order-detail.html">#RB9652</a>
+                                </td>
+                                <td>25 آوریل 2024</td>
+                                <td>
+                                    <img src="/images/products/product-4.png" alt="product-4"
+                                         class="img-fluid avatar-sm">
+                                </td>
+                                <td>
+                                    <a href="#!">جودیت ه. فریتش</a>
+                                </td>
+                                <td>judith.fritsche.com</td>
+                                <td>02134567</td>
+                                <td>سولیوان/کنتاکی</td>
+                                <td>کارت اعتباری</td>
+                                <td>
+                                    <i class="bx bxs-circle text-success me-1"></i>تکمیل شده
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="ps-3">
+                                    <a href="apps-ecommerce-order-detail.html">#RB5984</a>
+                                </td>
+                                <td>25 آوریل 2024</td>
+                                <td>
+                                    <img src="/images/products/product-5.png" alt="product-5"
+                                         class="img-fluid avatar-sm">
+                                </td>
+                                <td>
+                                    <a href="#!">پیتر ت. اسمیت</a>
+                                </td>
+                                <td>peter.smith@mail.com</td>
+                                <td>02134565</td>
+                                <td>یرکا/کالیفرنیا</td>
+                                <td>پی‌پل</td>
+                                <td>
+                                    <i class="bx bxs-circle text-success me-1"></i>تکمیل شده
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="ps-3">
+                                    <a href="apps-ecommerce-order-detail.html">#RB3625</a>
+                                </td>
+                                <td>21 آوریل 2024</td>
+                                <td>
+                                    <img src="/images/products/product-6.png" alt="product-6"
+                                         class="img-fluid avatar-sm">
+                                </td>
+                                <td>
+                                    <a href="#!">امانوئل ج. دلکید</a>
+                                </td>
+                                <td>
+                                    emmanuel.delicid@mail.com
+                                </td>
+                                <td>02134567</td>
+                                <td>آتلانتا/جورجیا</td>
+                                <td>پی‌پل</td>
+                                <td>
+                                    <i class="bx bxs-circle text-primary me-1"></i>در حال پردازش
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="ps-3">
+                                    <a href="apps-ecommerce-order-detail.html">#RB8652</a>
+                                </td>
+                                <td>18 آوریل 2024</td>
+                                <td>
+                                    <img src="/images/products/product-1(2).png" alt="product-1(2)"
+                                         class="img-fluid avatar-sm">
+                                </td>
+                                <td>
+                                    <a href="#!">ویلیام ج. کوک</a>
+                                </td>
+                                <td>william.cook@mail.com</td>
+                                <td>02134567</td>
+                                <td>روزنبرگ/تگزاس</td>
+                                <td>کارت اعتباری</td>
+                                <td>
+                                    <i class="bx bxs-circle text-primary me-1"></i>در حال پردازش
+                                </td>
+                            </tr>
+                        </tbody>
+                        <!-- end tbody -->
+                    </table>
+                    <!-- end table -->
+                </div>
+                <!-- table responsive -->
+
+                <div class="card-footer border-top">
+                    <div class="row g-3">
+                        <div class="col-sm">
+                            <div class="text-muted">
+                                نمایش
+                                <span class="fw-semibold">5</span>
+                                از
+                                <span class="fw-semibold">90,521</span>
+                                سفارش
+                            </div>
+                        </div>
+
+                        <div class="col-sm-auto">
+                            <ul class="pagination m-0">
+                                <li class="page-item">
+                                    <a href="#" class="page-link"><i class="bx bx-right-arrow-alt"></i></a>
+                                </li>
+                                <li class="page-item active">
+                                    <a href="#" class="page-link">1</a>
+                                </li>
+                                <li class="page-item">
+                                    <a href="#" class="page-link">2</a>
+                                </li>
+                                <li class="page-item">
+                                    <a href="#" class="page-link">3</a>
+                                </li>
+                                <li class="page-item">
+                                    <a href="#" class="page-link"><i class="bx bx-left-arrow-alt"></i></a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- end card -->
+        </div>
+        <!-- end col -->
+    </div>
