@@ -80,7 +80,7 @@
                                         </td>
                                         <td>@(medicine.ShelfLifeMonths ?? 0)</td>
                                         <td>
-                                            @if (medicine.IsActive.HasValue && medicine.IsActive.Value)
+                                            @if (medicine.IsActive)
                                             {
                                                 <span class="badge bg-success">فعال</span>
                                             }

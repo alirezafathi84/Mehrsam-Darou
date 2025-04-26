@@ -423,12 +423,27 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                     @if ((bool)ViewData["ManagmentMenu"])
                     {
                         <li class="nav-item">
+
+                            <form method="post" action="@Url.Action("Dashboard", "Dashboard")">
+                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+
+                                    <span class="nav-icon">
+                                        <iconify-icon icon="solar:widget-5-bold-duotone"></iconify-icon>
+                                    </span>
+                                    <span class="nav-text"> داشبورد </span>
+                                </button>
+                            </form>
+
+
+
+@* 
+
                             <a class="nav-link" href="index.html">
                                 <span class="nav-icon">
                                     <iconify-icon icon="solar:widget-5-bold-duotone"></iconify-icon>
                                 </span>
                                 <span class="nav-text"> داشبورد </span>
-                            </a>
+                            </a> *@
                         </li>
                     }
 

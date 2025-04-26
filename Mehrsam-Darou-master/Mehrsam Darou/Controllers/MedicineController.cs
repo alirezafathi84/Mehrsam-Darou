@@ -58,12 +58,10 @@ namespace Mehrsam_Darou.Controllers
         {
             var model = new Medicine
             {
-                IsActive = true // مقدار پیش فرض
+                IsActive = true
             };
 
-            ViewBag.StrengthUnits = new SelectList(_context.Units.ToList(), "UnitId", "UnitName");
-            ViewBag.Categories = new SelectList(_context.MedicineCategories.Where(c => c.IsActive == true).ToList(), "CategoryId", "CategoryName");
-
+            PopulateDropdowns();
             return View(model);
         }
 
@@ -71,21 +69,53 @@ namespace Mehrsam_Darou.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddMedicine(Medicine medicine)
         {
-            if (ModelState.IsValid)
+            // Explicitly validate CategoryId
+            if (medicine.CategoryId == Guid.Empty)
             {
-                medicine.MedicineId = Guid.NewGuid();
-                _context.Add(medicine);
-                await _context.SaveChangesAsync();
+                ModelState.AddModelError("CategoryId", "لطفاً دسته‌بندی را انتخاب کنید");
+            }
+            else { 
 
-                TempData["SuccessMessage"] = "دارو با موفقیت اضافه شد";
-                return RedirectToAction(nameof(MedicineList));
+            medicine.Category = await _context.MedicineCategories
+                        .FindAsync(medicine.CategoryId);
+           
             }
 
-            TempData["ErrorMessage"] = "لطفاً اطلاعات را صحیح وارد نمایید";
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // Attach the category to prevent validation errors
+        
+
+                    _context.Add(medicine);
+                    await _context.SaveChangesAsync();
+
+                    TempData["SuccessMessage"] = "دارو با موفقیت اضافه شد";
+                    return RedirectToAction(nameof(MedicineList));
+                }
+                catch (Exception ex)
+                {
+                    TempData["ErrorMessage"] = "خطا در ذخیره سازی: " + ex.Message;
+                }
+            }
+
+            // Repopulate dropdowns
             ViewBag.StrengthUnits = new SelectList(_context.Units.ToList(), "UnitId", "UnitName");
-            ViewBag.Categories = new SelectList(_context.MedicineCategories.Where(c => c.IsActive == true).ToList(), "CategoryId", "CategoryName");
+            ViewBag.Categories = new SelectList(
+                _context.MedicineCategories.Where(c => c.IsActive == true).ToList(),
+                "CategoryId",
+                "CategoryName",
+                medicine.CategoryId  // Preselect the previously selected value
+            );
 
             return View(medicine);
+        }
+
+        private void PopulateDropdowns()
+        {
+            ViewBag.StrengthUnits = new SelectList(_context.Units.ToList(), "UnitId", "UnitName");
+            ViewBag.Categories = new SelectList(_context.MedicineCategories.Where(c => c.IsActive == true).ToList(), "CategoryId", "CategoryName");
         }
 
         // GET: Medicine/Edit/5
