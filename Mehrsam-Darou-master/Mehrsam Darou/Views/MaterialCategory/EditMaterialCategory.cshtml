@@ -1,4 +1,4 @@
-﻿@model Mehrsam_Darou.Models.MedicineCategory
+﻿@model Mehrsam_Darou.Models.MaterialCategory
 
 @{
     ViewData["Title"] = "ویرایش دسته بندی";
@@ -27,12 +27,12 @@
 
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h4>ویرایش دسته بندی</h4>
-                    <a href="@Url.Action("MedicineCategoryList")" class="btn btn-secondary">
+                    <a href="@Url.Action("MaterialCategoryList")" class="btn btn-secondary">
                         <i class="bx bx-arrow-back me-1"></i> بازگشت به لیست
                     </a>
                 </div>
 
-                <form asp-action="EditMedicineCategory">
+                <form asp-action="EditMaterialCategory">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <input type="hidden" asp-for="CategoryId" />
 
@@ -46,20 +46,32 @@
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label asp-for="IsActive" class="form-label"></label>
-                                <select asp-for="IsActive" class="form-select">
-                                    <option value="true">فعال</option>
-                                    <option value="false">غیرفعال</option>
-                                </select>
-                                <span asp-validation-for="IsActive" class="text-danger"></span>
+                                <label asp-for="HazardClass" class="form-label"></label>
+                                <input asp-for="HazardClass" class="form-control" />
+                                <span asp-validation-for="HazardClass" class="text-danger"></span>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="StorageRequirements" class="form-label"></label>
+                        <textarea asp-for="StorageRequirements" class="form-control" rows="2"></textarea>
+                        <span asp-validation-for="StorageRequirements" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
                         <label asp-for="Description" class="form-label"></label>
                         <textarea asp-for="Description" class="form-control" rows="3"></textarea>
                         <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="IsActive" class="form-label"></label>
+                        <select asp-for="IsActive" class="form-select">
+                            <option value="true">فعال</option>
+                            <option value="false">غیرفعال</option>
+                        </select>
+                        <span asp-validation-for="IsActive" class="text-danger"></span>
                     </div>
 
                     <div class="mt-3">
