@@ -18,17 +18,28 @@
                 }
 
                 <form asp-action="EditMedicine" method="post">
+                    @* Hidden input for Medicine Id *@
                     <input type="hidden" asp-for="MedicineId" />
+
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label asp-for="BrandName" class="form-label">نام برند</label>
-                            <input asp-for="BrandName" class="form-control" required />
+                            <input asp-for="BrandName" class="form-control" />
                             <span asp-validation-for="BrandName" class="text-danger"></span>
                         </div>
+
                         <div class="col-md-6 mb-3">
                             <label asp-for="MedicineCode" class="form-label">کد دارو</label>
-                            <input asp-for="MedicineCode" class="form-control" required />
+                            <input asp-for="MedicineCode" class="form-control" />
                             <span asp-validation-for="MedicineCode" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="CategoryId" class="form-label">دسته‌بندی</label>
+                            <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.Categories" required>
+                                <option value="">-- لطفاً انتخاب کنید --</option>
+                            </select>
+                            <span asp-validation-for="CategoryId" class="text-danger"></span>
                         </div>
 
                         <div class="col-md-6 mb-3">
@@ -43,7 +54,6 @@
                             <span asp-validation-for="ShelfLifeMonths" class="text-danger"></span>
                         </div>
 
-                        <!-- Optional: dropdown for StrengthUnitId -->
                         <div class="col-md-6 mb-3">
                             <label asp-for="StrengthUnitId" class="form-label">واحد غلظت</label>
                             <select asp-for="StrengthUnitId" class="form-select" asp-items="ViewBag.StrengthUnits">
@@ -54,7 +64,7 @@
 
                         <div class="col-md-6 mb-3 d-flex align-items-center">
                             <div class="form-check mt-4">
-                                <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                                <input asp-for="IsActive" class="form-check-input" />
                                 <label asp-for="IsActive" class="form-check-label">فعال باشد</label>
                             </div>
                         </div>

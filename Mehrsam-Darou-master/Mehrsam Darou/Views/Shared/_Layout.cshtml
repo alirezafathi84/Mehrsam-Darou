@@ -603,10 +603,21 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                                             </button>
                                         </form>
                                     </li>
-                                    
-                                    
-                                    
-                                    
+
+
+
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("MedicineCategoryList", "MedicineCategory")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+
+                                                <span class="nav-text">دسته بندی دارو</span>
+                                            </button>
+                                        </form>
+                                    </li>
+
+
+                    
+
                                     <li class="sub-nav-item">
                                         <form method="post" action="@Url.Action("AddNewUser", "User")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">

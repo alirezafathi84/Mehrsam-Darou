@@ -1,19 +1,18 @@
 ﻿@using static Mehrsam_Darou.Helper.Helper
-@model PaginatedList<Mehrsam_Darou.Models.Medicine>
+@model PaginatedList<Mehrsam_Darou.Models.MedicineCategory>
 @using System.Globalization
 
 @{
     PersianCalendar pc = new PersianCalendar();
-    ViewData["Title"] = "لیست داروها";
+    ViewData["Title"] = "لیست دسته بندی داروها";
 }
 
-<h2 class="mb-4">لیست داروها</h2>
+<h2 class="mb-4">لیست دسته بندی داروها</h2>
 
 <div class="row">
     <div class="col-xl-12">
         <div class="card">
             <div class="card-body">
-
                 <!-- Success and Error Alerts -->
                 @if (TempData["SuccessMessage"] != null)
                 {
@@ -32,15 +31,15 @@
                 }
 
                 <div class="d-flex flex-wrap justify-content-between gap-3">
-                    <form method="get" asp-action="MedicineList">
+                    <form method="get" asp-action="Index">
                         <div class="search-bar">
                             <span><i class="bx bx-search-alt"></i></span>
-                            <input type="search" name="SearchKey" value="@Context.Request.Query["SearchKey"]" class="form-control" placeholder="جستجو...">
+                            <input type="search" name="searchKey" value="@Context.Request.Query["searchKey"]" class="form-control" placeholder="جستجو...">
                         </div>
                     </form>
                     <div>
-                        <a href="@Url.Action("AddMedicine", "Medicine")" class="btn btn-primary">
-                            <i class="bx bx-plus me-1"></i> داروی جدید
+                        <a href="@Url.Action("AddMedicineCategory")" class="btn btn-primary">
+                            <i class="bx bx-plus me-1"></i> دسته بندی جدید
                         </a>
                     </div>
                 </div>
@@ -51,39 +50,22 @@
                     <table class="table align-middle mb-0 table-hover table-centered">
                         <thead class="bg-light-subtle">
                             <tr>
-                                <th>نام برند</th>
-                                <th>کد دارو</th>
-                                <th>دسته بندی</th> <!-- Add this -->
-                                <th>غلظت</th>
-                                <th>طول عمر (ماه)</th>
+                                <th>نام دسته بندی</th>
+                                <th>توضیحات</th>
                                 <th>وضعیت</th>
-                                <th>تاریخ ایجاد</th>
                                 <th>اقدامات</th>
                             </tr>
                         </thead>
-                    
                         <tbody>
                             @if (Model != null && Model.Any())
                             {
-                                foreach (var medicine in Model)
+                                foreach (var category in Model)
                                 {
                                     <tr>
-                                        <td>@medicine.BrandName</td>
-                                        <td>@medicine.MedicineCode</td>
-                                        <td>@(medicine.Category != null ? medicine.Category.CategoryName : "-")</td>  <!-- Added here -->
+                                        <td>@category.CategoryName</td>
+                                        <td>@(string.IsNullOrEmpty(category.Description) ? "-" : category.Description)</td>
                                         <td>
-                                            @if (medicine.Strength.HasValue)
-                                            {
-                                                @medicine.Strength.Value.ToString("0.####")
-                                                @if (medicine.StrengthUnit != null && !string.IsNullOrEmpty(medicine.StrengthUnit.UnitSymbol))
-                                                {
-                                                    @($" {medicine.StrengthUnit.UnitSymbol}")
-                                                }
-                                            }
-                                        </td>
-                                        <td>@(medicine.ShelfLifeMonths ?? 0)</td>
-                                        <td>
-                                            @if (medicine.IsActive)
+                                            @if (category.IsActive)
                                             {
                                                 <span class="badge bg-success">فعال</span>
                                             }
@@ -92,34 +74,16 @@
                                                 <span class="badge bg-secondary">غیرفعال</span>
                                             }
                                         </td>
-                                        <td dir="ltr" align="right">
-                                            @{
-                                                var createdDateProperty = medicine.GetType().GetProperty("CreatedDate");
-                                                if (createdDateProperty != null)
-                                                {
-                                                    var createdDate = createdDateProperty.GetValue(medicine) as DateTime?;
-                                                    if (createdDate.HasValue)
-                                                    {
-                                                        var date = createdDate.Value;
-                                                        var persianDate = $"{pc.GetYear(date)}/{pc.GetMonth(date):00}/{pc.GetDayOfMonth(date):00} {date:HH:mm}";
-                                                        @persianDate
-                                                    }
-                                                }
-                                            }
-                                        </td>
                                         <td>
                                             <div class="d-flex gap-2 justify-content-center">
-                                                <a href="@Url.Action("EditMedicine", "Medicine", new { id = medicine.MedicineId })" class="btn btn-soft-primary btn-sm" title="ویرایش">
+                                                <a href="@Url.Action("EditMedicineCategory", new { id = category.CategoryId })" class="btn btn-soft-primary btn-sm" title="ویرایش">
                                                     <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
-                                                </a>
-                                                <a href="@Url.Action("MedicineBOM", "Medicine", new { id = medicine.MedicineId })" class="btn btn-soft-info btn-sm" title="BOM (مواد اولیه)">
-                                                    <iconify-icon icon="solar:box-minimalistic-broken" class="align-middle fs-18"></iconify-icon>
                                                 </a>
                                                 <button type="button" class="btn btn-soft-danger btn-sm"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#deleteModal"
-                                                        data-bs-id="@medicine.MedicineId"
-                                                        data-bs-name="@medicine.BrandName"
+                                                        data-bs-id="@category.CategoryId"
+                                                        data-bs-name="@category.CategoryName"
                                                         title="حذف">
                                                     <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
                                                 </button>
@@ -131,15 +95,13 @@
                             else
                             {
                                 <tr>
-                                    <td colspan="8" class="text-center py-4">
-                                        <i class="bx bx-package text-muted fs-1"></i>
-                                        <p class="mt-2">هیچ دارویی یافت نشد.</p>
+                                    <td colspan="4" class="text-center py-4">
+                                        <i class="bx bx-category text-muted fs-1"></i>
+                                        <p class="mt-2">هیچ دسته بندی یافت نشد.</p>
                                     </td>
                                 </tr>
                             }
                         </tbody>
-
-
                     </table>
                 </div>
             </div>
@@ -150,7 +112,7 @@
                         @if (Model.HasPreviousPage)
                         {
                             <li class="page-item">
-                                <a class="page-link" href="@Url.Action("MedicineList", new { page = Model.PageIndex - 1, SearchKey = Context.Request.Query["SearchKey"] })">
+                                <a class="page-link" href="@Url.Action("MedicineCategoryList", new { page = Model.PageIndex - 1, searchKey = Context.Request.Query["searchKey"] })">
                                     <i class="bx bx-chevron-right"></i>
                                 </a>
                             </li>
@@ -167,14 +129,14 @@
                         @for (int i = 1; i <= Model.TotalPages; i++)
                         {
                             <li class="page-item @(i == Model.PageIndex ? "active" : "")">
-                                <a class="page-link" href="@Url.Action("MedicineList", new { page = i, SearchKey = Context.Request.Query["SearchKey"] })">@i</a>
+                                <a class="page-link" href="@Url.Action("MedicineCategoryList", new { page = i, searchKey = Context.Request.Query["searchKey"] })">@i</a>
                             </li>
                         }
 
                         @if (Model.HasNextPage)
                         {
                             <li class="page-item">
-                                <a class="page-link" href="@Url.Action("MedicineList", new { page = Model.PageIndex + 1, SearchKey = Context.Request.Query["SearchKey"] })">
+                                <a class="page-link" href="@Url.Action("MedicineCategoryList", new { page = Model.PageIndex + 1, searchKey = Context.Request.Query["searchKey"] })">
                                     <i class="bx bx-chevron-left"></i>
                                 </a>
                             </li>
@@ -199,16 +161,16 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">حذف دارو</h5>
+                <h5 class="modal-title">حذف دسته بندی</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
             </div>
             <div class="modal-body">
-                <p>آیا از حذف این دارو مطمئن هستید؟</p>
-                <p id="medicineNameToDelete" class="fw-bold"></p>
+                <p>آیا از حذف این دسته بندی مطمئن هستید؟</p>
+                <p id="categoryNameToDelete" class="fw-bold"></p>
             </div>
             <div class="modal-footer">
-                <form id="deleteForm" method="post" asp-action="DeleteMedicine" asp-controller="Medicine">
-                    <input type="hidden" id="medicineIdToDelete" name="id" />
+                <form id="deleteForm" method="post" asp-action="Delete">
+                    <input type="hidden" id="categoryIdToDelete" name="id" />
                     @Html.AntiForgeryToken()
                     <button type="submit" class="btn btn-danger">حذف</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
@@ -224,11 +186,11 @@
             var deleteModal = document.getElementById('deleteModal');
             deleteModal.addEventListener('show.bs.modal', function (event) {
                 var button = event.relatedTarget;
-                var medicineId = button.getAttribute('data-bs-id');
-                var medicineName = button.getAttribute('data-bs-name');
+                var categoryId = button.getAttribute('data-bs-id');
+                var categoryName = button.getAttribute('data-bs-name');
 
-                document.getElementById('medicineNameToDelete').textContent = medicineName;
-                document.getElementById('medicineIdToDelete').value = medicineId;
+                document.getElementById('categoryNameToDelete').textContent = categoryName;
+                document.getElementById('categoryIdToDelete').value = categoryId;
             });
 
             // Auto-dismiss alerts after 5 seconds
