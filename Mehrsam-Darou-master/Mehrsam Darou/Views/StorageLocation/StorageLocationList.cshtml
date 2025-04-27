@@ -1,0 +1,244 @@
+﻿@using static Mehrsam_Darou.Helper.Helper
+@model PaginatedList<Mehrsam_Darou.Models.StorageLocation>
+@using System.Globalization
+
+@{
+    PersianCalendar pc = new PersianCalendar();
+    ViewData["Title"] = "لیست مکان‌های انبار";
+}
+
+<h2 class="mb-4">لیست مکان‌های انبار</h2>
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- پیام‌های موفقیت/خطا -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success px-2" role="alert">
+                        <p class="mb-0">با موفقیت انجام شد</p>
+                        <p class="mb-0">@TempData["SuccessMessage"]</p>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger px-2" role="alert">
+                        <p class="mb-0">خطا</p>
+                        <p class="mb-0">@TempData["ErrorMessage"]</p>
+                    </div>
+                }
+
+                <div class="d-flex flex-wrap justify-content-between gap-3">
+                    <form method="get" asp-action="StorageLocationList">
+                        <div class="search-bar">
+                            <span><i class="bx bx-search-alt"></i></span>
+                            <input type="search" name="searchKey" value="@Context.Request.Query["searchKey"]" class="form-control" placeholder="جستجو...">
+                        </div>
+                    </form>
+                    <div>
+                        <a href="@Url.Action("AddStorageLocation")" class="btn btn-primary">
+                            <i class="bx bx-plus me-1"></i> مکان انبار جدید
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0 table-hover table-centered">
+                        <thead class="bg-light-subtle">
+                            <tr>
+                                <th>نام مکان</th>
+                                <th>کد مکان</th>
+                                <th>نوع مکان</th>
+                                <th>محدوده دما</th>
+                                <th>ظرفیت</th>
+                                <th>وضعیت</th>
+                                <th>اقدامات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Any())
+                            {
+                                foreach (var location in Model)
+                                {
+                                    <tr>
+                                        <td>@location.LocationName</td>
+                                        <td>@location.LocationCode</td>
+                                        <td>
+                                            @switch (location.LocationType)
+                                            {
+                                                case "Warehouse":
+                                                    <span class="badge bg-primary">انبار</span>
+                                                    break;
+                                                case "Cold Room":
+                                                    <span class="badge bg-info">اتاق سرد</span>
+                                                    break;
+                                                case "Quarantine":
+                                                    <span class="badge bg-warning">قرنطینه</span>
+                                                    break;
+                                                case "Hazardous":
+                                                    <span class="badge bg-danger">مواد خطرناک</span>
+                                                    break;
+                                                default:
+                                                    <span class="badge bg-secondary">@location.LocationType</span>
+                                                    break;
+                                            }
+                                        </td>
+                                        <td>@(location.TemperatureRange ?? "-")</td>
+                                        <td>
+                                            @if (location.Capacity.HasValue)
+                                            {
+                                                @location.Capacity.Value.ToString("0.##")
+                                                @if (location.CapacityUnit != null)
+                                                {
+                                                    @location.CapacityUnit.UnitName
+                                                }
+                                            }
+                                            else
+                                            {
+                                                @:-
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (location.IsActive==true)
+                                            {
+                                                <span class="badge bg-success">فعال</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">غیرفعال</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-2 justify-content-center">
+                                                <a href="@Url.Action("EditStorageLocation", new { id = location.LocationId })" class="btn btn-soft-primary btn-sm" title="ویرایش">
+                                                    <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
+                                                </a>
+                                                <button type="button" class="btn btn-soft-danger btn-sm"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#deleteModal"
+                                                        data-bs-id="@location.LocationId"
+                                                        data-bs-name="@location.LocationName"
+                                                        title="حذف">
+                                                    <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="7" class="text-center py-4">
+                                        <i class="bx bx-building-house text-muted fs-1"></i>
+                                        <p class="mt-2">هیچ مکان انباری یافت نشد.</p>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card-footer border-top">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-end mb-0">
+                        @if (Model.HasPreviousPage)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("StorageLocationList", new { page = Model.PageIndex - 1, searchKey = Context.Request.Query["searchKey"] })">
+                                    <i class="bx bx-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                    <i class="bx bx-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("StorageLocationList", new { page = i, searchKey = Context.Request.Query["searchKey"] })">@i</a>
+                            </li>
+                        }
+
+                        @if (Model.HasNextPage)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("StorageLocationList", new { page = Model.PageIndex + 1, searchKey = Context.Request.Query["searchKey"] })">
+                                    <i class="bx bx-chevron-left"></i>
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                    <i class="bx bx-chevron-left"></i>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- مودال تأیید حذف -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">حذف مکان انبار</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <div class="modal-body">
+                <p>آیا از حذف این مکان انبار مطمئن هستید؟</p>
+                <p id="locationNameToDelete" class="fw-bold"></p>
+            </div>
+            <div class="modal-footer">
+                <form id="deleteForm" method="post" asp-action="Delete">
+                    <input type="hidden" id="locationIdToDelete" name="id" />
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">حذف</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var deleteModal = document.getElementById('deleteModal');
+            deleteModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                var locationId = button.getAttribute('data-bs-id');
+                var locationName = button.getAttribute('data-bs-name');
+
+                document.getElementById('locationNameToDelete').textContent = locationName;
+                document.getElementById('locationIdToDelete').value = locationId;
+            });
+
+            // بستن خودکار پیام‌های هشدار پس از 5 ثانیه
+            setTimeout(function () {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function (alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+        });
+    </script>
+}
