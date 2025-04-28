@@ -55,8 +55,8 @@ namespace Mehrsam_Darou.Controllers
         {
             var model = new DashboardViewModel
             {
-                ConversionRate = 63.2,
-                ConversionLabel = "بازگشت خریدارها",
+                ConversionRate = 90,
+                ConversionLabel = "test",
                 ConversionColors = new[] { "#ff6c2f", "#22c55e" },
                 ThisWeekConversions = "48.5k",
                 LastWeekConversions = "41.05k",

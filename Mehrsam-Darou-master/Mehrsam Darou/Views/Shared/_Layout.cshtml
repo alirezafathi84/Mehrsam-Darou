@@ -510,15 +510,7 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                             </a>
                             <div class="collapse" id="sidebarFinancial">
                                 <ul class="nav sub-navbar-nav">
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("AddNewUser", "User")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-
-                                                <span class="nav-text">حساب</span>
-                                            </button>
-                                        </form>
-                                    </li>
-
+       
 
 
 
@@ -551,29 +543,14 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                             <div class="collapse" id="sidebarInventory">
                                 <ul class="nav sub-navbar-nav">
                                     <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("InventoryList", "Inventory")">
+                                        <form method="post" action="@Url.Action("StorageLocationList", "StorageLocation")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
 
                                                 <span class="nav-text">انبار</span>
                                             </button>
                                         </form>
                                     </li>
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("RawmaterialsList", "Rawmaterials")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-
-                                                <span class="nav-text">مواد اولیه</span>
-                                            </button>
-                                        </form>
-                                    </li>
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("MedicinesList", "Medicines")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-
-                                                <span class="nav-text">دارو ها</span>
-                                            </button>
-                                        </form>
-                                    </li>                                      
+                                                  
                                 </ul>
                             </div>
                         </li>
@@ -615,6 +592,19 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                                         </form>
                                     </li>
 
+
+
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("RawMaterialList", "RawMaterial")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+
+                                                <span class="nav-text">مواد اولیه</span>
+                                            </button>
+                                        </form>
+                                    </li>
+
+
+
                                     <li class="sub-nav-item">
                                         <form method="post" action="@Url.Action("MaterialCategoryList", "MaterialCategory")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
@@ -629,26 +619,11 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
 
                     
 
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("AddNewUser", "User")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-
-                                                <span class="nav-text">انبار</span>
-                                            </button>
-                                        </form>
-                                    </li>
 
 
 
 
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("UserList", "User")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-
-                                                <span class="nav-text">موجودی</span>
-                                            </button>
-                                        </form>
-                                    </li>
+                    
                         
                                 </ul>
                             </div>
@@ -869,25 +844,42 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                             <div class="collapse" id="sidebarPMO">
                                 <ul class="nav sub-navbar-nav">
                                     <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("AddNewUser", "User")">
+                                        <form method="post" action="@Url.Action("ProductionOrderList", "ProductionOrder")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
 
-                                                <span class="nav-text">کنترل کیفیت</span>
+                                                <span class="nav-text">برنامه ریزی تولید</span>
                                             </button>
                                         </form>
                                     </li>
-
-
 
 
                                     <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("UserList", "User")">
+                                        <form method="post" action="@Url.Action("ProductionStepList", "ProductionStep")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
 
-                                                <span class="nav-text">کنترل کیفیت</span>
+                                                <span class="nav-text">لیست مراحل تولید</span>
                                             </button>
                                         </form>
                                     </li>
+
+                                    
+
+
+
+
+                           
+
+                                    <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("ProductionOrderStepList", "ProductionOrderStep")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+
+                                                <span class="nav-text">مراحل سفارش تولید</span>
+                                            </button>
+                                        </form>
+                                    </li>
+
+
+
                         
                                 </ul>
                             </div>

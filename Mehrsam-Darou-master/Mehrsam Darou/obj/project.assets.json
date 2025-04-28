@@ -4744,25 +4744,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\alire\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {},
-    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
+    "C:\\Users\\Robin AI 1\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\TFS Project\\MD\\Mehrsam-Darou\\Mehrsam-Darou-master\\Mehrsam Darou\\Mehrsam Darou.csproj",
+      "projectUniqueName": "D:\\git Proj\\MD\\Mehrsam-Darou-master\\Mehrsam Darou\\Mehrsam Darou.csproj",
       "projectName": "Mehrsam Darou",
-      "projectPath": "C:\\TFS Project\\MD\\Mehrsam-Darou\\Mehrsam-Darou-master\\Mehrsam Darou\\Mehrsam Darou.csproj",
-      "packagesPath": "C:\\Users\\alire\\.nuget\\packages\\",
-      "outputPath": "C:\\TFS Project\\MD\\Mehrsam-Darou\\Mehrsam-Darou-master\\Mehrsam Darou\\obj\\",
+      "projectPath": "D:\\git Proj\\MD\\Mehrsam-Darou-master\\Mehrsam Darou\\Mehrsam Darou.csproj",
+      "packagesPath": "C:\\Users\\Robin AI 1\\.nuget\\packages\\",
+      "outputPath": "D:\\git Proj\\MD\\Mehrsam-Darou-master\\Mehrsam Darou\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
-        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\alire\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Robin AI 1\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -4788,9 +4786,9 @@
       "restoreAuditProperties": {
         "enableAudit": "true",
         "auditLevel": "low",
-        "auditMode": "direct"
+        "auditMode": "all"
       },
-      "SdkAnalysisLevel": "9.0.200"
+      "SdkAnalysisLevel": "9.0.100"
     },
     "frameworks": {
       "net8.0": {
@@ -4830,7 +4828,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.201/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.100/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
