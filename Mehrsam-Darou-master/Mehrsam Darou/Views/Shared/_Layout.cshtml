@@ -880,6 +880,26 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
 
 
 
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("MaterialBatchList", "MaterialBatch")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+
+                                                <span class="nav-text">لیست بچ‌های مواد اولیه</span>
+                                            </button>
+                                        </form>
+                                    </li>
+
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("FinishedGoodsBatchList", "FinishedGoodsBatch")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+
+                                                <span class="nav-text">لیست بچ‌های محصول نهایی</span>
+                                            </button>
+                                        </form>
+                                    </li>
+
+
+
                         
                                 </ul>
                             </div>

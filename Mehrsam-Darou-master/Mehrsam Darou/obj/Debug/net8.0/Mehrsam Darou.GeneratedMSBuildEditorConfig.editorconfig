@@ -48,12 +48,40 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXERhc2hib2FyZC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/FinishedGoodsBatch/AddFinishedGoodsBatch.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmluaXNoZWRHb29kc0JhdGNoXEFkZEZpbmlzaGVkR29vZHNCYXRjaC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/FinishedGoodsBatch/EditFinishedGoodsBatch.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmluaXNoZWRHb29kc0JhdGNoXEVkaXRGaW5pc2hlZEdvb2RzQmF0Y2guY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/FinishedGoodsBatch/FinishedGoodsBatchList.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmluaXNoZWRHb29kc0JhdGNoXEZpbmlzaGVkR29vZHNCYXRjaExpc3QuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/FinishedGoodsBatch/_PrintTemplate.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmluaXNoZWRHb29kc0JhdGNoXF9QcmludFRlbXBsYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Home/UserDetails.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxVc2VyRGV0YWlscy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/MaterialBatch/AddMaterialBatch.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWF0ZXJpYWxCYXRjaFxBZGRNYXRlcmlhbEJhdGNoLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/MaterialBatch/EditMaterialBatch.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWF0ZXJpYWxCYXRjaFxFZGl0TWF0ZXJpYWxCYXRjaC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/MaterialBatch/MaterialBatchList.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWF0ZXJpYWxCYXRjaFxNYXRlcmlhbEJhdGNoTGlzdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/MaterialCategory/AddMaterialCategory.cshtml]

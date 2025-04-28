@@ -1,0 +1,71 @@
+﻿@using Mehrsam_Darou.Controllers
+@model IEnumerable<Mehrsam_Darou.Models.FinishedGoodsBatch>
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <title>لیست بچ‌های محصول نهایی</title>
+    <style>
+        body {
+        font-family: 'B Nazanin', Tahoma;
+        }
+
+        table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        }
+
+        th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: center;
+        }
+
+        th {
+        background-color: #f2f2f2;
+        }
+
+        .header {
+        text-align: center;
+        margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>لیست بچ‌های محصول نهایی</h2>
+        <p>تاریخ چاپ: 
+            DateTime.Now.ToPersianDat1e()
+        </p>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>شماره بچ</th>
+                <th>نام دارو</th>
+                <th>تعداد</th>
+                <th>واحد</th>
+                <th>وضعیت</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.BatchNumber</td>
+                    <td>@item.Medicine?.BrandName</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.Unit?.UnitName</td>
+                    <td>@item.Status</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</body>
+</html>
