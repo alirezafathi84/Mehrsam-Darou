@@ -65,13 +65,13 @@
 
                         <div class="col-md-6 mb-3">
                             <label asp-for="ManufactureDate" class="form-label">تاریخ تولید *</label>
-                            <input asp-for="ManufactureDate" type="date" class="form-control" />
+                            <input asp-for="ManufactureDate" type="text" class="form-control" id="manufactureDatePicker" autocomplete="off" />
                             <span asp-validation-for="ManufactureDate" class="text-danger"></span>
                         </div>
 
                         <div class="col-md-6 mb-3">
                             <label asp-for="ExpiryDate" class="form-label">تاریخ انقضا *</label>
-                            <input asp-for="ExpiryDate" type="date" class="form-control" />
+                            <input asp-for="ExpiryDate" type="text" class="form-control" id="expiryDatePicker" autocomplete="off" />
                             <span asp-validation-for="ExpiryDate" class="text-danger"></span>
                         </div>
 
@@ -98,8 +98,26 @@
     </div>
 </div>
 
+@section Styles {
+    <link href="https://cdn.jsdelivr.net/npm/mdpersiandatetimepicker@7.0.0/dist/jquery.md.bootstrap.datetimepicker.css" rel="stylesheet" />
+}
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mdpersiandatetimepicker@7.0.0/dist/jquery.md.bootstrap.datetimepicker.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $("#manufactureDatePicker, #expiryDatePicker").MdPersianDateTimePicker({
+                englishNumber: true,
+                enableTimePicker: false,
+                textFormat: 'yyyy/MM/dd',
+                isGregorian: false
+            });
+        });
+    </script>
 }
