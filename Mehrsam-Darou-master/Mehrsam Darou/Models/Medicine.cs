@@ -1,56 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Mehrsam_Darou.Models
+namespace Mehrsam_Darou.Models;
+
+public partial class Medicine
 {
-    public partial class Medicine
-    {
-        public Medicine()
-        {
-            IsActive = true; // Set default value in constructor
-        }
+    public Guid MedicineId { get; set; }
 
-        [Key]
-        public Guid MedicineId { get; set; }
+    public string MedicineCode { get; set; } = null!;
 
-        [Required(ErrorMessage = "کد دارو الزامی است")]
-        [StringLength(50, ErrorMessage = "کد دارو نمی‌تواند بیش از 50 کاراکتر باشد")]
-        [Display(Name = "کد دارو")]
-        public string MedicineCode { get; set; } = null!;
+    public string BrandName { get; set; } = null!;
 
-        [Required(ErrorMessage = "نام برند الزامی است")]
-        [StringLength(100, ErrorMessage = "نام برند نمی‌تواند بیش از 100 کاراکتر باشد")]
-        [Display(Name = "نام برند")]
-        public string BrandName { get; set; } = null!;
+    public Guid CategoryId { get; set; }
 
-        [Required(ErrorMessage = "دسته‌بندی الزامی است")]
-        [Display(Name = "دسته‌بندی")]
-        public Guid CategoryId { get; set; }
+    public decimal? Strength { get; set; }
 
-        [Range(0, double.MaxValue, ErrorMessage = "غلظت باید عددی مثبت باشد")]
-        [Display(Name = "غلظت")]
-        public decimal? Strength { get; set; }
+    public Guid? StrengthUnitId { get; set; }
 
-        [Display(Name = "واحد غلظت")]
-        public Guid? StrengthUnitId { get; set; }
+    public int? ShelfLifeMonths { get; set; }
 
-        [Range(1, int.MaxValue, ErrorMessage = "طول عمر باید عددی مثبت باشد")]
-        [Display(Name = "طول عمر (ماه)")]
-        public int? ShelfLifeMonths { get; set; }
+    public bool? IsActive { get; set; }
 
-        [Display(Name = "فعال")]
-        public bool IsActive { get; set; } // Changed to non-nullable with default value
+    public virtual MedicineCategory Category { get; set; } = null!;
 
-        [ForeignKey(nameof(CategoryId))]
-        public virtual MedicineCategory Category { get; set; } = null!;
+    public virtual ICollection<FinishedGoodsBatch> FinishedGoodsBatches { get; set; } = new List<FinishedGoodsBatch>();
 
-        [ForeignKey(nameof(StrengthUnitId))]
-        public virtual Unit? StrengthUnit { get; set; }
+    public virtual ICollection<MedicineBom> MedicineBoms { get; set; } = new List<MedicineBom>();
 
-        public virtual ICollection<FinishedGoodsBatch> FinishedGoodsBatches { get; set; } = new List<FinishedGoodsBatch>();
-        public virtual ICollection<MedicineBom> MedicineBoms { get; set; } = new List<MedicineBom>();
-        public virtual ICollection<ProductionOrder> ProductionOrders { get; set; } = new List<ProductionOrder>();
-    }
+    public virtual ICollection<ProductionOrder> ProductionOrders { get; set; } = new List<ProductionOrder>();
+
+    public virtual Unit? StrengthUnit { get; set; }
 }
