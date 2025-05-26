@@ -8,12 +8,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor();
 // Register DbContext
-//builder.Services.AddDbContext<DarouAppContext>(options =>
-//    options.UseSqlServer("Server=(localdb)\\localDB;Database=DarouApp;Trusted_Connection=True;TrustServerCertificate=True;"));
-
-
 builder.Services.AddDbContext<DarouAppContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer("Server=DESKTOP-PL06GAP;Database=DarouApp;Trusted_Connection=True;TrustServerCertificate=True;"));
+
+
+//builder.Services.AddDbContext<DarouAppContext>(options =>
+//    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add SignalR
 builder.Services.AddSignalR();

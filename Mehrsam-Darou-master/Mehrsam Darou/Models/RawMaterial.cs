@@ -29,5 +29,9 @@ public partial class RawMaterial
 
     public virtual ICollection<MedicineBom> MedicineBoms { get; set; } = new List<MedicineBom>();
 
+    public virtual ICollection<PurchaseInvoiceItem> PurchaseInvoiceItems { get; set; } = new List<PurchaseInvoiceItem>();
+
+    public virtual ICollection<PurchaseOrderItem> PurchaseOrderItems { get; set; } = new List<PurchaseOrderItem>();
+
     public virtual Unit Unit { get; set; } = null!;
 }

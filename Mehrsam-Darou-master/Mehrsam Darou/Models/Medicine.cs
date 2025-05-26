@@ -29,5 +29,11 @@ public partial class Medicine
 
     public virtual ICollection<ProductionOrder> ProductionOrders { get; set; } = new List<ProductionOrder>();
 
+    public virtual ICollection<SalesInvoiceItem> SalesInvoiceItems { get; set; } = new List<SalesInvoiceItem>();
+
+    public virtual ICollection<SalesOrderItem> SalesOrderItems { get; set; } = new List<SalesOrderItem>();
+
+    public virtual ICollection<ShipmentItem> ShipmentItems { get; set; } = new List<ShipmentItem>();
+
     public virtual Unit? StrengthUnit { get; set; }
 }

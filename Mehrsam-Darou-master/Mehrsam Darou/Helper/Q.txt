@@ -1,17 +1,29 @@
 ﻿USE [DarouApp]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_UpdateUserStatus]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  StoredProcedure [dbo].[sp_UpdateUserStatus]    Script Date: 5/26/2025 6:07:53 PM ******/
 DROP PROCEDURE [dbo].[sp_UpdateUserStatus]
 GO
-ALTER TABLE [dbo].[storage_locations] DROP CONSTRAINT [CK__storage_l__locat__5F141958]
+ALTER TABLE [dbo].[storage_locations] DROP CONSTRAINT [CK__storage_l__locat__4A6E022D]
 GO
-ALTER TABLE [dbo].[production_orders] DROP CONSTRAINT [CK__productio__statu__00750D23]
+ALTER TABLE [dbo].[shipments] DROP CONSTRAINT [CK__shipments__statu__4979DDF4]
 GO
-ALTER TABLE [dbo].[production_order_steps] DROP CONSTRAINT [CK__productio__statu__0AF29B96]
+ALTER TABLE [dbo].[sales_orders] DROP CONSTRAINT [CK__sales_ord__statu__4885B9BB]
 GO
-ALTER TABLE [dbo].[material_batches] DROP CONSTRAINT [CK__material___statu__65C116E7]
+ALTER TABLE [dbo].[sales_invoices] DROP CONSTRAINT [CK__sales_inv__statu__47919582]
 GO
-ALTER TABLE [dbo].[finished_goods_batches] DROP CONSTRAINT [CK__finished___statu__119F9925]
+ALTER TABLE [dbo].[purchase_orders] DROP CONSTRAINT [CK__purchase___statu__469D7149]
+GO
+ALTER TABLE [dbo].[purchase_invoices] DROP CONSTRAINT [CK__purchase___statu__45A94D10]
+GO
+ALTER TABLE [dbo].[production_orders] DROP CONSTRAINT [CK__productio__statu__44B528D7]
+GO
+ALTER TABLE [dbo].[production_order_steps] DROP CONSTRAINT [CK__productio__statu__43C1049E]
+GO
+ALTER TABLE [dbo].[material_batches] DROP CONSTRAINT [CK__material___statu__42CCE065]
+GO
+ALTER TABLE [dbo].[finished_goods_batches] DROP CONSTRAINT [CK__finished___statu__41D8BC2C]
+GO
+ALTER TABLE [dbo].[customers] DROP CONSTRAINT [CK__customers__custo__40E497F3]
 GO
 ALTER TABLE [dbo].[UserStatus] DROP CONSTRAINT [FK_UserStatus_User]
 GO
@@ -23,9 +35,61 @@ ALTER TABLE [dbo].[units] DROP CONSTRAINT [FK_units_unit_types]
 GO
 ALTER TABLE [dbo].[storage_locations] DROP CONSTRAINT [FK_storage_locations_units]
 GO
+ALTER TABLE [dbo].[shipments] DROP CONSTRAINT [FK_shipments_sales_orders]
+GO
+ALTER TABLE [dbo].[shipments] DROP CONSTRAINT [FK_shipments_customers]
+GO
+ALTER TABLE [dbo].[shipment_items] DROP CONSTRAINT [FK_shipment_items_units]
+GO
+ALTER TABLE [dbo].[shipment_items] DROP CONSTRAINT [FK_shipment_items_shipments]
+GO
+ALTER TABLE [dbo].[shipment_items] DROP CONSTRAINT [FK_shipment_items_medicines]
+GO
+ALTER TABLE [dbo].[shipment_items] DROP CONSTRAINT [FK_shipment_items_batches]
+GO
+ALTER TABLE [dbo].[sales_orders] DROP CONSTRAINT [FK_sales_orders_customers]
+GO
+ALTER TABLE [dbo].[sales_order_items] DROP CONSTRAINT [FK_so_items_units]
+GO
+ALTER TABLE [dbo].[sales_order_items] DROP CONSTRAINT [FK_so_items_sales_orders]
+GO
+ALTER TABLE [dbo].[sales_order_items] DROP CONSTRAINT [FK_so_items_medicines]
+GO
+ALTER TABLE [dbo].[sales_invoices] DROP CONSTRAINT [FK_sales_invoices_so]
+GO
+ALTER TABLE [dbo].[sales_invoices] DROP CONSTRAINT [FK_sales_invoices_customers]
+GO
+ALTER TABLE [dbo].[sales_invoice_items] DROP CONSTRAINT [FK_si_items_units]
+GO
+ALTER TABLE [dbo].[sales_invoice_items] DROP CONSTRAINT [FK_si_items_sales_invoices]
+GO
+ALTER TABLE [dbo].[sales_invoice_items] DROP CONSTRAINT [FK_si_items_medicines]
+GO
+ALTER TABLE [dbo].[sales_invoice_items] DROP CONSTRAINT [FK_si_items_batches]
+GO
 ALTER TABLE [dbo].[raw_materials] DROP CONSTRAINT [FK_raw_materials_units]
 GO
 ALTER TABLE [dbo].[raw_materials] DROP CONSTRAINT [FK_raw_materials_categories]
+GO
+ALTER TABLE [dbo].[purchase_orders] DROP CONSTRAINT [FK_purchase_orders_suppliers]
+GO
+ALTER TABLE [dbo].[purchase_order_items] DROP CONSTRAINT [FK_po_items_units]
+GO
+ALTER TABLE [dbo].[purchase_order_items] DROP CONSTRAINT [FK_po_items_purchase_orders]
+GO
+ALTER TABLE [dbo].[purchase_order_items] DROP CONSTRAINT [FK_po_items_materials]
+GO
+ALTER TABLE [dbo].[purchase_invoices] DROP CONSTRAINT [FK_purchase_invoices_suppliers]
+GO
+ALTER TABLE [dbo].[purchase_invoices] DROP CONSTRAINT [FK_purchase_invoices_po]
+GO
+ALTER TABLE [dbo].[purchase_invoice_items] DROP CONSTRAINT [FK_pi_items_units]
+GO
+ALTER TABLE [dbo].[purchase_invoice_items] DROP CONSTRAINT [FK_pi_items_purchase_invoices]
+GO
+ALTER TABLE [dbo].[purchase_invoice_items] DROP CONSTRAINT [FK_pi_items_materials]
+GO
+ALTER TABLE [dbo].[purchase_invoice_items] DROP CONSTRAINT [FK_pi_items_batches]
 GO
 ALTER TABLE [dbo].[production_orders] DROP CONSTRAINT [FK_production_orders_units]
 GO
@@ -109,9 +173,21 @@ ALTER TABLE [dbo].[Teams] DROP CONSTRAINT [DF_Teams_ManagmentDashboard]
 GO
 ALTER TABLE [dbo].[Teams] DROP CONSTRAINT [DF_Teams_id]
 GO
+ALTER TABLE [dbo].[suppliers] DROP CONSTRAINT [DF__suppliers__creat__06ED0088]
+GO
+ALTER TABLE [dbo].[suppliers] DROP CONSTRAINT [DF__suppliers__is_ac__05F8DC4F]
+GO
+ALTER TABLE [dbo].[suppliers] DROP CONSTRAINT [DF__suppliers__suppl__0504B816]
+GO
 ALTER TABLE [dbo].[storage_locations] DROP CONSTRAINT [DF__storage_l__is_ac__60083D91]
 GO
 ALTER TABLE [dbo].[storage_locations] DROP CONSTRAINT [DF__storage_l__locat__5E1FF51F]
+GO
+ALTER TABLE [dbo].[shipments] DROP CONSTRAINT [DF__shipments__creat__515009E6]
+GO
+ALTER TABLE [dbo].[shipments] DROP CONSTRAINT [DF__shipments__shipm__4F67C174]
+GO
+ALTER TABLE [dbo].[shipment_items] DROP CONSTRAINT [DF__shipment___shipm__5614BF03]
 GO
 ALTER TABLE [dbo].[Settings] DROP CONSTRAINT [DF_Settings_IsMenuDark]
 GO
@@ -121,9 +197,63 @@ ALTER TABLE [dbo].[Settings] DROP CONSTRAINT [DF_Settings_DefaultColor]
 GO
 ALTER TABLE [dbo].[Settings] DROP CONSTRAINT [DF_Settings_id]
 GO
+ALTER TABLE [dbo].[sales_orders] DROP CONSTRAINT [DF__sales_ord__creat__20ACD28B]
+GO
+ALTER TABLE [dbo].[sales_orders] DROP CONSTRAINT [DF__sales_ord__prior__1FB8AE52]
+GO
+ALTER TABLE [dbo].[sales_orders] DROP CONSTRAINT [DF__sales_ord__curre__1DD065E0]
+GO
+ALTER TABLE [dbo].[sales_orders] DROP CONSTRAINT [DF__sales_ord__sales__1CDC41A7]
+GO
+ALTER TABLE [dbo].[sales_order_items] DROP CONSTRAINT [DF__sales_ord__shipp__2665ABE1]
+GO
+ALTER TABLE [dbo].[sales_order_items] DROP CONSTRAINT [DF__sales_ord__disco__257187A8]
+GO
+ALTER TABLE [dbo].[sales_order_items] DROP CONSTRAINT [DF__sales_ord__so_it__247D636F]
+GO
+ALTER TABLE [dbo].[sales_invoices] DROP CONSTRAINT [DF__sales_inv__creat__4301EA8F]
+GO
+ALTER TABLE [dbo].[sales_invoices] DROP CONSTRAINT [DF__sales_inv__curre__4119A21D]
+GO
+ALTER TABLE [dbo].[sales_invoices] DROP CONSTRAINT [DF__sales_inv__paid___40257DE4]
+GO
+ALTER TABLE [dbo].[sales_invoices] DROP CONSTRAINT [DF__sales_inv__disco__3F3159AB]
+GO
+ALTER TABLE [dbo].[sales_invoices] DROP CONSTRAINT [DF__sales_inv__tax_a__3E3D3572]
+GO
+ALTER TABLE [dbo].[sales_invoices] DROP CONSTRAINT [DF__sales_inv__sales__3D491139]
+GO
+ALTER TABLE [dbo].[sales_invoice_items] DROP CONSTRAINT [DF__sales_inv__disco__48BAC3E5]
+GO
+ALTER TABLE [dbo].[sales_invoice_items] DROP CONSTRAINT [DF__sales_inv__si_it__47C69FAC]
+GO
 ALTER TABLE [dbo].[raw_materials] DROP CONSTRAINT [DF__raw_mater__is_ac__58671BC9]
 GO
 ALTER TABLE [dbo].[raw_materials] DROP CONSTRAINT [DF__raw_mater__mater__5772F790]
+GO
+ALTER TABLE [dbo].[purchase_orders] DROP CONSTRAINT [DF__purchase___creat__0CA5D9DE]
+GO
+ALTER TABLE [dbo].[purchase_orders] DROP CONSTRAINT [DF__purchase___curre__0ABD916C]
+GO
+ALTER TABLE [dbo].[purchase_orders] DROP CONSTRAINT [DF__purchase___purch__09C96D33]
+GO
+ALTER TABLE [dbo].[purchase_order_items] DROP CONSTRAINT [DF__purchase___recei__116A8EFB]
+GO
+ALTER TABLE [dbo].[purchase_order_items] DROP CONSTRAINT [DF__purchase___po_it__10766AC2]
+GO
+ALTER TABLE [dbo].[purchase_invoices] DROP CONSTRAINT [DF__purchase___creat__31D75E8D]
+GO
+ALTER TABLE [dbo].[purchase_invoices] DROP CONSTRAINT [DF__purchase___curre__2FEF161B]
+GO
+ALTER TABLE [dbo].[purchase_invoices] DROP CONSTRAINT [DF__purchase___paid___2EFAF1E2]
+GO
+ALTER TABLE [dbo].[purchase_invoices] DROP CONSTRAINT [DF__purchase___disco__2E06CDA9]
+GO
+ALTER TABLE [dbo].[purchase_invoices] DROP CONSTRAINT [DF__purchase___tax_a__2D12A970]
+GO
+ALTER TABLE [dbo].[purchase_invoices] DROP CONSTRAINT [DF__purchase___purch__2C1E8537]
+GO
+ALTER TABLE [dbo].[purchase_invoice_items] DROP CONSTRAINT [DF__purchase___pi_it__369C13AA]
 GO
 ALTER TABLE [dbo].[production_steps] DROP CONSTRAINT [DF__productio__is_ac__07220AB2]
 GO
@@ -161,139 +291,214 @@ ALTER TABLE [dbo].[material_batches] DROP CONSTRAINT [DF__material___batch__64CC
 GO
 ALTER TABLE [dbo].[finished_goods_batches] DROP CONSTRAINT [DF__finished___batch__10AB74EC]
 GO
+ALTER TABLE [dbo].[customers] DROP CONSTRAINT [DF__customers__creat__19FFD4FC]
+GO
+ALTER TABLE [dbo].[customers] DROP CONSTRAINT [DF__customers__is_ac__190BB0C3]
+GO
+ALTER TABLE [dbo].[customers] DROP CONSTRAINT [DF__customers__custo__17236851]
+GO
 ALTER TABLE [dbo].[ChatMessages] DROP CONSTRAINT [DF__ChatMessa__IsRea__0A9D95DB]
 GO
 ALTER TABLE [dbo].[ChatMessages] DROP CONSTRAINT [DF__ChatMessa__SentA__09A971A2]
 GO
 ALTER TABLE [dbo].[ChatMessages] DROP CONSTRAINT [DF__ChatMessages__Id__08B54D69]
 GO
-/****** Object:  Index [UQ_unit_symbol_type]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Index [UQ_unit_symbol_type]    Script Date: 5/26/2025 6:07:53 PM ******/
 ALTER TABLE [dbo].[units] DROP CONSTRAINT [UQ_unit_symbol_type]
 GO
-/****** Object:  Index [UQ_unit_name_type]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Index [UQ_unit_name_type]    Script Date: 5/26/2025 6:07:53 PM ******/
 ALTER TABLE [dbo].[units] DROP CONSTRAINT [UQ_unit_name_type]
 GO
-/****** Object:  Index [UQ_unit_type_name]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Index [UQ_unit_type_name]    Script Date: 5/26/2025 6:07:53 PM ******/
 ALTER TABLE [dbo].[unit_types] DROP CONSTRAINT [UQ_unit_type_name]
 GO
-/****** Object:  Index [UQ_location_code]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Index [UQ_supplier_code]    Script Date: 5/26/2025 6:07:53 PM ******/
+ALTER TABLE [dbo].[suppliers] DROP CONSTRAINT [UQ_supplier_code]
+GO
+/****** Object:  Index [UQ_location_code]    Script Date: 5/26/2025 6:07:53 PM ******/
 ALTER TABLE [dbo].[storage_locations] DROP CONSTRAINT [UQ_location_code]
 GO
-/****** Object:  Index [UQ_material_code]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Index [UQ_shipment_number]    Script Date: 5/26/2025 6:07:53 PM ******/
+ALTER TABLE [dbo].[shipments] DROP CONSTRAINT [UQ_shipment_number]
+GO
+/****** Object:  Index [UQ_so_number]    Script Date: 5/26/2025 6:07:53 PM ******/
+ALTER TABLE [dbo].[sales_orders] DROP CONSTRAINT [UQ_so_number]
+GO
+/****** Object:  Index [UQ_sales_invoice_number]    Script Date: 5/26/2025 6:07:53 PM ******/
+ALTER TABLE [dbo].[sales_invoices] DROP CONSTRAINT [UQ_sales_invoice_number]
+GO
+/****** Object:  Index [UQ_material_code]    Script Date: 5/26/2025 6:07:53 PM ******/
 ALTER TABLE [dbo].[raw_materials] DROP CONSTRAINT [UQ_material_code]
 GO
-/****** Object:  Index [UQ_step_sequence]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Index [UQ_po_number]    Script Date: 5/26/2025 6:07:53 PM ******/
+ALTER TABLE [dbo].[purchase_orders] DROP CONSTRAINT [UQ_po_number]
+GO
+/****** Object:  Index [UQ_purchase_invoice_number]    Script Date: 5/26/2025 6:07:53 PM ******/
+ALTER TABLE [dbo].[purchase_invoices] DROP CONSTRAINT [UQ_purchase_invoice_number]
+GO
+/****** Object:  Index [UQ_step_sequence]    Script Date: 5/26/2025 6:07:53 PM ******/
 ALTER TABLE [dbo].[production_steps] DROP CONSTRAINT [UQ_step_sequence]
 GO
-/****** Object:  Index [UQ_order_number]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Index [UQ_order_number]    Script Date: 5/26/2025 6:07:53 PM ******/
 ALTER TABLE [dbo].[production_orders] DROP CONSTRAINT [UQ_order_number]
 GO
-/****** Object:  Index [UQ_medicine_code]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Index [UQ_medicine_code]    Script Date: 5/26/2025 6:07:53 PM ******/
 ALTER TABLE [dbo].[medicines] DROP CONSTRAINT [UQ_medicine_code]
 GO
-/****** Object:  Index [UQ_medicine_category_name]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Index [UQ_medicine_category_name]    Script Date: 5/26/2025 6:07:53 PM ******/
 ALTER TABLE [dbo].[medicine_categories] DROP CONSTRAINT [UQ_medicine_category_name]
 GO
-/****** Object:  Index [UQ_medicine_material]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Index [UQ_medicine_material]    Script Date: 5/26/2025 6:07:53 PM ******/
 ALTER TABLE [dbo].[medicine_bom] DROP CONSTRAINT [UQ_medicine_material]
 GO
-/****** Object:  Index [UQ_category_name]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Index [UQ_category_name]    Script Date: 5/26/2025 6:07:53 PM ******/
 ALTER TABLE [dbo].[material_categories] DROP CONSTRAINT [UQ_category_name]
 GO
-/****** Object:  Index [UQ_material_batch]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Index [UQ_material_batch]    Script Date: 5/26/2025 6:07:53 PM ******/
 ALTER TABLE [dbo].[material_batches] DROP CONSTRAINT [UQ_material_batch]
 GO
-/****** Object:  Index [UQ_medicine_batch]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Index [UQ_medicine_batch]    Script Date: 5/26/2025 6:07:53 PM ******/
 ALTER TABLE [dbo].[finished_goods_batches] DROP CONSTRAINT [UQ_medicine_batch]
 GO
-/****** Object:  Table [dbo].[UserEnterLogs]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Index [UQ_customer_code]    Script Date: 5/26/2025 6:07:53 PM ******/
+ALTER TABLE [dbo].[customers] DROP CONSTRAINT [UQ_customer_code]
+GO
+/****** Object:  Table [dbo].[UserEnterLogs]    Script Date: 5/26/2025 6:07:53 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UserEnterLogs]') AND type in (N'U'))
 DROP TABLE [dbo].[UserEnterLogs]
 GO
-/****** Object:  Table [dbo].[units]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[units]    Script Date: 5/26/2025 6:07:53 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[units]') AND type in (N'U'))
 DROP TABLE [dbo].[units]
 GO
-/****** Object:  Table [dbo].[unit_types]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[unit_types]    Script Date: 5/26/2025 6:07:53 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[unit_types]') AND type in (N'U'))
 DROP TABLE [dbo].[unit_types]
 GO
-/****** Object:  Table [dbo].[Teams]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[Teams]    Script Date: 5/26/2025 6:07:53 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Teams]') AND type in (N'U'))
 DROP TABLE [dbo].[Teams]
 GO
-/****** Object:  Table [dbo].[storage_locations]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[suppliers]    Script Date: 5/26/2025 6:07:53 PM ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[suppliers]') AND type in (N'U'))
+DROP TABLE [dbo].[suppliers]
+GO
+/****** Object:  Table [dbo].[storage_locations]    Script Date: 5/26/2025 6:07:53 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[storage_locations]') AND type in (N'U'))
 DROP TABLE [dbo].[storage_locations]
 GO
-/****** Object:  Table [dbo].[Settings]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[shipments]    Script Date: 5/26/2025 6:07:53 PM ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[shipments]') AND type in (N'U'))
+DROP TABLE [dbo].[shipments]
+GO
+/****** Object:  Table [dbo].[shipment_items]    Script Date: 5/26/2025 6:07:53 PM ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[shipment_items]') AND type in (N'U'))
+DROP TABLE [dbo].[shipment_items]
+GO
+/****** Object:  Table [dbo].[Settings]    Script Date: 5/26/2025 6:07:53 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Settings]') AND type in (N'U'))
 DROP TABLE [dbo].[Settings]
 GO
-/****** Object:  Table [dbo].[raw_materials]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[sales_orders]    Script Date: 5/26/2025 6:07:53 PM ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sales_orders]') AND type in (N'U'))
+DROP TABLE [dbo].[sales_orders]
+GO
+/****** Object:  Table [dbo].[sales_order_items]    Script Date: 5/26/2025 6:07:53 PM ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sales_order_items]') AND type in (N'U'))
+DROP TABLE [dbo].[sales_order_items]
+GO
+/****** Object:  Table [dbo].[sales_invoices]    Script Date: 5/26/2025 6:07:53 PM ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sales_invoices]') AND type in (N'U'))
+DROP TABLE [dbo].[sales_invoices]
+GO
+/****** Object:  Table [dbo].[sales_invoice_items]    Script Date: 5/26/2025 6:07:53 PM ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sales_invoice_items]') AND type in (N'U'))
+DROP TABLE [dbo].[sales_invoice_items]
+GO
+/****** Object:  Table [dbo].[raw_materials]    Script Date: 5/26/2025 6:07:53 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[raw_materials]') AND type in (N'U'))
 DROP TABLE [dbo].[raw_materials]
 GO
-/****** Object:  Table [dbo].[production_steps]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[purchase_orders]    Script Date: 5/26/2025 6:07:53 PM ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[purchase_orders]') AND type in (N'U'))
+DROP TABLE [dbo].[purchase_orders]
+GO
+/****** Object:  Table [dbo].[purchase_order_items]    Script Date: 5/26/2025 6:07:53 PM ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[purchase_order_items]') AND type in (N'U'))
+DROP TABLE [dbo].[purchase_order_items]
+GO
+/****** Object:  Table [dbo].[purchase_invoices]    Script Date: 5/26/2025 6:07:53 PM ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[purchase_invoices]') AND type in (N'U'))
+DROP TABLE [dbo].[purchase_invoices]
+GO
+/****** Object:  Table [dbo].[purchase_invoice_items]    Script Date: 5/26/2025 6:07:53 PM ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[purchase_invoice_items]') AND type in (N'U'))
+DROP TABLE [dbo].[purchase_invoice_items]
+GO
+/****** Object:  Table [dbo].[production_steps]    Script Date: 5/26/2025 6:07:53 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[production_steps]') AND type in (N'U'))
 DROP TABLE [dbo].[production_steps]
 GO
-/****** Object:  Table [dbo].[production_orders]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[production_orders]    Script Date: 5/26/2025 6:07:53 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[production_orders]') AND type in (N'U'))
 DROP TABLE [dbo].[production_orders]
 GO
-/****** Object:  Table [dbo].[production_order_steps]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[production_order_steps]    Script Date: 5/26/2025 6:07:53 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[production_order_steps]') AND type in (N'U'))
 DROP TABLE [dbo].[production_order_steps]
 GO
-/****** Object:  Table [dbo].[Organizations]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[Organizations]    Script Date: 5/26/2025 6:07:53 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Organizations]') AND type in (N'U'))
 DROP TABLE [dbo].[Organizations]
 GO
-/****** Object:  Table [dbo].[Notifications]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[Notifications]    Script Date: 5/26/2025 6:07:53 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Notifications]') AND type in (N'U'))
 DROP TABLE [dbo].[Notifications]
 GO
-/****** Object:  Table [dbo].[medicines]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[medicines]    Script Date: 5/26/2025 6:07:53 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[medicines]') AND type in (N'U'))
 DROP TABLE [dbo].[medicines]
 GO
-/****** Object:  Table [dbo].[medicine_categories]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[medicine_categories]    Script Date: 5/26/2025 6:07:53 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[medicine_categories]') AND type in (N'U'))
 DROP TABLE [dbo].[medicine_categories]
 GO
-/****** Object:  Table [dbo].[medicine_bom]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[medicine_bom]    Script Date: 5/26/2025 6:07:53 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[medicine_bom]') AND type in (N'U'))
 DROP TABLE [dbo].[medicine_bom]
 GO
-/****** Object:  Table [dbo].[material_categories]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[material_categories]    Script Date: 5/26/2025 6:07:53 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[material_categories]') AND type in (N'U'))
 DROP TABLE [dbo].[material_categories]
 GO
-/****** Object:  Table [dbo].[material_batches]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[material_batches]    Script Date: 5/26/2025 6:07:53 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[material_batches]') AND type in (N'U'))
 DROP TABLE [dbo].[material_batches]
 GO
-/****** Object:  Table [dbo].[finished_goods_batches]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[finished_goods_batches]    Script Date: 5/26/2025 6:07:53 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[finished_goods_batches]') AND type in (N'U'))
 DROP TABLE [dbo].[finished_goods_batches]
 GO
-/****** Object:  Table [dbo].[ChatMessages]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[customers]    Script Date: 5/26/2025 6:07:53 PM ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[customers]') AND type in (N'U'))
+DROP TABLE [dbo].[customers]
+GO
+/****** Object:  Table [dbo].[ChatMessages]    Script Date: 5/26/2025 6:07:53 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ChatMessages]') AND type in (N'U'))
 DROP TABLE [dbo].[ChatMessages]
 GO
-/****** Object:  View [dbo].[vw_OnlineUsers]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  View [dbo].[vw_OnlineUsers]    Script Date: 5/26/2025 6:07:53 PM ******/
 DROP VIEW [dbo].[vw_OnlineUsers]
 GO
-/****** Object:  Table [dbo].[Users]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[Users]    Script Date: 5/26/2025 6:07:53 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Users]') AND type in (N'U'))
 DROP TABLE [dbo].[Users]
 GO
-/****** Object:  Table [dbo].[UserStatus]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[UserStatus]    Script Date: 5/26/2025 6:07:53 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UserStatus]') AND type in (N'U'))
 DROP TABLE [dbo].[UserStatus]
 GO
-/****** Object:  Table [dbo].[UserStatus]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[UserStatus]    Script Date: 5/26/2025 6:07:53 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -308,7 +513,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Users]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[Users]    Script Date: 5/26/2025 6:07:53 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -330,7 +535,7 @@ CREATE TABLE [dbo].[Users](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  View [dbo].[vw_OnlineUsers]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  View [dbo].[vw_OnlineUsers]    Script Date: 5/26/2025 6:07:53 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -352,7 +557,7 @@ JOIN
 WHERE 
     us.LastSeen >= DATEADD(MINUTE, -30, GETUTCDATE());
 GO
-/****** Object:  Table [dbo].[ChatMessages]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[ChatMessages]    Script Date: 5/26/2025 6:07:53 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -371,7 +576,33 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[finished_goods_batches]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[customers]    Script Date: 5/26/2025 6:07:53 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[customers](
+	[customer_id] [uniqueidentifier] NOT NULL,
+	[customer_code] [nvarchar](20) NOT NULL,
+	[customer_name] [nvarchar](100) NOT NULL,
+	[customer_type] [nvarchar](20) NULL,
+	[contact_person] [nvarchar](100) NULL,
+	[email] [nvarchar](100) NULL,
+	[phone] [nvarchar](20) NULL,
+	[billing_address] [ntext] NULL,
+	[shipping_address] [ntext] NULL,
+	[tax_number] [nvarchar](50) NULL,
+	[credit_limit] [decimal](15, 2) NULL,
+	[payment_terms] [nvarchar](50) NULL,
+	[is_active] [bit] NULL,
+	[created_date] [datetime] NOT NULL,
+ CONSTRAINT [PK_customers] PRIMARY KEY CLUSTERED 
+(
+	[customer_id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[finished_goods_batches]    Script Date: 5/26/2025 6:07:53 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -379,21 +610,21 @@ GO
 CREATE TABLE [dbo].[finished_goods_batches](
 	[batch_id] [uniqueidentifier] NOT NULL,
 	[medicine_id] [uniqueidentifier] NOT NULL,
-	[batch_number] [varchar](50) NOT NULL,
+	[batch_number] [nvarchar](50) NOT NULL,
 	[order_id] [uniqueidentifier] NULL,
 	[quantity] [decimal](10, 3) NOT NULL,
 	[unit_id] [uniqueidentifier] NOT NULL,
 	[location_id] [uniqueidentifier] NULL,
 	[manufacture_date] [date] NOT NULL,
 	[expiry_date] [date] NOT NULL,
-	[status] [varchar](20) NULL,
+	[status] [nvarchar](20) NULL,
  CONSTRAINT [PK_finished_goods_batches] PRIMARY KEY CLUSTERED 
 (
 	[batch_id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[material_batches]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[material_batches]    Script Date: 5/26/2025 6:07:53 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -401,12 +632,12 @@ GO
 CREATE TABLE [dbo].[material_batches](
 	[batch_id] [uniqueidentifier] NOT NULL,
 	[material_id] [uniqueidentifier] NOT NULL,
-	[batch_number] [varchar](50) NOT NULL,
+	[batch_number] [nvarchar](50) NOT NULL,
 	[initial_quantity] [decimal](10, 3) NOT NULL,
 	[current_quantity] [decimal](10, 3) NOT NULL,
 	[unit_id] [uniqueidentifier] NOT NULL,
 	[location_id] [uniqueidentifier] NULL,
-	[status] [varchar](20) NULL,
+	[status] [nvarchar](20) NULL,
 	[expiry_date] [date] NULL,
  CONSTRAINT [PK_material_batches] PRIMARY KEY CLUSTERED 
 (
@@ -414,16 +645,16 @@ CREATE TABLE [dbo].[material_batches](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[material_categories]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[material_categories]    Script Date: 5/26/2025 6:07:53 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[material_categories](
 	[category_id] [uniqueidentifier] NOT NULL,
-	[category_name] [varchar](50) NOT NULL,
-	[description] [text] NULL,
-	[storage_requirements] [text] NULL,
+	[category_name] [nvarchar](50) NOT NULL,
+	[description] [nvarchar](max) NULL,
+	[storage_requirements] [nvarchar](max) NULL,
 	[hazard_class] [varchar](50) NULL,
 	[is_active] [bit] NULL,
  CONSTRAINT [PK_material_categories] PRIMARY KEY CLUSTERED 
@@ -432,7 +663,7 @@ CREATE TABLE [dbo].[material_categories](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[medicine_bom]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[medicine_bom]    Script Date: 5/26/2025 6:07:53 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -450,15 +681,15 @@ CREATE TABLE [dbo].[medicine_bom](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[medicine_categories]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[medicine_categories]    Script Date: 5/26/2025 6:07:53 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[medicine_categories](
 	[category_id] [uniqueidentifier] NOT NULL,
-	[category_name] [varchar](50) NOT NULL,
-	[description] [text] NULL,
+	[category_name] [nvarchar](50) NOT NULL,
+	[description] [nvarchar](max) NULL,
 	[is_active] [bit] NULL,
  CONSTRAINT [PK_medicine_categories] PRIMARY KEY CLUSTERED 
 (
@@ -466,15 +697,15 @@ CREATE TABLE [dbo].[medicine_categories](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[medicines]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[medicines]    Script Date: 5/26/2025 6:07:53 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[medicines](
 	[medicine_id] [uniqueidentifier] NOT NULL,
-	[medicine_code] [varchar](20) NOT NULL,
-	[brand_name] [varchar](100) NOT NULL,
+	[medicine_code] [nvarchar](20) NOT NULL,
+	[brand_name] [nvarchar](100) NOT NULL,
 	[category_id] [uniqueidentifier] NOT NULL,
 	[strength] [decimal](10, 4) NULL,
 	[strength_unit_id] [uniqueidentifier] NULL,
@@ -486,7 +717,7 @@ CREATE TABLE [dbo].[medicines](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Notifications]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[Notifications]    Script Date: 5/26/2025 6:07:53 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -507,7 +738,7 @@ CREATE TABLE [dbo].[Notifications](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Organizations]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[Organizations]    Script Date: 5/26/2025 6:07:53 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -522,7 +753,7 @@ CREATE TABLE [dbo].[Organizations](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[production_order_steps]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[production_order_steps]    Script Date: 5/26/2025 6:07:53 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -534,27 +765,27 @@ CREATE TABLE [dbo].[production_order_steps](
 	[planned_start] [datetime] NULL,
 	[actual_start] [datetime] NULL,
 	[actual_end] [datetime] NULL,
-	[status] [varchar](20) NULL,
-	[notes] [text] NULL,
+	[status] [nvarchar](20) NULL,
+	[notes] [nvarchar](max) NULL,
  CONSTRAINT [PK_production_order_steps] PRIMARY KEY CLUSTERED 
 (
 	[order_step_id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[production_orders]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[production_orders]    Script Date: 5/26/2025 6:07:53 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[production_orders](
 	[order_id] [uniqueidentifier] NOT NULL,
-	[order_number] [varchar](20) NOT NULL,
+	[order_number] [nvarchar](20) NOT NULL,
 	[medicine_id] [uniqueidentifier] NOT NULL,
 	[quantity] [decimal](10, 3) NOT NULL,
 	[unit_id] [uniqueidentifier] NOT NULL,
 	[target_date] [date] NOT NULL,
-	[status] [varchar](20) NULL,
+	[status] [nvarchar](20) NULL,
 	[priority] [int] NULL,
  CONSTRAINT [PK_production_orders] PRIMARY KEY CLUSTERED 
 (
@@ -562,15 +793,15 @@ CREATE TABLE [dbo].[production_orders](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[production_steps]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[production_steps]    Script Date: 5/26/2025 6:07:53 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[production_steps](
 	[step_id] [uniqueidentifier] NOT NULL,
-	[step_name] [varchar](100) NOT NULL,
-	[description] [text] NULL,
+	[step_name] [nvarchar](100) NOT NULL,
+	[description] [nvarchar](max) NULL,
 	[sequence] [int] NOT NULL,
 	[is_active] [bit] NULL,
  CONSTRAINT [PK_production_steps] PRIMARY KEY CLUSTERED 
@@ -579,15 +810,111 @@ CREATE TABLE [dbo].[production_steps](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[raw_materials]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[purchase_invoice_items]    Script Date: 5/26/2025 6:07:53 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[purchase_invoice_items](
+	[pi_item_id] [uniqueidentifier] NOT NULL,
+	[purchase_invoice_id] [uniqueidentifier] NOT NULL,
+	[material_id] [uniqueidentifier] NOT NULL,
+	[batch_id] [uniqueidentifier] NULL,
+	[quantity] [decimal](10, 3) NOT NULL,
+	[unit_id] [uniqueidentifier] NOT NULL,
+	[unit_price] [decimal](12, 4) NOT NULL,
+	[total_price] [decimal](15, 2) NOT NULL,
+	[notes] [ntext] NULL,
+ CONSTRAINT [PK_purchase_invoice_items] PRIMARY KEY CLUSTERED 
+(
+	[pi_item_id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[purchase_invoices]    Script Date: 5/26/2025 6:07:53 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[purchase_invoices](
+	[purchase_invoice_id] [uniqueidentifier] NOT NULL,
+	[invoice_number] [nvarchar](20) NOT NULL,
+	[supplier_invoice_number] [nvarchar](50) NULL,
+	[purchase_order_id] [uniqueidentifier] NULL,
+	[supplier_id] [uniqueidentifier] NOT NULL,
+	[invoice_date] [date] NOT NULL,
+	[due_date] [date] NULL,
+	[subtotal] [decimal](15, 2) NOT NULL,
+	[tax_amount] [decimal](15, 2) NULL,
+	[discount_amount] [decimal](15, 2) NULL,
+	[total_amount] [decimal](15, 2) NOT NULL,
+	[paid_amount] [decimal](15, 2) NULL,
+	[currency] [nvarchar](3) NULL,
+	[status] [nvarchar](20) NULL,
+	[payment_method] [nvarchar](50) NULL,
+	[notes] [ntext] NULL,
+	[created_by] [uniqueidentifier] NULL,
+	[created_date] [datetime] NOT NULL,
+ CONSTRAINT [PK_purchase_invoices] PRIMARY KEY CLUSTERED 
+(
+	[purchase_invoice_id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[purchase_order_items]    Script Date: 5/26/2025 6:07:53 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[purchase_order_items](
+	[po_item_id] [uniqueidentifier] NOT NULL,
+	[purchase_order_id] [uniqueidentifier] NOT NULL,
+	[material_id] [uniqueidentifier] NOT NULL,
+	[quantity] [decimal](10, 3) NOT NULL,
+	[unit_id] [uniqueidentifier] NOT NULL,
+	[unit_price] [decimal](12, 4) NOT NULL,
+	[total_price] [decimal](15, 2) NOT NULL,
+	[received_quantity] [decimal](10, 3) NULL,
+	[notes] [ntext] NULL,
+ CONSTRAINT [PK_purchase_order_items] PRIMARY KEY CLUSTERED 
+(
+	[po_item_id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[purchase_orders]    Script Date: 5/26/2025 6:07:53 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[purchase_orders](
+	[purchase_order_id] [uniqueidentifier] NOT NULL,
+	[po_number] [nvarchar](20) NOT NULL,
+	[supplier_id] [uniqueidentifier] NOT NULL,
+	[order_date] [date] NOT NULL,
+	[expected_delivery_date] [date] NULL,
+	[actual_delivery_date] [date] NULL,
+	[total_amount] [decimal](15, 2) NULL,
+	[currency] [nvarchar](3) NULL,
+	[status] [nvarchar](20) NULL,
+	[notes] [ntext] NULL,
+	[created_by] [uniqueidentifier] NULL,
+	[created_date] [datetime] NOT NULL,
+ CONSTRAINT [PK_purchase_orders] PRIMARY KEY CLUSTERED 
+(
+	[purchase_order_id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[raw_materials]    Script Date: 5/26/2025 6:07:53 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[raw_materials](
 	[material_id] [uniqueidentifier] NOT NULL,
-	[material_code] [varchar](20) NOT NULL,
-	[material_name] [varchar](100) NOT NULL,
+	[material_code] [nvarchar](20) NOT NULL,
+	[material_name] [nvarchar](100) NOT NULL,
 	[category_id] [uniqueidentifier] NOT NULL,
 	[unit_id] [uniqueidentifier] NOT NULL,
 	[min_stock_level] [decimal](10, 3) NULL,
@@ -600,7 +927,108 @@ CREATE TABLE [dbo].[raw_materials](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Settings]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[sales_invoice_items]    Script Date: 5/26/2025 6:07:53 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[sales_invoice_items](
+	[si_item_id] [uniqueidentifier] NOT NULL,
+	[sales_invoice_id] [uniqueidentifier] NOT NULL,
+	[medicine_id] [uniqueidentifier] NOT NULL,
+	[batch_id] [uniqueidentifier] NULL,
+	[quantity] [decimal](10, 3) NOT NULL,
+	[unit_id] [uniqueidentifier] NOT NULL,
+	[unit_price] [decimal](12, 4) NOT NULL,
+	[discount_percent] [decimal](5, 2) NULL,
+	[total_price] [decimal](15, 2) NOT NULL,
+	[notes] [ntext] NULL,
+ CONSTRAINT [PK_sales_invoice_items] PRIMARY KEY CLUSTERED 
+(
+	[si_item_id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[sales_invoices]    Script Date: 5/26/2025 6:07:53 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[sales_invoices](
+	[sales_invoice_id] [uniqueidentifier] NOT NULL,
+	[invoice_number] [nvarchar](20) NOT NULL,
+	[sales_order_id] [uniqueidentifier] NULL,
+	[customer_id] [uniqueidentifier] NOT NULL,
+	[invoice_date] [date] NOT NULL,
+	[due_date] [date] NULL,
+	[subtotal] [decimal](15, 2) NOT NULL,
+	[tax_amount] [decimal](15, 2) NULL,
+	[discount_amount] [decimal](15, 2) NULL,
+	[total_amount] [decimal](15, 2) NOT NULL,
+	[paid_amount] [decimal](15, 2) NULL,
+	[currency] [nvarchar](3) NULL,
+	[status] [nvarchar](20) NULL,
+	[payment_method] [nvarchar](50) NULL,
+	[notes] [ntext] NULL,
+	[created_by] [uniqueidentifier] NULL,
+	[created_date] [datetime] NOT NULL,
+ CONSTRAINT [PK_sales_invoices] PRIMARY KEY CLUSTERED 
+(
+	[sales_invoice_id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[sales_order_items]    Script Date: 5/26/2025 6:07:53 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[sales_order_items](
+	[so_item_id] [uniqueidentifier] NOT NULL,
+	[sales_order_id] [uniqueidentifier] NOT NULL,
+	[medicine_id] [uniqueidentifier] NOT NULL,
+	[quantity] [decimal](10, 3) NOT NULL,
+	[unit_id] [uniqueidentifier] NOT NULL,
+	[unit_price] [decimal](12, 4) NOT NULL,
+	[discount_percent] [decimal](5, 2) NULL,
+	[total_price] [decimal](15, 2) NOT NULL,
+	[shipped_quantity] [decimal](10, 3) NULL,
+	[notes] [ntext] NULL,
+ CONSTRAINT [PK_sales_order_items] PRIMARY KEY CLUSTERED 
+(
+	[so_item_id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[sales_orders]    Script Date: 5/26/2025 6:07:53 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[sales_orders](
+	[sales_order_id] [uniqueidentifier] NOT NULL,
+	[so_number] [nvarchar](20) NOT NULL,
+	[customer_id] [uniqueidentifier] NOT NULL,
+	[order_date] [date] NOT NULL,
+	[requested_delivery_date] [date] NULL,
+	[promised_delivery_date] [date] NULL,
+	[total_amount] [decimal](15, 2) NULL,
+	[tax_amount] [decimal](15, 2) NULL,
+	[discount_amount] [decimal](15, 2) NULL,
+	[net_amount] [decimal](15, 2) NULL,
+	[currency] [nvarchar](3) NULL,
+	[status] [nvarchar](20) NULL,
+	[priority] [int] NULL,
+	[notes] [ntext] NULL,
+	[created_by] [uniqueidentifier] NULL,
+	[created_date] [datetime] NOT NULL,
+ CONSTRAINT [PK_sales_orders] PRIMARY KEY CLUSTERED 
+(
+	[sales_order_id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Settings]    Script Date: 5/26/2025 6:07:53 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -617,17 +1045,65 @@ CREATE TABLE [dbo].[Settings](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[storage_locations]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[shipment_items]    Script Date: 5/26/2025 6:07:53 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[shipment_items](
+	[shipment_item_id] [uniqueidentifier] NOT NULL,
+	[shipment_id] [uniqueidentifier] NOT NULL,
+	[medicine_id] [uniqueidentifier] NOT NULL,
+	[batch_id] [uniqueidentifier] NULL,
+	[quantity] [decimal](10, 3) NOT NULL,
+	[unit_id] [uniqueidentifier] NOT NULL,
+	[notes] [ntext] NULL,
+ CONSTRAINT [PK_shipment_items] PRIMARY KEY CLUSTERED 
+(
+	[shipment_item_id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[shipments]    Script Date: 5/26/2025 6:07:53 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[shipments](
+	[shipment_id] [uniqueidentifier] NOT NULL,
+	[shipment_number] [nvarchar](20) NOT NULL,
+	[sales_order_id] [uniqueidentifier] NULL,
+	[customer_id] [uniqueidentifier] NOT NULL,
+	[shipment_date] [date] NOT NULL,
+	[expected_delivery_date] [date] NULL,
+	[actual_delivery_date] [date] NULL,
+	[carrier] [nvarchar](100) NULL,
+	[tracking_number] [nvarchar](100) NULL,
+	[shipping_address] [ntext] NULL,
+	[shipping_cost] [decimal](10, 2) NULL,
+	[weight_kg] [decimal](10, 3) NULL,
+	[volume_m3] [decimal](10, 6) NULL,
+	[status] [nvarchar](20) NULL,
+	[notes] [ntext] NULL,
+	[created_by] [uniqueidentifier] NULL,
+	[created_date] [datetime] NOT NULL,
+ CONSTRAINT [PK_shipments] PRIMARY KEY CLUSTERED 
+(
+	[shipment_id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[storage_locations]    Script Date: 5/26/2025 6:07:53 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[storage_locations](
 	[location_id] [uniqueidentifier] NOT NULL,
-	[location_code] [varchar](20) NOT NULL,
-	[location_name] [varchar](100) NOT NULL,
-	[location_type] [varchar](20) NULL,
-	[temperature_range] [varchar](50) NULL,
+	[location_code] [nvarchar](20) NOT NULL,
+	[location_name] [nvarchar](100) NOT NULL,
+	[location_type] [nvarchar](20) NULL,
+	[temperature_range] [nvarchar](50) NULL,
 	[capacity] [decimal](10, 2) NULL,
 	[capacity_unit_id] [uniqueidentifier] NULL,
 	[is_active] [bit] NULL,
@@ -637,7 +1113,31 @@ CREATE TABLE [dbo].[storage_locations](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Teams]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[suppliers]    Script Date: 5/26/2025 6:07:53 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[suppliers](
+	[supplier_id] [uniqueidentifier] NOT NULL,
+	[supplier_code] [nvarchar](20) NOT NULL,
+	[supplier_name] [nvarchar](100) NOT NULL,
+	[contact_person] [nvarchar](100) NULL,
+	[email] [nvarchar](100) NULL,
+	[phone] [nvarchar](20) NULL,
+	[address] [ntext] NULL,
+	[tax_number] [nvarchar](50) NULL,
+	[payment_terms] [nvarchar](50) NULL,
+	[lead_time_days] [int] NULL,
+	[is_active] [bit] NULL,
+	[created_date] [datetime] NOT NULL,
+ CONSTRAINT [PK_suppliers] PRIMARY KEY CLUSTERED 
+(
+	[supplier_id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Teams]    Script Date: 5/26/2025 6:07:53 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -665,15 +1165,15 @@ CREATE TABLE [dbo].[Teams](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[unit_types]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[unit_types]    Script Date: 5/26/2025 6:07:53 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[unit_types](
 	[unit_type_id] [uniqueidentifier] NOT NULL,
-	[type_name] [varchar](50) NOT NULL,
-	[description] [varchar](255) NULL,
+	[type_name] [nvarchar](50) NOT NULL,
+	[description] [nvarchar](255) NULL,
 	[is_system] [bit] NULL,
  CONSTRAINT [PK_unit_types] PRIMARY KEY CLUSTERED 
 (
@@ -681,7 +1181,7 @@ CREATE TABLE [dbo].[unit_types](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[units]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[units]    Script Date: 5/26/2025 6:07:53 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -689,11 +1189,11 @@ GO
 CREATE TABLE [dbo].[units](
 	[unit_id] [uniqueidentifier] NOT NULL,
 	[unit_type_id] [uniqueidentifier] NOT NULL,
-	[unit_name] [varchar](20) NOT NULL,
-	[unit_symbol] [varchar](10) NOT NULL,
+	[unit_name] [nvarchar](20) NOT NULL,
+	[unit_symbol] [nvarchar](10) NOT NULL,
 	[is_base_unit] [bit] NULL,
 	[conversion_factor] [decimal](20, 10) NULL,
-	[description] [varchar](255) NULL,
+	[description] [nvarchar](255) NULL,
 	[is_active] [bit] NULL,
  CONSTRAINT [PK_units] PRIMARY KEY CLUSTERED 
 (
@@ -701,7 +1201,7 @@ CREATE TABLE [dbo].[units](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[UserEnterLogs]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Table [dbo].[UserEnterLogs]    Script Date: 5/26/2025 6:07:53 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -727,121 +1227,191 @@ INSERT [dbo].[ChatMessages] ([Id], [Content], [SentAt], [IsRead], [SenderId], [R
 GO
 INSERT [dbo].[ChatMessages] ([Id], [Content], [SentAt], [IsRead], [SenderId], [ReceiverId], [Attachments]) VALUES (N'05dd1907-60d8-40ff-aea1-97caeb78537c', N's', CAST(N'2025-04-16T23:12:52.323' AS DateTime), 1, N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', NULL)
 GO
+INSERT [dbo].[ChatMessages] ([Id], [Content], [SentAt], [IsRead], [SenderId], [ReceiverId], [Attachments]) VALUES (N'1f2118cf-f905-424e-8d64-9a4975ab763d', N'2', CAST(N'2025-05-20T17:52:59.573' AS DateTime), 0, N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'd89826f5-f5a3-48f4-b92b-95d362d8f074', NULL)
+GO
 INSERT [dbo].[ChatMessages] ([Id], [Content], [SentAt], [IsRead], [SenderId], [ReceiverId], [Attachments]) VALUES (N'37cb93c3-0048-49d4-8b7d-ea1822b9b707', N'hi', CAST(N'2025-04-18T23:39:10.973' AS DateTime), 1, N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', NULL)
 GO
 INSERT [dbo].[ChatMessages] ([Id], [Content], [SentAt], [IsRead], [SenderId], [ReceiverId], [Attachments]) VALUES (N'198dbd5f-ae98-41ba-8cae-eb58def9207c', N'ghgjh', CAST(N'2025-04-16T23:11:16.030' AS DateTime), 1, N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', NULL)
 GO
 INSERT [dbo].[ChatMessages] ([Id], [Content], [SentAt], [IsRead], [SenderId], [ReceiverId], [Attachments]) VALUES (N'be8b6710-978f-45a8-ac62-fbe1cedee19b', N'ee', CAST(N'2025-04-18T23:00:46.137' AS DateTime), 1, N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', NULL)
 GO
-INSERT [dbo].[finished_goods_batches] ([batch_id], [medicine_id], [batch_number], [order_id], [quantity], [unit_id], [location_id], [manufacture_date], [expiry_date], [status]) VALUES (N'3160c872-e840-4302-9be0-3004fa441cda', N'30704664-788e-41c9-9785-69cd6590f700', N'FG-2023-002', N'b375860a-c378-49a1-8183-4b87cea1b1bc', CAST(5000.000 AS Decimal(10, 3)), N'e40a8d81-adf5-4dfd-9511-6eb0919fbe7a', N'49f485dd-cad2-467b-b9d2-0fc39c4845f5', CAST(N'2023-06-10' AS Date), CAST(N'2025-06-10' AS Date), N'Quarantine')
+INSERT [dbo].[customers] ([customer_id], [customer_code], [customer_name], [customer_type], [contact_person], [email], [phone], [billing_address], [shipping_address], [tax_number], [credit_limit], [payment_terms], [is_active], [created_date]) VALUES (N'35939eb1-c876-45f4-be79-274361d9cfd1', N'CUS-003', N'شبکه توزیع سلامت', N'توزیع‌کننده', N'محمد صادقی', N'orders@salamat-dist.ir', N'021-99887766', N'تهران، بزرگراه شهید همت، پلاک ۲۰۰', N'تهران، بزرگراه شهید همت، پلاک ۲۰۰', N'789789789', CAST(200000000.00 AS Decimal(15, 2)), N'60 روز', 1, CAST(N'2025-05-26T17:47:29.683' AS DateTime))
 GO
-INSERT [dbo].[finished_goods_batches] ([batch_id], [medicine_id], [batch_number], [order_id], [quantity], [unit_id], [location_id], [manufacture_date], [expiry_date], [status]) VALUES (N'934ee17b-87b1-433b-8700-9ca64623adfc', N'befbc3ae-bd0c-413d-b0b3-c0ee2b2b4069', N'FG-2023-001', N'b4c17f9c-27de-4c38-9599-53494b2727ad', CAST(10000.000 AS Decimal(10, 3)), N'debce6ea-b816-4610-a4e3-7cff8e982193', N'60aa36b7-1a84-4206-8109-3ce858d9138c', CAST(N'2023-06-02' AS Date), CAST(N'2025-06-02' AS Date), N'Released')
+INSERT [dbo].[customers] ([customer_id], [customer_code], [customer_name], [customer_type], [contact_person], [email], [phone], [billing_address], [shipping_address], [tax_number], [credit_limit], [payment_terms], [is_active], [created_date]) VALUES (N'a0d2bf57-d07f-4c37-bd53-c8df9d878389', N'CUS-002', N'بیمارستان پارس', N'بیمارستان', N'دکتر زهرا جعفری', N'pharmacy@pars-hospital.com', N'021-77889900', N'تهران، خیابان شریعتی، بیمارستان پارس', N'تهران، خیابان شریعتی، بیمارستان پارس', N'456456456', CAST(100000000.00 AS Decimal(15, 2)), N'45 روز', 1, CAST(N'2025-05-26T17:47:29.683' AS DateTime))
 GO
-INSERT [dbo].[material_batches] ([batch_id], [material_id], [batch_number], [initial_quantity], [current_quantity], [unit_id], [location_id], [status], [expiry_date]) VALUES (N'f9c9bbc8-bfc3-40b1-ad21-16713f2c7d01', N'fe1eb017-d074-4a96-8c01-870d83c641e7', N'BATCH-2023-002', CAST(15000.000 AS Decimal(10, 3)), CAST(15000.000 AS Decimal(10, 3)), N'ef424c05-81bf-40cf-9abb-4e4c58628850', N'60aa36b7-1a84-4206-8109-3ce858d9138c', N'Released', CAST(N'2025-06-30' AS Date))
+INSERT [dbo].[customers] ([customer_id], [customer_code], [customer_name], [customer_type], [contact_person], [email], [phone], [billing_address], [shipping_address], [tax_number], [credit_limit], [payment_terms], [is_active], [created_date]) VALUES (N'13a74764-b2f7-4b3d-b193-cda2b6d27f53', N'CUS-001', N'داروخانه مرکزی', N'داروخانه', N'حسن موسوی', N'info@central-pharmacy.ir', N'021-33445566', N'تهران، میدان ولیعصر، پلاک ۱۰', N'تهران، میدان ولیعصر، پلاک ۱۰', N'123123123', CAST(50000000.00 AS Decimal(15, 2)), N'30 روز', 1, CAST(N'2025-05-26T17:47:29.683' AS DateTime))
 GO
-INSERT [dbo].[material_batches] ([batch_id], [material_id], [batch_number], [initial_quantity], [current_quantity], [unit_id], [location_id], [status], [expiry_date]) VALUES (N'252a818a-3beb-4d8d-b62c-18ac50697ea0', N'1e505ac9-56fe-4b51-8705-a4a5e2e2a751', N'BATCH-2023-001', CAST(25000.000 AS Decimal(10, 3)), CAST(25000.000 AS Decimal(10, 3)), N'ef424c05-81bf-40cf-9abb-4e4c58628850', N'60aa36b7-1a84-4206-8109-3ce858d9138c', N'Released', CAST(N'2025-12-31' AS Date))
+INSERT [dbo].[material_batches] ([batch_id], [material_id], [batch_number], [initial_quantity], [current_quantity], [unit_id], [location_id], [status], [expiry_date]) VALUES (N'6de49eb8-efce-4cb3-a25d-21cab655ca3f', N'a23914ea-72c6-48f3-9a1b-f0cf4401fa41', N'STA-2025-001', CAST(150.000 AS Decimal(10, 3)), CAST(128.900 AS Decimal(10, 3)), N'7f944967-0a7b-40cc-9a14-3af4b0261a84', N'b5c3b1b2-05bd-4e31-b6ca-81ebd6995a2c', N'آزاد شده', CAST(N'2026-08-20' AS Date))
 GO
-INSERT [dbo].[material_batches] ([batch_id], [material_id], [batch_number], [initial_quantity], [current_quantity], [unit_id], [location_id], [status], [expiry_date]) VALUES (N'2ee0eabb-8339-4e24-a010-7ac7e6a5bad1', N'55df28ce-05ef-4252-9cc1-0f3ab5d59cd2', N'BATCH-2023-003', CAST(50000.000 AS Decimal(10, 3)), CAST(50000.000 AS Decimal(10, 3)), N'ef424c05-81bf-40cf-9abb-4e4c58628850', N'49f485dd-cad2-467b-b9d2-0fc39c4845f5', N'Released', CAST(N'2026-03-31' AS Date))
+INSERT [dbo].[material_batches] ([batch_id], [material_id], [batch_number], [initial_quantity], [current_quantity], [unit_id], [location_id], [status], [expiry_date]) VALUES (N'cd9caef6-d548-467d-a030-b0fd8c55badf', N'aef1ef99-0035-479e-8922-b972af409bf1', N'ACE-2025-001', CAST(100.000 AS Decimal(10, 3)), CAST(85.500 AS Decimal(10, 3)), N'7f944967-0a7b-40cc-9a14-3af4b0261a84', N'b5c3b1b2-05bd-4e31-b6ca-81ebd6995a2c', N'آزاد شده', CAST(N'2027-05-26' AS Date))
 GO
-INSERT [dbo].[material_categories] ([category_id], [category_name], [description], [storage_requirements], [hazard_class], [is_active]) VALUES (N'4f1a08ae-74e8-4e6a-b958-4e79e8e11c74', N'Excipient', N'Inactive ingredients', N'Room temperature, dry environment', N'Generally non-hazardous', 1)
+INSERT [dbo].[material_batches] ([batch_id], [material_id], [batch_number], [initial_quantity], [current_quantity], [unit_id], [location_id], [status], [expiry_date]) VALUES (N'b33c3f3c-7012-482e-9636-c3d97a0724c6', N'e9b5ced5-f75f-4b29-b0e1-e277f0cd1a48', N'LAC-2025-001', CAST(200.000 AS Decimal(10, 3)), CAST(175.800 AS Decimal(10, 3)), N'7f944967-0a7b-40cc-9a14-3af4b0261a84', N'b5c3b1b2-05bd-4e31-b6ca-81ebd6995a2c', N'آزاد شده', CAST(N'2026-12-10' AS Date))
 GO
-INSERT [dbo].[material_categories] ([category_id], [category_name], [description], [storage_requirements], [hazard_class], [is_active]) VALUES (N'460bcd72-79e8-49bd-b31a-734a440b5abe', N'API', N'Active Pharmaceutical Ingredients', N'Dry, cool place below 25°C', N'Varies by substance', 1)
+INSERT [dbo].[material_batches] ([batch_id], [material_id], [batch_number], [initial_quantity], [current_quantity], [unit_id], [location_id], [status], [expiry_date]) VALUES (N'767d0bb2-7421-4b0d-a103-d5a028faf0f7', N'c6ba50a3-2ea7-4b89-bdb4-2ead897d2cfb', N'IBU-2025-001', CAST(50.000 AS Decimal(10, 3)), CAST(42.300 AS Decimal(10, 3)), N'7f944967-0a7b-40cc-9a14-3af4b0261a84', N'b5c3b1b2-05bd-4e31-b6ca-81ebd6995a2c', N'آزاد شده', CAST(N'2027-03-15' AS Date))
 GO
-INSERT [dbo].[material_categories] ([category_id], [category_name], [description], [storage_requirements], [hazard_class], [is_active]) VALUES (N'839dccce-f5a7-41e4-b892-c08c915e59fc', N'Solvent', N'Chemical solvents', N'Flammable storage below 30°C', N'Flammable liquid', 1)
+INSERT [dbo].[material_categories] ([category_id], [category_name], [description], [storage_requirements], [hazard_class], [is_active]) VALUES (N'3bbf3302-c4a7-44d2-ac30-084cb4d09c29', N'مواد اولیه فعال', N'??????? ?????? ????', N'???? ????? ???', N'Class II', 1)
 GO
-INSERT [dbo].[material_categories] ([category_id], [category_name], [description], [storage_requirements], [hazard_class], [is_active]) VALUES (N'd5392037-a27f-442c-963c-e37c30cf8c2c', N'Packaging', N'Primary packaging materials', N'Dry environment', N'Non-hazardous', 1)
+INSERT [dbo].[material_categories] ([category_id], [category_name], [description], [storage_requirements], [hazard_class], [is_active]) VALUES (N'0d0a0409-2ed9-4c8a-8d36-0ad8ef75967c', N'مواد فعال دارویی', N'مواد اصلی دارو که خاصیت درمانی دارند', N'محیط خشک و خنک', N'Class 1', 1)
 GO
-INSERT [dbo].[medicine_bom] ([bom_id], [medicine_id], [material_id], [quantity], [unit_id], [is_active]) VALUES (N'93c31f1c-f352-49c6-ae23-25e26fcaf612', N'30704664-788e-41c9-9785-69cd6590f700', N'55df28ce-05ef-4252-9cc1-0f3ab5d59cd2', CAST(100.000000 AS Decimal(12, 6)), N'ad7a09c8-ad3f-438c-9844-8e51d268b27f', 1)
+INSERT [dbo].[material_categories] ([category_id], [category_name], [description], [storage_requirements], [hazard_class], [is_active]) VALUES (N'8f6777af-0266-40ab-a287-4c9c5f24e223', N'کمکی تولید', N'???? ???? ?? ?????? ?????', N'???? ????', N'Class I', 1)
 GO
-INSERT [dbo].[medicine_bom] ([bom_id], [medicine_id], [material_id], [quantity], [unit_id], [is_active]) VALUES (N'396ffac0-89fb-4120-bedb-324f21a460e3', N'befbc3ae-bd0c-413d-b0b3-c0ee2b2b4069', N'1e505ac9-56fe-4b51-8705-a4a5e2e2a751', CAST(500.000000 AS Decimal(12, 6)), N'ad7a09c8-ad3f-438c-9844-8e51d268b27f', 1)
+INSERT [dbo].[material_categories] ([category_id], [category_name], [description], [storage_requirements], [hazard_class], [is_active]) VALUES (N'8304fb31-5d8d-4583-914c-56df796f0151', N'حلال‌ها', N'حلال‌های مورد استفاده در فرآیند تولید', N'محیط خنک و تهویه مناسب', N'Class 3', 1)
 GO
-INSERT [dbo].[medicine_bom] ([bom_id], [medicine_id], [material_id], [quantity], [unit_id], [is_active]) VALUES (N'46ac78b5-796d-4d95-926a-448cf5d453b2', N'30704664-788e-41c9-9785-69cd6590f700', N'9434b3d7-3786-409d-94d0-6f35aef92747', CAST(0.500000 AS Decimal(12, 6)), N'5debd844-1d19-4a94-927b-11220a8a7be9', 1)
+INSERT [dbo].[material_categories] ([category_id], [category_name], [description], [storage_requirements], [hazard_class], [is_active]) VALUES (N'e462a029-e065-45e8-a959-65d3e3556451', N'رنگ‌ها', N'مواد رنگی مورد استفاده در دارو', N'محیط خشک و تاریک', N'Class 2', 1)
 GO
-INSERT [dbo].[medicine_bom] ([bom_id], [medicine_id], [material_id], [quantity], [unit_id], [is_active]) VALUES (N'a8a2daae-c6c5-4c8d-8809-550cb7ade204', N'30704664-788e-41c9-9785-69cd6590f700', N'fe1eb017-d074-4a96-8c01-870d83c641e7', CAST(200.000000 AS Decimal(12, 6)), N'ad7a09c8-ad3f-438c-9844-8e51d268b27f', 1)
+INSERT [dbo].[material_categories] ([category_id], [category_name], [description], [storage_requirements], [hazard_class], [is_active]) VALUES (N'335c77ca-4fce-4924-bfa4-877bfb0944b0', N'مواد بسته‌بندی', N'مواد بسته‌بندی و برچسب', N'محیط خشک', N'Class 4', 1)
 GO
-INSERT [dbo].[medicine_bom] ([bom_id], [medicine_id], [material_id], [quantity], [unit_id], [is_active]) VALUES (N'a1a7812c-015b-42de-8764-6c4ef996ab08', N'befbc3ae-bd0c-413d-b0b3-c0ee2b2b4069', N'55df28ce-05ef-4252-9cc1-0f3ab5d59cd2', CAST(150.000000 AS Decimal(12, 6)), N'ad7a09c8-ad3f-438c-9844-8e51d268b27f', 1)
+INSERT [dbo].[material_categories] ([category_id], [category_name], [description], [storage_requirements], [hazard_class], [is_active]) VALUES (N'b62d48ee-dbcd-4dd1-ba8f-9452c61de36e', N'بسته‌بندی', N'???? ???? ??????? ?? ?????????', N'???', N'Non-hazardous', 1)
 GO
-INSERT [dbo].[medicine_bom] ([bom_id], [medicine_id], [material_id], [quantity], [unit_id], [is_active]) VALUES (N'c66744c2-ea00-4280-8af1-d60f9828aa8a', N'befbc3ae-bd0c-413d-b0b3-c0ee2b2b4069', N'08d155dc-92e9-4740-ad16-07d13cfcddc4', CAST(5.000000 AS Decimal(12, 6)), N'ad7a09c8-ad3f-438c-9844-8e51d268b27f', 1)
+INSERT [dbo].[material_categories] ([category_id], [category_name], [description], [storage_requirements], [hazard_class], [is_active]) VALUES (N'259ea35c-95ac-403a-871a-97501930fc2e', N'حلال', N'???????? ???? ????', N'???? ????? ???', N'Class III', 1)
 GO
-INSERT [dbo].[medicine_categories] ([category_id], [category_name], [description], [is_active]) VALUES (N'43ea36ea-98ec-43c7-9b6d-47a524412a3d', N'Antipyretic', N'Fever reducing medications', 1)
+INSERT [dbo].[material_categories] ([category_id], [category_name], [description], [storage_requirements], [hazard_class], [is_active]) VALUES (N'626b8cee-6cc5-4760-a074-b3268d1739b4', N'کمکی‌ها', N'مواد کمکی برای فرمولاسیون', N'محیط خشک', N'Class 2', 1)
 GO
-INSERT [dbo].[medicine_categories] ([category_id], [category_name], [description], [is_active]) VALUES (N'ffeb1942-a386-4fe8-9a15-dfd8ddc08c30', N'Anti-inflammatory', N'Inflammation reducing medications', 1)
+INSERT [dbo].[medicine_bom] ([bom_id], [medicine_id], [material_id], [quantity], [unit_id], [is_active]) VALUES (N'176aeebf-0918-4e59-91f3-1c6cd3a16ca7', N'5f21d005-ba75-40cc-b907-1b959aee3503', N'e9b5ced5-f75f-4b29-b0e1-e277f0cd1a48', CAST(0.100000 AS Decimal(12, 6)), N'111a0ac4-523f-455f-8641-35280b52cf93', 1)
 GO
-INSERT [dbo].[medicine_categories] ([category_id], [category_name], [description], [is_active]) VALUES (N'e22a5c8f-550b-4ccf-a337-e095b489a3cd', N'Analgesic', N'Pain relief medications', 1)
+INSERT [dbo].[medicine_bom] ([bom_id], [medicine_id], [material_id], [quantity], [unit_id], [is_active]) VALUES (N'5f6a2f07-e22b-4053-be6b-30dde75a4320', N'd45d1afb-9e1a-4ddb-bcf9-997ffbb68213', N'a23914ea-72c6-48f3-9a1b-f0cf4401fa41', CAST(0.100000 AS Decimal(12, 6)), N'111a0ac4-523f-455f-8641-35280b52cf93', 1)
 GO
-INSERT [dbo].[medicines] ([medicine_id], [medicine_code], [brand_name], [category_id], [strength], [strength_unit_id], [shelf_life_months], [is_active]) VALUES (N'8a7947d9-d708-4a51-94c9-407c36728bdd', N'MED-003', N'InflamaCare', N'ffeb1942-a386-4fe8-9a15-dfd8ddc08c30', CAST(400.0000 AS Decimal(10, 4)), N'ad7a09c8-ad3f-438c-9844-8e51d268b27f', 24, 1)
+INSERT [dbo].[medicine_bom] ([bom_id], [medicine_id], [material_id], [quantity], [unit_id], [is_active]) VALUES (N'53e35d55-b763-4b89-a9a3-46360efff1a3', N'd45d1afb-9e1a-4ddb-bcf9-997ffbb68213', N'3f26bbb1-157c-4536-87e5-3a838e789546', CAST(0.500000 AS Decimal(12, 6)), N'111a0ac4-523f-455f-8641-35280b52cf93', 1)
 GO
-INSERT [dbo].[medicines] ([medicine_id], [medicine_code], [brand_name], [category_id], [strength], [strength_unit_id], [shelf_life_months], [is_active]) VALUES (N'30704664-788e-41c9-9785-69cd6590f700', N'MED-002', N'FeverAway', N'43ea36ea-98ec-43c7-9b6d-47a524412a3d', CAST(200.0000 AS Decimal(10, 4)), N'ad7a09c8-ad3f-438c-9844-8e51d268b27f', 24, 1)
+INSERT [dbo].[medicine_bom] ([bom_id], [medicine_id], [material_id], [quantity], [unit_id], [is_active]) VALUES (N'f434bf4b-4cff-40f6-b21b-629ac7fb4d9e', N'b6f4766a-f388-4ec7-92b3-0f51db610642', N'e9b5ced5-f75f-4b29-b0e1-e277f0cd1a48', CAST(0.150000 AS Decimal(12, 6)), N'111a0ac4-523f-455f-8641-35280b52cf93', 1)
 GO
-INSERT [dbo].[medicines] ([medicine_id], [medicine_code], [brand_name], [category_id], [strength], [strength_unit_id], [shelf_life_months], [is_active]) VALUES (N'befbc3ae-bd0c-413d-b0b3-c0ee2b2b4069', N'MED-001', N'PainRelief', N'e22a5c8f-550b-4ccf-a337-e095b489a3cd', CAST(500.0000 AS Decimal(10, 4)), N'ad7a09c8-ad3f-438c-9844-8e51d268b27f', 36, 1)
+INSERT [dbo].[medicine_bom] ([bom_id], [medicine_id], [material_id], [quantity], [unit_id], [is_active]) VALUES (N'7af219ea-4156-4eb9-b552-66e57c0cad43', N'b6f4766a-f388-4ec7-92b3-0f51db610642', N'3b01dde6-1178-46cc-b0c5-417a3d7076cc', CAST(0.008000 AS Decimal(12, 6)), N'111a0ac4-523f-455f-8641-35280b52cf93', 1)
 GO
-INSERT [dbo].[Notifications] ([id], [RelatedId], [Type], [seen], [Title], [Message], [CreatedDate], [UserId], [Img]) VALUES (N'c759a68a-08d0-4924-a115-0537fedc394c', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'chat', 1, N'پیام خوانده شده', N'شما پیام‌های جدیدی از علیرضا دارید', CAST(N'2025-04-18T23:00:46.147' AS DateTime), N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', N'\images\users\cf3f638b-1bd4-4613-af46-cafdd1b1ae71.jpg')
+INSERT [dbo].[medicine_bom] ([bom_id], [medicine_id], [material_id], [quantity], [unit_id], [is_active]) VALUES (N'5414994c-2960-46ca-a37f-768a96165f6b', N'd45d1afb-9e1a-4ddb-bcf9-997ffbb68213', N'e9b5ced5-f75f-4b29-b0e1-e277f0cd1a48', CAST(0.200000 AS Decimal(12, 6)), N'111a0ac4-523f-455f-8641-35280b52cf93', 1)
 GO
-INSERT [dbo].[Notifications] ([id], [RelatedId], [Type], [seen], [Title], [Message], [CreatedDate], [UserId], [Img]) VALUES (N'a412e754-84d2-43c8-9327-08f14ee30382', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'chat', 1, N'پیام خوانده شده', N'شما پیام‌های جدیدی از علیرضا دارید', CAST(N'2025-04-18T22:55:58.167' AS DateTime), N'd89826f5-f5a3-48f4-b92b-95d362d8f074', N'\images\users\cf3f638b-1bd4-4613-af46-cafdd1b1ae71.jpg')
+INSERT [dbo].[medicine_bom] ([bom_id], [medicine_id], [material_id], [quantity], [unit_id], [is_active]) VALUES (N'cf9b4616-aca9-4a84-8635-771c792432cb', N'b6f4766a-f388-4ec7-92b3-0f51db610642', N'c6ba50a3-2ea7-4b89-bdb4-2ead897d2cfb', CAST(0.400000 AS Decimal(12, 6)), N'111a0ac4-523f-455f-8641-35280b52cf93', 1)
 GO
-INSERT [dbo].[Notifications] ([id], [RelatedId], [Type], [seen], [Title], [Message], [CreatedDate], [UserId], [Img]) VALUES (N'c423cdf4-08fa-4057-88bc-47354e89ae63', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', N'chat', 1, N'پیام خوانده شده', N'شما پیام‌های جدیدی از نیما دارید', CAST(N'2025-04-16T20:57:12.247' AS DateTime), N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'\images\users\f5292c97-1586-4e35-9624-92c13f881fb8.jpg')
+INSERT [dbo].[medicine_bom] ([bom_id], [medicine_id], [material_id], [quantity], [unit_id], [is_active]) VALUES (N'bea874fc-0455-4975-a476-7b03d606b0fc', N'd45d1afb-9e1a-4ddb-bcf9-997ffbb68213', N'3b01dde6-1178-46cc-b0c5-417a3d7076cc', CAST(0.010000 AS Decimal(12, 6)), N'111a0ac4-523f-455f-8641-35280b52cf93', 1)
 GO
-INSERT [dbo].[Notifications] ([id], [RelatedId], [Type], [seen], [Title], [Message], [CreatedDate], [UserId], [Img]) VALUES (N'2b3d3bec-8a7c-47e5-897e-4eba377d8705', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', N'chat', 1, N'پیام خوانده شده', N'شما پیام‌های جدیدی از نیما دارید', CAST(N'2025-04-16T20:57:18.950' AS DateTime), N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'\images\users\f5292c97-1586-4e35-9624-92c13f881fb8.jpg')
+INSERT [dbo].[medicine_bom] ([bom_id], [medicine_id], [material_id], [quantity], [unit_id], [is_active]) VALUES (N'd315a133-3da7-4f28-9ce5-9755945d13af', N'5f21d005-ba75-40cc-b907-1b959aee3503', N'f06d58e6-a0a7-44c4-b3ad-1a636c83d554', CAST(0.250000 AS Decimal(12, 6)), N'111a0ac4-523f-455f-8641-35280b52cf93', 1)
 GO
-INSERT [dbo].[Notifications] ([id], [RelatedId], [Type], [seen], [Title], [Message], [CreatedDate], [UserId], [Img]) VALUES (N'cba5374e-46ff-4a76-8db4-4face540c245', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'chat', 1, N'پیام خوانده شده', N'شما پیام‌های جدیدی از علیرضا دارید', CAST(N'2025-04-16T23:12:52.347' AS DateTime), N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', N'\images\users\cf3f638b-1bd4-4613-af46-cafdd1b1ae71.jpg')
+INSERT [dbo].[medicine_bom] ([bom_id], [medicine_id], [material_id], [quantity], [unit_id], [is_active]) VALUES (N'7b90cad7-c613-460d-96b7-9e5ae31bf255', N'd45d1afb-9e1a-4ddb-bcf9-997ffbb68213', N'aef1ef99-0035-479e-8922-b972af409bf1', CAST(0.500000 AS Decimal(12, 6)), N'111a0ac4-523f-455f-8641-35280b52cf93', 1)
 GO
-INSERT [dbo].[Notifications] ([id], [RelatedId], [Type], [seen], [Title], [Message], [CreatedDate], [UserId], [Img]) VALUES (N'0cb55c5a-c935-462a-9dea-569ac3f4a950', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', N'chat', 1, N'پیام خوانده شده', N'شما پیام‌های جدیدی از نیما دارید', CAST(N'2025-04-16T23:13:00.147' AS DateTime), N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'\images\users\f5292c97-1586-4e35-9624-92c13f881fb8.jpg')
+INSERT [dbo].[medicine_bom] ([bom_id], [medicine_id], [material_id], [quantity], [unit_id], [is_active]) VALUES (N'6be7285e-22a7-4746-8ba7-a1e67c926ac3', N'b6f4766a-f388-4ec7-92b3-0f51db610642', N'a23914ea-72c6-48f3-9a1b-f0cf4401fa41', CAST(0.080000 AS Decimal(12, 6)), N'111a0ac4-523f-455f-8641-35280b52cf93', 1)
 GO
-INSERT [dbo].[Notifications] ([id], [RelatedId], [Type], [seen], [Title], [Message], [CreatedDate], [UserId], [Img]) VALUES (N'a980925b-7df4-427b-9aed-bc1b853f99a2', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'chat', 1, N'پیام خوانده شده', N'شما پیام‌های جدیدی از علیرضا دارید', CAST(N'2025-04-16T23:11:16.077' AS DateTime), N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', N'\images\users\cf3f638b-1bd4-4613-af46-cafdd1b1ae71.jpg')
+INSERT [dbo].[medicine_bom] ([bom_id], [medicine_id], [material_id], [quantity], [unit_id], [is_active]) VALUES (N'2c56d6c9-920e-4267-9e68-a58edf76c18f', N'd45d1afb-9e1a-4ddb-bcf9-997ffbb68213', N'2263f311-9aca-4b2b-a7f0-1e64c5455ff7', CAST(0.300000 AS Decimal(12, 6)), N'111a0ac4-523f-455f-8641-35280b52cf93', 1)
 GO
-INSERT [dbo].[Notifications] ([id], [RelatedId], [Type], [seen], [Title], [Message], [CreatedDate], [UserId], [Img]) VALUES (N'be1b30fc-1be9-4de5-986b-c0c177754deb', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'chat', 0, N'پیام خوانده شده', N'شما پیام‌های جدیدی از علیرضا دارید', CAST(N'2025-04-18T23:39:11.010' AS DateTime), N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', N'\images\users\cf3f638b-1bd4-4613-af46-cafdd1b1ae71.jpg')
+INSERT [dbo].[medicine_bom] ([bom_id], [medicine_id], [material_id], [quantity], [unit_id], [is_active]) VALUES (N'5be37065-40c8-4488-83c9-d0438a0eb1a4', N'5f21d005-ba75-40cc-b907-1b959aee3503', N'fba31cec-fa6d-46ca-a77d-44bb38be050f', CAST(1.000000 AS Decimal(12, 6)), N'111a0ac4-523f-455f-8641-35280b52cf93', 1)
 GO
-INSERT [dbo].[Notifications] ([id], [RelatedId], [Type], [seen], [Title], [Message], [CreatedDate], [UserId], [Img]) VALUES (N'cfcd00de-db60-41a9-a6ac-d4c7b6e079d8', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', N'chat', 1, N'پیام خوانده شده', N'شما پیام‌های جدیدی از نیما دارید', CAST(N'2025-04-16T20:57:36.280' AS DateTime), N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'\images\users\f5292c97-1586-4e35-9624-92c13f881fb8.jpg')
+INSERT [dbo].[medicine_bom] ([bom_id], [medicine_id], [material_id], [quantity], [unit_id], [is_active]) VALUES (N'52b211dc-e56a-43a9-a365-e35340d7b695', N'5f21d005-ba75-40cc-b907-1b959aee3503', N'3b01dde6-1178-46cc-b0c5-417a3d7076cc', CAST(0.005000 AS Decimal(12, 6)), N'111a0ac4-523f-455f-8641-35280b52cf93', 1)
 GO
-INSERT [dbo].[Notifications] ([id], [RelatedId], [Type], [seen], [Title], [Message], [CreatedDate], [UserId], [Img]) VALUES (N'5148c19d-a9c9-4721-87f0-dda1ba648c44', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', N'chat', 1, N'پیام خوانده شده', N'شما پیام‌های جدیدی از نیما دارید', CAST(N'2025-04-16T21:00:14.457' AS DateTime), N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'\images\users\f5292c97-1586-4e35-9624-92c13f881fb8.jpg')
+INSERT [dbo].[medicine_bom] ([bom_id], [medicine_id], [material_id], [quantity], [unit_id], [is_active]) VALUES (N'f0f97e34-1a71-46dc-bdcb-e890ed075fd5', N'5f21d005-ba75-40cc-b907-1b959aee3503', N'a23914ea-72c6-48f3-9a1b-f0cf4401fa41', CAST(0.050000 AS Decimal(12, 6)), N'111a0ac4-523f-455f-8641-35280b52cf93', 1)
 GO
-INSERT [dbo].[Notifications] ([id], [RelatedId], [Type], [seen], [Title], [Message], [CreatedDate], [UserId], [Img]) VALUES (N'31fb5383-e54b-4750-a316-f8bae0bf5399', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', N'chat', 1, N'پیام خوانده شده', N'شما پیام‌های جدیدی از نیما دارید', CAST(N'2025-04-18T23:39:21.230' AS DateTime), N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'\images\users\f5292c97-1586-4e35-9624-92c13f881fb8.jpg')
+INSERT [dbo].[medicine_bom] ([bom_id], [medicine_id], [material_id], [quantity], [unit_id], [is_active]) VALUES (N'33bc5b39-cc3c-4400-abd2-f1e9c66eadf3', N'b6f4766a-f388-4ec7-92b3-0f51db610642', N'30d08d8a-88b6-4155-8421-82afe1d1fcb7', CAST(0.200000 AS Decimal(12, 6)), N'111a0ac4-523f-455f-8641-35280b52cf93', 1)
+GO
+INSERT [dbo].[medicine_bom] ([bom_id], [medicine_id], [material_id], [quantity], [unit_id], [is_active]) VALUES (N'de99c0ed-0b12-45d3-8b8a-ff174ac6384a', N'b6f4766a-f388-4ec7-92b3-0f51db610642', N'2263f311-9aca-4b2b-a7f0-1e64c5455ff7', CAST(0.250000 AS Decimal(12, 6)), N'111a0ac4-523f-455f-8641-35280b52cf93', 1)
+GO
+INSERT [dbo].[medicine_categories] ([category_id], [category_name], [description], [is_active]) VALUES (N'93dad7a2-2b84-46b2-94b6-205e7cae4fb7', N'آنتی بیوتیک', N'???? ??????', 1)
+GO
+INSERT [dbo].[medicine_categories] ([category_id], [category_name], [description], [is_active]) VALUES (N'40ec02b6-6558-43a5-9d9e-375ebb15feca', N'قلبی-عروقی', N'داروهای مربوط به سیستم قلبی عروقی', 1)
+GO
+INSERT [dbo].[medicine_categories] ([category_id], [category_name], [description], [is_active]) VALUES (N'15705abb-5232-4ec0-814e-4285e35dd266', N'آنتی‌بیوتیک‌ها', N'داروهای ضد باکتری', 1)
+GO
+INSERT [dbo].[medicine_categories] ([category_id], [category_name], [description], [is_active]) VALUES (N'2c577889-f093-4cdf-9487-550fe8a52551', N'مسکن‌ها', N'داروهای ضد درد و تسکین‌دهنده', 1)
+GO
+INSERT [dbo].[medicine_categories] ([category_id], [category_name], [description], [is_active]) VALUES (N'eb4ef981-c395-46f3-a2f8-5d4ec4c936ef', N'ضد درد', N'??????? ????', 1)
+GO
+INSERT [dbo].[medicine_categories] ([category_id], [category_name], [description], [is_active]) VALUES (N'f839fc11-667a-448b-8cd0-7fae6e85b12f', N'ویتامین‌ها', N'مکمل‌های ویتامینی', 1)
+GO
+INSERT [dbo].[medicine_categories] ([category_id], [category_name], [description], [is_active]) VALUES (N'7157491c-f93b-4268-99da-87880a9ca98f', N'قلبی عروقی', N'??????? ????? ?? ??? ? ????', 1)
+GO
+INSERT [dbo].[medicine_categories] ([category_id], [category_name], [description], [is_active]) VALUES (N'5f40d00e-89f0-4484-9f54-958d385bc53f', N'ضدالتهاب‌ها', N'داروهای ضد التهاب غیر استروئیدی', 1)
+GO
+INSERT [dbo].[medicine_categories] ([category_id], [category_name], [description], [is_active]) VALUES (N'ab491564-eed9-4570-8156-d03bcff27b51', N'ضد التهاب', N'??????? ?? ???????', 1)
+GO
+INSERT [dbo].[medicines] ([medicine_id], [medicine_code], [brand_name], [category_id], [strength], [strength_unit_id], [shelf_life_months], [is_active]) VALUES (N'b6f4766a-f388-4ec7-92b3-0f51db610642', N'MED-002', N'ایبوژل 200', N'eb4ef981-c395-46f3-a2f8-5d4ec4c936ef', CAST(200.0000 AS Decimal(10, 4)), N'9d4d14f3-2db6-48f6-a0ee-fb2bc92edc86', 24, 1)
+GO
+INSERT [dbo].[medicines] ([medicine_id], [medicine_code], [brand_name], [category_id], [strength], [strength_unit_id], [shelf_life_months], [is_active]) VALUES (N'5f21d005-ba75-40cc-b907-1b959aee3503', N'MED-003', N'آموکسی‌لین 250 a', N'93dad7a2-2b84-46b2-94b6-205e7cae4fb7', CAST(250.0000 AS Decimal(10, 4)), N'9d4d14f3-2db6-48f6-a0ee-fb2bc92edc86', 18, 1)
+GO
+INSERT [dbo].[medicines] ([medicine_id], [medicine_code], [brand_name], [category_id], [strength], [strength_unit_id], [shelf_life_months], [is_active]) VALUES (N'd45d1afb-9e1a-4ddb-bcf9-997ffbb68213', N'MED-001', N'داروپین 500', N'eb4ef981-c395-46f3-a2f8-5d4ec4c936ef', CAST(500.0000 AS Decimal(10, 4)), N'9d4d14f3-2db6-48f6-a0ee-fb2bc92edc86', 36, 1)
+GO
+INSERT [dbo].[Notifications] ([id], [RelatedId], [Type], [seen], [Title], [Message], [CreatedDate], [UserId], [Img]) VALUES (N'bf05bab4-54db-498d-ab3e-0590d0246ae1', NULL, N'warning', 0, N'موجودی کم', N'موجودی ماده اولیه استامینوفن کمتر از حد مجاز است', CAST(N'2025-05-26T17:26:48.350' AS DateTime), NULL, NULL)
+GO
+INSERT [dbo].[Notifications] ([id], [RelatedId], [Type], [seen], [Title], [Message], [CreatedDate], [UserId], [Img]) VALUES (N'4f6c99df-101c-41c1-86a8-0c9e489f89b2', NULL, N'info', 0, N'سفارش جدید', N'سفارش خرید جدید ثبت شد', CAST(N'2025-05-26T17:26:48.350' AS DateTime), NULL, NULL)
+GO
+INSERT [dbo].[Notifications] ([id], [RelatedId], [Type], [seen], [Title], [Message], [CreatedDate], [UserId], [Img]) VALUES (N'a24835aa-47e5-4b1f-8ecc-d88d33c383b2', NULL, N'success', 1, N'تولید تکمیل', N'دسته تولید FG-001-2024 با موفقیت تکمیل شد', CAST(N'2025-05-26T17:26:48.350' AS DateTime), NULL, NULL)
 GO
 INSERT [dbo].[Organizations] ([id], [Name], [Priority]) VALUES (N'008f672c-71a2-4038-9cc6-0450382945cd', N'آریا فارمد', 2)
 GO
 INSERT [dbo].[Organizations] ([id], [Name], [Priority]) VALUES (N'cc238ac4-88f5-47a3-b32c-21bc367c2a87', N'مهرسام دارو', 1)
 GO
-INSERT [dbo].[production_order_steps] ([order_step_id], [order_id], [step_id], [planned_start], [actual_start], [actual_end], [status], [notes]) VALUES (N'e1542a8b-c293-4115-907e-0ca4df574614', N'b4c17f9c-27de-4c38-9599-53494b2727ad', N'67ea48db-63ff-449f-a07a-82e4b133304f', CAST(N'2023-06-01T10:30:00.000' AS DateTime), CAST(N'2023-06-01T10:35:00.000' AS DateTime), CAST(N'2023-06-01T12:00:00.000' AS DateTime), N'Completed', N'Standard mixing time applied')
+INSERT [dbo].[production_orders] ([order_id], [order_number], [medicine_id], [quantity], [unit_id], [target_date], [status], [priority]) VALUES (N'db631594-2ae2-4837-8cd5-0c63a55f29d5', N'PO-2025-003', N'5f21d005-ba75-40cc-b907-1b959aee3503', CAST(8000.000 AS Decimal(10, 3)), N'21978e62-4f67-4754-9a3e-f5f8bd241ff0', CAST(N'2025-06-25' AS Date), N'برنامه‌ریزی شده', 3)
 GO
-INSERT [dbo].[production_order_steps] ([order_step_id], [order_id], [step_id], [planned_start], [actual_start], [actual_end], [status], [notes]) VALUES (N'5122350c-6f70-491d-9705-313c1ffbcbe0', N'b4c17f9c-27de-4c38-9599-53494b2727ad', N'48b91847-b535-4456-9484-a1cc5c5ebf2b', CAST(N'2023-06-01T13:00:00.000' AS DateTime), CAST(N'2023-06-01T13:05:00.000' AS DateTime), CAST(N'2023-06-01T17:30:00.000' AS DateTime), N'Completed', N'Tablets formed to specification')
+INSERT [dbo].[production_orders] ([order_id], [order_number], [medicine_id], [quantity], [unit_id], [target_date], [status], [priority]) VALUES (N'2577f19a-3b90-434f-a3cb-3e4c2a5d6d14', N'PO-2025-002', N'b6f4766a-f388-4ec7-92b3-0f51db610642', CAST(5000.000 AS Decimal(10, 3)), N'21978e62-4f67-4754-9a3e-f5f8bd241ff0', CAST(N'2025-06-20' AS Date), N'در حال اجرا', 2)
 GO
-INSERT [dbo].[production_order_steps] ([order_step_id], [order_id], [step_id], [planned_start], [actual_start], [actual_end], [status], [notes]) VALUES (N'03e0ab8d-a7f1-474d-8bc1-779f5cffd811', N'b4c17f9c-27de-4c38-9599-53494b2727ad', N'3febbfb3-00bd-4bdd-bbf0-f2fa3bb0e63f', CAST(N'2023-06-01T08:00:00.000' AS DateTime), CAST(N'2023-06-01T08:05:00.000' AS DateTime), CAST(N'2023-06-01T10:30:00.000' AS DateTime), N'Completed', N'All materials weighed accurately')
+INSERT [dbo].[production_orders] ([order_id], [order_number], [medicine_id], [quantity], [unit_id], [target_date], [status], [priority]) VALUES (N'1eeed96d-a400-4ae4-8b97-57ca2ffddb6c', N'PO-2025-001', N'd45d1afb-9e1a-4ddb-bcf9-997ffbb68213', CAST(10000.000 AS Decimal(10, 3)), N'21978e62-4f67-4754-9a3e-f5f8bd241ff0', CAST(N'2025-06-15' AS Date), N'برنامه‌ریزی شده', 1)
 GO
-INSERT [dbo].[production_order_steps] ([order_step_id], [order_id], [step_id], [planned_start], [actual_start], [actual_end], [status], [notes]) VALUES (N'0460e7b3-4ee7-4681-91c8-fadc7244b850', N'b4c17f9c-27de-4c38-9599-53494b2727ad', N'f7612c3b-df16-405a-b10a-0ee26fe5faf7', CAST(N'2023-06-02T08:00:00.000' AS DateTime), CAST(N'2023-06-02T08:10:00.000' AS DateTime), CAST(N'2023-06-02T16:00:00.000' AS DateTime), N'Completed', N'Packaged in blister packs')
+INSERT [dbo].[production_steps] ([step_id], [step_name], [description], [sequence], [is_active]) VALUES (N'cd9e1a5c-5da3-4181-b42e-3a8c709e58c9', N'گرانولاسیون', N'تشکیل گرانول', 3, 1)
 GO
-INSERT [dbo].[production_orders] ([order_id], [order_number], [medicine_id], [quantity], [unit_id], [target_date], [status], [priority]) VALUES (N'b375860a-c378-49a1-8183-4b87cea1b1bc', N'PO-2023-002', N'30704664-788e-41c9-9785-69cd6590f700', CAST(5000.000 AS Decimal(10, 3)), N'debce6ea-b816-4610-a4e3-7cff8e982193', CAST(N'2023-06-20' AS Date), N'In Progress', 2)
+INSERT [dbo].[production_steps] ([step_id], [step_name], [description], [sequence], [is_active]) VALUES (N'bfe2a059-50ad-4595-9e57-42a363b42390', N'پوشش‌دهی', N'اعمال پوشش روی تبلت', 6, 1)
 GO
-INSERT [dbo].[production_orders] ([order_id], [order_number], [medicine_id], [quantity], [unit_id], [target_date], [status], [priority]) VALUES (N'b4c17f9c-27de-4c38-9599-53494b2727ad', N'PO-2023-001', N'befbc3ae-bd0c-413d-b0b3-c0ee2b2b4069', CAST(10000.000 AS Decimal(10, 3)), N'debce6ea-b816-4610-a4e3-7cff8e982193', CAST(N'2023-06-15' AS Date), N'Completed', 1)
+INSERT [dbo].[production_steps] ([step_id], [step_name], [description], [sequence], [is_active]) VALUES (N'27dab27b-1e1b-4a43-a55a-4dee5a8012b1', N'خشک کردن', N'خشک کردن گرانول‌ها', 4, 1)
 GO
-INSERT [dbo].[production_steps] ([step_id], [step_name], [description], [sequence], [is_active]) VALUES (N'fdbb915e-066a-4557-b117-073bb6224f59', N'Granulation', N'Formation of granules', 3, 1)
+INSERT [dbo].[production_steps] ([step_id], [step_name], [description], [sequence], [is_active]) VALUES (N'ac054d6c-14a0-47e1-b934-5fac34f2f63f', N'تبلت‌سازی', N'فشرده‌سازی تبلت', 5, 1)
 GO
-INSERT [dbo].[production_steps] ([step_id], [step_name], [description], [sequence], [is_active]) VALUES (N'f7612c3b-df16-405a-b10a-0ee26fe5faf7', N'Packaging', N'Final product packaging', 6, 1)
+INSERT [dbo].[production_steps] ([step_id], [step_name], [description], [sequence], [is_active]) VALUES (N'202d420b-8bc2-4d0c-bf29-71e0618ccf10', N'بسته‌بندی اولیه', N'بسته‌بندی در بلیستر', 7, 1)
 GO
-INSERT [dbo].[production_steps] ([step_id], [step_name], [description], [sequence], [is_active]) VALUES (N'67ea48db-63ff-449f-a07a-82e4b133304f', N'Mixing', N'Blending of ingredients', 2, 1)
+INSERT [dbo].[production_steps] ([step_id], [step_name], [description], [sequence], [is_active]) VALUES (N'09dde5d1-1ed3-4c7c-a6bd-bc4223cf2338', N'کنترل کیفیت', N'آزمایشات کنترل کیفیت نهایی', 9, 1)
 GO
-INSERT [dbo].[production_steps] ([step_id], [step_name], [description], [sequence], [is_active]) VALUES (N'48b91847-b535-4456-9484-a1cc5c5ebf2b', N'Compression', N'Tablet formation', 4, 1)
+INSERT [dbo].[production_steps] ([step_id], [step_name], [description], [sequence], [is_active]) VALUES (N'd459b1e3-2eb8-4052-a006-cae9cf900ab9', N'بسته‌بندی ثانویه', N'بسته‌بندی نهایی و برچسب‌گذاری', 8, 1)
 GO
-INSERT [dbo].[production_steps] ([step_id], [step_name], [description], [sequence], [is_active]) VALUES (N'7d0d4249-e166-4d04-9802-dc790d0d5f6b', N'Coating', N'Applying protective coating', 5, 1)
+INSERT [dbo].[production_steps] ([step_id], [step_name], [description], [sequence], [is_active]) VALUES (N'd6e29c84-c573-417f-90e1-f1abeb3a7996', N'مخلوط کردن', N'مخلوط کردن مواد اولیه', 2, 1)
 GO
-INSERT [dbo].[production_steps] ([step_id], [step_name], [description], [sequence], [is_active]) VALUES (N'3febbfb3-00bd-4bdd-bbf0-f2fa3bb0e63f', N'Weighing', N'Accurate measurement of raw materials', 1, 1)
+INSERT [dbo].[production_steps] ([step_id], [step_name], [description], [sequence], [is_active]) VALUES (N'2a4bf895-cba7-4793-ac44-fbb51b0dfa49', N'تهیه مواد اولیه', N'آماده‌سازی و توزین مواد اولیه', 1, 1)
 GO
-INSERT [dbo].[raw_materials] ([material_id], [material_code], [material_name], [category_id], [unit_id], [min_stock_level], [max_stock_level], [lead_time_days], [is_active]) VALUES (N'08d155dc-92e9-4740-ad16-07d13cfcddc4', N'EXC-102', N'Magnesium Stearate', N'4f1a08ae-74e8-4e6a-b958-4e79e8e11c74', N'ef424c05-81bf-40cf-9abb-4e4c58628850', CAST(2000.000 AS Decimal(10, 3)), CAST(20000.000 AS Decimal(10, 3)), 14, 1)
+INSERT [dbo].[purchase_orders] ([purchase_order_id], [po_number], [supplier_id], [order_date], [expected_delivery_date], [actual_delivery_date], [total_amount], [currency], [status], [notes], [created_by], [created_date]) VALUES (N'9dc179a6-f141-454d-8ac8-1575cd5b70cb', N'PO-2025-001', N'5879131e-637c-440c-8d40-a2bf8c8f8a6a', CAST(N'2025-05-20' AS Date), CAST(N'2025-06-05' AS Date), NULL, CAST(15000000.00 AS Decimal(15, 2)), N'IRR', N'ارسال شده', NULL, NULL, CAST(N'2025-05-26T17:47:29.690' AS DateTime))
 GO
-INSERT [dbo].[raw_materials] ([material_id], [material_code], [material_name], [category_id], [unit_id], [min_stock_level], [max_stock_level], [lead_time_days], [is_active]) VALUES (N'55df28ce-05ef-4252-9cc1-0f3ab5d59cd2', N'EXC-101', N'Microcrystalline Cellulose', N'4f1a08ae-74e8-4e6a-b958-4e79e8e11c74', N'ef424c05-81bf-40cf-9abb-4e4c58628850', CAST(10000.000 AS Decimal(10, 3)), CAST(100000.000 AS Decimal(10, 3)), 7, 1)
+INSERT [dbo].[purchase_orders] ([purchase_order_id], [po_number], [supplier_id], [order_date], [expected_delivery_date], [actual_delivery_date], [total_amount], [currency], [status], [notes], [created_by], [created_date]) VALUES (N'f0ab61fa-7382-46c0-affb-f934792d65ef', N'PO-2025-002', N'1869c0d2-320b-4641-9e96-5221ec793445', CAST(N'2025-05-22' AS Date), CAST(N'2025-06-10' AS Date), NULL, CAST(8500000.00 AS Decimal(15, 2)), N'IRR', N'تایید شده', NULL, NULL, CAST(N'2025-05-26T17:47:29.690' AS DateTime))
 GO
-INSERT [dbo].[raw_materials] ([material_id], [material_code], [material_name], [category_id], [unit_id], [min_stock_level], [max_stock_level], [lead_time_days], [is_active]) VALUES (N'9434b3d7-3786-409d-94d0-6f35aef92747', N'SOL-201', N'Ethanol 96%', N'839dccce-f5a7-41e4-b892-c08c915e59fc', N'5debd844-1d19-4a94-927b-11220a8a7be9', CAST(5000.000 AS Decimal(10, 3)), CAST(50000.000 AS Decimal(10, 3)), 7, 1)
+INSERT [dbo].[raw_materials] ([material_id], [material_code], [material_name], [category_id], [unit_id], [min_stock_level], [max_stock_level], [lead_time_days], [is_active]) VALUES (N'e4c72e25-1d6a-4d01-8e20-13b56895b299', N'COL-001', N'رنگ قرمز', N'e462a029-e065-45e8-a959-65d3e3556451', N'7f944967-0a7b-40cc-9a14-3af4b0261a84', CAST(5.000 AS Decimal(10, 3)), CAST(25.000 AS Decimal(10, 3)), 30, 1)
 GO
-INSERT [dbo].[raw_materials] ([material_id], [material_code], [material_name], [category_id], [unit_id], [min_stock_level], [max_stock_level], [lead_time_days], [is_active]) VALUES (N'fe1eb017-d074-4a96-8c01-870d83c641e7', N'API-002', N'Ibuprofen', N'460bcd72-79e8-49bd-b31a-734a440b5abe', N'ef424c05-81bf-40cf-9abb-4e4c58628850', CAST(3000.000 AS Decimal(10, 3)), CAST(30000.000 AS Decimal(10, 3)), 21, 1)
+INSERT [dbo].[raw_materials] ([material_id], [material_code], [material_name], [category_id], [unit_id], [min_stock_level], [max_stock_level], [lead_time_days], [is_active]) VALUES (N'f06d58e6-a0a7-44c4-b3ad-1a636c83d554', N'API-003', N'آموکسی‌سیلین', N'0d0a0409-2ed9-4c8a-8d36-0ad8ef75967c', N'7f944967-0a7b-40cc-9a14-3af4b0261a84', CAST(20.000 AS Decimal(10, 3)), CAST(100.000 AS Decimal(10, 3)), 60, 1)
 GO
-INSERT [dbo].[raw_materials] ([material_id], [material_code], [material_name], [category_id], [unit_id], [min_stock_level], [max_stock_level], [lead_time_days], [is_active]) VALUES (N'1e505ac9-56fe-4b51-8705-a4a5e2e2a751', N'API-001', N'Paracetamol', N'460bcd72-79e8-49bd-b31a-734a440b5abe', N'ef424c05-81bf-40cf-9abb-4e4c58628850', CAST(5000.000 AS Decimal(10, 3)), CAST(50000.000 AS Decimal(10, 3)), 14, 1)
+INSERT [dbo].[raw_materials] ([material_id], [material_code], [material_name], [category_id], [unit_id], [min_stock_level], [max_stock_level], [lead_time_days], [is_active]) VALUES (N'2263f311-9aca-4b2b-a7f0-1e64c5455ff7', N'RM-003', N'لاکتوز', N'8f6777af-0266-40ab-a287-4c9c5f24e223', N'7f944967-0a7b-40cc-9a14-3af4b0261a84', CAST(100.000 AS Decimal(10, 3)), CAST(1000.000 AS Decimal(10, 3)), 15, 1)
 GO
-INSERT [dbo].[Settings] ([id], [NumberPerPage], [DefaultColor], [IsNavDark], [IsMenuDark]) VALUES (N'a42125b6-0926-4b7f-b2aa-d81ae595d1ed', 10, 1, 1, 1)
+INSERT [dbo].[raw_materials] ([material_id], [material_code], [material_name], [category_id], [unit_id], [min_stock_level], [max_stock_level], [lead_time_days], [is_active]) VALUES (N'c6ba50a3-2ea7-4b89-bdb4-2ead897d2cfb', N'API-002', N'ایبوپروفن', N'0d0a0409-2ed9-4c8a-8d36-0ad8ef75967c', N'7f944967-0a7b-40cc-9a14-3af4b0261a84', CAST(30.000 AS Decimal(10, 3)), CAST(150.000 AS Decimal(10, 3)), 45, 1)
 GO
-INSERT [dbo].[storage_locations] ([location_id], [location_code], [location_name], [location_type], [temperature_range], [capacity], [capacity_unit_id], [is_active]) VALUES (N'49f485dd-cad2-467b-b9d2-0fc39c4845f5', N'CR-01', N'Cold Room 1', N'Cold Room', N'2-8°C', CAST(500.00 AS Decimal(10, 2)), N'3abc10bd-ec41-4734-a9b5-f03d37b0738b', 1)
+INSERT [dbo].[raw_materials] ([material_id], [material_code], [material_name], [category_id], [unit_id], [min_stock_level], [max_stock_level], [lead_time_days], [is_active]) VALUES (N'3f26bbb1-157c-4536-87e5-3a838e789546', N'RM-001', N'استامینوفن', N'3bbf3302-c4a7-44d2-ac30-084cb4d09c29', N'7f944967-0a7b-40cc-9a14-3af4b0261a84', CAST(50.000 AS Decimal(10, 3)), CAST(500.000 AS Decimal(10, 3)), 30, 1)
 GO
-INSERT [dbo].[storage_locations] ([location_id], [location_code], [location_name], [location_type], [temperature_range], [capacity], [capacity_unit_id], [is_active]) VALUES (N'60aa36b7-1a84-4206-8109-3ce858d9138c', N'WH-01', N'Main Warehouse', N'Warehouse', N'15-25°C', CAST(10000.00 AS Decimal(10, 2)), N'3abc10bd-ec41-4734-a9b5-f03d37b0738b', 1)
+INSERT [dbo].[raw_materials] ([material_id], [material_code], [material_name], [category_id], [unit_id], [min_stock_level], [max_stock_level], [lead_time_days], [is_active]) VALUES (N'3b01dde6-1178-46cc-b0c5-417a3d7076cc', N'EXC-003', N'استئارات منیزیم', N'626b8cee-6cc5-4760-a074-b3268d1739b4', N'7f944967-0a7b-40cc-9a14-3af4b0261a84', CAST(10.000 AS Decimal(10, 3)), CAST(50.000 AS Decimal(10, 3)), 25, 1)
 GO
-INSERT [dbo].[storage_locations] ([location_id], [location_code], [location_name], [location_type], [temperature_range], [capacity], [capacity_unit_id], [is_active]) VALUES (N'48e00f8b-7a1f-4324-89c1-9f3ec2bdf9d3', N'HS-01', N'Flammable Storage', N'Hazardous', N'Below 30°C', CAST(2000.00 AS Decimal(10, 2)), N'd8bddbec-2e26-47f4-b81e-70373edb47ab', 1)
+INSERT [dbo].[raw_materials] ([material_id], [material_code], [material_name], [category_id], [unit_id], [min_stock_level], [max_stock_level], [lead_time_days], [is_active]) VALUES (N'fba31cec-fa6d-46ca-a77d-44bb38be050f', N'PAK-001', N'بلیستر آلومینیومی', N'335c77ca-4fce-4924-bfa4-877bfb0944b0', N'21978e62-4f67-4754-9a3e-f5f8bd241ff0', CAST(10000.000 AS Decimal(10, 3)), CAST(50000.000 AS Decimal(10, 3)), 20, 1)
+GO
+INSERT [dbo].[raw_materials] ([material_id], [material_code], [material_name], [category_id], [unit_id], [min_stock_level], [max_stock_level], [lead_time_days], [is_active]) VALUES (N'61243253-ceb0-4b37-900f-4cf2eb01af41', N'RM-004', N'نشاسته ذرت', N'8f6777af-0266-40ab-a287-4c9c5f24e223', N'7f944967-0a7b-40cc-9a14-3af4b0261a84', CAST(50.000 AS Decimal(10, 3)), CAST(500.000 AS Decimal(10, 3)), 20, 1)
+GO
+INSERT [dbo].[raw_materials] ([material_id], [material_code], [material_name], [category_id], [unit_id], [min_stock_level], [max_stock_level], [lead_time_days], [is_active]) VALUES (N'f10a7451-137d-4b2e-8b73-604442710542', N'SOL-001', N'اتانول', N'8304fb31-5d8d-4583-914c-56df796f0151', N'f1b9576b-6cf0-4a4f-98e7-3211bdb882ed', CAST(200.000 AS Decimal(10, 3)), CAST(1000.000 AS Decimal(10, 3)), 10, 1)
+GO
+INSERT [dbo].[raw_materials] ([material_id], [material_code], [material_name], [category_id], [unit_id], [min_stock_level], [max_stock_level], [lead_time_days], [is_active]) VALUES (N'30d08d8a-88b6-4155-8421-82afe1d1fcb7', N'RM-002', N'ایبوپروفن', N'3bbf3302-c4a7-44d2-ac30-084cb4d09c29', N'7f944967-0a7b-40cc-9a14-3af4b0261a84', CAST(30.000 AS Decimal(10, 3)), CAST(300.000 AS Decimal(10, 3)), 25, 1)
+GO
+INSERT [dbo].[raw_materials] ([material_id], [material_code], [material_name], [category_id], [unit_id], [min_stock_level], [max_stock_level], [lead_time_days], [is_active]) VALUES (N'5edb6525-f5aa-426a-9cc9-8b46392ab6b5', N'RM-005', N'کپسول ژلاتینی', N'b62d48ee-dbcd-4dd1-ba8f-9452c61de36e', N'21978e62-4f67-4754-9a3e-f5f8bd241ff0', CAST(10000.000 AS Decimal(10, 3)), CAST(100000.000 AS Decimal(10, 3)), 10, 1)
+GO
+INSERT [dbo].[raw_materials] ([material_id], [material_code], [material_name], [category_id], [unit_id], [min_stock_level], [max_stock_level], [lead_time_days], [is_active]) VALUES (N'aef1ef99-0035-479e-8922-b972af409bf1', N'API-001', N'استامینوفن', N'0d0a0409-2ed9-4c8a-8d36-0ad8ef75967c', N'7f944967-0a7b-40cc-9a14-3af4b0261a84', CAST(50.000 AS Decimal(10, 3)), CAST(200.000 AS Decimal(10, 3)), 30, 1)
+GO
+INSERT [dbo].[raw_materials] ([material_id], [material_code], [material_name], [category_id], [unit_id], [min_stock_level], [max_stock_level], [lead_time_days], [is_active]) VALUES (N'e9b5ced5-f75f-4b29-b0e1-e277f0cd1a48', N'EXC-001', N'لاکتوز', N'626b8cee-6cc5-4760-a074-b3268d1739b4', N'7f944967-0a7b-40cc-9a14-3af4b0261a84', CAST(100.000 AS Decimal(10, 3)), CAST(500.000 AS Decimal(10, 3)), 15, 1)
+GO
+INSERT [dbo].[raw_materials] ([material_id], [material_code], [material_name], [category_id], [unit_id], [min_stock_level], [max_stock_level], [lead_time_days], [is_active]) VALUES (N'a23914ea-72c6-48f3-9a1b-f0cf4401fa41', N'EXC-002', N'استارچ ذرت', N'626b8cee-6cc5-4760-a074-b3268d1739b4', N'7f944967-0a7b-40cc-9a14-3af4b0261a84', CAST(80.000 AS Decimal(10, 3)), CAST(400.000 AS Decimal(10, 3)), 20, 1)
+GO
+INSERT [dbo].[sales_orders] ([sales_order_id], [so_number], [customer_id], [order_date], [requested_delivery_date], [promised_delivery_date], [total_amount], [tax_amount], [discount_amount], [net_amount], [currency], [status], [priority], [notes], [created_by], [created_date]) VALUES (N'6498e585-3e37-454a-8442-725a7122320a', N'SO-2025-002', N'a0d2bf57-d07f-4c37-bd53-c8df9d878389', CAST(N'2025-05-26' AS Date), CAST(N'2025-06-08' AS Date), NULL, CAST(25000000.00 AS Decimal(15, 2)), NULL, NULL, NULL, N'IRR', N'در حال تولید', 2, NULL, NULL, CAST(N'2025-05-26T17:47:29.690' AS DateTime))
+GO
+INSERT [dbo].[sales_orders] ([sales_order_id], [so_number], [customer_id], [order_date], [requested_delivery_date], [promised_delivery_date], [total_amount], [tax_amount], [discount_amount], [net_amount], [currency], [status], [priority], [notes], [created_by], [created_date]) VALUES (N'07ebd267-ae0b-4853-8366-c3b36bd44e6d', N'SO-2025-001', N'13a74764-b2f7-4b3d-b193-cda2b6d27f53', CAST(N'2025-05-25' AS Date), CAST(N'2025-06-05' AS Date), NULL, CAST(12000000.00 AS Decimal(15, 2)), NULL, NULL, NULL, N'IRR', N'تایید شده', 1, NULL, NULL, CAST(N'2025-05-26T17:47:29.690' AS DateTime))
+GO
+INSERT [dbo].[Settings] ([id], [NumberPerPage], [DefaultColor], [IsNavDark], [IsMenuDark]) VALUES (N'8bc241db-7f91-4627-8285-0e9b25fdcba8', 8, 1, 1, 1)
+GO
+INSERT [dbo].[storage_locations] ([location_id], [location_code], [location_name], [location_type], [temperature_range], [capacity], [capacity_unit_id], [is_active]) VALUES (N'4cc83bbe-6c82-4fd7-a459-00b1cc003559', N'HZ-001', N'انبار مواد خطرناک', N'خطرناک', N'15-25°C', CAST(50.00 AS Decimal(10, 2)), N'7f944967-0a7b-40cc-9a14-3af4b0261a84', 1)
+GO
+INSERT [dbo].[storage_locations] ([location_id], [location_code], [location_name], [location_type], [temperature_range], [capacity], [capacity_unit_id], [is_active]) VALUES (N'a4b33ad9-5ef9-489c-a5f0-0e904b0c0272', N'RF-001', N'سردخانه', N'سردخانه', N'2-8°C', CAST(200.00 AS Decimal(10, 2)), N'7f944967-0a7b-40cc-9a14-3af4b0261a84', 1)
+GO
+INSERT [dbo].[storage_locations] ([location_id], [location_code], [location_name], [location_type], [temperature_range], [capacity], [capacity_unit_id], [is_active]) VALUES (N'c7af506f-3f81-406f-8a1c-716f5bb136a8', N'WH-002', N'انبار محصولات نهایی', N'انبار', N'15-25°C', CAST(500.00 AS Decimal(10, 2)), N'7f944967-0a7b-40cc-9a14-3af4b0261a84', 1)
+GO
+INSERT [dbo].[storage_locations] ([location_id], [location_code], [location_name], [location_type], [temperature_range], [capacity], [capacity_unit_id], [is_active]) VALUES (N'b5c3b1b2-05bd-4e31-b6ca-81ebd6995a2c', N'WH-001', N'انبار اصلی مواد اولیه', N'انبار', N'15-25°C', CAST(1000.00 AS Decimal(10, 2)), N'7f944967-0a7b-40cc-9a14-3af4b0261a84', 1)
+GO
+INSERT [dbo].[storage_locations] ([location_id], [location_code], [location_name], [location_type], [temperature_range], [capacity], [capacity_unit_id], [is_active]) VALUES (N'2a3c5536-97df-413d-9714-f59a81f3b4b1', N'QR-001', N'قرنطینه مواد اولیه', N'قرنطینه', N'15-25°C', CAST(100.00 AS Decimal(10, 2)), N'7f944967-0a7b-40cc-9a14-3af4b0261a84', 1)
+GO
+INSERT [dbo].[suppliers] ([supplier_id], [supplier_code], [supplier_name], [contact_person], [email], [phone], [address], [tax_number], [payment_terms], [lead_time_days], [is_active], [created_date]) VALUES (N'1869c0d2-320b-4641-9e96-5221ec793445', N'SUP-002', N'داروسازان پارس', N'فاطمه احمدی', N'sales@parspharma.com', N'021-88776655', N'کرج، شهرک صنعتی البرز، واحد ۴۵', N'987654321', N'45 روز', 20, 1, CAST(N'2025-05-26T17:47:29.680' AS DateTime))
+GO
+INSERT [dbo].[suppliers] ([supplier_id], [supplier_code], [supplier_name], [contact_person], [email], [phone], [address], [tax_number], [payment_terms], [lead_time_days], [is_active], [created_date]) VALUES (N'5879131e-637c-440c-8d40-a2bf8c8f8a6a', N'SUP-001', N'شرکت مواد شیمیایی البرز', N'احمد رضایی', N'info@alborzchem.ir', N'021-22334455', N'تهران، خیابان آزادی، پلاک ۱۲۳', N'123456789', N'30 روز', 15, 1, CAST(N'2025-05-26T17:47:29.680' AS DateTime))
+GO
+INSERT [dbo].[suppliers] ([supplier_id], [supplier_code], [supplier_name], [contact_person], [email], [phone], [address], [tax_number], [payment_terms], [lead_time_days], [is_active], [created_date]) VALUES (N'5c841f24-c2e6-487a-8083-cb1a14fe1116', N'SUP-003', N'بسته‌بندی مدرن', N'علی کریمی', N'orders@modernpack.ir', N'021-55443322', N'تهران، جنوب شهر، خیابان صنعت، پلاک ۶۷', N'456789123', N'15 روز', 10, 1, CAST(N'2025-05-26T17:47:29.680' AS DateTime))
 GO
 INSERT [dbo].[Teams] ([id], [Name], [DefaultPageForTeam], [IsActive], [ManagmentDashboard], [Setting], [SystemUsers], [Financial], [Inventory], [Product], [SellCommercial], [BuyCommercial], [RAndD], [QC], [QA], [PMO]) VALUES (N'a6133e3d-73b8-42af-a597-2400f1fdb95f', N'تیم مدیریت', N'Dashboard', 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
 GO
@@ -851,29 +1421,35 @@ INSERT [dbo].[Teams] ([id], [Name], [DefaultPageForTeam], [IsActive], [Managment
 GO
 INSERT [dbo].[Teams] ([id], [Name], [DefaultPageForTeam], [IsActive], [ManagmentDashboard], [Setting], [SystemUsers], [Financial], [Inventory], [Product], [SellCommercial], [BuyCommercial], [RAndD], [QC], [QA], [PMO]) VALUES (N'c9e6c24d-4ae7-4f27-ba3f-ec6747aa265c', N'بخش تولید', N'Products', 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0)
 GO
-INSERT [dbo].[unit_types] ([unit_type_id], [type_name], [description], [is_system]) VALUES (N'739615c3-e937-4cf8-92f0-01bbba1b59f3', N'Mass', N'Units of weight/mass', 1)
+INSERT [dbo].[unit_types] ([unit_type_id], [type_name], [description], [is_system]) VALUES (N'4bce3be6-10eb-4303-9e6c-20ca8a3ef3fa', N'تعداد', N'واحدهای شمارشی', 1)
 GO
-INSERT [dbo].[unit_types] ([unit_type_id], [type_name], [description], [is_system]) VALUES (N'07520621-d726-4fc8-b900-0f51f6a7a029', N'Volume', N'Units of liquid volume', 1)
+INSERT [dbo].[unit_types] ([unit_type_id], [type_name], [description], [is_system]) VALUES (N'f3de3c2e-17d9-41a0-80fc-b377dae5519f', N'طول', N'واحدهای اندازه‌گیری طول', 1)
 GO
-INSERT [dbo].[unit_types] ([unit_type_id], [type_name], [description], [is_system]) VALUES (N'cfc6723b-1d33-4173-8ae1-869b60e9f6d7', N'Count', N'Discrete item counts', 0)
+INSERT [dbo].[unit_types] ([unit_type_id], [type_name], [description], [is_system]) VALUES (N'1af2db19-1d4a-459d-8b97-fd39347b6556', N'حجم', N'واحدهای اندازه‌گیری حجم', 1)
 GO
-INSERT [dbo].[units] ([unit_id], [unit_type_id], [unit_name], [unit_symbol], [is_base_unit], [conversion_factor], [description], [is_active]) VALUES (N'5debd844-1d19-4a94-927b-11220a8a7be9', N'07520621-d726-4fc8-b900-0f51f6a7a029', N'milliliter', N'mL', 0, CAST(0.0010000000 AS Decimal(20, 10)), N'Thousandth of a liter', 1)
+INSERT [dbo].[unit_types] ([unit_type_id], [type_name], [description], [is_system]) VALUES (N'3834ca25-623e-4c16-aaa7-fd81c19d2b99', N'وزن', N'واحدهای اندازه‌گیری وزن', 1)
 GO
-INSERT [dbo].[units] ([unit_id], [unit_type_id], [unit_name], [unit_symbol], [is_base_unit], [conversion_factor], [description], [is_active]) VALUES (N'ef424c05-81bf-40cf-9abb-4e4c58628850', N'739615c3-e937-4cf8-92f0-01bbba1b59f3', N'gram', N'g', 0, CAST(0.0010000000 AS Decimal(20, 10)), N'Thousandth of a kilogram', 1)
+INSERT [dbo].[units] ([unit_id], [unit_type_id], [unit_name], [unit_symbol], [is_base_unit], [conversion_factor], [description], [is_active]) VALUES (N'f1b9576b-6cf0-4a4f-98e7-3211bdb882ed', N'1af2db19-1d4a-459d-8b97-fd39347b6556', N'لیتر', N'L', 1, CAST(1.0000000000 AS Decimal(20, 10)), N'واحد پایه حجم', 1)
 GO
-INSERT [dbo].[units] ([unit_id], [unit_type_id], [unit_name], [unit_symbol], [is_base_unit], [conversion_factor], [description], [is_active]) VALUES (N'e40a8d81-adf5-4dfd-9511-6eb0919fbe7a', N'cfc6723b-1d33-4173-8ae1-869b60e9f6d7', N'bottle', N'btl', 0, CAST(1.0000000000 AS Decimal(20, 10)), N'Individual bottle', 1)
+INSERT [dbo].[units] ([unit_id], [unit_type_id], [unit_name], [unit_symbol], [is_base_unit], [conversion_factor], [description], [is_active]) VALUES (N'111a0ac4-523f-455f-8641-35280b52cf93', N'3834ca25-623e-4c16-aaa7-fd81c19d2b99', N'گرم', N'g', 1, CAST(1.0000000000 AS Decimal(20, 10)), N'واحد پایه وزن', 1)
 GO
-INSERT [dbo].[units] ([unit_id], [unit_type_id], [unit_name], [unit_symbol], [is_base_unit], [conversion_factor], [description], [is_active]) VALUES (N'd8bddbec-2e26-47f4-b81e-70373edb47ab', N'07520621-d726-4fc8-b900-0f51f6a7a029', N'liter', N'L', 1, CAST(1.0000000000 AS Decimal(20, 10)), N'Base unit of volume', 1)
+INSERT [dbo].[units] ([unit_id], [unit_type_id], [unit_name], [unit_symbol], [is_base_unit], [conversion_factor], [description], [is_active]) VALUES (N'3716a69e-bc35-4cd7-b065-39b8f844e3b4', N'4bce3be6-10eb-4303-9e6c-20ca8a3ef3fa', N'جعبه', N'جعبه', 0, CAST(1.0000000000 AS Decimal(20, 10)), N'جعبه', 1)
 GO
-INSERT [dbo].[units] ([unit_id], [unit_type_id], [unit_name], [unit_symbol], [is_base_unit], [conversion_factor], [description], [is_active]) VALUES (N'debce6ea-b816-4610-a4e3-7cff8e982193', N'cfc6723b-1d33-4173-8ae1-869b60e9f6d7', N'each', N'ea', 1, CAST(1.0000000000 AS Decimal(20, 10)), N'Base unit of count', 1)
+INSERT [dbo].[units] ([unit_id], [unit_type_id], [unit_name], [unit_symbol], [is_base_unit], [conversion_factor], [description], [is_active]) VALUES (N'7f944967-0a7b-40cc-9a14-3af4b0261a84', N'3834ca25-623e-4c16-aaa7-fd81c19d2b99', N'کیلوگرم', N'kg', 0, CAST(1000.0000000000 AS Decimal(20, 10)), N'هزار گرم', 1)
 GO
-INSERT [dbo].[units] ([unit_id], [unit_type_id], [unit_name], [unit_symbol], [is_base_unit], [conversion_factor], [description], [is_active]) VALUES (N'ad7a09c8-ad3f-438c-9844-8e51d268b27f', N'739615c3-e937-4cf8-92f0-01bbba1b59f3', N'milligram', N'mg', 0, CAST(0.0000010000 AS Decimal(20, 10)), N'Millionth of a kilogram', 1)
+INSERT [dbo].[units] ([unit_id], [unit_type_id], [unit_name], [unit_symbol], [is_base_unit], [conversion_factor], [description], [is_active]) VALUES (N'e8a86594-7a02-44fa-a806-8e68b6bf5b7c', N'1af2db19-1d4a-459d-8b97-fd39347b6556', N'میلی‌لیتر', N'mL', 0, CAST(0.0010000000 AS Decimal(20, 10)), N'هزارم لیتر', 1)
 GO
-INSERT [dbo].[units] ([unit_id], [unit_type_id], [unit_name], [unit_symbol], [is_base_unit], [conversion_factor], [description], [is_active]) VALUES (N'3abc10bd-ec41-4734-a9b5-f03d37b0738b', N'739615c3-e937-4cf8-92f0-01bbba1b59f3', N'kilogram', N'kg', 1, CAST(1.0000000000 AS Decimal(20, 10)), N'Base unit of mass', 1)
+INSERT [dbo].[units] ([unit_id], [unit_type_id], [unit_name], [unit_symbol], [is_base_unit], [conversion_factor], [description], [is_active]) VALUES (N'21978e62-4f67-4754-9a3e-f5f8bd241ff0', N'4bce3be6-10eb-4303-9e6c-20ca8a3ef3fa', N'عدد', N'عدد', 1, CAST(1.0000000000 AS Decimal(20, 10)), N'واحد شمارش', 1)
+GO
+INSERT [dbo].[units] ([unit_id], [unit_type_id], [unit_name], [unit_symbol], [is_base_unit], [conversion_factor], [description], [is_active]) VALUES (N'9d4d14f3-2db6-48f6-a0ee-fb2bc92edc86', N'3834ca25-623e-4c16-aaa7-fd81c19d2b99', N'میلی‌گرم', N'mg', 0, CAST(0.0010000000 AS Decimal(20, 10)), N'هزارم گرم', 1)
+GO
+INSERT [dbo].[units] ([unit_id], [unit_type_id], [unit_name], [unit_symbol], [is_base_unit], [conversion_factor], [description], [is_active]) VALUES (N'3dfb35ec-cc45-4394-adb5-fc840947f0d8', N'4bce3be6-10eb-4303-9e6c-20ca8a3ef3fa', N'بسته', N'بسته', 0, CAST(1.0000000000 AS Decimal(20, 10)), N'بسته‌بندی', 1)
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'b0f0b3d6-3bd3-47d8-9126-001ac8a59332', N'6421f94c-4413-492c-8ef2-f21a1c4e0911', CAST(N'2025-04-16T19:09:41.067' AS DateTime), N'آنلاین')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'ccf5846b-cca3-4f7f-b71c-00a808302fd0', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-12T00:03:57.730' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'22770769-9277-46c3-a041-00d0f5c293b0', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-27T12:25:38.010' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'15b94d4a-a9d4-4012-a440-01051055434e', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T02:29:02.590' AS DateTime), N'In')
 GO
@@ -896,6 +1472,8 @@ GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'97eeb005-9ad7-4bf5-9d89-048174b0eefc', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T02:26:20.757' AS DateTime), N'In')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'8e859d92-6729-4560-ab42-05b1b33169fa', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-08T22:48:21.753' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'6b017dc6-8847-4cdb-b866-0683e1ef0baa', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-26T15:25:30.040' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'1446632c-1c6e-4b05-8ecd-072f5e72d8f2', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-15T19:58:29.907' AS DateTime), N'آنلاین')
 GO
@@ -951,6 +1529,8 @@ INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'ce57c977-4a86-46bb-ad34-1189e35cd671', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-16T20:07:36.397' AS DateTime), N'آنلاین')
 GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'65360631-6498-4d96-8194-11cab92013c3', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-26T10:02:15.383' AS DateTime), N'ورود به سیستم')
+GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'2a25bba5-798f-4e6d-a747-11e6ef3f09cc', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-19T22:49:45.503' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'22fc441a-01e0-40c9-b2d2-1264bb288366', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T02:08:47.200' AS DateTime), N'In')
@@ -971,6 +1551,8 @@ INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'7614bb68-ab34-4daa-9398-13ffd303bd61', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-15T19:30:42.317' AS DateTime), N'آنلاین')
 GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'c14ddf00-6462-4e84-994a-1422cee230f7', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-05-26T15:16:21.447' AS DateTime), N'ورود به سیستم')
+GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'a76729f2-870b-4343-8172-14a011866d30', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T23:43:49.540' AS DateTime), N'In')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'9606e76d-203b-40fc-aa9c-14e431c600b7', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-16T19:27:35.237' AS DateTime), N'آنلاین')
@@ -978,6 +1560,8 @@ GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'7f7eccf0-878e-460e-aa58-14f42a186cac', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-19T23:13:34.183' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'12f48159-f0ec-46de-967e-151dfbadd5c4', N'6421f94c-4413-492c-8ef2-f21a1c4e0911', CAST(N'2025-04-16T19:08:56.057' AS DateTime), N'آنلاین')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'c808f153-1f8c-45dd-a528-158fe6cc0350', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-26T15:33:43.117' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'21ae5db6-aa15-4387-8adf-15e6f402afb3', N'6421f94c-4413-492c-8ef2-f21a1c4e0911', CAST(N'2025-04-15T19:50:41.683' AS DateTime), N'ورود به سیستم')
 GO
@@ -1015,6 +1599,8 @@ INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'12c1cb26-d1a4-4abc-9e44-1c7b20798170', N'6421f94c-4413-492c-8ef2-f21a1c4e0911', CAST(N'2025-04-16T19:08:52.413' AS DateTime), N'آنلاین')
 GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'1f710f47-bbf5-43b3-9b90-1ccc0c366dc8', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-27T08:48:58.197' AS DateTime), N'ورود به سیستم')
+GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'4b0ee39a-7e7f-44a1-8a94-1d0ffaff54be', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-16T20:50:40.443' AS DateTime), N'آنلاین')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'51e9331c-8800-46df-a80e-1e0f0c339983', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-03-25T03:13:09.020' AS DateTime), N'In')
@@ -1026,6 +1612,8 @@ GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'4959596b-1ae2-4bcc-8afb-1edd1186dd32', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-26T14:50:00.410' AS DateTime), N'In')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'e963e0e4-9acb-4ce7-b73e-1ee275f0b508', N'6421f94c-4413-492c-8ef2-f21a1c4e0911', CAST(N'2025-04-16T19:12:02.983' AS DateTime), N'آنلاین')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'88a1d167-6665-4a21-95b1-207a3cbb2b90', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-28T12:23:34.743' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'74bdfd6d-32c4-4be2-8127-20a1f66566c7', N'932727e8-ec89-4104-b45b-286c00e03dc7', CAST(N'2025-03-22T01:56:39.940' AS DateTime), N'In')
 GO
@@ -1068,6 +1656,10 @@ GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'82fa711c-402a-4e7b-9e9c-2bae610d1e62', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T15:47:15.293' AS DateTime), N'In')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'556e70f9-6d0a-4db4-b5c3-2c96924f7d6a', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-21T03:25:32.607' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'cff837d1-43df-4407-bfd3-2cb33e4bf88a', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-26T15:25:30.690' AS DateTime), N'ورود به سیستم')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'469b0321-8860-43f6-a0dd-2cc1054e0a13', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-27T16:08:45.183' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'612c0f21-a526-4b99-a82f-2cc9bf16b2ff', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-23T15:46:34.560' AS DateTime), N'ورود به سیستم')
 GO
@@ -1113,6 +1705,8 @@ INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'e7d72ccb-719f-4a21-bbb0-36eadc5580d2', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T01:24:31.620' AS DateTime), N'In')
 GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'82f1c105-f8d1-4996-9fac-37136ea1bd2e', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-27T12:21:51.780' AS DateTime), N'ورود به سیستم')
+GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'9172fe6c-11f3-4df9-bfee-37574415597c', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-15T17:53:33.093' AS DateTime), N'آنلاین')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'06ab9f09-6b9d-4894-a2c9-3827d64b6bf8', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-15T19:57:36.280' AS DateTime), N'آنلاین')
@@ -1141,7 +1735,13 @@ INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'e7b808b5-6dd8-4015-afaa-3d1589d0a290', N'6421f94c-4413-492c-8ef2-f21a1c4e0911', CAST(N'2025-04-16T20:03:23.363' AS DateTime), N'آنلاین')
 GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'31976725-c987-4418-aede-3d7d45979a6c', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-27T08:18:59.400' AS DateTime), N'ورود به سیستم')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'7ff7adcc-4429-4bc1-a03b-3de737a30175', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-26T09:41:10.897' AS DateTime), N'ورود به سیستم')
+GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'fcf61bfb-fc62-4095-bcba-3e628422c757', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T01:45:36.790' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'97d78d54-d94e-4a21-9d1c-3f26cea1d7fc', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-05-20T17:52:59.800' AS DateTime), N'آنلاین')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'a67bd944-65ac-44a4-a9f8-3f5c5785e6a1', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T15:33:15.000' AS DateTime), N'In')
 GO
@@ -1175,15 +1775,21 @@ INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'befacfce-d91d-42fd-8c6a-45136f02074f', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T20:51:07.800' AS DateTime), N'In')
 GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'71d90c06-bb8c-4586-9fb1-456603a71f44', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-05-26T18:00:44.530' AS DateTime), N'ورود به سیستم')
+GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'8fb1073c-78ba-4953-a2d4-458043a546c5', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-25T01:37:37.773' AS DateTime), N'In')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'04e3d198-8125-415a-b360-458e9e6a935a', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-23T16:47:38.730' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'3d5829f7-df3f-43d3-98d6-45a4389b6077', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-16T23:13:07.293' AS DateTime), N'آنلاین')
 GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'd35e2fa5-9714-4f1a-96d2-45adb9683261', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-29T13:29:50.840' AS DateTime), N'ورود به سیستم')
+GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'fd17367c-cdd4-4073-b90c-461572cb456f', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T18:37:42.320' AS DateTime), N'In')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'918984d9-504d-4a7c-8098-46c42f499f02', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-18T23:39:05.647' AS DateTime), N'آنلاین')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'2e1a0ab5-75d9-49a0-ad21-46d4d038b1f8', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-27T09:00:28.880' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'b73e98e9-a993-4e90-8fd6-46d7bc61edbd', N'5e0c2a9c-1a25-4359-9244-fe8727b55a5f', CAST(N'2025-04-12T00:43:34.377' AS DateTime), N'In')
 GO
@@ -1201,6 +1807,8 @@ INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'6f3657f1-7c88-4ce4-bf17-48fdc483d9d4', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-16T20:59:19.047' AS DateTime), N'آنلاین')
 GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'ae65f89d-e90a-4bc1-9936-49a2c51e60d7', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-28T12:08:01.283' AS DateTime), N'ورود به سیستم')
+GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'cc1daf74-1b38-4bb6-9ae6-4a580fa4edbe', N'6421f94c-4413-492c-8ef2-f21a1c4e0911', CAST(N'2025-04-15T17:54:04.347' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'eb915a56-110b-4eb9-a951-4b29388dfead', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-15T19:50:51.343' AS DateTime), N'ورود به سیستم')
@@ -1212,6 +1820,10 @@ GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'0cb551ab-87a3-4794-8173-4e8573614613', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T19:51:37.633' AS DateTime), N'In')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'fdb62e77-69e5-452b-b28f-4ebb9bd92268', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T14:05:32.030' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'b3e57ecf-d2ce-4b9d-8d24-4f1079da1181', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-05-21T13:26:31.977' AS DateTime), N'آنلاین')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'3a16441d-db6e-4cea-9f3b-4f4d2a60a515', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-28T10:01:34.383' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'1b536c8e-802b-48e3-886d-4f7fc5da496a', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T01:55:22.827' AS DateTime), N'In')
 GO
@@ -1295,6 +1907,8 @@ INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'712d33c7-c34e-4698-aa74-62e9e88989f3', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-15T19:41:36.377' AS DateTime), N'ورود به سیستم')
 GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'ac16c925-94a8-4ca4-a877-63213e72a0da', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-26T10:00:31.030' AS DateTime), N'ورود به سیستم')
+GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'0ee0fba9-47f8-4fb3-b3a2-63d0da541c10', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-15T17:48:26.937' AS DateTime), N'??????')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'35f74888-6e80-4ac9-a563-63ecc80b4f76', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-16T19:27:52.820' AS DateTime), N'آنلاین')
@@ -1325,6 +1939,8 @@ INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'a1aa8b10-23e5-41b9-a650-687fd83f9b8a', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-19T23:20:13.197' AS DateTime), N'ورود به سیستم')
 GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'87421270-4da1-4ef5-ad8f-68a363ab8386', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-05-21T13:26:27.413' AS DateTime), N'آنلاین')
+GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'63f18ab9-731c-4ca2-8715-68e881171229', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-16T19:20:12.390' AS DateTime), N'آنلاین')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'4291110d-3fbb-409e-8a89-693ca2d302c4', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-16T19:46:02.977' AS DateTime), N'آنلاین')
@@ -1346,6 +1962,8 @@ GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'bfeb2107-a46c-4c06-9d32-6b671d8b7566', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-16T19:10:11.153' AS DateTime), N'آنلاین')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'8954a22b-a26e-496e-8609-6b834dd46acc', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-16T20:57:54.180' AS DateTime), N'آنلاین')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'8f3f5a13-2aa6-4391-8cc1-6bb8be51710e', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-05-20T18:20:46.227' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'c5a3bd6e-ce7e-4dfd-8ff3-6bd5a1e2bc79', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-08T23:13:27.540' AS DateTime), N'In')
 GO
@@ -1377,6 +1995,8 @@ INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'5d30bb96-10b4-402f-8885-700044b9423d', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-25T01:53:33.600' AS DateTime), N'In')
 GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'd5dd9409-774b-41d8-8b2c-7059d26dfaa3', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-27T15:38:30.727' AS DateTime), N'ورود به سیستم')
+GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'5c01a2d5-034e-4132-a4b8-70b2660e063a', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T21:36:20.077' AS DateTime), N'In')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'ab624a70-3c9c-42f8-8594-72021b270d05', N'5e0c2a9c-1a25-4359-9244-fe8727b55a5f', CAST(N'2025-04-10T19:55:03.777' AS DateTime), N'In')
@@ -1399,6 +2019,8 @@ INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'c2082304-59d7-4dfa-a2f5-75aa99d8d9a4', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T12:39:52.903' AS DateTime), N'In')
 GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'77b4dac8-229e-4d40-91d2-75d88a680095', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-28T10:04:19.487' AS DateTime), N'ورود به سیستم')
+GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'6ce86b3a-121b-42f5-9041-760d5b69e523', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-16T20:51:44.803' AS DateTime), N'آنلاین')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'f29e17f9-5154-4676-b98f-760d5df6013c', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-25T02:11:39.933' AS DateTime), N'In')
@@ -1419,6 +2041,8 @@ INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'02c37323-2da2-44e0-af11-788d2bbd5e96', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-16T19:08:09.110' AS DateTime), N'آنلاین')
 GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'63ab9797-335a-4a52-b3e7-78b915005c7d', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-27T08:43:36.257' AS DateTime), N'ورود به سیستم')
+GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'0e52146f-b952-4766-bb36-790179ce64ac', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-15T19:04:55.283' AS DateTime), N'آنلاین')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'c5e27e17-947d-4bb1-9983-79e426c007b9', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-16T19:11:05.587' AS DateTime), N'آنلاین')
@@ -1428,6 +2052,8 @@ GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'd9c9c65a-21e2-42e9-bcb6-7b10a3e45227', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-16T19:11:01.017' AS DateTime), N'آنلاین')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'3c4baa16-185d-44f5-9a21-7c74c86c79a8', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-15T17:47:05.347' AS DateTime), N'??????')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'4781349b-5c4f-45b4-8287-7d4156c95044', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-05-21T13:26:30.137' AS DateTime), N'آنلاین')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'17e853e6-ed85-409b-ba84-7d816ec2bdbb', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T01:58:09.163' AS DateTime), N'In')
 GO
@@ -1461,6 +2087,8 @@ INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'05cec3d6-eb7a-4290-9025-827ce6bbc487', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T19:09:09.347' AS DateTime), N'In')
 GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'e898e1ba-c323-436c-934a-82ebcd4233db', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-28T11:13:53.103' AS DateTime), N'ورود به سیستم')
+GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'c37ced68-5061-44e6-8fa7-838a9d9f69ee', N'6421f94c-4413-492c-8ef2-f21a1c4e0911', CAST(N'2025-04-15T19:52:38.187' AS DateTime), N'آنلاین')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'3300159f-63f7-4289-98cc-83a799b2fb00', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-03-21T03:07:36.743' AS DateTime), N'In')
@@ -1468,6 +2096,8 @@ GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'af00019b-753f-44de-9e19-83f9a96a7bdd', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-15T19:38:20.880' AS DateTime), N'آنلاین')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'b48d5888-0ed8-43cc-85a5-83fbc48af7a1', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-16T20:17:14.993' AS DateTime), N'آنلاین')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'38606342-fb0c-47bf-a468-8402ef11ae8c', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-26T10:53:39.517' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'33c54e17-6fdf-4634-9170-85445c6bb3b3', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-15T19:41:44.107' AS DateTime), N'آنلاین')
 GO
@@ -1489,6 +2119,8 @@ INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'd741e3de-a79d-4fc1-98ca-89412e9487d4', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-15T17:46:53.963' AS DateTime), N'??????')
 GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'cc5f3575-6c29-4b6d-80b3-897189e7b98f', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-05-26T17:51:58.397' AS DateTime), N'ورود به سیستم')
+GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'185f5d4c-1c2b-4e53-8f3a-8a1dfea6caf9', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-16T23:13:00.267' AS DateTime), N'آنلاین')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'471f1ec0-39f4-4a30-a63b-8aa32f7f8ec3', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T18:55:12.397' AS DateTime), N'In')
@@ -1504,6 +2136,8 @@ GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'68993b41-430d-481b-beb3-8cfaea890862', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T19:10:57.257' AS DateTime), N'In')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'1bd78866-aba2-404d-9af1-8d9d130ec048', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T01:38:16.287' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'be08c363-9aca-4724-8843-8dcebb4be709', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-28T08:44:55.603' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'f1dba0e9-d91f-4997-b4f4-8dfa15d70ae7', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-24T02:49:59.640' AS DateTime), N'In')
 GO
@@ -1524,6 +2158,8 @@ GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'b447793b-e111-4540-9333-91b8460ca247', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-16T20:06:53.463' AS DateTime), N'آنلاین')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'677d9ecb-43eb-4037-bd9c-91e92c7a0cf7', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-15T19:38:30.423' AS DateTime), N'آنلاین')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'3d9331ed-2b31-442d-a67a-921bfb8ac9e5', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-28T09:59:00.550' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'a18374d0-aef7-4496-870a-92891cb27918', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-15T17:53:20.490' AS DateTime), N'ورود به سیستم')
 GO
@@ -1591,6 +2227,8 @@ INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'c7b83f0a-ea9e-4a79-8648-a269b8edc35f', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T02:43:53.617' AS DateTime), N'In')
 GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'4fd3603b-bcbd-4e8f-ae8e-a4c4c6604316', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-05-20T17:52:46.970' AS DateTime), N'آنلاین')
+GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'c75462d0-b743-4cdf-bfb1-a4d75247bcf0', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-16T19:08:02.723' AS DateTime), N'آنلاین')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'54586a4a-300e-47fa-ad97-a4da755d6e62', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-24T02:47:32.753' AS DateTime), N'Out')
@@ -1604,6 +2242,8 @@ GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'a008eb02-ea40-4fb5-9536-a6af11774720', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-21T02:43:30.183' AS DateTime), N'In')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'4e3227b5-019e-4542-bcd9-a705064ae105', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-24T02:40:53.943' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'5983ecee-eff5-4683-aca3-a7320ac74fd6', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-27T09:35:05.493' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'3720038c-df82-4701-a034-a7af628b2b5f', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-16T20:53:12.733' AS DateTime), N'آنلاین')
 GO
@@ -1621,6 +2261,10 @@ INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'06cd3a28-ab9c-413f-acaa-aa415f9640cc', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-10T18:34:10.963' AS DateTime), N'In')
 GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'7683fa22-2ec3-40c4-b7aa-aa7278c5e45e', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-28T10:48:59.477' AS DateTime), N'ورود به سیستم')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'ea2fab11-591c-4c2a-83a5-aab5d2f05bef', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-27T08:45:21.247' AS DateTime), N'ورود به سیستم')
+GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'644c3393-3fda-476e-bb3f-ab02b07ec02f', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T00:10:06.290' AS DateTime), N'In')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'5dddfd03-b9a6-4e09-a2a9-ab10a21ec09e', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-16T23:12:34.317' AS DateTime), N'آنلاین')
@@ -1632,6 +2276,8 @@ GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'c05f6220-d185-49c0-b7bb-ab6fa02b5b2a', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-16T23:11:12.630' AS DateTime), N'آنلاین')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'5b29195a-4e4e-4de5-9c74-ac7c4f2587c5', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-16T19:21:23.260' AS DateTime), N'آنلاین')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'd92620e0-4698-4d67-9836-ad609e980b51', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-27T15:36:25.303' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'e1d42941-fcbf-4cf4-b49b-ad6ed7abcb5d', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-16T23:11:16.207' AS DateTime), N'آنلاین')
 GO
@@ -1651,11 +2297,15 @@ INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'869d97fa-adab-42cd-a6e0-b0e3432465fa', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-15T19:39:12.537' AS DateTime), N'آنلاین')
 GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'dece5e45-54f3-4d46-add7-b0e8dcb534c7', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-26T09:43:26.027' AS DateTime), N'ورود به سیستم')
+GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'ff52df21-81c1-4553-830a-b1480a355e2b', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-16T20:05:03.103' AS DateTime), N'آنلاین')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'a14c388e-3e01-47fe-9cb4-b2592ddfad2c', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-23T16:24:54.120' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'7b5a7afc-adcb-48b8-b55d-b270b6816480', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-16T20:51:28.347' AS DateTime), N'آنلاین')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'c758c11b-a2d0-4b78-8352-b2c7e655f077', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-26T16:06:43.693' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'7368da06-27f3-45df-aafe-b2f60c05bc0e', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-24T19:24:21.560' AS DateTime), N'In')
 GO
@@ -1683,7 +2333,11 @@ INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'412e82e4-7453-428c-9e90-b77778fdce51', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-08T23:10:22.343' AS DateTime), N'In')
 GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'be5da20a-4541-4384-a908-b78ae82e571c', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-28T12:00:46.553' AS DateTime), N'ورود به سیستم')
+GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'ce9acab0-9a58-48b4-b577-b7d44b2b3b3e', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-24T02:39:59.247' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'5d242fd2-03ab-4ec0-a136-b7ed89a97241', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-26T09:58:10.100' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'10a17829-35f0-4af7-b9a4-b81d69c6c8af', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-16T20:01:50.137' AS DateTime), N'آنلاین')
 GO
@@ -1697,7 +2351,11 @@ INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'b4d43fab-0eb7-41fe-b494-ba70f53a7f7b', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T02:46:29.533' AS DateTime), N'In')
 GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'38de513a-97a9-4555-9585-bbde02735d69', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-05-26T18:03:13.327' AS DateTime), N'ورود به سیستم')
+GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'1b4f04a3-1553-4c3f-a082-bc4d0ad4995a', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-19T23:06:49.990' AS DateTime), N'ورود به سیستم')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'c9965eca-7ee6-4714-92ef-bc7945a37bdd', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-27T08:16:47.090' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'87174ea9-8fdb-4b34-9e9e-bdc1f6f9487c', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-21T02:41:24.550' AS DateTime), N'In')
 GO
@@ -1707,7 +2365,11 @@ INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'986dd15a-a284-4826-8b88-be65b277f7e8', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-18T23:38:52.243' AS DateTime), N'آنلاین')
 GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'13fc9352-c4a1-44dd-925a-be910b5bc2b0', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-28T11:57:59.033' AS DateTime), N'ورود به سیستم')
+GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'320a2972-7184-4636-8a97-beaf711f3afc', N'6421f94c-4413-492c-8ef2-f21a1c4e0911', CAST(N'2025-04-16T20:07:14.777' AS DateTime), N'آنلاین')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'a1e06d6d-2820-4b28-b799-bee2f3270b4c', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-26T15:39:03.303' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'266f6b3e-4266-488e-b76a-bf5a1bec7df6', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-16T20:57:02.740' AS DateTime), N'ورود به سیستم')
 GO
@@ -1733,6 +2395,8 @@ INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'a16a23b1-9eef-43f0-849b-c47e1a046812', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-15T19:19:35.447' AS DateTime), N'ورود به سیستم')
 GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'f155712a-32ee-4f4c-b29c-c4e227368a45', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-27T15:53:47.527' AS DateTime), N'ورود به سیستم')
+GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'11d82972-2fcc-4378-8893-c4fd7bc20ddb', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-16T20:11:02.213' AS DateTime), N'آنلاین')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'602a105e-2857-4109-b00b-c52fd1ab575b', N'0c154298-a6c0-4429-99a2-6414d4cd9997', CAST(N'2025-03-22T23:55:02.503' AS DateTime), N'Out')
@@ -1750,6 +2414,8 @@ GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'8544ed3f-0d10-4b34-90a3-c7aa885226d7', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-16T19:11:02.937' AS DateTime), N'آنلاین')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'08d23800-dfab-46f5-867d-c7eadc0635e4', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-21T02:22:49.330' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'26bd774e-00aa-463e-834c-c83686aefa33', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-28T09:29:56.583' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'80acec23-8621-404e-aff2-c85e3797029a', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-03-21T02:24:54.487' AS DateTime), N'In')
 GO
@@ -1777,6 +2443,8 @@ INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'45e24529-7cec-43a4-a89f-cebb107ed1a9', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-16T23:12:24.637' AS DateTime), N'ورود به سیستم')
 GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'937d85be-a207-4138-9de9-cf1e196b18cb', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-05-26T18:04:37.910' AS DateTime), N'ورود به سیستم')
+GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'2b78adfa-4b1c-4786-9bd2-cf88b3bec5c3', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-19T22:51:01.823' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'da1b2b25-2182-43ba-b82f-d01fdd832aa8', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-15T17:49:42.890' AS DateTime), N'???? ?? ?????')
@@ -1787,11 +2455,15 @@ INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'01f5c1b9-cfdb-4607-8fec-d09ba7119920', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-16T19:20:49.430' AS DateTime), N'آنلاین')
 GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'7d772116-3bb0-452d-8063-d0a99fbc31f4', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-05-21T13:26:31.067' AS DateTime), N'آنلاین')
+GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'ed6d09fa-9818-4dbb-b81f-d14b84e1710b', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-20T00:15:45.817' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'0cf82304-cd3a-45b8-ba53-d168cbcffb85', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-16T20:50:16.527' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'b2bf5c2c-ec0a-40ed-ba1c-d1805942c73d', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-15T19:30:36.617' AS DateTime), N'ورود به سیستم')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'defb1859-724f-4811-9471-d22da003b0f4', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-26T16:11:17.787' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'322a1f97-32d4-4d8b-be0c-d2a8332235a2', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-16T20:50:28.853' AS DateTime), N'ورود به سیستم')
 GO
@@ -1800,6 +2472,8 @@ GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'04158e8f-aeae-42ea-9442-d2e81262bc82', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-19T23:25:11.553' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'e8ffe6ec-4307-483b-bb2a-d3011c61f3f1', N'6421f94c-4413-492c-8ef2-f21a1c4e0911', CAST(N'2025-04-16T19:08:49.297' AS DateTime), N'ورود به سیستم')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'1e9d7213-71eb-4d6d-9f80-d34f52cd82fe', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-05-24T18:12:37.977' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'77c61f94-f0f4-415e-9c57-d38c188d1710', N'6421f94c-4413-492c-8ef2-f21a1c4e0911', CAST(N'2025-04-16T19:11:50.037' AS DateTime), N'آنلاین')
 GO
@@ -1827,6 +2501,8 @@ INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'6c0ac3b8-439d-4d0b-86e9-d8402d2ee616', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-15T20:00:31.323' AS DateTime), N'آنلاین')
 GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'cff0a5cc-9cf7-4a08-812e-d8e22723c4cd', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-26T08:34:04.130' AS DateTime), N'ورود به سیستم')
+GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'14aca1d1-1249-40f9-8e56-d9c8b5b19c1a', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-19T23:37:41.027' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'75ddbf90-2200-4143-acfb-d9e9622a7196', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-15T18:03:21.613' AS DateTime), N'ورود به سیستم')
@@ -1834,6 +2510,8 @@ GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'dd6fae17-c36e-4c1b-8ecc-db26a9fd1dba', N'6421f94c-4413-492c-8ef2-f21a1c4e0911', CAST(N'2025-04-16T19:11:39.983' AS DateTime), N'آنلاین')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'b781c681-bf31-46a2-969d-db5f54cb1663', N'6421f94c-4413-492c-8ef2-f21a1c4e0911', CAST(N'2025-04-16T19:09:00.577' AS DateTime), N'آنلاین')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'3c8c5e22-64b6-4ad6-9894-db9f2487c79c', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-28T12:05:52.373' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'7e7d904b-faf8-4f01-a891-dbf06da49185', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-16T19:25:35.660' AS DateTime), N'ورود به سیستم')
 GO
@@ -1883,6 +2561,8 @@ INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'b73c26a2-b0d7-44c7-8cc0-e4bc2b9748d5', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T18:17:55.210' AS DateTime), N'In')
 GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'4c861fcc-ffa1-46ec-98e1-e4e0f7b66b9c', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-05-20T17:52:49.513' AS DateTime), N'آنلاین')
+GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'3b94e567-d3fe-471f-8601-e4e72ff7f9bd', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-08T23:02:23.340' AS DateTime), N'In')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'acfa69e3-703f-4461-ab7c-e60e716bce4d', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T23:13:53.137' AS DateTime), N'In')
@@ -1927,6 +2607,14 @@ INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'1ab05f4a-93df-4d73-8eaa-f385afc5273b', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-25T03:12:54.927' AS DateTime), N'Out')
 GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'75aeb811-e8e1-4caa-ac54-f3fa2032fa30', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-26T10:49:32.687' AS DateTime), N'ورود به سیستم')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'd157c8dc-eb9e-452c-91af-f41077e7d908', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-05-26T18:01:37.660' AS DateTime), N'ورود به سیستم')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'2df4821e-857f-48cc-84ef-f442e2d1ac78', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-28T08:16:50.537' AS DateTime), N'ورود به سیستم')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'e5358ce1-dead-4e8f-bb5b-f4964e59110c', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-27T12:32:14.843' AS DateTime), N'ورود به سیستم')
+GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'4d47099f-07b4-4681-9a5e-f51961851bfe', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-08T22:58:00.307' AS DateTime), N'In')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'20cd326a-07c5-4a3a-97ed-f53b56a4a262', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-22T01:58:40.363' AS DateTime), N'Out')
@@ -1935,9 +2623,13 @@ INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'3dc9ff6a-874b-48e4-94a5-f589353f3997', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-16T19:26:52.490' AS DateTime), N'آنلاین')
 GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'f3a930c8-a3f7-437f-9c2b-f605424353c6', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-27T08:25:55.030' AS DateTime), N'ورود به سیستم')
+GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'afea32a5-163e-4ac4-8f43-f6407e7ad715', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-15T17:54:00.277' AS DateTime), N'خروج از سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'd6342da6-5b79-454b-b140-f64338dab049', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-03-27T16:31:38.000' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'5d62c136-f891-49eb-aa83-f645651fb31b', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-28T11:39:27.967' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'41ad17af-89a4-4443-b319-f65eb9594c98', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T18:42:07.340' AS DateTime), N'In')
 GO
@@ -1963,6 +2655,8 @@ INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'e6801593-f144-487b-b3b3-fa2806e7fdd5', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-15T17:53:55.340' AS DateTime), N'آنلاین')
 GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'c1c70350-101d-4cce-a375-fa7bf0f7fa57', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-05-21T13:24:32.870' AS DateTime), N'ورود به سیستم')
+GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'42838622-b870-4ac9-86ea-fa9dc2f223b6', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-15T18:02:55.577' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'34622bea-058d-4d6f-8ad5-fbf6ad4b827a', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-23T15:43:36.447' AS DateTime), N'ورود به سیستم')
@@ -1972,6 +2666,8 @@ GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'02018f5d-02d7-438f-84d0-fccd5a268896', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-16T19:52:25.030' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'5067d24b-29d6-40e2-af82-fd274ee84a1c', N'6421f94c-4413-492c-8ef2-f21a1c4e0911', CAST(N'2025-04-15T19:51:43.617' AS DateTime), N'آنلاین')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'a5d2a4b6-a8e5-4bc2-96a5-fd28dbd4e256', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-27T08:27:56.347' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'97ecbbe2-ed53-48b2-a7b2-fd8530844930', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T16:18:18.447' AS DateTime), N'In')
 GO
@@ -1993,7 +2689,7 @@ INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N
 GO
 INSERT [dbo].[Users] ([id], [FirstName], [LastName], [Username], [Password], [DateCreated], [DateModified], [Version], [TeamId], [AvatarImg]) VALUES (N'932727e8-ec89-4104-b45b-286c00e03dc7', N'محمد', N'امیر زاده', N'm', N'5CCPTgYwA+oFPuKHdOqmQg==:1YQJDuAmTyZAhynu7G/hBfBZ1t2Ji6wSLkvRDPqoTrs=', CAST(N'2025-02-27T18:33:43.720' AS DateTime), CAST(N'2025-03-22T00:13:20.030' AS DateTime), 3, N'a6133e3d-73b8-42af-a597-2400f1fdb95f', N'\images\users\a76bd40f-1b53-4890-a5dd-9c2d29f1f713.jpg')
 GO
-INSERT [dbo].[Users] ([id], [FirstName], [LastName], [Username], [Password], [DateCreated], [DateModified], [Version], [TeamId], [AvatarImg]) VALUES (N'0c154298-a6c0-4429-99a2-6414d4cd9997', N'ادمین', N'ادمین', N'admin', N'cMB3b/bLHb3T7kBvvhJv3g==:9jzwY7A6zv//IaI1+Zgar4ogyG5CsvNbmThqaD0IeZA=', NULL, CAST(N'2025-03-13T21:33:51.003' AS DateTime), 5, N'a6133e3d-73b8-42af-a597-2400f1fdb95f', N'\images\users\4a5d7284-f6d3-41e3-842b-4fab7f29a0f7.jpg')
+INSERT [dbo].[Users] ([id], [FirstName], [LastName], [Username], [Password], [DateCreated], [DateModified], [Version], [TeamId], [AvatarImg]) VALUES (N'0c154298-a6c0-4429-99a2-6414d4cd9997', N'ادمین', N'ادمین1', N'admin', N'cMB3b/bLHb3T7kBvvhJv3g==:9jzwY7A6zv//IaI1+Zgar4ogyG5CsvNbmThqaD0IeZA=', NULL, CAST(N'2025-05-26T17:53:27.617' AS DateTime), 6, N'a6133e3d-73b8-42af-a597-2400f1fdb95f', N'\images\users\4a5d7284-f6d3-41e3-842b-4fab7f29a0f7.jpg')
 GO
 INSERT [dbo].[Users] ([id], [FirstName], [LastName], [Username], [Password], [DateCreated], [DateModified], [Version], [TeamId], [AvatarImg]) VALUES (N'd89826f5-f5a3-48f4-b92b-95d362d8f074', N'محمود', N'رضوانی', N'mahmood', N'VARizs3H0vuQCLGwWAVLpg==:Qa/rS6VLAxlHqUf3M34NL5jHcbG9xdLH1FU54OHk0oc=', NULL, CAST(N'2025-02-27T18:20:00.470' AS DateTime), 4, N'a6133e3d-73b8-42af-a597-2400f1fdb95f', N'\images\users\e91c676b-4039-4f4c-8ea6-46bf7a2ee88b.jpg')
 GO
@@ -2021,7 +2717,15 @@ INSERT [dbo].[UserStatus] ([UserId], [Status], [LastSeen]) VALUES (N'5e0c2a9c-1a
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_medicine_batch]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Index [UQ_customer_code]    Script Date: 5/26/2025 6:07:53 PM ******/
+ALTER TABLE [dbo].[customers] ADD  CONSTRAINT [UQ_customer_code] UNIQUE NONCLUSTERED 
+(
+	[customer_code] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [UQ_medicine_batch]    Script Date: 5/26/2025 6:07:53 PM ******/
 ALTER TABLE [dbo].[finished_goods_batches] ADD  CONSTRAINT [UQ_medicine_batch] UNIQUE NONCLUSTERED 
 (
 	[medicine_id] ASC,
@@ -2030,7 +2734,7 @@ ALTER TABLE [dbo].[finished_goods_batches] ADD  CONSTRAINT [UQ_medicine_batch] U
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_material_batch]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Index [UQ_material_batch]    Script Date: 5/26/2025 6:07:53 PM ******/
 ALTER TABLE [dbo].[material_batches] ADD  CONSTRAINT [UQ_material_batch] UNIQUE NONCLUSTERED 
 (
 	[material_id] ASC,
@@ -2039,13 +2743,13 @@ ALTER TABLE [dbo].[material_batches] ADD  CONSTRAINT [UQ_material_batch] UNIQUE 
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_category_name]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Index [UQ_category_name]    Script Date: 5/26/2025 6:07:53 PM ******/
 ALTER TABLE [dbo].[material_categories] ADD  CONSTRAINT [UQ_category_name] UNIQUE NONCLUSTERED 
 (
 	[category_name] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
-/****** Object:  Index [UQ_medicine_material]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Index [UQ_medicine_material]    Script Date: 5/26/2025 6:07:53 PM ******/
 ALTER TABLE [dbo].[medicine_bom] ADD  CONSTRAINT [UQ_medicine_material] UNIQUE NONCLUSTERED 
 (
 	[medicine_id] ASC,
@@ -2054,7 +2758,7 @@ ALTER TABLE [dbo].[medicine_bom] ADD  CONSTRAINT [UQ_medicine_material] UNIQUE N
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_medicine_category_name]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Index [UQ_medicine_category_name]    Script Date: 5/26/2025 6:07:53 PM ******/
 ALTER TABLE [dbo].[medicine_categories] ADD  CONSTRAINT [UQ_medicine_category_name] UNIQUE NONCLUSTERED 
 (
 	[category_name] ASC
@@ -2062,7 +2766,7 @@ ALTER TABLE [dbo].[medicine_categories] ADD  CONSTRAINT [UQ_medicine_category_na
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_medicine_code]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Index [UQ_medicine_code]    Script Date: 5/26/2025 6:07:53 PM ******/
 ALTER TABLE [dbo].[medicines] ADD  CONSTRAINT [UQ_medicine_code] UNIQUE NONCLUSTERED 
 (
 	[medicine_code] ASC
@@ -2070,7 +2774,7 @@ ALTER TABLE [dbo].[medicines] ADD  CONSTRAINT [UQ_medicine_code] UNIQUE NONCLUST
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_order_number]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Index [UQ_order_number]    Script Date: 5/26/2025 6:07:53 PM ******/
 ALTER TABLE [dbo].[production_orders] ADD  CONSTRAINT [UQ_order_number] UNIQUE NONCLUSTERED 
 (
 	[order_number] ASC
@@ -2078,7 +2782,7 @@ ALTER TABLE [dbo].[production_orders] ADD  CONSTRAINT [UQ_order_number] UNIQUE N
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_step_sequence]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Index [UQ_step_sequence]    Script Date: 5/26/2025 6:07:53 PM ******/
 ALTER TABLE [dbo].[production_steps] ADD  CONSTRAINT [UQ_step_sequence] UNIQUE NONCLUSTERED 
 (
 	[step_name] ASC,
@@ -2087,7 +2791,23 @@ ALTER TABLE [dbo].[production_steps] ADD  CONSTRAINT [UQ_step_sequence] UNIQUE N
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_material_code]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Index [UQ_purchase_invoice_number]    Script Date: 5/26/2025 6:07:53 PM ******/
+ALTER TABLE [dbo].[purchase_invoices] ADD  CONSTRAINT [UQ_purchase_invoice_number] UNIQUE NONCLUSTERED 
+(
+	[invoice_number] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [UQ_po_number]    Script Date: 5/26/2025 6:07:53 PM ******/
+ALTER TABLE [dbo].[purchase_orders] ADD  CONSTRAINT [UQ_po_number] UNIQUE NONCLUSTERED 
+(
+	[po_number] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [UQ_material_code]    Script Date: 5/26/2025 6:07:53 PM ******/
 ALTER TABLE [dbo].[raw_materials] ADD  CONSTRAINT [UQ_material_code] UNIQUE NONCLUSTERED 
 (
 	[material_code] ASC
@@ -2095,7 +2815,31 @@ ALTER TABLE [dbo].[raw_materials] ADD  CONSTRAINT [UQ_material_code] UNIQUE NONC
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_location_code]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Index [UQ_sales_invoice_number]    Script Date: 5/26/2025 6:07:53 PM ******/
+ALTER TABLE [dbo].[sales_invoices] ADD  CONSTRAINT [UQ_sales_invoice_number] UNIQUE NONCLUSTERED 
+(
+	[invoice_number] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [UQ_so_number]    Script Date: 5/26/2025 6:07:53 PM ******/
+ALTER TABLE [dbo].[sales_orders] ADD  CONSTRAINT [UQ_so_number] UNIQUE NONCLUSTERED 
+(
+	[so_number] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [UQ_shipment_number]    Script Date: 5/26/2025 6:07:53 PM ******/
+ALTER TABLE [dbo].[shipments] ADD  CONSTRAINT [UQ_shipment_number] UNIQUE NONCLUSTERED 
+(
+	[shipment_number] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [UQ_location_code]    Script Date: 5/26/2025 6:07:53 PM ******/
 ALTER TABLE [dbo].[storage_locations] ADD  CONSTRAINT [UQ_location_code] UNIQUE NONCLUSTERED 
 (
 	[location_code] ASC
@@ -2103,7 +2847,15 @@ ALTER TABLE [dbo].[storage_locations] ADD  CONSTRAINT [UQ_location_code] UNIQUE 
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_unit_type_name]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Index [UQ_supplier_code]    Script Date: 5/26/2025 6:07:53 PM ******/
+ALTER TABLE [dbo].[suppliers] ADD  CONSTRAINT [UQ_supplier_code] UNIQUE NONCLUSTERED 
+(
+	[supplier_code] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [UQ_unit_type_name]    Script Date: 5/26/2025 6:07:53 PM ******/
 ALTER TABLE [dbo].[unit_types] ADD  CONSTRAINT [UQ_unit_type_name] UNIQUE NONCLUSTERED 
 (
 	[type_name] ASC
@@ -2111,7 +2863,7 @@ ALTER TABLE [dbo].[unit_types] ADD  CONSTRAINT [UQ_unit_type_name] UNIQUE NONCLU
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_unit_name_type]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Index [UQ_unit_name_type]    Script Date: 5/26/2025 6:07:53 PM ******/
 ALTER TABLE [dbo].[units] ADD  CONSTRAINT [UQ_unit_name_type] UNIQUE NONCLUSTERED 
 (
 	[unit_name] ASC,
@@ -2120,7 +2872,7 @@ ALTER TABLE [dbo].[units] ADD  CONSTRAINT [UQ_unit_name_type] UNIQUE NONCLUSTERE
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_unit_symbol_type]    Script Date: 4/23/2025 5:03:26 PM ******/
+/****** Object:  Index [UQ_unit_symbol_type]    Script Date: 5/26/2025 6:07:53 PM ******/
 ALTER TABLE [dbo].[units] ADD  CONSTRAINT [UQ_unit_symbol_type] UNIQUE NONCLUSTERED 
 (
 	[unit_symbol] ASC,
@@ -2133,21 +2885,27 @@ ALTER TABLE [dbo].[ChatMessages] ADD  DEFAULT (getutcdate()) FOR [SentAt]
 GO
 ALTER TABLE [dbo].[ChatMessages] ADD  DEFAULT ((0)) FOR [IsRead]
 GO
+ALTER TABLE [dbo].[customers] ADD  DEFAULT (newid()) FOR [customer_id]
+GO
+ALTER TABLE [dbo].[customers] ADD  DEFAULT ((1)) FOR [is_active]
+GO
+ALTER TABLE [dbo].[customers] ADD  DEFAULT (getdate()) FOR [created_date]
+GO
 ALTER TABLE [dbo].[finished_goods_batches] ADD  DEFAULT (newid()) FOR [batch_id]
 GO
 ALTER TABLE [dbo].[material_batches] ADD  DEFAULT (newid()) FOR [batch_id]
 GO
-ALTER TABLE [dbo].[material_categories] ADD  DEFAULT (newid()) FOR [category_id]
+ALTER TABLE [dbo].[material_categories] ADD  CONSTRAINT [DF__material___categ__52AE4273]  DEFAULT (newid()) FOR [category_id]
 GO
-ALTER TABLE [dbo].[material_categories] ADD  DEFAULT ((1)) FOR [is_active]
+ALTER TABLE [dbo].[material_categories] ADD  CONSTRAINT [DF__material___is_ac__53A266AC]  DEFAULT ((1)) FOR [is_active]
 GO
 ALTER TABLE [dbo].[medicine_bom] ADD  DEFAULT (newid()) FOR [bom_id]
 GO
 ALTER TABLE [dbo].[medicine_bom] ADD  DEFAULT ((1)) FOR [is_active]
 GO
-ALTER TABLE [dbo].[medicine_categories] ADD  DEFAULT (newid()) FOR [category_id]
+ALTER TABLE [dbo].[medicine_categories] ADD  CONSTRAINT [DF__medicine___categ__6C6E1476]  DEFAULT (newid()) FOR [category_id]
 GO
-ALTER TABLE [dbo].[medicine_categories] ADD  DEFAULT ((1)) FOR [is_active]
+ALTER TABLE [dbo].[medicine_categories] ADD  CONSTRAINT [DF__medicine___is_ac__6D6238AF]  DEFAULT ((1)) FOR [is_active]
 GO
 ALTER TABLE [dbo].[medicines] ADD  DEFAULT (newid()) FOR [medicine_id]
 GO
@@ -2161,17 +2919,71 @@ ALTER TABLE [dbo].[Organizations] ADD  CONSTRAINT [DF_Organizations_id]  DEFAULT
 GO
 ALTER TABLE [dbo].[Organizations] ADD  CONSTRAINT [DF_Organizations_Priority]  DEFAULT ((0)) FOR [Priority]
 GO
-ALTER TABLE [dbo].[production_order_steps] ADD  DEFAULT (newid()) FOR [order_step_id]
+ALTER TABLE [dbo].[production_order_steps] ADD  CONSTRAINT [DF__productio__order__09FE775D]  DEFAULT (newid()) FOR [order_step_id]
 GO
 ALTER TABLE [dbo].[production_orders] ADD  DEFAULT (newid()) FOR [order_id]
 GO
-ALTER TABLE [dbo].[production_steps] ADD  DEFAULT (newid()) FOR [step_id]
+ALTER TABLE [dbo].[production_steps] ADD  CONSTRAINT [DF__productio__step___062DE679]  DEFAULT (newid()) FOR [step_id]
 GO
-ALTER TABLE [dbo].[production_steps] ADD  DEFAULT ((1)) FOR [is_active]
+ALTER TABLE [dbo].[production_steps] ADD  CONSTRAINT [DF__productio__is_ac__07220AB2]  DEFAULT ((1)) FOR [is_active]
+GO
+ALTER TABLE [dbo].[purchase_invoice_items] ADD  DEFAULT (newid()) FOR [pi_item_id]
+GO
+ALTER TABLE [dbo].[purchase_invoices] ADD  DEFAULT (newid()) FOR [purchase_invoice_id]
+GO
+ALTER TABLE [dbo].[purchase_invoices] ADD  DEFAULT ((0)) FOR [tax_amount]
+GO
+ALTER TABLE [dbo].[purchase_invoices] ADD  DEFAULT ((0)) FOR [discount_amount]
+GO
+ALTER TABLE [dbo].[purchase_invoices] ADD  DEFAULT ((0)) FOR [paid_amount]
+GO
+ALTER TABLE [dbo].[purchase_invoices] ADD  DEFAULT (N'IRR') FOR [currency]
+GO
+ALTER TABLE [dbo].[purchase_invoices] ADD  DEFAULT (getdate()) FOR [created_date]
+GO
+ALTER TABLE [dbo].[purchase_order_items] ADD  DEFAULT (newid()) FOR [po_item_id]
+GO
+ALTER TABLE [dbo].[purchase_order_items] ADD  DEFAULT ((0)) FOR [received_quantity]
+GO
+ALTER TABLE [dbo].[purchase_orders] ADD  DEFAULT (newid()) FOR [purchase_order_id]
+GO
+ALTER TABLE [dbo].[purchase_orders] ADD  DEFAULT (N'IRR') FOR [currency]
+GO
+ALTER TABLE [dbo].[purchase_orders] ADD  DEFAULT (getdate()) FOR [created_date]
 GO
 ALTER TABLE [dbo].[raw_materials] ADD  DEFAULT (newid()) FOR [material_id]
 GO
 ALTER TABLE [dbo].[raw_materials] ADD  DEFAULT ((1)) FOR [is_active]
+GO
+ALTER TABLE [dbo].[sales_invoice_items] ADD  DEFAULT (newid()) FOR [si_item_id]
+GO
+ALTER TABLE [dbo].[sales_invoice_items] ADD  DEFAULT ((0)) FOR [discount_percent]
+GO
+ALTER TABLE [dbo].[sales_invoices] ADD  DEFAULT (newid()) FOR [sales_invoice_id]
+GO
+ALTER TABLE [dbo].[sales_invoices] ADD  DEFAULT ((0)) FOR [tax_amount]
+GO
+ALTER TABLE [dbo].[sales_invoices] ADD  DEFAULT ((0)) FOR [discount_amount]
+GO
+ALTER TABLE [dbo].[sales_invoices] ADD  DEFAULT ((0)) FOR [paid_amount]
+GO
+ALTER TABLE [dbo].[sales_invoices] ADD  DEFAULT (N'IRR') FOR [currency]
+GO
+ALTER TABLE [dbo].[sales_invoices] ADD  DEFAULT (getdate()) FOR [created_date]
+GO
+ALTER TABLE [dbo].[sales_order_items] ADD  DEFAULT (newid()) FOR [so_item_id]
+GO
+ALTER TABLE [dbo].[sales_order_items] ADD  DEFAULT ((0)) FOR [discount_percent]
+GO
+ALTER TABLE [dbo].[sales_order_items] ADD  DEFAULT ((0)) FOR [shipped_quantity]
+GO
+ALTER TABLE [dbo].[sales_orders] ADD  DEFAULT (newid()) FOR [sales_order_id]
+GO
+ALTER TABLE [dbo].[sales_orders] ADD  DEFAULT (N'IRR') FOR [currency]
+GO
+ALTER TABLE [dbo].[sales_orders] ADD  DEFAULT ((3)) FOR [priority]
+GO
+ALTER TABLE [dbo].[sales_orders] ADD  DEFAULT (getdate()) FOR [created_date]
 GO
 ALTER TABLE [dbo].[Settings] ADD  CONSTRAINT [DF_Settings_id]  DEFAULT (newid()) FOR [id]
 GO
@@ -2181,9 +2993,21 @@ ALTER TABLE [dbo].[Settings] ADD  CONSTRAINT [DF_Settings_IsNavDark]  DEFAULT ((
 GO
 ALTER TABLE [dbo].[Settings] ADD  CONSTRAINT [DF_Settings_IsMenuDark]  DEFAULT ((0)) FOR [IsMenuDark]
 GO
+ALTER TABLE [dbo].[shipment_items] ADD  DEFAULT (newid()) FOR [shipment_item_id]
+GO
+ALTER TABLE [dbo].[shipments] ADD  DEFAULT (newid()) FOR [shipment_id]
+GO
+ALTER TABLE [dbo].[shipments] ADD  DEFAULT (getdate()) FOR [created_date]
+GO
 ALTER TABLE [dbo].[storage_locations] ADD  DEFAULT (newid()) FOR [location_id]
 GO
 ALTER TABLE [dbo].[storage_locations] ADD  DEFAULT ((1)) FOR [is_active]
+GO
+ALTER TABLE [dbo].[suppliers] ADD  DEFAULT (newid()) FOR [supplier_id]
+GO
+ALTER TABLE [dbo].[suppliers] ADD  DEFAULT ((1)) FOR [is_active]
+GO
+ALTER TABLE [dbo].[suppliers] ADD  DEFAULT (getdate()) FOR [created_date]
 GO
 ALTER TABLE [dbo].[Teams] ADD  CONSTRAINT [DF_Teams_id]  DEFAULT (newid()) FOR [id]
 GO
@@ -2324,6 +3148,56 @@ REFERENCES [dbo].[units] ([unit_id])
 GO
 ALTER TABLE [dbo].[production_orders] CHECK CONSTRAINT [FK_production_orders_units]
 GO
+ALTER TABLE [dbo].[purchase_invoice_items]  WITH CHECK ADD  CONSTRAINT [FK_pi_items_batches] FOREIGN KEY([batch_id])
+REFERENCES [dbo].[material_batches] ([batch_id])
+GO
+ALTER TABLE [dbo].[purchase_invoice_items] CHECK CONSTRAINT [FK_pi_items_batches]
+GO
+ALTER TABLE [dbo].[purchase_invoice_items]  WITH CHECK ADD  CONSTRAINT [FK_pi_items_materials] FOREIGN KEY([material_id])
+REFERENCES [dbo].[raw_materials] ([material_id])
+GO
+ALTER TABLE [dbo].[purchase_invoice_items] CHECK CONSTRAINT [FK_pi_items_materials]
+GO
+ALTER TABLE [dbo].[purchase_invoice_items]  WITH CHECK ADD  CONSTRAINT [FK_pi_items_purchase_invoices] FOREIGN KEY([purchase_invoice_id])
+REFERENCES [dbo].[purchase_invoices] ([purchase_invoice_id])
+GO
+ALTER TABLE [dbo].[purchase_invoice_items] CHECK CONSTRAINT [FK_pi_items_purchase_invoices]
+GO
+ALTER TABLE [dbo].[purchase_invoice_items]  WITH CHECK ADD  CONSTRAINT [FK_pi_items_units] FOREIGN KEY([unit_id])
+REFERENCES [dbo].[units] ([unit_id])
+GO
+ALTER TABLE [dbo].[purchase_invoice_items] CHECK CONSTRAINT [FK_pi_items_units]
+GO
+ALTER TABLE [dbo].[purchase_invoices]  WITH CHECK ADD  CONSTRAINT [FK_purchase_invoices_po] FOREIGN KEY([purchase_order_id])
+REFERENCES [dbo].[purchase_orders] ([purchase_order_id])
+GO
+ALTER TABLE [dbo].[purchase_invoices] CHECK CONSTRAINT [FK_purchase_invoices_po]
+GO
+ALTER TABLE [dbo].[purchase_invoices]  WITH CHECK ADD  CONSTRAINT [FK_purchase_invoices_suppliers] FOREIGN KEY([supplier_id])
+REFERENCES [dbo].[suppliers] ([supplier_id])
+GO
+ALTER TABLE [dbo].[purchase_invoices] CHECK CONSTRAINT [FK_purchase_invoices_suppliers]
+GO
+ALTER TABLE [dbo].[purchase_order_items]  WITH CHECK ADD  CONSTRAINT [FK_po_items_materials] FOREIGN KEY([material_id])
+REFERENCES [dbo].[raw_materials] ([material_id])
+GO
+ALTER TABLE [dbo].[purchase_order_items] CHECK CONSTRAINT [FK_po_items_materials]
+GO
+ALTER TABLE [dbo].[purchase_order_items]  WITH CHECK ADD  CONSTRAINT [FK_po_items_purchase_orders] FOREIGN KEY([purchase_order_id])
+REFERENCES [dbo].[purchase_orders] ([purchase_order_id])
+GO
+ALTER TABLE [dbo].[purchase_order_items] CHECK CONSTRAINT [FK_po_items_purchase_orders]
+GO
+ALTER TABLE [dbo].[purchase_order_items]  WITH CHECK ADD  CONSTRAINT [FK_po_items_units] FOREIGN KEY([unit_id])
+REFERENCES [dbo].[units] ([unit_id])
+GO
+ALTER TABLE [dbo].[purchase_order_items] CHECK CONSTRAINT [FK_po_items_units]
+GO
+ALTER TABLE [dbo].[purchase_orders]  WITH CHECK ADD  CONSTRAINT [FK_purchase_orders_suppliers] FOREIGN KEY([supplier_id])
+REFERENCES [dbo].[suppliers] ([supplier_id])
+GO
+ALTER TABLE [dbo].[purchase_orders] CHECK CONSTRAINT [FK_purchase_orders_suppliers]
+GO
 ALTER TABLE [dbo].[raw_materials]  WITH CHECK ADD  CONSTRAINT [FK_raw_materials_categories] FOREIGN KEY([category_id])
 REFERENCES [dbo].[material_categories] ([category_id])
 GO
@@ -2333,6 +3207,86 @@ ALTER TABLE [dbo].[raw_materials]  WITH CHECK ADD  CONSTRAINT [FK_raw_materials_
 REFERENCES [dbo].[units] ([unit_id])
 GO
 ALTER TABLE [dbo].[raw_materials] CHECK CONSTRAINT [FK_raw_materials_units]
+GO
+ALTER TABLE [dbo].[sales_invoice_items]  WITH CHECK ADD  CONSTRAINT [FK_si_items_batches] FOREIGN KEY([batch_id])
+REFERENCES [dbo].[finished_goods_batches] ([batch_id])
+GO
+ALTER TABLE [dbo].[sales_invoice_items] CHECK CONSTRAINT [FK_si_items_batches]
+GO
+ALTER TABLE [dbo].[sales_invoice_items]  WITH CHECK ADD  CONSTRAINT [FK_si_items_medicines] FOREIGN KEY([medicine_id])
+REFERENCES [dbo].[medicines] ([medicine_id])
+GO
+ALTER TABLE [dbo].[sales_invoice_items] CHECK CONSTRAINT [FK_si_items_medicines]
+GO
+ALTER TABLE [dbo].[sales_invoice_items]  WITH CHECK ADD  CONSTRAINT [FK_si_items_sales_invoices] FOREIGN KEY([sales_invoice_id])
+REFERENCES [dbo].[sales_invoices] ([sales_invoice_id])
+GO
+ALTER TABLE [dbo].[sales_invoice_items] CHECK CONSTRAINT [FK_si_items_sales_invoices]
+GO
+ALTER TABLE [dbo].[sales_invoice_items]  WITH CHECK ADD  CONSTRAINT [FK_si_items_units] FOREIGN KEY([unit_id])
+REFERENCES [dbo].[units] ([unit_id])
+GO
+ALTER TABLE [dbo].[sales_invoice_items] CHECK CONSTRAINT [FK_si_items_units]
+GO
+ALTER TABLE [dbo].[sales_invoices]  WITH CHECK ADD  CONSTRAINT [FK_sales_invoices_customers] FOREIGN KEY([customer_id])
+REFERENCES [dbo].[customers] ([customer_id])
+GO
+ALTER TABLE [dbo].[sales_invoices] CHECK CONSTRAINT [FK_sales_invoices_customers]
+GO
+ALTER TABLE [dbo].[sales_invoices]  WITH CHECK ADD  CONSTRAINT [FK_sales_invoices_so] FOREIGN KEY([sales_order_id])
+REFERENCES [dbo].[sales_orders] ([sales_order_id])
+GO
+ALTER TABLE [dbo].[sales_invoices] CHECK CONSTRAINT [FK_sales_invoices_so]
+GO
+ALTER TABLE [dbo].[sales_order_items]  WITH CHECK ADD  CONSTRAINT [FK_so_items_medicines] FOREIGN KEY([medicine_id])
+REFERENCES [dbo].[medicines] ([medicine_id])
+GO
+ALTER TABLE [dbo].[sales_order_items] CHECK CONSTRAINT [FK_so_items_medicines]
+GO
+ALTER TABLE [dbo].[sales_order_items]  WITH CHECK ADD  CONSTRAINT [FK_so_items_sales_orders] FOREIGN KEY([sales_order_id])
+REFERENCES [dbo].[sales_orders] ([sales_order_id])
+GO
+ALTER TABLE [dbo].[sales_order_items] CHECK CONSTRAINT [FK_so_items_sales_orders]
+GO
+ALTER TABLE [dbo].[sales_order_items]  WITH CHECK ADD  CONSTRAINT [FK_so_items_units] FOREIGN KEY([unit_id])
+REFERENCES [dbo].[units] ([unit_id])
+GO
+ALTER TABLE [dbo].[sales_order_items] CHECK CONSTRAINT [FK_so_items_units]
+GO
+ALTER TABLE [dbo].[sales_orders]  WITH CHECK ADD  CONSTRAINT [FK_sales_orders_customers] FOREIGN KEY([customer_id])
+REFERENCES [dbo].[customers] ([customer_id])
+GO
+ALTER TABLE [dbo].[sales_orders] CHECK CONSTRAINT [FK_sales_orders_customers]
+GO
+ALTER TABLE [dbo].[shipment_items]  WITH CHECK ADD  CONSTRAINT [FK_shipment_items_batches] FOREIGN KEY([batch_id])
+REFERENCES [dbo].[finished_goods_batches] ([batch_id])
+GO
+ALTER TABLE [dbo].[shipment_items] CHECK CONSTRAINT [FK_shipment_items_batches]
+GO
+ALTER TABLE [dbo].[shipment_items]  WITH CHECK ADD  CONSTRAINT [FK_shipment_items_medicines] FOREIGN KEY([medicine_id])
+REFERENCES [dbo].[medicines] ([medicine_id])
+GO
+ALTER TABLE [dbo].[shipment_items] CHECK CONSTRAINT [FK_shipment_items_medicines]
+GO
+ALTER TABLE [dbo].[shipment_items]  WITH CHECK ADD  CONSTRAINT [FK_shipment_items_shipments] FOREIGN KEY([shipment_id])
+REFERENCES [dbo].[shipments] ([shipment_id])
+GO
+ALTER TABLE [dbo].[shipment_items] CHECK CONSTRAINT [FK_shipment_items_shipments]
+GO
+ALTER TABLE [dbo].[shipment_items]  WITH CHECK ADD  CONSTRAINT [FK_shipment_items_units] FOREIGN KEY([unit_id])
+REFERENCES [dbo].[units] ([unit_id])
+GO
+ALTER TABLE [dbo].[shipment_items] CHECK CONSTRAINT [FK_shipment_items_units]
+GO
+ALTER TABLE [dbo].[shipments]  WITH CHECK ADD  CONSTRAINT [FK_shipments_customers] FOREIGN KEY([customer_id])
+REFERENCES [dbo].[customers] ([customer_id])
+GO
+ALTER TABLE [dbo].[shipments] CHECK CONSTRAINT [FK_shipments_customers]
+GO
+ALTER TABLE [dbo].[shipments]  WITH CHECK ADD  CONSTRAINT [FK_shipments_sales_orders] FOREIGN KEY([sales_order_id])
+REFERENCES [dbo].[sales_orders] ([sales_order_id])
+GO
+ALTER TABLE [dbo].[shipments] CHECK CONSTRAINT [FK_shipments_sales_orders]
 GO
 ALTER TABLE [dbo].[storage_locations]  WITH CHECK ADD  CONSTRAINT [FK_storage_locations_units] FOREIGN KEY([capacity_unit_id])
 REFERENCES [dbo].[units] ([unit_id])
@@ -2359,17 +3313,31 @@ REFERENCES [dbo].[Users] ([id])
 GO
 ALTER TABLE [dbo].[UserStatus] CHECK CONSTRAINT [FK_UserStatus_User]
 GO
-ALTER TABLE [dbo].[finished_goods_batches]  WITH CHECK ADD CHECK  (([status]='Rejected' OR [status]='Released' OR [status]='Quarantine'))
+ALTER TABLE [dbo].[customers]  WITH CHECK ADD CHECK  (([customer_type]=N'سایر' OR [customer_type]=N'درمانگاه' OR [customer_type]=N'توزیع‌کننده' OR [customer_type]=N'داروخانه' OR [customer_type]=N'بیمارستان'))
 GO
-ALTER TABLE [dbo].[material_batches]  WITH CHECK ADD CHECK  (([status]='Consumed' OR [status]='Rejected' OR [status]='Released' OR [status]='Quarantine'))
+ALTER TABLE [dbo].[finished_goods_batches]  WITH CHECK ADD CHECK  (([status]=N'رد شده' OR [status]=N'آزاد شده' OR [status]=N'قرنطینه'))
 GO
-ALTER TABLE [dbo].[production_order_steps]  WITH CHECK ADD CHECK  (([status]='Failed' OR [status]='Completed' OR [status]='In Progress' OR [status]='Pending'))
+ALTER TABLE [dbo].[material_batches]  WITH CHECK ADD CHECK  (([status]=N'مصرف شده' OR [status]=N'رد شده' OR [status]=N'آزاد شده' OR [status]=N'قرنطینه'))
 GO
-ALTER TABLE [dbo].[production_orders]  WITH CHECK ADD CHECK  (([status]='Cancelled' OR [status]='Completed' OR [status]='In Progress' OR [status]='Planned'))
+ALTER TABLE [dbo].[production_order_steps]  WITH CHECK ADD  CONSTRAINT [CK__productio__statu__43C1049E] CHECK  (([status]=N'ناموفق' OR [status]=N'تکمیل شده' OR [status]=N'در حال اجرا' OR [status]=N'در انتظار'))
 GO
-ALTER TABLE [dbo].[storage_locations]  WITH CHECK ADD CHECK  (([location_type]='Hazardous' OR [location_type]='Quarantine' OR [location_type]='Cold Room' OR [location_type]='Warehouse'))
+ALTER TABLE [dbo].[production_order_steps] CHECK CONSTRAINT [CK__productio__statu__43C1049E]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_UpdateUserStatus]    Script Date: 4/23/2025 5:03:26 PM ******/
+ALTER TABLE [dbo].[production_orders]  WITH CHECK ADD CHECK  (([status]=N'لغو شده' OR [status]=N'تکمیل شده' OR [status]=N'در حال اجرا' OR [status]=N'برنامه‌ریزی شده'))
+GO
+ALTER TABLE [dbo].[purchase_invoices]  WITH CHECK ADD CHECK  (([status]=N'لغو شده' OR [status]=N'سررسید گذشته' OR [status]=N'پرداخت شده' OR [status]=N'تایید شده' OR [status]=N'در انتظار' OR [status]=N'پیش‌نویس'))
+GO
+ALTER TABLE [dbo].[purchase_orders]  WITH CHECK ADD CHECK  (([status]=N'لغو شده' OR [status]=N'دریافت شده' OR [status]=N'دریافت جزئی' OR [status]=N'تایید شده' OR [status]=N'ارسال شده' OR [status]=N'پیش‌نویس'))
+GO
+ALTER TABLE [dbo].[sales_invoices]  WITH CHECK ADD CHECK  (([status]=N'لغو شده' OR [status]=N'سررسید گذشته' OR [status]=N'پرداخت جزئی' OR [status]=N'پرداخت شده' OR [status]=N'ارسال شده' OR [status]=N'پیش‌نویس'))
+GO
+ALTER TABLE [dbo].[sales_orders]  WITH CHECK ADD CHECK  (([status]=N'لغو شده' OR [status]=N'تحویل داده شده' OR [status]=N'ارسال شده' OR [status]=N'آماده ارسال' OR [status]=N'در حال تولید' OR [status]=N'تایید شده' OR [status]=N'پیش‌نویس'))
+GO
+ALTER TABLE [dbo].[shipments]  WITH CHECK ADD CHECK  (([status]=N'لغو شده' OR [status]=N'برگشت داده شده' OR [status]=N'تحویل داده شده' OR [status]=N'در حال حمل' OR [status]=N'ارسال شده' OR [status]=N'آماده' OR [status]=N'در حال آماده‌سازی'))
+GO
+ALTER TABLE [dbo].[storage_locations]  WITH CHECK ADD CHECK  (([location_type]=N'خطرناک' OR [location_type]=N'قرنطینه' OR [location_type]=N'سردخانه' OR [location_type]=N'انبار'))
+GO
+/****** Object:  StoredProcedure [dbo].[sp_UpdateUserStatus]    Script Date: 5/26/2025 6:07:53 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON

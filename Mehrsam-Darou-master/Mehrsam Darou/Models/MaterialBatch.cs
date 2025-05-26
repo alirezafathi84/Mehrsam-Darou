@@ -27,5 +27,7 @@ public partial class MaterialBatch
 
     public virtual RawMaterial Material { get; set; } = null!;
 
+    public virtual ICollection<PurchaseInvoiceItem> PurchaseInvoiceItems { get; set; } = new List<PurchaseInvoiceItem>();
+
     public virtual Unit Unit { get; set; } = null!;
 }

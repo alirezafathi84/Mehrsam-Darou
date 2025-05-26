@@ -31,5 +31,9 @@ public partial class FinishedGoodsBatch
 
     public virtual ProductionOrder? Order { get; set; }
 
+    public virtual ICollection<SalesInvoiceItem> SalesInvoiceItems { get; set; } = new List<SalesInvoiceItem>();
+
+    public virtual ICollection<ShipmentItem> ShipmentItems { get; set; } = new List<ShipmentItem>();
+
     public virtual Unit Unit { get; set; } = null!;
 }
