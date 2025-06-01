@@ -1,6 +1,6 @@
 ﻿USE [DarouApp]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_UpdateUserStatus]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  StoredProcedure [dbo].[sp_UpdateUserStatus]    Script Date: 6/1/2025 6:32:11 PM ******/
 DROP PROCEDURE [dbo].[sp_UpdateUserStatus]
 GO
 ALTER TABLE [dbo].[storage_locations] DROP CONSTRAINT [CK__storage_l__locat__4A6E022D]
@@ -303,202 +303,202 @@ ALTER TABLE [dbo].[ChatMessages] DROP CONSTRAINT [DF__ChatMessa__SentA__09A971A2
 GO
 ALTER TABLE [dbo].[ChatMessages] DROP CONSTRAINT [DF__ChatMessages__Id__08B54D69]
 GO
-/****** Object:  Index [UQ_unit_symbol_type]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_unit_symbol_type]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[units] DROP CONSTRAINT [UQ_unit_symbol_type]
 GO
-/****** Object:  Index [UQ_unit_name_type]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_unit_name_type]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[units] DROP CONSTRAINT [UQ_unit_name_type]
 GO
-/****** Object:  Index [UQ_unit_type_name]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_unit_type_name]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[unit_types] DROP CONSTRAINT [UQ_unit_type_name]
 GO
-/****** Object:  Index [UQ_supplier_code]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_supplier_code]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[suppliers] DROP CONSTRAINT [UQ_supplier_code]
 GO
-/****** Object:  Index [UQ_location_code]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_location_code]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[storage_locations] DROP CONSTRAINT [UQ_location_code]
 GO
-/****** Object:  Index [UQ_shipment_number]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_shipment_number]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[shipments] DROP CONSTRAINT [UQ_shipment_number]
 GO
-/****** Object:  Index [UQ_so_number]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_so_number]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[sales_orders] DROP CONSTRAINT [UQ_so_number]
 GO
-/****** Object:  Index [UQ_sales_invoice_number]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_sales_invoice_number]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[sales_invoices] DROP CONSTRAINT [UQ_sales_invoice_number]
 GO
-/****** Object:  Index [UQ_material_code]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_material_code]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[raw_materials] DROP CONSTRAINT [UQ_material_code]
 GO
-/****** Object:  Index [UQ_po_number]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_po_number]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[purchase_orders] DROP CONSTRAINT [UQ_po_number]
 GO
-/****** Object:  Index [UQ_purchase_invoice_number]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_purchase_invoice_number]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[purchase_invoices] DROP CONSTRAINT [UQ_purchase_invoice_number]
 GO
-/****** Object:  Index [UQ_step_sequence]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_step_sequence]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[production_steps] DROP CONSTRAINT [UQ_step_sequence]
 GO
-/****** Object:  Index [UQ_order_number]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_order_number]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[production_orders] DROP CONSTRAINT [UQ_order_number]
 GO
-/****** Object:  Index [UQ_medicine_code]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_medicine_code]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[medicines] DROP CONSTRAINT [UQ_medicine_code]
 GO
-/****** Object:  Index [UQ_medicine_category_name]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_medicine_category_name]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[medicine_categories] DROP CONSTRAINT [UQ_medicine_category_name]
 GO
-/****** Object:  Index [UQ_medicine_material]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_medicine_material]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[medicine_bom] DROP CONSTRAINT [UQ_medicine_material]
 GO
-/****** Object:  Index [UQ_category_name]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_category_name]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[material_categories] DROP CONSTRAINT [UQ_category_name]
 GO
-/****** Object:  Index [UQ_material_batch]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_material_batch]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[material_batches] DROP CONSTRAINT [UQ_material_batch]
 GO
-/****** Object:  Index [UQ_medicine_batch]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_medicine_batch]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[finished_goods_batches] DROP CONSTRAINT [UQ_medicine_batch]
 GO
-/****** Object:  Index [UQ_customer_code]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_customer_code]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[customers] DROP CONSTRAINT [UQ_customer_code]
 GO
-/****** Object:  Table [dbo].[UserEnterLogs]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[UserEnterLogs]    Script Date: 6/1/2025 6:32:11 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UserEnterLogs]') AND type in (N'U'))
 DROP TABLE [dbo].[UserEnterLogs]
 GO
-/****** Object:  Table [dbo].[units]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[units]    Script Date: 6/1/2025 6:32:11 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[units]') AND type in (N'U'))
 DROP TABLE [dbo].[units]
 GO
-/****** Object:  Table [dbo].[unit_types]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[unit_types]    Script Date: 6/1/2025 6:32:11 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[unit_types]') AND type in (N'U'))
 DROP TABLE [dbo].[unit_types]
 GO
-/****** Object:  Table [dbo].[Teams]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[Teams]    Script Date: 6/1/2025 6:32:11 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Teams]') AND type in (N'U'))
 DROP TABLE [dbo].[Teams]
 GO
-/****** Object:  Table [dbo].[suppliers]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[suppliers]    Script Date: 6/1/2025 6:32:11 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[suppliers]') AND type in (N'U'))
 DROP TABLE [dbo].[suppliers]
 GO
-/****** Object:  Table [dbo].[storage_locations]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[storage_locations]    Script Date: 6/1/2025 6:32:11 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[storage_locations]') AND type in (N'U'))
 DROP TABLE [dbo].[storage_locations]
 GO
-/****** Object:  Table [dbo].[shipments]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[shipments]    Script Date: 6/1/2025 6:32:11 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[shipments]') AND type in (N'U'))
 DROP TABLE [dbo].[shipments]
 GO
-/****** Object:  Table [dbo].[shipment_items]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[shipment_items]    Script Date: 6/1/2025 6:32:11 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[shipment_items]') AND type in (N'U'))
 DROP TABLE [dbo].[shipment_items]
 GO
-/****** Object:  Table [dbo].[Settings]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[Settings]    Script Date: 6/1/2025 6:32:11 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Settings]') AND type in (N'U'))
 DROP TABLE [dbo].[Settings]
 GO
-/****** Object:  Table [dbo].[sales_orders]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[sales_orders]    Script Date: 6/1/2025 6:32:11 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sales_orders]') AND type in (N'U'))
 DROP TABLE [dbo].[sales_orders]
 GO
-/****** Object:  Table [dbo].[sales_order_items]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[sales_order_items]    Script Date: 6/1/2025 6:32:11 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sales_order_items]') AND type in (N'U'))
 DROP TABLE [dbo].[sales_order_items]
 GO
-/****** Object:  Table [dbo].[sales_invoices]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[sales_invoices]    Script Date: 6/1/2025 6:32:11 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sales_invoices]') AND type in (N'U'))
 DROP TABLE [dbo].[sales_invoices]
 GO
-/****** Object:  Table [dbo].[sales_invoice_items]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[sales_invoice_items]    Script Date: 6/1/2025 6:32:11 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sales_invoice_items]') AND type in (N'U'))
 DROP TABLE [dbo].[sales_invoice_items]
 GO
-/****** Object:  Table [dbo].[raw_materials]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[raw_materials]    Script Date: 6/1/2025 6:32:11 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[raw_materials]') AND type in (N'U'))
 DROP TABLE [dbo].[raw_materials]
 GO
-/****** Object:  Table [dbo].[purchase_orders]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[purchase_orders]    Script Date: 6/1/2025 6:32:11 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[purchase_orders]') AND type in (N'U'))
 DROP TABLE [dbo].[purchase_orders]
 GO
-/****** Object:  Table [dbo].[purchase_order_items]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[purchase_order_items]    Script Date: 6/1/2025 6:32:11 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[purchase_order_items]') AND type in (N'U'))
 DROP TABLE [dbo].[purchase_order_items]
 GO
-/****** Object:  Table [dbo].[purchase_invoices]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[purchase_invoices]    Script Date: 6/1/2025 6:32:11 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[purchase_invoices]') AND type in (N'U'))
 DROP TABLE [dbo].[purchase_invoices]
 GO
-/****** Object:  Table [dbo].[purchase_invoice_items]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[purchase_invoice_items]    Script Date: 6/1/2025 6:32:11 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[purchase_invoice_items]') AND type in (N'U'))
 DROP TABLE [dbo].[purchase_invoice_items]
 GO
-/****** Object:  Table [dbo].[production_steps]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[production_steps]    Script Date: 6/1/2025 6:32:11 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[production_steps]') AND type in (N'U'))
 DROP TABLE [dbo].[production_steps]
 GO
-/****** Object:  Table [dbo].[production_orders]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[production_orders]    Script Date: 6/1/2025 6:32:11 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[production_orders]') AND type in (N'U'))
 DROP TABLE [dbo].[production_orders]
 GO
-/****** Object:  Table [dbo].[production_order_steps]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[production_order_steps]    Script Date: 6/1/2025 6:32:11 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[production_order_steps]') AND type in (N'U'))
 DROP TABLE [dbo].[production_order_steps]
 GO
-/****** Object:  Table [dbo].[Organizations]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[Organizations]    Script Date: 6/1/2025 6:32:11 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Organizations]') AND type in (N'U'))
 DROP TABLE [dbo].[Organizations]
 GO
-/****** Object:  Table [dbo].[Notifications]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[Notifications]    Script Date: 6/1/2025 6:32:11 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Notifications]') AND type in (N'U'))
 DROP TABLE [dbo].[Notifications]
 GO
-/****** Object:  Table [dbo].[medicines]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[medicines]    Script Date: 6/1/2025 6:32:11 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[medicines]') AND type in (N'U'))
 DROP TABLE [dbo].[medicines]
 GO
-/****** Object:  Table [dbo].[medicine_categories]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[medicine_categories]    Script Date: 6/1/2025 6:32:11 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[medicine_categories]') AND type in (N'U'))
 DROP TABLE [dbo].[medicine_categories]
 GO
-/****** Object:  Table [dbo].[medicine_bom]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[medicine_bom]    Script Date: 6/1/2025 6:32:11 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[medicine_bom]') AND type in (N'U'))
 DROP TABLE [dbo].[medicine_bom]
 GO
-/****** Object:  Table [dbo].[material_categories]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[material_categories]    Script Date: 6/1/2025 6:32:11 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[material_categories]') AND type in (N'U'))
 DROP TABLE [dbo].[material_categories]
 GO
-/****** Object:  Table [dbo].[material_batches]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[material_batches]    Script Date: 6/1/2025 6:32:11 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[material_batches]') AND type in (N'U'))
 DROP TABLE [dbo].[material_batches]
 GO
-/****** Object:  Table [dbo].[finished_goods_batches]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[finished_goods_batches]    Script Date: 6/1/2025 6:32:11 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[finished_goods_batches]') AND type in (N'U'))
 DROP TABLE [dbo].[finished_goods_batches]
 GO
-/****** Object:  Table [dbo].[customers]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[customers]    Script Date: 6/1/2025 6:32:11 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[customers]') AND type in (N'U'))
 DROP TABLE [dbo].[customers]
 GO
-/****** Object:  Table [dbo].[ChatMessages]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[ChatMessages]    Script Date: 6/1/2025 6:32:11 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ChatMessages]') AND type in (N'U'))
 DROP TABLE [dbo].[ChatMessages]
 GO
-/****** Object:  View [dbo].[vw_OnlineUsers]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  View [dbo].[vw_OnlineUsers]    Script Date: 6/1/2025 6:32:11 PM ******/
 DROP VIEW [dbo].[vw_OnlineUsers]
 GO
-/****** Object:  Table [dbo].[Users]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[Users]    Script Date: 6/1/2025 6:32:11 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Users]') AND type in (N'U'))
 DROP TABLE [dbo].[Users]
 GO
-/****** Object:  Table [dbo].[UserStatus]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[UserStatus]    Script Date: 6/1/2025 6:32:11 PM ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UserStatus]') AND type in (N'U'))
 DROP TABLE [dbo].[UserStatus]
 GO
-/****** Object:  Table [dbo].[UserStatus]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[UserStatus]    Script Date: 6/1/2025 6:32:11 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -513,7 +513,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Users]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[Users]    Script Date: 6/1/2025 6:32:11 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -535,7 +535,7 @@ CREATE TABLE [dbo].[Users](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  View [dbo].[vw_OnlineUsers]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  View [dbo].[vw_OnlineUsers]    Script Date: 6/1/2025 6:32:11 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -557,7 +557,7 @@ JOIN
 WHERE 
     us.LastSeen >= DATEADD(MINUTE, -30, GETUTCDATE());
 GO
-/****** Object:  Table [dbo].[ChatMessages]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[ChatMessages]    Script Date: 6/1/2025 6:32:11 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -576,7 +576,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[customers]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[customers]    Script Date: 6/1/2025 6:32:11 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -602,7 +602,7 @@ CREATE TABLE [dbo].[customers](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[finished_goods_batches]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[finished_goods_batches]    Script Date: 6/1/2025 6:32:11 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -624,7 +624,7 @@ CREATE TABLE [dbo].[finished_goods_batches](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[material_batches]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[material_batches]    Script Date: 6/1/2025 6:32:11 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -645,7 +645,7 @@ CREATE TABLE [dbo].[material_batches](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[material_categories]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[material_categories]    Script Date: 6/1/2025 6:32:11 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -663,7 +663,7 @@ CREATE TABLE [dbo].[material_categories](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[medicine_bom]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[medicine_bom]    Script Date: 6/1/2025 6:32:11 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -681,7 +681,7 @@ CREATE TABLE [dbo].[medicine_bom](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[medicine_categories]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[medicine_categories]    Script Date: 6/1/2025 6:32:11 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -697,7 +697,7 @@ CREATE TABLE [dbo].[medicine_categories](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[medicines]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[medicines]    Script Date: 6/1/2025 6:32:11 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -717,7 +717,7 @@ CREATE TABLE [dbo].[medicines](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Notifications]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[Notifications]    Script Date: 6/1/2025 6:32:11 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -738,7 +738,7 @@ CREATE TABLE [dbo].[Notifications](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Organizations]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[Organizations]    Script Date: 6/1/2025 6:32:11 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -753,7 +753,7 @@ CREATE TABLE [dbo].[Organizations](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[production_order_steps]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[production_order_steps]    Script Date: 6/1/2025 6:32:11 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -773,7 +773,7 @@ CREATE TABLE [dbo].[production_order_steps](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[production_orders]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[production_orders]    Script Date: 6/1/2025 6:32:11 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -793,7 +793,7 @@ CREATE TABLE [dbo].[production_orders](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[production_steps]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[production_steps]    Script Date: 6/1/2025 6:32:11 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -810,7 +810,7 @@ CREATE TABLE [dbo].[production_steps](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[purchase_invoice_items]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[purchase_invoice_items]    Script Date: 6/1/2025 6:32:11 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -831,7 +831,7 @@ CREATE TABLE [dbo].[purchase_invoice_items](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[purchase_invoices]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[purchase_invoices]    Script Date: 6/1/2025 6:32:11 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -861,7 +861,7 @@ CREATE TABLE [dbo].[purchase_invoices](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[purchase_order_items]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[purchase_order_items]    Script Date: 6/1/2025 6:32:11 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -882,7 +882,7 @@ CREATE TABLE [dbo].[purchase_order_items](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[purchase_orders]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[purchase_orders]    Script Date: 6/1/2025 6:32:11 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -906,7 +906,7 @@ CREATE TABLE [dbo].[purchase_orders](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[raw_materials]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[raw_materials]    Script Date: 6/1/2025 6:32:11 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -927,7 +927,7 @@ CREATE TABLE [dbo].[raw_materials](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[sales_invoice_items]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[sales_invoice_items]    Script Date: 6/1/2025 6:32:11 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -949,7 +949,7 @@ CREATE TABLE [dbo].[sales_invoice_items](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[sales_invoices]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[sales_invoices]    Script Date: 6/1/2025 6:32:11 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -978,7 +978,7 @@ CREATE TABLE [dbo].[sales_invoices](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[sales_order_items]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[sales_order_items]    Script Date: 6/1/2025 6:32:11 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1000,7 +1000,7 @@ CREATE TABLE [dbo].[sales_order_items](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[sales_orders]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[sales_orders]    Script Date: 6/1/2025 6:32:11 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1028,7 +1028,7 @@ CREATE TABLE [dbo].[sales_orders](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Settings]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[Settings]    Script Date: 6/1/2025 6:32:11 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1045,7 +1045,7 @@ CREATE TABLE [dbo].[Settings](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[shipment_items]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[shipment_items]    Script Date: 6/1/2025 6:32:11 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1064,7 +1064,7 @@ CREATE TABLE [dbo].[shipment_items](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[shipments]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[shipments]    Script Date: 6/1/2025 6:32:11 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1093,7 +1093,7 @@ CREATE TABLE [dbo].[shipments](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[storage_locations]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[storage_locations]    Script Date: 6/1/2025 6:32:11 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1113,7 +1113,7 @@ CREATE TABLE [dbo].[storage_locations](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[suppliers]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[suppliers]    Script Date: 6/1/2025 6:32:11 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1137,7 +1137,7 @@ CREATE TABLE [dbo].[suppliers](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Teams]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[Teams]    Script Date: 6/1/2025 6:32:11 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1165,7 +1165,7 @@ CREATE TABLE [dbo].[Teams](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[unit_types]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[unit_types]    Script Date: 6/1/2025 6:32:11 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1181,7 +1181,7 @@ CREATE TABLE [dbo].[unit_types](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[units]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[units]    Script Date: 6/1/2025 6:32:11 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1201,7 +1201,7 @@ CREATE TABLE [dbo].[units](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[UserEnterLogs]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Table [dbo].[UserEnterLogs]    Script Date: 6/1/2025 6:32:11 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1224,6 +1224,8 @@ GO
 INSERT [dbo].[ChatMessages] ([Id], [Content], [SentAt], [IsRead], [SenderId], [ReceiverId], [Attachments]) VALUES (N'0b258362-6d04-40e2-8158-20abd5fbfe8e', N'مبارکه', CAST(N'2025-04-18T23:39:21.213' AS DateTime), 1, N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', NULL)
 GO
 INSERT [dbo].[ChatMessages] ([Id], [Content], [SentAt], [IsRead], [SenderId], [ReceiverId], [Attachments]) VALUES (N'9d847d3b-d768-4bda-a5dc-3d72ebc16c50', N'شس', CAST(N'2025-04-18T22:55:58.137' AS DateTime), 0, N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'd89826f5-f5a3-48f4-b92b-95d362d8f074', NULL)
+GO
+INSERT [dbo].[ChatMessages] ([Id], [Content], [SentAt], [IsRead], [SenderId], [ReceiverId], [Attachments]) VALUES (N'a81fead3-a80e-4516-8b7b-5ad2cd86bdf8', N'hi', CAST(N'2025-05-27T12:04:21.487' AS DateTime), 1, N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', NULL)
 GO
 INSERT [dbo].[ChatMessages] ([Id], [Content], [SentAt], [IsRead], [SenderId], [ReceiverId], [Attachments]) VALUES (N'05dd1907-60d8-40ff-aea1-97caeb78537c', N's', CAST(N'2025-04-16T23:12:52.323' AS DateTime), 1, N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', NULL)
 GO
@@ -1328,6 +1330,8 @@ GO
 INSERT [dbo].[Notifications] ([id], [RelatedId], [Type], [seen], [Title], [Message], [CreatedDate], [UserId], [Img]) VALUES (N'bf05bab4-54db-498d-ab3e-0590d0246ae1', NULL, N'warning', 0, N'موجودی کم', N'موجودی ماده اولیه استامینوفن کمتر از حد مجاز است', CAST(N'2025-05-26T17:26:48.350' AS DateTime), NULL, NULL)
 GO
 INSERT [dbo].[Notifications] ([id], [RelatedId], [Type], [seen], [Title], [Message], [CreatedDate], [UserId], [Img]) VALUES (N'4f6c99df-101c-41c1-86a8-0c9e489f89b2', NULL, N'info', 0, N'سفارش جدید', N'سفارش خرید جدید ثبت شد', CAST(N'2025-05-26T17:26:48.350' AS DateTime), NULL, NULL)
+GO
+INSERT [dbo].[Notifications] ([id], [RelatedId], [Type], [seen], [Title], [Message], [CreatedDate], [UserId], [Img]) VALUES (N'a97af38c-9197-4a9e-9d09-cc4c0e31bf07', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'chat', 0, N'پیام خوانده شده', N'شما پیام‌های جدیدی از علیرضا دارید', CAST(N'2025-05-27T12:04:21.580' AS DateTime), N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', N'\images\users\cf3f638b-1bd4-4613-af46-cafdd1b1ae71.jpg')
 GO
 INSERT [dbo].[Notifications] ([id], [RelatedId], [Type], [seen], [Title], [Message], [CreatedDate], [UserId], [Img]) VALUES (N'a24835aa-47e5-4b1f-8ecc-d88d33c383b2', NULL, N'success', 1, N'تولید تکمیل', N'دسته تولید FG-001-2024 با موفقیت تکمیل شد', CAST(N'2025-05-26T17:26:48.350' AS DateTime), NULL, NULL)
 GO
@@ -1513,11 +1517,15 @@ INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'e8c328aa-1e2b-4352-97f7-0daf311d7985', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-18T23:38:29.123' AS DateTime), N'ورود به سیستم')
 GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'83a06bb1-8410-431c-8eba-0db3695eddea', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-05-27T12:04:21.687' AS DateTime), N'آنلاین')
+GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'956c1fc1-ee48-4234-b2e9-0e9c6db1a47c', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-10T19:31:08.717' AS DateTime), N'In')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'a2587271-5c06-42be-b16a-0e9dc5c5c261', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-03-22T02:00:22.140' AS DateTime), N'In')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'e0f9caa3-9290-40b2-8dbb-0ecc1e93caf9', N'2d0dfc82-97ee-4182-8d99-b1c5d72561a7', CAST(N'2025-04-15T19:38:51.067' AS DateTime), N'آنلاین')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'27d4e882-07a1-4aaf-8c0b-0fbfc750860b', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-05-27T12:04:13.953' AS DateTime), N'آنلاین')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'19294041-53ac-4e70-b8ff-0fdf6653e447', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-16T20:01:40.440' AS DateTime), N'ورود به سیستم')
 GO
@@ -1550,6 +1558,8 @@ GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'37d18f94-f6f1-4094-a9f0-137e61326592', N'6421f94c-4413-492c-8ef2-f21a1c4e0911', CAST(N'2025-04-16T19:11:29.137' AS DateTime), N'آنلاین')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'7614bb68-ab34-4daa-9398-13ffd303bd61', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-15T19:30:42.317' AS DateTime), N'آنلاین')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'25daeab9-15ea-448e-bb68-14223f80a656', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-05-27T12:03:58.213' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'c14ddf00-6462-4e84-994a-1422cee230f7', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-05-26T15:16:21.447' AS DateTime), N'ورود به سیستم')
 GO
@@ -1858,6 +1868,8 @@ GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'37470f68-1c17-4b9c-ade1-5889a8d3cea3', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T21:52:41.200' AS DateTime), N'In')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'e329ad6c-656e-4aa9-bf74-589596a5c986', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-11T19:10:09.110' AS DateTime), N'In')
+GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'a8c53c85-def8-4edd-bbb2-58b438ad7a81', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-05-27T11:21:46.887' AS DateTime), N'ورود به سیستم')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'a8434c95-b7cb-4608-b971-59211948eb79', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-22T12:28:16.180' AS DateTime), N'ورود به سیستم')
 GO
@@ -2425,6 +2437,8 @@ INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'6c1bb270-e067-4606-82fa-c9586c2eb9c9', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-16T20:08:22.097' AS DateTime), N'آنلاین')
 GO
+INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'd12e4807-8ef0-4813-a177-ca0897e57803', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-05-27T12:04:05.830' AS DateTime), N'آنلاین')
+GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'75de7df3-9052-4daa-837e-cae0acebfa9e', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-15T19:03:42.960' AS DateTime), N'آنلاین')
 GO
 INSERT [dbo].[UserEnterLogs] ([id], [UserId], [CreatedDate], [status]) VALUES (N'3526e7b1-138f-4479-af69-cb55b4967588', N'e6f61747-8c50-46f4-b2cf-d8bc246573a6', CAST(N'2025-04-16T20:08:18.483' AS DateTime), N'آنلاین')
@@ -2717,7 +2731,7 @@ INSERT [dbo].[UserStatus] ([UserId], [Status], [LastSeen]) VALUES (N'5e0c2a9c-1a
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_customer_code]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_customer_code]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[customers] ADD  CONSTRAINT [UQ_customer_code] UNIQUE NONCLUSTERED 
 (
 	[customer_code] ASC
@@ -2725,7 +2739,7 @@ ALTER TABLE [dbo].[customers] ADD  CONSTRAINT [UQ_customer_code] UNIQUE NONCLUST
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_medicine_batch]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_medicine_batch]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[finished_goods_batches] ADD  CONSTRAINT [UQ_medicine_batch] UNIQUE NONCLUSTERED 
 (
 	[medicine_id] ASC,
@@ -2734,7 +2748,7 @@ ALTER TABLE [dbo].[finished_goods_batches] ADD  CONSTRAINT [UQ_medicine_batch] U
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_material_batch]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_material_batch]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[material_batches] ADD  CONSTRAINT [UQ_material_batch] UNIQUE NONCLUSTERED 
 (
 	[material_id] ASC,
@@ -2743,13 +2757,13 @@ ALTER TABLE [dbo].[material_batches] ADD  CONSTRAINT [UQ_material_batch] UNIQUE 
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_category_name]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_category_name]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[material_categories] ADD  CONSTRAINT [UQ_category_name] UNIQUE NONCLUSTERED 
 (
 	[category_name] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
-/****** Object:  Index [UQ_medicine_material]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_medicine_material]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[medicine_bom] ADD  CONSTRAINT [UQ_medicine_material] UNIQUE NONCLUSTERED 
 (
 	[medicine_id] ASC,
@@ -2758,7 +2772,7 @@ ALTER TABLE [dbo].[medicine_bom] ADD  CONSTRAINT [UQ_medicine_material] UNIQUE N
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_medicine_category_name]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_medicine_category_name]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[medicine_categories] ADD  CONSTRAINT [UQ_medicine_category_name] UNIQUE NONCLUSTERED 
 (
 	[category_name] ASC
@@ -2766,7 +2780,7 @@ ALTER TABLE [dbo].[medicine_categories] ADD  CONSTRAINT [UQ_medicine_category_na
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_medicine_code]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_medicine_code]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[medicines] ADD  CONSTRAINT [UQ_medicine_code] UNIQUE NONCLUSTERED 
 (
 	[medicine_code] ASC
@@ -2774,7 +2788,7 @@ ALTER TABLE [dbo].[medicines] ADD  CONSTRAINT [UQ_medicine_code] UNIQUE NONCLUST
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_order_number]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_order_number]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[production_orders] ADD  CONSTRAINT [UQ_order_number] UNIQUE NONCLUSTERED 
 (
 	[order_number] ASC
@@ -2782,7 +2796,7 @@ ALTER TABLE [dbo].[production_orders] ADD  CONSTRAINT [UQ_order_number] UNIQUE N
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_step_sequence]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_step_sequence]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[production_steps] ADD  CONSTRAINT [UQ_step_sequence] UNIQUE NONCLUSTERED 
 (
 	[step_name] ASC,
@@ -2791,7 +2805,7 @@ ALTER TABLE [dbo].[production_steps] ADD  CONSTRAINT [UQ_step_sequence] UNIQUE N
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_purchase_invoice_number]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_purchase_invoice_number]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[purchase_invoices] ADD  CONSTRAINT [UQ_purchase_invoice_number] UNIQUE NONCLUSTERED 
 (
 	[invoice_number] ASC
@@ -2799,7 +2813,7 @@ ALTER TABLE [dbo].[purchase_invoices] ADD  CONSTRAINT [UQ_purchase_invoice_numbe
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_po_number]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_po_number]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[purchase_orders] ADD  CONSTRAINT [UQ_po_number] UNIQUE NONCLUSTERED 
 (
 	[po_number] ASC
@@ -2807,7 +2821,7 @@ ALTER TABLE [dbo].[purchase_orders] ADD  CONSTRAINT [UQ_po_number] UNIQUE NONCLU
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_material_code]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_material_code]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[raw_materials] ADD  CONSTRAINT [UQ_material_code] UNIQUE NONCLUSTERED 
 (
 	[material_code] ASC
@@ -2815,7 +2829,7 @@ ALTER TABLE [dbo].[raw_materials] ADD  CONSTRAINT [UQ_material_code] UNIQUE NONC
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_sales_invoice_number]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_sales_invoice_number]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[sales_invoices] ADD  CONSTRAINT [UQ_sales_invoice_number] UNIQUE NONCLUSTERED 
 (
 	[invoice_number] ASC
@@ -2823,7 +2837,7 @@ ALTER TABLE [dbo].[sales_invoices] ADD  CONSTRAINT [UQ_sales_invoice_number] UNI
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_so_number]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_so_number]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[sales_orders] ADD  CONSTRAINT [UQ_so_number] UNIQUE NONCLUSTERED 
 (
 	[so_number] ASC
@@ -2831,7 +2845,7 @@ ALTER TABLE [dbo].[sales_orders] ADD  CONSTRAINT [UQ_so_number] UNIQUE NONCLUSTE
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_shipment_number]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_shipment_number]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[shipments] ADD  CONSTRAINT [UQ_shipment_number] UNIQUE NONCLUSTERED 
 (
 	[shipment_number] ASC
@@ -2839,7 +2853,7 @@ ALTER TABLE [dbo].[shipments] ADD  CONSTRAINT [UQ_shipment_number] UNIQUE NONCLU
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_location_code]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_location_code]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[storage_locations] ADD  CONSTRAINT [UQ_location_code] UNIQUE NONCLUSTERED 
 (
 	[location_code] ASC
@@ -2847,7 +2861,7 @@ ALTER TABLE [dbo].[storage_locations] ADD  CONSTRAINT [UQ_location_code] UNIQUE 
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_supplier_code]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_supplier_code]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[suppliers] ADD  CONSTRAINT [UQ_supplier_code] UNIQUE NONCLUSTERED 
 (
 	[supplier_code] ASC
@@ -2855,7 +2869,7 @@ ALTER TABLE [dbo].[suppliers] ADD  CONSTRAINT [UQ_supplier_code] UNIQUE NONCLUST
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_unit_type_name]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_unit_type_name]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[unit_types] ADD  CONSTRAINT [UQ_unit_type_name] UNIQUE NONCLUSTERED 
 (
 	[type_name] ASC
@@ -2863,7 +2877,7 @@ ALTER TABLE [dbo].[unit_types] ADD  CONSTRAINT [UQ_unit_type_name] UNIQUE NONCLU
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_unit_name_type]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_unit_name_type]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[units] ADD  CONSTRAINT [UQ_unit_name_type] UNIQUE NONCLUSTERED 
 (
 	[unit_name] ASC,
@@ -2872,7 +2886,7 @@ ALTER TABLE [dbo].[units] ADD  CONSTRAINT [UQ_unit_name_type] UNIQUE NONCLUSTERE
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UQ_unit_symbol_type]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  Index [UQ_unit_symbol_type]    Script Date: 6/1/2025 6:32:11 PM ******/
 ALTER TABLE [dbo].[units] ADD  CONSTRAINT [UQ_unit_symbol_type] UNIQUE NONCLUSTERED 
 (
 	[unit_symbol] ASC,
@@ -3337,7 +3351,7 @@ ALTER TABLE [dbo].[shipments]  WITH CHECK ADD CHECK  (([status]=N'لغو شده'
 GO
 ALTER TABLE [dbo].[storage_locations]  WITH CHECK ADD CHECK  (([location_type]=N'خطرناک' OR [location_type]=N'قرنطینه' OR [location_type]=N'سردخانه' OR [location_type]=N'انبار'))
 GO
-/****** Object:  StoredProcedure [dbo].[sp_UpdateUserStatus]    Script Date: 5/26/2025 6:07:53 PM ******/
+/****** Object:  StoredProcedure [dbo].[sp_UpdateUserStatus]    Script Date: 6/1/2025 6:32:12 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON

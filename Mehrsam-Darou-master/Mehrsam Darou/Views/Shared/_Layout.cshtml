@@ -242,9 +242,19 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                                     }
                                 </div>
                                 <div class="text-center py-3">
-                                    <a href="javascript:void(0);" class="btn btn-primary btn-sm">
-                                        مشاهده تمامی اعلان‌ها <i class="bx bx-left-arrow-alt ms-1"></i>
-                                    </a>
+
+                                    <form method="post" action="@Url.Action("Chat", "Chat")">
+                                        <button type="submit" class="btn btn-primary btn-sm">
+
+                                                ورود به صفحه چت <i class="bx bx-left-arrow-alt ms-1"></i>
+                                        
+                                        </button>
+
+                                    </form>
+
+
+                           
+
                                 </div>
                             </div>
                         </div>
