@@ -1,0 +1,294 @@
+﻿@model Mehrsam_Darou.Models.Supplier
+
+@{
+    ViewData["Title"] = "افزودن تأمین‌کننده جدید";
+}
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Success and Error Alerts -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success px-2" role="alert">
+                        <p class="mb-0">با موفقیت انجام شد</p>
+                        <p class="mb-0">@TempData["SuccessMessage"]</p>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger px-2" role="alert">
+                        <p class="mb-0">خطا</p>
+                        <p class="mb-0">@TempData["ErrorMessage"]</p>
+                    </div>
+                }
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4>افزودن تأمین‌کننده جدید</h4>
+                    <a href="@Url.Action("SupplierList")" class="btn btn-secondary">
+                        <i class="bx bx-arrow-back me-1"></i> بازگشت به لیست
+                    </a>
+                </div>
+
+                <form asp-action="AddSupplier">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="SupplierName" class="form-label">نام تأمین‌کننده <span class="text-danger">*</span></label>
+                                <input asp-for="SupplierName" class="form-control" />
+                                <span asp-validation-for="SupplierName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="SupplierCode" class="form-label">کد تأمین‌کننده <span class="text-danger">*</span></label>
+                                <input asp-for="SupplierCode" class="form-control" placeholder="مثال: SUP001" />
+                                <span asp-validation-for="SupplierCode" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="ContactPerson" class="form-label">شخص رابط</label>
+                                <input asp-for="ContactPerson" class="form-control" />
+                                <span asp-validation-for="ContactPerson" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Phone" class="form-label">تلفن</label>
+                                <input asp-for="Phone" class="form-control" placeholder="021-12345678" />
+                                <span asp-validation-for="Phone" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Email" class="form-label">ایمیل</label>
+                                <input asp-for="Email" type="email" class="form-control" placeholder="supplier@example.com" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="TaxNumber" class="form-label">شماره مالیاتی</label>
+                                <input asp-for="TaxNumber" class="form-control" />
+                                <span asp-validation-for="TaxNumber" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label asp-for="Address" class="form-label">آدرس</label>
+                                <textarea asp-for="Address" class="form-control" rows="3" placeholder="آدرس کامل تأمین‌کننده را وارد کنید..."></textarea>
+                                <span asp-validation-for="Address" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="PaymentTerms" class="form-label">شرایط پرداخت</label>
+                                <select asp-for="PaymentTerms" class="form-select">
+                                    <option value="">-- انتخاب شرایط پرداخت --</option>
+                                    <option value="نقدی">نقدی</option>
+                                    <option value="15 روزه">15 روزه</option>
+                                    <option value="30 روزه">30 روزه</option>
+                                    <option value="45 روزه">45 روزه</option>
+                                    <option value="60 روزه">60 روزه</option>
+                                    <option value="90 روزه">90 روزه</option>
+                                    <option value="120 روزه">120 روزه</option>
+                                </select>
+                                <span asp-validation-for="PaymentTerms" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="LeadTimeDays" class="form-label">مدت تحویل (روز)</label>
+                                <input asp-for="LeadTimeDays" type="number" min="0" max="365" class="form-control" placeholder="تعداد روز" />
+                                <span asp-validation-for="LeadTimeDays" class="text-danger"></span>
+                                <div class="form-text">
+                                    <i class="bx bx-info-circle me-1"></i>
+                                    مدت زمان معمول برای تحویل کالا (بر حسب روز)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="IsActive" class="form-label">وضعیت</label>
+                                <select asp-for="IsActive" class="form-select">
+                                    <option value="true">فعال</option>
+                                    <option value="false">غیرفعال</option>
+                                </select>
+                                <span asp-validation-for="IsActive" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="form-text mt-4">
+                                    <i class="bx bx-lightbulb me-1"></i>
+                                    <strong>نکته:</strong> فقط تأمین‌کنندگان فعال در لیست انتخاب قابل نمایش هستند
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Preview Section -->
+                    <div class="row" id="previewSection" style="display: none;">
+                        <div class="col-12">
+                            <div class="card bg-light">
+                                <div class="card-header">
+                                    <h6 class="mb-0">پیش‌نمایش اطلاعات تأمین‌کننده</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <strong>نام:</strong>
+                                            <div id="previewName" class="text-primary mb-2"></div>
+                                            <strong>کد:</strong>
+                                            <div id="previewCode" class="text-success mb-2"></div>
+                                            <strong>شخص رابط:</strong>
+                                            <div id="previewContact" class="text-info mb-2"></div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong>تلفن:</strong>
+                                            <div id="previewPhone" class="text-warning mb-2"></div>
+                                            <strong>شرایط پرداخت:</strong>
+                                            <div id="previewPayment" class="text-secondary mb-2"></div>
+                                            <strong>مدت تحویل:</strong>
+                                            <div id="previewLeadTime" class="text-dark mb-2"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bx bx-save me-1"></i> ذخیره
+                        </button>
+                        <button type="button" class="btn btn-outline-info" onclick="updatePreview()">
+                            <i class="bx bx-show me-1"></i> پیش‌نمایش
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Auto update preview when form fields change
+            const formFields = ['SupplierName', 'SupplierCode', 'ContactPerson', 'Phone', 'PaymentTerms', 'LeadTimeDays'];
+            formFields.forEach(fieldName => {
+                const field = document.querySelector(`[name="${fieldName}"]`);
+                if (field) {
+                    field.addEventListener('change', updatePreview);
+                    field.addEventListener('input', updatePreview);
+                }
+            });
+
+            // Generate supplier code suggestion
+            const nameField = document.querySelector('[name="SupplierName"]');
+            const codeField = document.querySelector('[name="SupplierCode"]');
+
+            if (nameField && codeField) {
+                nameField.addEventListener('blur', function() {
+                    if (this.value && !codeField.value) {
+                        const suggestion = generateSupplierCode(this.value);
+                        codeField.value = suggestion;
+                        updatePreview();
+                    }
+                });
+            }
+        });
+
+        function generateSupplierCode(name) {
+            // Simple code generation based on supplier name
+            const words = name.trim().split(' ');
+            let code = 'SUP';
+
+            if (words.length >= 2) {
+                code += words[0].substring(0, 2).toUpperCase() + words[1].substring(0, 2).toUpperCase();
+            } else {
+                code += words[0].substring(0, 4).toUpperCase();
+            }
+
+            // Add random number
+            code += Math.floor(Math.random() * 100).toString().padStart(2, '0');
+
+            return code;
+        }
+
+        function updatePreview() {
+            const name = document.querySelector('[name="SupplierName"]').value;
+            const code = document.querySelector('[name="SupplierCode"]').value;
+            const contact = document.querySelector('[name="ContactPerson"]').value;
+            const phone = document.querySelector('[name="Phone"]').value;
+            const payment = document.querySelector('[name="PaymentTerms"]').value;
+            const leadTime = document.querySelector('[name="LeadTimeDays"]').value;
+
+            const previewSection = document.getElementById('previewSection');
+
+            // Check if main fields have values
+            if (name || code) {
+                document.getElementById('previewName').textContent = name || '-';
+                document.getElementById('previewCode').textContent = code || '-';
+                document.getElementById('previewContact').textContent = contact || '-';
+                document.getElementById('previewPhone').textContent = phone || '-';
+                document.getElementById('previewPayment').textContent = payment || '-';
+                document.getElementById('previewLeadTime').textContent = leadTime ? leadTime + ' روز' : '-';
+
+                previewSection.style.display = 'block';
+            } else {
+                previewSection.style.display = 'none';
+            }
+        }
+
+        // Enhanced form validation
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const leadTime = document.querySelector('[name="LeadTimeDays"]').value;
+            if (leadTime && (parseInt(leadTime) < 0 || parseInt(leadTime) > 365)) {
+                e.preventDefault();
+                alert('مدت تحویل باید بین 0 تا 365 روز باشد');
+                return false;
+            }
+        });
+
+        // Format phone number on input
+        document.querySelector('[name="Phone"]').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 0) {
+                if (value.startsWith('0')) {
+                    // Iranian mobile or landline
+                    if (value.length <= 11) {
+                        e.target.value = value;
+                    }
+                } else {
+                    e.target.value = value;
+                }
+            }
+        });
+    </script>
+}

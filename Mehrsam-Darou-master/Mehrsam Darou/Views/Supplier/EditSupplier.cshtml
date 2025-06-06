@@ -1,0 +1,393 @@
+﻿@model Mehrsam_Darou.Models.Supplier
+
+@{
+    ViewData["Title"] = "ویرایش تأمین‌کننده";
+}
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Success and Error Alerts -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success px-2" role="alert">
+                        <p class="mb-0">با موفقیت انجام شد</p>
+                        <p class="mb-0">@TempData["SuccessMessage"]</p>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger px-2" role="alert">
+                        <p class="mb-0">خطا</p>
+                        <p class="mb-0">@TempData["ErrorMessage"]</p>
+                    </div>
+                }
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4>ویرایش تأمین‌کننده</h4>
+                    <div class="d-flex gap-2">
+                        <a href="@Url.Action("SupplierList")" class="btn btn-secondary">
+                            <i class="bx bx-arrow-back me-1"></i> بازگشت به لیست
+                        </a>
+                        <button type="button" class="btn btn-info" onclick="showSupplierActivity()">
+                            <i class="bx bx-chart me-1"></i> آمار فعالیت
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Current Supplier Info -->
+                <div class="alert alert-info">
+                    <div class="d-flex align-items-center">
+                        <i class="bx bx-info-circle fs-4 me-2"></i>
+                        <div>
+                            <strong>تأمین‌کننده فعلی:</strong> @Model.SupplierName
+                            <span class="badge bg-light text-dark ms-2">@Model.SupplierCode</span>
+                            @if (!string.IsNullOrEmpty(Model.ContactPerson))
+                            {
+                                <span class="text-muted">- شخص رابط: @Model.ContactPerson</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <form asp-action="EditSupplier">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="SupplierId" />
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="SupplierName" class="form-label">نام تأمین‌کننده <span class="text-danger">*</span></label>
+                                <input asp-for="SupplierName" class="form-control" />
+                                <span asp-validation-for="SupplierName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="SupplierCode" class="form-label">کد تأمین‌کننده <span class="text-danger">*</span></label>
+                                <input asp-for="SupplierCode" class="form-control" readonly />
+                                <span asp-validation-for="SupplierCode" class="text-danger"></span>
+                                <div class="form-text">
+                                    <i class="bx bx-lock me-1"></i>
+                                    کد تأمین‌کننده قابل تغییر نیست
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="ContactPerson" class="form-label">شخص رابط</label>
+                                <input asp-for="ContactPerson" class="form-control" />
+                                <span asp-validation-for="ContactPerson" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Phone" class="form-label">تلفن</label>
+                                <input asp-for="Phone" class="form-control" />
+                                <span asp-validation-for="Phone" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Email" class="form-label">ایمیل</label>
+                                <input asp-for="Email" type="email" class="form-control" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="TaxNumber" class="form-label">شماره مالیاتی</label>
+                                <input asp-for="TaxNumber" class="form-control" />
+                                <span asp-validation-for="TaxNumber" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label asp-for="Address" class="form-label">آدرس</label>
+                                <textarea asp-for="Address" class="form-control" rows="3"></textarea>
+                                <span asp-validation-for="Address" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="PaymentTerms" class="form-label">شرایط پرداخت</label>
+                                <select asp-for="PaymentTerms" class="form-select">
+                                    <option value="">-- انتخاب شرایط پرداخت --</option>
+                                    <option value="نقدی">نقدی</option>
+                                    <option value="15 روزه">15 روزه</option>
+                                    <option value="30 روزه">30 روزه</option>
+                                    <option value="45 روزه">45 روزه</option>
+                                    <option value="60 روزه">60 روزه</option>
+                                    <option value="90 روزه">90 روزه</option>
+                                    <option value="120 روزه">120 روزه</option>
+                                </select>
+                                <span asp-validation-for="PaymentTerms" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="LeadTimeDays" class="form-label">مدت تحویل (روز)</label>
+                                <div class="input-group">
+                                    <input asp-for="LeadTimeDays" type="number" min="0" max="365" class="form-control" />
+                                    <span class="input-group-text">روز</span>
+                                </div>
+                                <span asp-validation-for="LeadTimeDays" class="text-danger"></span>
+                                <div class="form-text">
+                                    مقدار فعلی: <strong>@(Model.LeadTimeDays?.ToString() ?? "تعین نشده")</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="IsActive" class="form-label">وضعیت</label>
+                                <select asp-for="IsActive" class="form-select">
+                                    <option value="true">فعال</option>
+                                    <option value="false">غیرفعال</option>
+                                </select>
+                                <span asp-validation-for="IsActive" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="form-text mt-4">
+                                    <i class="bx bx-warning me-1"></i>
+                                    <strong>توجه:</strong> غیرفعال کردن تأمین‌کننده بر سفارشات جاری تأثیر نمی‌گذارد
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Change Summary Section -->
+                    <div class="row" id="changeSummarySection" style="display: none;">
+                        <div class="col-12">
+                            <div class="card bg-warning-subtle">
+                                <div class="card-header bg-warning">
+                                    <h6 class="mb-0 text-white">خلاصه تغییرات</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div id="changesList">
+                                        <!-- Changes will be listed here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bx bx-save me-1"></i> ذخیره تغییرات
+                        </button>
+                        <button type="button" class="btn btn-outline-info" onclick="checkChanges()">
+                            <i class="bx bx-check-circle me-1"></i> بررسی تغییرات
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Activity Modal -->
+<div class="modal fade" id="activityModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">آمار فعالیت تأمین‌کننده: @Model.SupplierName</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <div class="modal-body" id="activityContent">
+                <!-- Activity content will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Store original values for comparison
+            window.originalValues = {
+                supplierName: '@Model.SupplierName',
+                contactPerson: '@Model.ContactPerson',
+                phone: '@Model.Phone',
+                email: '@Model.Email',
+                address: '@Model.Address',
+                taxNumber: '@Model.TaxNumber',
+                paymentTerms: '@Model.PaymentTerms',
+                leadTimeDays: @(Model.LeadTimeDays?.ToString() ?? "null"),
+                isActive: @Model.IsActive.ToString().ToLower()
+            };
+
+            // Monitor form changes
+            const formFields = ['SupplierName', 'ContactPerson', 'Phone', 'Email', 'Address', 'TaxNumber', 'PaymentTerms', 'LeadTimeDays', 'IsActive'];
+            formFields.forEach(fieldName => {
+                const field = document.querySelector(`[name="${fieldName}"]`);
+                if (field) {
+                    field.addEventListener('change', checkChanges);
+                    field.addEventListener('input', checkChanges);
+                }
+            });
+        });
+
+        function checkChanges() {
+            const changes = [];
+            const current = {
+                supplierName: document.querySelector('[name="SupplierName"]').value,
+                contactPerson: document.querySelector('[name="ContactPerson"]').value,
+                phone: document.querySelector('[name="Phone"]').value,
+                email: document.querySelector('[name="Email"]').value,
+                address: document.querySelector('[name="Address"]').value,
+                taxNumber: document.querySelector('[name="TaxNumber"]').value,
+                paymentTerms: document.querySelector('[name="PaymentTerms"]').value,
+                leadTimeDays: document.querySelector('[name="LeadTimeDays"]').value || null,
+                isActive: document.querySelector('[name="IsActive"]').value
+            };
+
+            // Compare values
+            if (current.supplierName !== window.originalValues.supplierName) {
+                changes.push(`نام: "${window.originalValues.supplierName}" → "${current.supplierName}"`);
+            }
+            if (current.contactPerson !== window.originalValues.contactPerson) {
+                changes.push(`شخص رابط: "${window.originalValues.contactPerson || '-'}" → "${current.contactPerson || '-'}"`);
+            }
+            if (current.phone !== window.originalValues.phone) {
+                changes.push(`تلفن: "${window.originalValues.phone || '-'}" → "${current.phone || '-'}"`);
+            }
+            if (current.email !== window.originalValues.email) {
+                changes.push(`ایمیل: "${window.originalValues.email || '-'}" → "${current.email || '-'}"`);
+            }
+            if (current.paymentTerms !== window.originalValues.paymentTerms) {
+                changes.push(`شرایط پرداخت: "${window.originalValues.paymentTerms || '-'}" → "${current.paymentTerms || '-'}"`);
+            }
+            if (current.leadTimeDays != window.originalValues.leadTimeDays) {
+                const oldValue = window.originalValues.leadTimeDays ? window.originalValues.leadTimeDays + ' روز' : '-';
+                const newValue = current.leadTimeDays ? current.leadTimeDays + ' روز' : '-';
+                changes.push(`مدت تحویل: "${oldValue}" → "${newValue}"`);
+            }
+            if (current.isActive !== window.originalValues.isActive) {
+                const oldStatus = window.originalValues.isActive ? 'فعال' : 'غیرفعال';
+                const newStatus = current.isActive === 'true' ? 'فعال' : 'غیرفعال';
+                changes.push(`وضعیت: "${oldStatus}" → "${newStatus}"`);
+            }
+
+            const changeSummarySection = document.getElementById('changeSummarySection');
+            const changesList = document.getElementById('changesList');
+
+            if (changes.length > 0) {
+                changesList.innerHTML = changes.map(change => `<div class="mb-1"><i class="bx bx-right-arrow-alt me-2"></i>${change}</div>`).join('');
+                changeSummarySection.style.display = 'block';
+            } else {
+                changeSummarySection.style.display = 'none';
+            }
+        }
+
+        function showSupplierActivity() {
+            var modal = new bootstrap.Modal(document.getElementById('activityModal'));
+            document.getElementById('activityContent').innerHTML =
+                '<div class="text-center"><div class="spinner-border" role="status"></div><p class="mt-2">در حال بارگذاری...</p></div>';
+            modal.show();
+
+            // Load supplier activity via AJAX
+            fetch('@Url.Action("GetSupplierDetails", new { id = Model.SupplierId })')
+                .then(response => response.json())
+                .then(data => {
+                    let stats = data.statistics;
+
+                    let content = `
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="card bg-primary-subtle">
+                                    <div class="card-body text-center">
+                                        <h2 class="mb-1 text-primary">${stats.totalOrders}</h2>
+                                        <p class="mb-0 text-muted">سفارش خرید</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-success-subtle">
+                                    <div class="card-body text-center">
+                                        <h2 class="mb-1 text-success">${stats.totalInvoices}</h2>
+                                        <p class="mb-0 text-muted">فاکتور خرید</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-warning-subtle">
+                                    <div class="card-body text-center">
+                                        <h2 class="mb-1 text-warning">${stats.totalAmount.toLocaleString()}</h2>
+                                        <p class="mb-0 text-muted">مجموع خرید (ریال)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="bx bx-info-circle me-2"></i>
+                            <strong>نکته:</strong> این آمار شامل تمام سفارشات و فاکتورهای ثبت شده از این تأمین‌کننده می‌باشد.
+                        </div>
+                    `;
+
+                    if (stats.totalOrders === 0 && stats.totalInvoices === 0) {
+                        content += `
+                            <div class="text-center py-4">
+                                <i class="bx bx-receipt text-muted fs-1"></i>
+                                <p class="mt-2 text-muted">هنوز هیچ فعالیت تجاری با این تأمین‌کننده ثبت نشده است.</p>
+                            </div>
+                        `;
+                    }
+
+                    document.getElementById('activityContent').innerHTML = content;
+                })
+                .catch(error => {
+                    document.getElementById('activityContent').innerHTML =
+                        '<div class="text-center py-4 text-danger"><i class="bx bx-error fs-1"></i><p class="mt-2">خطا در بارگذاری اطلاعات</p></div>';
+                });
+        }
+
+        // Enhanced form validation
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const leadTime = document.querySelector('[name="LeadTimeDays"]').value;
+            if (leadTime && (parseInt(leadTime) < 0 || parseInt(leadTime) > 365)) {
+                e.preventDefault();
+                alert('مدت تحویل باید بین 0 تا 365 روز باشد');
+                return false;
+            }
+        });
+
+        // Format phone number on input
+        document.querySelector('[name="Phone"]').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 0) {
+                if (value.startsWith('0')) {
+                    // Iranian mobile or landline
+                    if (value.length <= 11) {
+                        e.target.value = value;
+                    }
+                } else {
+                    e.target.value = value;
+                }
+            }
+        });
+    </script>
+}

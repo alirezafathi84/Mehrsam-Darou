@@ -426,6 +426,7 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
             </button>
 
             <div class="scrollbar" data-simplebar>
+          
                 <ul class="navbar-nav" id="navbar-nav">
 
                     <li class="menu-title">عمومی</li>
@@ -433,61 +434,39 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                     @if ((bool)ViewData["ManagmentMenu"])
                     {
                         <li class="nav-item">
-
                             <form method="post" action="@Url.Action("Dashboard", "Dashboard")">
                                 <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-
                                     <span class="nav-icon">
                                         <iconify-icon icon="solar:widget-5-bold-duotone"></iconify-icon>
                                     </span>
-                                    <span class="nav-text"> داشبورد </span>
+                                    <span class="nav-text"> داشبورد مدیریت </span>
                                 </button>
                             </form>
-
-
-
-@* 
-
-                            <a class="nav-link" href="index.html">
-                                <span class="nav-icon">
-                                    <iconify-icon icon="solar:widget-5-bold-duotone"></iconify-icon>
-                                </span>
-                                <span class="nav-text"> داشبورد </span>
-                            </a> *@
                         </li>
                     }
 
-
-
                     @if ((bool)ViewData["SystemUsersMenu"])
                     {
-
                         <li class="nav-item">
                             <a class="nav-link menu-arrow" href="#sidebarUsers" data-bs-toggle="collapse" role="button"
-                            aria-expanded="false" aria-controls="sidebarUsers">
+                               aria-expanded="false" aria-controls="sidebarUsers">
                                 <span class="nav-icon">
                                     <iconify-icon icon="solar:user-rounded-bold-duotone"></iconify-icon>
                                 </span>
-                                <span class="nav-text"> کاربران </span>
+                                <span class="nav-text"> مدیریت کاربران </span>
                             </a>
                             <div class="collapse" id="sidebarUsers">
                                 <ul class="nav sub-navbar-nav">
                                     <li class="sub-nav-item">
                                         <form method="post" action="@Url.Action("AddNewUser", "User")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-
                                                 <span class="nav-text">کاربر جدید</span>
                                             </button>
                                         </form>
                                     </li>
-
-
-
-
                                     <li class="sub-nav-item">
                                         <form method="post" action="@Url.Action("UserList", "User")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-
                                                 <span class="nav-text">لیست کاربران</span>
                                             </button>
                                         </form>
@@ -495,240 +474,210 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                                     <li class="sub-nav-item">
                                         <form method="post" action="@Url.Action("TeamList", "Team")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-
-                                                <span class="nav-text">تیم ها</span>
+                                                <span class="nav-text">مدیریت تیم‌ها</span>
                                             </button>
                                         </form>
                                     </li>
                                 </ul>
                             </div>
                         </li>
-
                     }
 
+                    <li class="menu-title">محصولات و مواد</li>
 
-                      @if ((bool)ViewData["FinancialMenu"])
+                    @if ((bool)ViewData["ProductMenu"])
                     {
-
                         <li class="nav-item">
-                            <a class="nav-link menu-arrow" href="#sidebarFinancial" data-bs-toggle="collapse" role="button"
-                            aria-expanded="false" aria-controls="sidebarFinancial">
+                            <a class="nav-link menu-arrow" href="#sidebarProduct" data-bs-toggle="collapse" role="button"
+                               aria-expanded="false" aria-controls="sidebarProduct">
                                 <span class="nav-icon">
-                                    <iconify-icon icon="solar:bill-list-bold-duotone"></iconify-icon>
+                                    <iconify-icon icon="solar:leaf-bold-duotone"></iconify-icon>
                                 </span>
-                                <span class="nav-text"> مالی </span>
+                                <span class="nav-text"> محصولات و مواد </span>
                             </a>
-                            <div class="collapse" id="sidebarFinancial">
+                            <div class="collapse" id="sidebarProduct">
                                 <ul class="nav sub-navbar-nav">
-       
-
-
-
                                     <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("UserList", "User")">
+                                        <form method="post" action="@Url.Action("MedicineList", "Medicine")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-
-                                                <span class="nav-text">فاکتور</span>
+                                                <span class="nav-text">داروها</span>
                                             </button>
                                         </form>
                                     </li>
-                        
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("MedicineCategoryList", "MedicineCategory")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                <span class="nav-text">دسته‌بندی داروها</span>
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("RawMaterialList", "RawMaterial")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                <span class="nav-text">مواد اولیه</span>
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("MaterialCategoryList", "MaterialCategory")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                <span class="nav-text">دسته‌بندی مواد اولیه</span>
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("MedicineBomList", "MedicineBom")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                <span class="nav-text">فرمول‌های تولید (BOM)</span>
+                                            </button>
+                                        </form>
+                                    </li>
                                 </ul>
                             </div>
                         </li>
-
                     }
 
-                        @if ((bool)ViewData["InventoryMenu"])
-                    {
+                    <li class="menu-title">خرید و تأمین</li>
 
+                    @if ((bool)ViewData["BuyCommercialMenu"])
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link menu-arrow" href="#sidebarBuyCommercial" data-bs-toggle="collapse" role="button"
+                               aria-expanded="false" aria-controls="sidebarBuyCommercial">
+                                <span class="nav-icon">
+                                    <iconify-icon icon="solar:case-bold-duotone"></iconify-icon>
+                                </span>
+                                <span class="nav-text"> خرید و تأمین </span>
+                            </a>
+                            <div class="collapse" id="sidebarBuyCommercial">
+                                <ul class="nav sub-navbar-nav">
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("SupplierList", "Supplier")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                <span class="nav-text">تأمین‌کنندگان</span>
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("PurchaseOrderList", "PurchaseOrder")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                <span class="nav-text">سفارشات خرید</span>
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("PurchaseInvoiceList", "PurchaseInvoice")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                <span class="nav-text">فاکتورهای خرید</span>
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                    }
+
+                    <li class="menu-title">انبارداری</li>
+
+                    @if ((bool)ViewData["InventoryMenu"])
+                    {
                         <li class="nav-item">
                             <a class="nav-link menu-arrow" href="#sidebarInventory" data-bs-toggle="collapse" role="button"
-                            aria-expanded="false" aria-controls="sidebarInventory">
+                               aria-expanded="false" aria-controls="sidebarInventory">
                                 <span class="nav-icon">
                                     <iconify-icon icon="solar:box-bold-duotone"></iconify-icon>
                                 </span>
-                                <span class="nav-text"> انبار </span>
+                                <span class="nav-text"> مدیریت انبار </span>
                             </a>
                             <div class="collapse" id="sidebarInventory">
                                 <ul class="nav sub-navbar-nav">
                                     <li class="sub-nav-item">
                                         <form method="post" action="@Url.Action("StorageLocationList", "StorageLocation")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-
-                                                <span class="nav-text">انبار</span>
+                                                <span class="nav-text">مکان‌های انبار</span>
                                             </button>
                                         </form>
                                     </li>
-                                                  
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("MaterialBatchList", "MaterialBatch")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                <span class="nav-text">بچ‌های مواد اولیه</span>
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("FinishedGoodsBatchList", "FinishedGoodsBatch")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                <span class="nav-text">بچ‌های محصول نهایی</span>
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("InventoryReport", "Inventory")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                <span class="nav-text">گزارش موجودی</span>
+                                            </button>
+                                        </form>
+                                    </li>
                                 </ul>
                             </div>
                         </li>
-
                     }
 
-                         @if ((bool)ViewData["ProductMenu"])
+                    <li class="menu-title">تولید</li>
+
+                    @if ((bool)ViewData["PmoMenu"])
                     {
-
                         <li class="nav-item">
-                            <a class="nav-link menu-arrow" href="#sidebarProduct" data-bs-toggle="collapse" role="button"
-                            aria-expanded="false" aria-controls="sidebarProduct">
+                            <a class="nav-link menu-arrow" href="#sidebarPMO" data-bs-toggle="collapse" role="button"
+                               aria-expanded="false" aria-controls="sidebarPMO">
                                 <span class="nav-icon">
-                                    <iconify-icon icon="solar:leaf-bold-duotone"></iconify-icon>
+                                    <iconify-icon icon="solar:document-text-bold-duotone"></iconify-icon>
                                 </span>
-                                <span class="nav-text"> محصولات </span>
+                                <span class="nav-text"> مدیریت تولید (PMO) </span>
                             </a>
-                            <div class="collapse" id="sidebarProduct">
-                                <ul class="nav sub-navbar-nav">
-
-
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("MedicineList", "Medicine")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-
-                                                <span class="nav-text">دارو</span>
-                                            </button>
-                                        </form>
-                                    </li>
-
-
-
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("MedicineCategoryList", "MedicineCategory")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-
-                                                <span class="nav-text">دسته بندی دارو</span>
-                                            </button>
-                                        </form>
-                                    </li>
-
-
-
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("RawMaterialList", "RawMaterial")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-
-                                                <span class="nav-text">مواد اولیه</span>
-                                            </button>
-                                        </form>
-                                    </li>
-
-
-
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("MaterialCategoryList", "MaterialCategory")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-
-                                                <span class="nav-text">دسته بندی مواد اولیه</span>
-                                            </button>
-                                        </form>
-                                    </li>
-
-
-                            
-
-                    
-
-
-
-
-
-                    
-                        
-                                </ul>
-                            </div>
-                        </li>
-
-                    }
-
-
-                                             @if ((bool)ViewData["SellCommercialMenu"])
-                    {
-
-                        <li class="nav-item">
-                            <a class="nav-link menu-arrow" href="#sidebarSellCommercial" data-bs-toggle="collapse" role="button"
-                            aria-expanded="false" aria-controls="sidebarSellCommercial">
-                                <span class="nav-icon">
-                                    <iconify-icon icon="solar:gift-bold-duotone"></iconify-icon>
-                                </span>
-                                <span class="nav-text"> بازرگانی فروش </span>
-                            </a>
-                            <div class="collapse" id="sidebarSellCommercial">
+                            <div class="collapse" id="sidebarPMO">
                                 <ul class="nav sub-navbar-nav">
                                     <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("AddNewUser", "User")">
+                                        <form method="post" action="@Url.Action("ProductionOrderList", "ProductionOrder")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-
-                                                <span class="nav-text">بازرگانی فروش</span>
+                                                <span class="nav-text">سفارشات تولید</span>
                                             </button>
                                         </form>
                                     </li>
-
-
-
-
                                     <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("UserList", "User")">
+                                        <form method="post" action="@Url.Action("ProductionStepList", "ProductionStep")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-
-                                                <span class="nav-text">موجودی</span>
+                                                <span class="nav-text">مراحل تولید</span>
                                             </button>
                                         </form>
                                     </li>
-                        
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("ProductionOrderStepList", "ProductionOrderStep")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                <span class="nav-text">پیگیری مراحل سفارش</span>
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("ProductionSchedule", "Production")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                <span class="nav-text">برنامه‌ریزی تولید</span>
+                                            </button>
+                                        </form>
+                                    </li>
                                 </ul>
                             </div>
                         </li>
-
                     }
 
+                    <li class="menu-title">کیفیت</li>
 
-                                                            @if ((bool)ViewData["BuyCommercialMenu"])
+                    @if ((bool)ViewData["RandDMenu"])
                     {
-
-                        <li class="nav-item">
-                            <a class="nav-link menu-arrow" href="#sidebarBuyCommercial" data-bs-toggle="collapse" role="button"
-                            aria-expanded="false" aria-controls="sidebarBuyCommercial">
-                                <span class="nav-icon">
-                                    <iconify-icon icon="solar:case-bold-duotone"></iconify-icon>
-                                </span>
-                                <span class="nav-text"> بازرگانی خرید </span>
-                            </a>
-                            <div class="collapse" id="sidebarBuyCommercial">
-                                <ul class="nav sub-navbar-nav">
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("AddNewUser", "User")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-
-                                                <span class="nav-text">بازرگانی خرید</span>
-                                            </button>
-                                        </form>
-                                    </li>
-
-
-
-
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("UserList", "User")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-
-                                                <span class="nav-text">موجودی</span>
-                                            </button>
-                                        </form>
-                                    </li>
-                        
-                                </ul>
-                            </div>
-                        </li>
-
-                    }
-
-                                                         @if ((bool)ViewData["RandDMenu"])
-                    {
-
                         <li class="nav-item">
                             <a class="nav-link menu-arrow" href="#sidebarRandD" data-bs-toggle="collapse" role="button"
-                            aria-expanded="false" aria-controls="sidebarRandD">
+                               aria-expanded="false" aria-controls="sidebarRandD">
                                 <span class="nav-icon">
                                     <iconify-icon icon="solar:tuning-2-bold-duotone"></iconify-icon>
                                 </span>
@@ -737,36 +686,36 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                             <div class="collapse" id="sidebarRandD">
                                 <ul class="nav sub-navbar-nav">
                                     <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("AddNewUser", "User")">
+                                        <form method="post" action="@Url.Action("ResearchProjectList", "Research")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-
-                                                <span class="nav-text">تحقیق</span>
+                                                <span class="nav-text">پروژه‌های تحقیق</span>
                                             </button>
                                         </form>
                                     </li>
-
-
-
-
                                     <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("UserList", "User")">
+                                        <form method="post" action="@Url.Action("DevelopmentList", "Development")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-
-                                                <span class="nav-text">توسعه</span>
+                                                <span class="nav-text">فرایند توسعه</span>
                                             </button>
                                         </form>
                                     </li>
-                        
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("FormulaList", "Formula")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                <span class="nav-text">فرمول‌های جدید</span>
+                                            </button>
+                                        </form>
+                                    </li>
                                 </ul>
                             </div>
                         </li>
                     }
-                   @if ((bool)ViewData["QcMenu"])
-                    {
 
+                    @if ((bool)ViewData["QcMenu"])
+                    {
                         <li class="nav-item">
                             <a class="nav-link menu-arrow" href="#sidebarQC" data-bs-toggle="collapse" role="button"
-                            aria-expanded="false" aria-controls="sidebarQC">
+                               aria-expanded="false" aria-controls="sidebarQC">
                                 <span class="nav-icon">
                                     <iconify-icon icon="solar:checklist-bold-duotone"></iconify-icon>
                                 </span>
@@ -775,38 +724,36 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                             <div class="collapse" id="sidebarQC">
                                 <ul class="nav sub-navbar-nav">
                                     <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("AddNewUser", "User")">
+                                        <form method="post" action="@Url.Action("QCTestList", "QualityControl")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-
-                                                <span class="nav-text">کنترل کیفیت</span>
+                                                <span class="nav-text">آزمایشات کیفی</span>
                                             </button>
                                         </form>
                                     </li>
-
-
-
-
                                     <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("UserList", "User")">
+                                        <form method="post" action="@Url.Action("BatchTestList", "BatchTest")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-
-                                                <span class="nav-text">کنترل کیفیت</span>
+                                                <span class="nav-text">تست بچ‌ها</span>
                                             </button>
                                         </form>
                                     </li>
-                        
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("QCReportList", "QCReport")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                <span class="nav-text">گزارشات کنترل کیفیت</span>
+                                            </button>
+                                        </form>
+                                    </li>
                                 </ul>
                             </div>
                         </li>
                     }
 
-
-                          @if ((bool)ViewData["QaMenu"])
+                    @if ((bool)ViewData["QaMenu"])
                     {
-
                         <li class="nav-item">
                             <a class="nav-link menu-arrow" href="#sidebarQA" data-bs-toggle="collapse" role="button"
-                            aria-expanded="false" aria-controls="sidebarQA">
+                               aria-expanded="false" aria-controls="sidebarQA">
                                 <span class="nav-icon">
                                     <iconify-icon icon="solar:checklist-minimalistic-bold-duotone"></iconify-icon>
                                 </span>
@@ -815,195 +762,199 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                             <div class="collapse" id="sidebarQA">
                                 <ul class="nav sub-navbar-nav">
                                     <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("AddNewUser", "User")">
+                                        <form method="post" action="@Url.Action("QAStandardList", "QualityAssurance")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-
-                                                <span class="nav-text">کنترل کیفیت</span>
+                                                <span class="nav-text">استانداردهای کیفیت</span>
                                             </button>
                                         </form>
                                     </li>
-
-
-
-
                                     <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("UserList", "User")">
+                                        <form method="post" action="@Url.Action("QAAuditList", "QAAudit")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-
-                                                <span class="nav-text">کنترل کیفیت</span>
+                                                <span class="nav-text">ممیزی کیفیت</span>
                                             </button>
                                         </form>
                                     </li>
-                        
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("CertificationList", "Certification")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                <span class="nav-text">گواهی‌نامه‌ها</span>
+                                            </button>
+                                        </form>
+                                    </li>
                                 </ul>
                             </div>
                         </li>
                     }
 
-                          @if ((bool)ViewData["PmoMenu"])
-                    {
+                    <li class="menu-title">فروش و توزیع</li>
 
+                    @if ((bool)ViewData["SellCommercialMenu"])
+                    {
                         <li class="nav-item">
-                            <a class="nav-link menu-arrow" href="#sidebarPMO" data-bs-toggle="collapse" role="button"
-                            aria-expanded="false" aria-controls="sidebarPMO">
+                            <a class="nav-link menu-arrow" href="#sidebarSellCommercial" data-bs-toggle="collapse" role="button"
+                               aria-expanded="false" aria-controls="sidebarSellCommercial">
                                 <span class="nav-icon">
-                                    <iconify-icon icon="solar:document-text-bold-duotone"></iconify-icon>
+                                    <iconify-icon icon="solar:gift-bold-duotone"></iconify-icon>
                                 </span>
-                                <span class="nav-text"> PMO </span>
+                                <span class="nav-text"> فروش و توزیع </span>
                             </a>
-                            <div class="collapse" id="sidebarPMO">
+                            <div class="collapse" id="sidebarSellCommercial">
                                 <ul class="nav sub-navbar-nav">
                                     <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("ProductionOrderList", "ProductionOrder")">
+                                        <form method="post" action="@Url.Action("CustomerList", "Customer")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-
-                                                <span class="nav-text">برنامه ریزی تولید</span>
+                                                <span class="nav-text">مشتریان</span>
                                             </button>
                                         </form>
                                     </li>
-
-
                                     <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("ProductionStepList", "ProductionStep")">
+                                        <form method="post" action="@Url.Action("SalesOrderList", "SalesOrder")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-
-                                                <span class="nav-text">لیست مراحل تولید</span>
+                                                <span class="nav-text">سفارشات فروش</span>
                                             </button>
                                         </form>
                                     </li>
-
-                                    
-
-
-
-
-                           
-
                                     <li class="sub-nav-item">
-                                            <form method="post" action="@Url.Action("ProductionOrderStepList", "ProductionOrderStep")">
+                                        <form method="post" action="@Url.Action("SalesInvoiceList", "SalesInvoice")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-
-                                                <span class="nav-text">مراحل سفارش تولید</span>
+                                                <span class="nav-text">فاکتورهای فروش</span>
                                             </button>
                                         </form>
                                     </li>
-
-
-
                                     <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("MaterialBatchList", "MaterialBatch")">
+                                        <form method="post" action="@Url.Action("ShipmentList", "Shipment")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-
-                                                <span class="nav-text">لیست بچ‌های مواد اولیه</span>
+                                                <span class="nav-text">حمل و نقل</span>
                                             </button>
                                         </form>
                                     </li>
-
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("FinishedGoodsBatchList", "FinishedGoodsBatch")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-
-                                                <span class="nav-text">لیست بچ‌های محصول نهایی</span>
-                                            </button>
-                                        </form>
-                                    </li>
-
-
-
-                        
                                 </ul>
                             </div>
                         </li>
                     }
+
+                    <li class="menu-title">مالی</li>
+
+                    @if ((bool)ViewData["FinancialMenu"])
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link menu-arrow" href="#sidebarFinancial" data-bs-toggle="collapse" role="button"
+                               aria-expanded="false" aria-controls="sidebarFinancial">
+                                <span class="nav-icon">
+                                    <iconify-icon icon="solar:bill-list-bold-duotone"></iconify-icon>
+                                </span>
+                                <span class="nav-text"> مدیریت مالی </span>
+                            </a>
+                            <div class="collapse" id="sidebarFinancial">
+                                <ul class="nav sub-navbar-nav">
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("FinancialReport", "Financial")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                <span class="nav-text">گزارشات مالی</span>
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("PaymentList", "Payment")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                <span class="nav-text">پرداخت‌ها</span>
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("AccountingReport", "Accounting")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                <span class="nav-text">حسابداری</span>
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                    }
+
+                    <li class="menu-title">ارتباطات</li>
 
                     <li class="nav-item">
                         <a class="nav-link menu-arrow" href="#sidebarChat" data-bs-toggle="collapse" role="button"
-                        aria-expanded="false" aria-controls="sidebarChat">
+                           aria-expanded="false" aria-controls="sidebarChat">
                             <span class="nav-icon">
                                 <iconify-icon icon="solar:chat-round-bold-duotone"></iconify-icon>
                             </span>
-                            <span class="nav-text"> چت </span>
+                            <span class="nav-text"> چت و پیام‌رسانی </span>
                         </a>
                         <div class="collapse" id="sidebarChat">
                             <ul class="nav sub-navbar-nav">
                                 <li class="sub-nav-item">
                                     <form method="post" action="@Url.Action("Chat", "Chat")">
                                         <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-
-                                            <span class="nav-text">چت</span>
+                                            <span class="nav-text">چت </span>
                                         </button>
                                     </form>
                                 </li>
-
-
-
-
-                    
-                 
+                                <li class="sub-nav-item">
+                                    <form method="post" action="@Url.Action("NotificationList", "Notification")">
+                                        <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                            <span class="nav-text">اعلان‌ها</span>
+                                        </button>
+                                    </form>
+                                </li>
                             </ul>
                         </div>
                     </li>
 
-
-
-
-
+                    <li class="menu-title">تنظیمات</li>
 
                     @if ((bool)ViewData["SettingMenu"])
                     {
-                        
-                       <li class="nav-item">
-
-                        <a class="nav-link menu-arrow" href="#sidebarSetting" data-bs-toggle="collapse" role="button"
+                        <li class="nav-item">
+                            <a class="nav-link menu-arrow" href="#sidebarSetting" data-bs-toggle="collapse" role="button"
                                aria-expanded="false" aria-controls="sidebarSetting">
-                            <span class="nav-icon">
-                                <iconify-icon icon="solar:settings-bold-duotone"></iconify-icon>
-                            </span>
-                            <span class="nav-text"> تنظیمات </span>
-                        </a>
+                                <span class="nav-icon">
+                                    <iconify-icon icon="solar:settings-bold-duotone"></iconify-icon>
+                                </span>
+                                <span class="nav-text"> تنظیمات سیستم </span>
+                            </a>
                             <div class="collapse" id="sidebarSetting">
-                            <ul class="nav sub-navbar-nav">
-                                <li class="sub-nav-item">
-                                    <form method="post" action="@Url.Action("Setting", "Setting")">
-                                        <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-
-                                                <span class="nav-text">تنظیمات</span>
-                                        </button>
-                                    </form>
-                                </li>
-
+                                <ul class="nav sub-navbar-nav">
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("Setting", "Setting")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                <span class="nav-text">تنظیمات عمومی</span>
+                                            </button>
+                                        </form>
+                                    </li>
                                     <li class="sub-nav-item">
                                         <form method="post" action="@Url.Action("OrganizationList", "Organization")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-
-                                                <span class="nav-text">شرکت ها</span>
+                                                <span class="nav-text">مدیریت شرکت‌ها</span>
                                             </button>
                                         </form>
                                     </li>
-
                                     <li class="sub-nav-item">
                                         <form method="post" action="@Url.Action("UnitList", "Unit")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-
-                                                <span class="nav-text">واحد ها</span>
+                                                <span class="nav-text">واحدهای اندازه‌گیری</span>
                                             </button>
                                         </form>
                                     </li>
-                                
-
-
-                            </ul>
-                        </div>
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("UnitTypeList", "UnitType")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                <span class="nav-text">انواع واحد</span>
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
                         </li>
-                }
-                
-                
-           
-
-
-                              
+                    }
 
                 </ul>
+
+
+
             </div>
         </div>
 
@@ -1144,6 +1095,10 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
 
 
 
+
+
+
+
     <script src="/assets/js/app.js"></script>
     <script src="/assets/js/layout.js"></script>
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
@@ -1156,6 +1111,17 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
     <script src="/assets/libs/jsvectormap/maps/world.js"></script>
     <script src='/assets/js/pages/dashboard.js'></script>
     @RenderSection("Scripts", required: false)
+
+
+
+
+
+
+
+
+
+
+
 
 </body>
 

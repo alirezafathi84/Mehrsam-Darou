@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using static Mehrsam_Darou.Helper.Helper;
+using System.Text.Json;
 
 public class BaseController : Controller
 {
@@ -12,12 +13,7 @@ public class BaseController : Controller
     {
         _context = context;
     }
-    /// <summary>
-    /// Validates the user session and retrieves user information.
-    /// </summary>
-    /// <returns>
-    /// Returns the authenticated user if the session is valid; otherwise, returns null.
-    /// </returns>
+
     protected async Task<User> ValidateSessionAndGetUser()
     {
         var username = HttpContext.Session.GetString("Username");
@@ -45,9 +41,6 @@ public class BaseController : Controller
         return user;
     }
 
-    /// <summary>
-    /// Sets common view data for the layout (e.g., theme, full name, company name).
-    /// </summary>
     protected async Task SetCommonViewData(User user, Guid companyGuid)
     {
         var setting = await ReadSettingAsync(_context);
@@ -56,61 +49,182 @@ public class BaseController : Controller
         ViewData["IsMenuDark"] = setting?.IsMenuDark ?? false;
 
         ViewData["Fullname"] = " " + user.FirstName + " " + user.LastName;
-        ViewData["Avatar"] = user.AvatarImg == null ? "\\images\\users\\dummy-avatar.jpg" : user.AvatarImg;   //"\\images\\users\\avatar-7.jpg";
+        ViewData["Avatar"] = user.AvatarImg == null ? "\\images\\users\\dummy-avatar.jpg" : user.AvatarImg;
+
         // Fetch the company name
         var company = await _context.Organizations.FirstOrDefaultAsync(u => u.Id == companyGuid);
         ViewData["Company"] = company?.Name ?? "Unknown Company";
     }
 
-    /// <summary>
-    /// Reads application settings from the database.
-    /// </summary>
     private async Task<Setting> ReadSettingAsync(DarouAppContext context)
     {
         return await context.Settings.FirstOrDefaultAsync();
     }
 
-    /// <summary>
-    /// Verifies the user's password.
-    /// </summary>
     private bool VerifyPassword1(string hashedPassword, string providedPassword)
     {
-        // Implement your password verification logic here
         return VerifyPassword(hashedPassword, providedPassword);
     }
 
-    /// <summary>
-    /// This method is executed before every action in the controller to ensure the user is authenticated.
+    protected Guid? GetCurrentUserId()
+    {
+        var username = HttpContext.Session.GetString("Username");
+        if (!string.IsNullOrEmpty(username))
+        {
+            var user = _context.Users.FirstOrDefault(u => u.Username == username);
+            return user?.Id;
+        }
+        return null;
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> SaveMenuState([FromBody] MenuStateModel model)
+    {
+        try
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null)
+            {
+                return Json(new { success = false, message = "کاربر یافت نشد" });
+            }
+
+            var menuStateJson = JsonSerializer.Serialize(model.ExpandedMenus ?? new string[] { });
+            HttpContext.Session.SetString("MenuState", menuStateJson);
+
+            return Json(new { success = true });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, message = ex.Message });
+        }
+    }
+
+    [HttpGet]
+    public IActionResult GetMenuState()
+    {
+        try
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null)
+            {
+                return Json(new { success = false, expandedMenus = new string[] { } });
+            }
+
+            var menuStateJson = HttpContext.Session.GetString("MenuState");
+            var expandedMenus = new string[] { };
+
+            if (!string.IsNullOrEmpty(menuStateJson))
+            {
+                try
+                {
+                    expandedMenus = JsonSerializer.Deserialize<string[]>(menuStateJson) ?? new string[] { };
+                }
+                catch
+                {
+                    expandedMenus = new string[] { };
+                }
+            }
+
+            return Json(new { success = true, expandedMenus = expandedMenus });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, expandedMenus = new string[] { } });
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> SaveThemeSettings([FromBody] ThemeSettingsModel model)
+    {
+        try
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null)
+            {
+                return Json(new { success = false, message = "کاربر یافت نشد" });
+            }
+
+            var settings = await _context.Settings.FirstOrDefaultAsync(s => s.Id == userId);
+
+            if (settings == null)
+            {
+                settings = new Setting
+                {
+                    Id = userId.Value,
+                    NumberPerPage = 10
+                };
+                _context.Settings.Add(settings);
+            }
+
+            switch (model.ThemeMode?.ToLower())
+            {
+                case "dark":
+                    settings.DefaultColor = true;
+                    break;
+                case "light":
+                    settings.DefaultColor = false;
+                    break;
+            }
+
+            switch (model.TopbarColor?.ToLower())
+            {
+                case "dark":
+                    settings.IsNavDark = true;
+                    break;
+                case "light":
+                    settings.IsNavDark = false;
+                    break;
+            }
+
+            switch (model.MenuColor?.ToLower())
+            {
+                case "dark":
+                    settings.IsMenuDark = true;
+                    break;
+                case "light":
+                    settings.IsMenuDark = false;
+                    break;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, message = "تنظیمات با موفقیت ذخیره شد" });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, message = "خطا در ذخیره تنظیمات: " + ex.Message });
+        }
+    }
+
     public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
-        // Get the current action and controller names
         var actionName = context.ActionDescriptor.RouteValues["action"];
         var controllerName = context.ActionDescriptor.RouteValues["controller"];
 
-        // Skip the redirect for the Login action in the Client controller
-        if (controllerName == "Client" && actionName == "Login")
+        if (controllerName == "Client" && actionName == "Login" ||
+            (controllerName == "Base" && (actionName == "SaveMenuState" ||
+                                        actionName == "GetMenuState" ||
+                                        actionName == "SaveThemeSettings")))
         {
-            await next(); // Continue to the action without redirecting
+            await next();
             return;
         }
 
-        // Validate the session for all other actions
         var user = await ValidateSessionAndGetUser();
 
         if (user == null)
         {
-            // Redirect to login if the user is not authenticated
             context.Result = new RedirectToActionResult("Login", "Client", null);
             return;
         }
 
         var logEntries = await _context.UserEnterLogs
-            .Include(log => log.User) // Include the related User data
+            .Include(log => log.User)
+                .ThenInclude(u => u.Team)
             .OrderByDescending(log => log.CreatedDate)
-            .Take(50) // Limit to the last 50 entries
+            .Take(50)
             .ToListAsync();
 
-        // Pass the log entries to the layout
         ViewData["LogEntries"] = logEntries;
 
         var setting = await ReadSettingAsync(_context);
@@ -150,30 +264,32 @@ public class BaseController : Controller
             ViewData["PmoMenu"] = false;
         }
 
-
-        // Load unread notifications count for current user
         var unreadCount = await _context.Notifications
             .Where(n => !n.Seen && n.UserId == user.Id)
             .CountAsync();
 
-        // Load latest 10 notifications for current user
         var notifications = await _context.Notifications
             .Where(n => n.UserId == user.Id && !n.Seen)
             .OrderByDescending(n => n.CreatedDate)
             .Take(10)
             .ToListAsync();
 
-        // Pass notification data to the layout/views via ViewData
         ViewData["UnreadNotificationsCount"] = unreadCount;
         ViewData["Notifications"] = notifications;
 
-        // Continue to the action if the user is authenticated
         await next();
     }
+}
 
+public class MenuStateModel
+{
+    public string[] ExpandedMenus { get; set; } = new string[] { };
+}
 
-
-
-
-
+public class ThemeSettingsModel
+{
+    public string ThemeMode { get; set; } = "light";
+    public string TopbarColor { get; set; } = "light";
+    public string MenuColor { get; set; } = "light";
+    public string MenuSize { get; set; } = "default";
 }

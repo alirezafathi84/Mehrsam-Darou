@@ -1,0 +1,362 @@
+﻿@model Mehrsam_Darou.Models.PurchaseOrder
+@{
+    ViewData["Title"] = "افزودن سفارش خرید جدید";
+}
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Success and Error Alerts -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success px-2" role="alert">
+                        <p class="mb-0">با موفقیت انجام شد</p>
+                        <p class="mb-0">@TempData["SuccessMessage"]</p>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger px-2" role="alert">
+                        <p class="mb-0">خطا</p>
+                        <p class="mb-0">@TempData["ErrorMessage"]</p>
+                    </div>
+                }
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4>افزودن سفارش خرید جدید</h4>
+                    <a href="@Url.Action("PurchaseOrderList")" class="btn btn-secondary">
+                        <i class="bx bx-arrow-back me-1"></i> بازگشت به لیست
+                    </a>
+                </div>
+
+                <form asp-action="Add" id="purchaseOrderForm">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="PoNumber" class="form-label">شماره سفارش <span class="text-danger">*</span></label>
+                                <input asp-for="PoNumber" class="form-control" />
+                                <span asp-validation-for="PoNumber" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="SupplierId" class="form-label">تامین کننده <span class="text-danger">*</span></label>
+                                <select asp-for="SupplierId" class="form-select" asp-items="@(new SelectList(ViewBag.Suppliers, "SupplierId", "SupplierName"))">
+                                    <option value="">-- انتخاب تامین کننده --</option>
+                                </select>
+                                <span asp-validation-for="SupplierId" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="Status" class="form-label">وضعیت</label>
+                                <select asp-for="Status" class="form-select">
+                                    <option value="پیش‌نویس">پیش‌نویس</option>
+                                    <option value="ارسال شده">ارسال شده</option>
+                                    <option value="تایید شده">تایید شده</option>
+                                </select>
+                                <span asp-validation-for="Status" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="OrderDate" class="form-label">تاریخ سفارش <span class="text-danger">*</span></label>
+                                <input asp-for="OrderDate" type="date" class="form-control" />
+                                <span asp-validation-for="OrderDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="ExpectedDeliveryDate" class="form-label">تاریخ تحویل مورد انتظار</label>
+                                <input asp-for="ExpectedDeliveryDate" type="date" class="form-control" />
+                                <span asp-validation-for="ExpectedDeliveryDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="Currency" class="form-label">واحد پول</label>
+                                <select asp-for="Currency" class="form-select">
+                                    <option value="IRR">ریال</option>
+                                    <option value="USD">دلار</option>
+                                    <option value="EUR">یورو</option>
+                                </select>
+                                <span asp-validation-for="Currency" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label asp-for="Notes" class="form-label">توضیحات</label>
+                                <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+                                <span asp-validation-for="Notes" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-4">
+                        <div class="card-header bg-light-subtle">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">لیست اقلام</h5>
+                                <button type="button" class="btn btn-sm btn-primary" onclick="addNewItem()">
+                                    <i class="bx bx-plus me-1"></i> افزودن قلم
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table align-middle mb-0" id="itemsTable">
+                                    <thead class="bg-light-subtle">
+                                        <tr>
+                                            <th>کالا</th>
+                                            <th>مقدار</th>
+                                            <th>واحد</th>
+                                            <th>قیمت واحد</th>
+                                            <th>مبلغ کل</th>
+                                            <th>توضیحات</th>
+                                            <th>عملیات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="itemsTableBody">
+                                        <!-- Items will be added here dynamically -->
+                                        <tr id="noItemsRow">
+                                            <td colspan="7" class="text-center py-4">
+                                                <i class="bx bx-package text-muted fs-1"></i>
+                                                <p class="mt-2">هیچ قلمی اضافه نشده است</p>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="3"></td>
+                                            <td class="fw-bold">جمع کل:</td>
+                                            <td class="fw-bold" id="totalAmount">0 @Model.Currency</td>
+                                            <td colspan="2"></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bx bx-save me-1"></i> ذخیره سفارش
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // Counter for new items
+        let itemCounter = 0;
+
+        // Materials data for autocomplete
+        const materials = @Html.Raw(Json.Serialize(ViewBag.Materials));
+        const units = @Html.Raw(Json.Serialize(ViewBag.Units));
+
+        // Add new item row
+        function addNewItem(itemData) {
+            const noItemsRow = document.getElementById('noItemsRow');
+            if (noItemsRow) {
+                noItemsRow.remove();
+            }
+
+            const newId = itemData ? itemData.PoItemId : 'new-' + itemCounter++;
+
+            const newRow = document.createElement('tr');
+            newRow.id = 'item-' + newId;
+
+            newRow.innerHTML = `
+                <td>
+                    <select name="Items[${itemCounter}].MaterialId" class="form-select material-select" required>
+                        <option value="">-- انتخاب کالا --</option>
+                        ${materials.map(m =>
+                            `<option value="${m.materialId}"
+                              ${itemData && itemData.MaterialId === m.materialId ? 'selected' : ''}
+                              data-unit-id="${m.unitId}"
+                              data-unit-name="${m.unit.unitName}">
+                                ${m.materialName} (${m.materialCode})
+                            </option>`).join('')}
+                    </select>
+                    <input type="hidden" name="Items[${itemCounter}].PoItemId" value="${newId}" />
+                </td>
+                <td>
+                    <input type="number" name="Items[${itemCounter}].Quantity"
+                           class="form-control quantity" step="0.001" min="0.001"
+                           value="${itemData ? itemData.Quantity : ''}" required />
+                </td>
+                <td>
+                    <select name="Items[${itemCounter}].UnitId" class="form-select unit-select" required>
+                        ${units.map(u =>
+                            `<option value="${u.unitId}"
+                              ${itemData && itemData.UnitId === u.unitId ? 'selected' : ''}>
+                                ${u.unitName}
+                            </option>`).join('')}
+                    </select>
+                </td>
+                <td>
+                    <input type="number" name="Items[${itemCounter}].UnitPrice"
+                           class="form-control unit-price" step="0.0001" min="0"
+                           value="${itemData ? itemData.UnitPrice : ''}" required />
+                </td>
+                <td>
+                    <input type="number" name="Items[${itemCounter}].TotalPrice"
+                           class="form-control total-price" readonly
+                           value="${itemData ? itemData.TotalPrice : ''}" />
+                </td>
+                <td>
+                    <input type="text" name="Items[${itemCounter}].Notes"
+                           class="form-control"
+                           value="${itemData ? itemData.Notes : ''}" />
+                </td>
+                <td>
+                    <button type="button" class="btn btn-sm btn-danger" onclick="removeItem('${newId}')">
+                        <i class="bx bx-trash"></i>
+                    </button>
+                </td>
+            `;
+
+            document.getElementById('itemsTableBody').appendChild(newRow);
+
+            // Set initial unit if material is selected
+            const materialSelect = newRow.querySelector('.material-select');
+            if (itemData && itemData.MaterialId) {
+                const selectedOption = materialSelect.querySelector(`option[value="${itemData.MaterialId}"]`);
+                if (selectedOption) {
+                    const unitId = selectedOption.dataset.unitId;
+                    const unitSelect = newRow.querySelector('.unit-select');
+                    unitSelect.value = unitId;
+                }
+            }
+
+            // Add event listeners
+            addItemEventListeners(newRow);
+
+            // Calculate total if this is an edit
+            if (itemData) {
+                calculateRowTotal(newRow);
+            }
+
+            itemCounter++;
+        }
+
+        // Add event listeners to a row
+        function addItemEventListeners(row) {
+            const quantityInput = row.querySelector('.quantity');
+            const unitPriceInput = row.querySelector('.unit-price');
+            const materialSelect = row.querySelector('.material-select');
+            const unitSelect = row.querySelector('.unit-select');
+
+            quantityInput.addEventListener('input', () => calculateRowTotal(row));
+            unitPriceInput.addEventListener('input', () => calculateRowTotal(row));
+
+            materialSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                if (selectedOption && selectedOption.value) {
+                    const unitId = selectedOption.dataset.unitId;
+                    const unitName = selectedOption.dataset.unitName;
+                    unitSelect.value = unitId;
+                }
+            });
+        }
+
+        // Calculate total for a row
+        function calculateRowTotal(row) {
+            const quantity = parseFloat(row.querySelector('.quantity').value) || 0;
+            const unitPrice = parseFloat(row.querySelector('.unit-price').value) || 0;
+            const total = quantity * unitPrice;
+
+            row.querySelector('.total-price').value = total.toFixed(2);
+            calculateGrandTotal();
+        }
+
+        // Calculate grand total
+        function calculateGrandTotal() {
+            let grandTotal = 0;
+            document.querySelectorAll('.total-price').forEach(input => {
+                grandTotal += parseFloat(input.value) || 0;
+            });
+
+            document.getElementById('totalAmount').textContent =
+                grandTotal.toLocaleString() + ' ' + document.getElementById('Currency').value;
+        }
+
+        // Remove item row
+        function removeItem(id) {
+            const row = document.getElementById('item-' + id);
+            if (row) {
+                row.remove();
+            }
+
+            // Show "no items" row if table is empty
+            if (document.getElementById('itemsTableBody').rows.length === 0) {
+                const noItemsRow = document.createElement('tr');
+                noItemsRow.id = 'noItemsRow';
+                noItemsRow.innerHTML = `
+                    <td colspan="7" class="text-center py-4">
+                        <i class="bx bx-package text-muted fs-1"></i>
+                        <p class="mt-2">هیچ قلمی اضافه نشده است</p>
+                    </td>
+                `;
+                document.getElementById('itemsTableBody').appendChild(noItemsRow);
+            }
+
+            calculateGrandTotal();
+        }
+
+        // Initialize form
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add first empty row if no items exist
+            if (@Model.PurchaseOrderItems?.Count == 0) {
+                addNewItem();
+            }
+
+            // Add existing items for edit
+        @if (Model.PurchaseOrderItems != null)
+        {
+            foreach (var item in Model.PurchaseOrderItems)
+            {
+                @:addNewItem({
+                @:    PoItemId: '@item.PoItemId',
+                @:    MaterialId: '@item.MaterialId',
+                @:    Quantity: @item.Quantity,
+                @:    UnitId: '@item.UnitId',
+                @:    UnitPrice: @item.UnitPrice,
+                @:    TotalPrice: @item.TotalPrice,
+                @:    Notes: '@item.Notes'
+                @:});
+            }
+        }
+
+            // Form submission
+            document.getElementById('purchaseOrderForm').addEventListener('submit', function(e) {
+                // Validate at least one item
+                if (document.getElementById('noItemsRow') ||
+                    document.querySelectorAll('#itemsTableBody tr:not(#noItemsRow)').length === 0) {
+                    e.preventDefault();
+                    alert('لطفاً حداقل یک قلم به سفارش اضافه کنید');
+                    return false;
+                }
+
+                return true;
+            });
+        });
+    </script>
+}

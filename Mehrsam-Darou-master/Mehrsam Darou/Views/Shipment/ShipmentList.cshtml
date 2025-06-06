@@ -1,0 +1,385 @@
+﻿@using static Mehrsam_Darou.Helper.Helper
+@model PaginatedList<Mehrsam_Darou.Models.Shipment>
+@using System.Globalization
+
+@{
+    PersianCalendar pc = new PersianCalendar();
+    ViewData["Title"] = "لیست حمل و نقل";
+}
+
+<h2 class="mb-4">لیست حمل و نقل</h2>
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Success and Error Alerts -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success px-2" role="alert">
+                        <p class="mb-0">با موفقیت انجام شد</p>
+                        <p class="mb-0">@TempData["SuccessMessage"]</p>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger px-2" role="alert">
+                        <p class="mb-0">خطا</p>
+                        <p class="mb-0">@TempData["ErrorMessage"]</p>
+                    </div>
+                }
+
+                <div class="d-flex flex-wrap justify-content-between gap-3">
+                    <form method="get" asp-action="ShipmentList">
+                        <div class="search-bar">
+                            <span><i class="bx bx-search-alt"></i></span>
+                            <input type="search" name="searchKey" value="@Context.Request.Query["searchKey"]" class="form-control" placeholder="جستجو...">
+                        </div>
+                    </form>
+                    <div>
+                        <a href="@Url.Action("AddShipment")" class="btn btn-primary">
+                            <i class="bx bx-plus me-1"></i> حمل و نقل جدید
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0 table-hover table-centered">
+                        <thead class="bg-light-subtle">
+                            <tr>
+                                <th>شماره حمل و نقل</th>
+                                <th>مشتری</th>
+                                <th>سفارش فروش</th>
+                                <th>تاریخ ارسال</th>
+                                <th>شرکت حمل‌کننده</th>
+                                <th>شماره پیگیری</th>
+                                <th>هزینه حمل</th>
+                                <th>وضعیت</th>
+                                <th>تاریخ ایجاد</th>
+                                <th>اقدامات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Any())
+                            {
+                                foreach (var shipment in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm bg-light-subtle rounded me-2">
+                                                    <span class="avatar-title">
+                                                        <iconify-icon icon="solar:delivery-bold-duotone" class="fs-18"></iconify-icon>
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0 fw-medium">@shipment.ShipmentNumber</h6>
+                                                    @if (!string.IsNullOrEmpty(shipment.TrackingNumber))
+                                                    {
+                                                        <small class="text-muted">کد پیگیری: @shipment.TrackingNumber</small>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <h6 class="mb-0">@shipment.Customer?.CustomerName</h6>
+                                            @if (!string.IsNullOrEmpty(shipment.Customer?.CustomerCode))
+                                            {
+                                                <small class="text-muted">@shipment.Customer.CustomerCode</small>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (shipment.SalesOrder != null)
+                                            {
+                                                <span class="badge bg-info-subtle text-info">@shipment.SalesOrder.SoNumber</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                @pc.GetYear(shipment.ShipmentDate.ToDateTime(TimeOnly.MinValue))/@pc.GetMonth(shipment.ShipmentDate.ToDateTime(TimeOnly.MinValue)).ToString("00")/@pc.GetDayOfMonth(shipment.ShipmentDate.ToDateTime(TimeOnly.MinValue)).ToString("00")
+                                            </small>
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(shipment.Carrier))
+                                            {
+                                                <span class="badge bg-secondary-subtle text-secondary">@shipment.Carrier</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(shipment.TrackingNumber))
+                                            {
+                                                <code class="bg-light-subtle px-2 py-1 rounded">@shipment.TrackingNumber</code>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (shipment.ShippingCost.HasValue)
+                                            {
+                                                <span class="text-success fw-medium">@shipment.ShippingCost.Value.ToString("N0") ریال</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(shipment.Status))
+                                            {
+                                                @switch (shipment.Status)
+                                                {
+                                                    case "در حال آماده‌سازی":
+                                                        <span class="badge bg-warning">@shipment.Status</span>
+                                                        break;
+                                                    case "آماده":
+                                                        <span class="badge bg-info">@shipment.Status</span>
+                                                        break;
+                                                    case "ارسال شده":
+                                                        <span class="badge bg-primary">@shipment.Status</span>
+                                                        break;
+                                                    case "در حال حمل":
+                                                        <span class="badge bg-primary">@shipment.Status</span>
+                                                        break;
+                                                    case "تحویل داده شده":
+                                                        <span class="badge bg-success">@shipment.Status</span>
+                                                        break;
+                                                    case "برگشت داده شده":
+                                                        <span class="badge bg-warning">@shipment.Status</span>
+                                                        break;
+                                                    case "لغو شده":
+                                                        <span class="badge bg-danger">@shipment.Status</span>
+                                                        break;
+                                                    default:
+                                                        <span class="badge bg-secondary">@shipment.Status</span>
+                                                        break;
+                                                }
+                                            }
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                @pc.GetYear(shipment.CreatedDate)/@pc.GetMonth(shipment.CreatedDate).ToString("00")/@pc.GetDayOfMonth(shipment.CreatedDate).ToString("00")
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-2 justify-content-center">
+                                                <a href="@Url.Action("EditShipment", new { id = shipment.ShipmentId })" class="btn btn-soft-primary btn-sm" title="ویرایش">
+                                                    <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
+                                                </a>
+                                                <button type="button" class="btn btn-soft-info btn-sm"
+                                                        onclick="showShipmentDetails('@shipment.ShipmentId')"
+                                                        title="مشاهده جزئیات">
+                                                    <iconify-icon icon="solar:eye-broken" class="align-middle fs-18"></iconify-icon>
+                                                </button>
+                                                @if (!string.IsNullOrEmpty(shipment.TrackingNumber))
+                                                {
+                                                    <button type="button" class="btn btn-soft-warning btn-sm"
+                                                            onclick="trackShipment('@shipment.TrackingNumber', '@shipment.Carrier')"
+                                                            title="پیگیری">
+                                                        <iconify-icon icon="solar:route-bold-duotone" class="align-middle fs-18"></iconify-icon>
+                                                    </button>
+                                                }
+                                                @if (shipment.Status != "تحویل داده شده")
+                                                {
+                                                    <button type="button" class="btn btn-soft-danger btn-sm"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#deleteModal"
+                                                            data-bs-id="@shipment.ShipmentId"
+                                                            data-bs-name="@shipment.ShipmentNumber"
+                                                            title="حذف">
+                                                        <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
+                                                    </button>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="10" class="text-center py-4">
+                                        <i class="bx bx-package text-muted fs-1"></i>
+                                        <p class="mt-2">هیچ حمل و نقل‌ای یافت نشد.</p>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card-footer border-top">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-end mb-0">
+                        @if (Model.HasPreviousPage)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("ShipmentList", new { page = Model.PageIndex - 1, searchKey = Context.Request.Query["searchKey"] })">
+                                    <i class="bx bx-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                    <i class="bx bx-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("ShipmentList", new { page = i, searchKey = Context.Request.Query["searchKey"] })">@i</a>
+                            </li>
+                        }
+
+                        @if (Model.HasNextPage)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("ShipmentList", new { page = Model.PageIndex + 1, searchKey = Context.Request.Query["searchKey"] })">
+                                    <i class="bx bx-chevron-left"></i>
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                    <i class="bx bx-chevron-left"></i>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">حذف حمل و نقل</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <div class="modal-body">
+                <p>آیا از حذف این حمل و نقل مطمئن هستید؟</p>
+                <p id="shipmentNumberToDelete" class="fw-bold"></p>
+                <div class="alert alert-warning">
+                    <small><i class="bx bx-info-circle me-1"></i> حمل و نقل تحویل داده شده قابل حذف نیست.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <form id="deleteForm" method="post" asp-action="Delete">
+                    <input type="hidden" id="shipmentIdToDelete" name="id" />
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">حذف</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Shipment Details Modal -->
+<div class="modal fade" id="shipmentDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">جزئیات حمل و نقل</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <div class="modal-body" id="shipmentDetailsContent">
+                <!-- Shipment details will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tracking Modal -->
+<div class="modal fade" id="trackingModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">پیگیری مرسوله</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <div class="modal-body" id="trackingContent">
+                <!-- Tracking details will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var deleteModal = document.getElementById('deleteModal');
+            deleteModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                var shipmentId = button.getAttribute('data-bs-id');
+                var shipmentNumber = button.getAttribute('data-bs-name');
+
+                document.getElementById('shipmentNumberToDelete').textContent = shipmentNumber;
+                document.getElementById('shipmentIdToDelete').value = shipmentId;
+            });
+
+            // Auto-dismiss alerts after 5 seconds
+            setTimeout(function () {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function (alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+        });
+
+        function showShipmentDetails(shipmentId) {
+            var modal = new bootstrap.Modal(document.getElementById('shipmentDetailsModal'));
+            document.getElementById('shipmentDetailsContent').innerHTML =
+                '<div class="text-center"><div class="spinner-border" role="status"></div><p class="mt-2">در حال بارگذاری...</p></div>';
+            modal.show();
+
+            // Simulate loading details
+            setTimeout(function() {
+                document.getElementById('shipmentDetailsContent').innerHTML =
+                    '<p>جزئیات کامل حمل و نقل اینجا نمایش داده خواهد شد.</p>' +
+                    '<p>شامل آیتم‌های مرسوله، تاریخچه تغییرات و ...</p>';
+            }, 1000);
+        }
+
+        function trackShipment(trackingNumber, carrier) {
+            var modal = new bootstrap.Modal(document.getElementById('trackingModal'));
+            document.getElementById('trackingContent').innerHTML =
+                '<div class="text-center"><div class="spinner-border" role="status"></div><p class="mt-2">در حال بارگذاری اطلاعات پیگیری...</p></div>';
+            modal.show();
+
+            // Simulate tracking
+            setTimeout(function() {
+                document.getElementById('trackingContent').innerHTML =
+                    '<div class="text-center">' +
+                    '<h6>شماره پیگیری: <code>' + trackingNumber + '</code></h6>' +
+                    '<p>شرکت حمل‌کننده: <strong>' + carrier + '</strong></p>' +
+                    '<div class="alert alert-info">برای پیگیری دقیق‌تر به سایت ' + carrier + ' مراجعه کنید.</div>' +
+                    '</div>';
+            }, 1000);
+        }
+    </script>
+}

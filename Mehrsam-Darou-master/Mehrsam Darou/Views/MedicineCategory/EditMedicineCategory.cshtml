@@ -1,9 +1,7 @@
 ﻿@model Mehrsam_Darou.Models.MedicineCategory
-
 @{
     ViewData["Title"] = "ویرایش دسته بندی";
 }
-
 <div class="row">
     <div class="col-xl-12">
         <div class="card">
@@ -16,7 +14,6 @@
                         <p class="mb-0">@TempData["SuccessMessage"]</p>
                     </div>
                 }
-
                 @if (TempData["ErrorMessage"] != null)
                 {
                     <div class="alert alert-danger px-2" role="alert">
@@ -24,55 +21,52 @@
                         <p class="mb-0">@TempData["ErrorMessage"]</p>
                     </div>
                 }
-
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h4>ویرایش دسته بندی</h4>
                     <a href="@Url.Action("MedicineCategoryList")" class="btn btn-secondary">
                         <i class="bx bx-arrow-back me-1"></i> بازگشت به لیست
                     </a>
                 </div>
-
                 <form asp-action="EditMedicineCategory">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <input type="hidden" asp-for="CategoryId" />
-
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label asp-for="CategoryName" class="form-label"></label>
-                                <input asp-for="CategoryName" class="form-control" />
+                                <label asp-for="CategoryName" class="form-label">نام دسته بندی</label>
+                                <input asp-for="CategoryName" class="form-control" placeholder="نام دسته بندی را وارد کنید" />
                                 <span asp-validation-for="CategoryName" class="text-danger"></span>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label asp-for="IsActive" class="form-label"></label>
+                                <label asp-for="IsActive" class="form-label">وضعیت</label>
                                 <select asp-for="IsActive" class="form-select">
-                                    <option value="true">فعال</option>
-                                    <option value="false">غیرفعال</option>
+                                    <option value="true" selected="@(Model.IsActive == true ? "selected" : null)">فعال</option>
+                                    <option value="false" selected="@(Model.IsActive == false ? "selected" : null)">غیرفعال</option>
                                 </select>
                                 <span asp-validation-for="IsActive" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
-
                     <div class="mb-3">
-                        <label asp-for="Description" class="form-label"></label>
-                        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                        <label asp-for="Description" class="form-label">توضیحات</label>
+                        <textarea asp-for="Description" class="form-control" rows="3" placeholder="توضیحات دسته بندی را وارد کنید"></textarea>
                         <span asp-validation-for="Description" class="text-danger"></span>
                     </div>
-
                     <div class="mt-3">
                         <button type="submit" class="btn btn-primary">
                             <i class="bx bx-save me-1"></i> ذخیره تغییرات
                         </button>
+                        <a href="@Url.Action("MedicineCategoryList")" class="btn btn-outline-secondary ms-2">
+                            <i class="bx bx-x me-1"></i> انصراف
+                        </a>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
-
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");

@@ -4,18 +4,15 @@
 
 @{
     PersianCalendar pc = new PersianCalendar();
+    ViewData["Title"] = "مدیریت تیم‌ها";
 }
-@* @model IEnumerable<Mehrsam_Darou.Models.User> *@ <!-- Commented out, but ensure it's on its own line -->
 
-<h2>لیست تیم</h2>
-
+<h2>لیست تیم‌های سیستم</h2>
 
 <div class="row">
     <div class="col-xl-12">
         <div class="card">
-
             <div class="card-body">
-
                 <!-- Success and Error Alerts -->
                 @if (TempData["SuccessMessage"] != null)
                 {
@@ -33,49 +30,33 @@
                     </div>
                 }
 
-
                 <div class="d-flex flex-wrap justify-content-between gap-3">
-                    <form method="get" asp-action="Index">
+                    <form method="get" asp-action="TeamList">
                         <div class="search-bar">
                             <span><i class="bx bx-search-alt"></i></span>
                             <input type="search" name="SearchKey" value="@Context.Request.Query["SearchKey"]" class="form-control" placeholder="جستجو ..">
-                            @*   <button type="submit" class="btn btn-primary">جستجو</button> *@
                         </div>
                     </form>
                     <div>
-                        <a href="@Url.Action("AddNewTeam", "Team")" class="btn btn-primary">      <i class="bx bx-plus me-1"></i>جدید </a>
-
+                        <a href="@Url.Action("AddNewTeam", "Team")" class="btn btn-primary">
+                            <i class="bx bx-plus me-1"></i>جدید
+                        </a>
                     </div>
-
                 </div>
-
             </div>
-
-
 
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table align-middle mb-0 table-hover table-centered">
                         <thead class="bg-light-subtle">
                             <tr>
-
-                                <th>نام</th>
-                                <th>صفحه پیشفرض</th>
+                                <th>نام تیم</th>
+                                <th>صفحه پیش‌فرض</th>
                                 <th>وضعیت</th>
-                                <th>مدیریت</th>
-                                <th>تنظیمات</th>
-                                <th>کاربران</th>
-                                <th>مالی</th>
-                                <th>انبار</th>
-                                <th>تولید</th>
-                                <th>بازرگانی خرید</th>
-                                <th>بازرگانی فروش</th>
-                                <th>تحقیق و توسعه</th>
-                                <th>کنترل کیفیت</th>
-                                <th>تضمین کیفیت</th>
-                                <th>PMO</th>
+                                <th>سطوح دسترسی</th>
+                                <th>تاریخ ایجاد</th>
+                                <th>تاریخ ویرایش</th>
                                 <th>اقدامات</th>
-
                             </tr>
                         </thead>
                         <tbody>
@@ -84,211 +65,146 @@
                                 @foreach (var team in Model)
                                 {
                                     <tr>
-
-                                        <td>@team.Name</td>
-                                        <td>@team.DefaultPageForTeam</td>
                                         <td>
-
-                                            @{
-                                                if ((bool)(@team.IsActive))
-                                                {
-                                                    <span class="badge bg-warning text-white py-1 px-2">فعال</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-secondary text-white py-1 px-2">غیر فعال</span>
-                                                }
-
-                                            }
-
-
-
-
+                                            <div class="d-flex align-items-center">
+                                                <div class="flex-shrink-0">
+                                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 14px; font-weight: bold;">
+                                                        @team.Name.Substring(0, 1)
+                                                    </div>
+                                                </div>
+                                                <div class="flex-grow-1 ms-2">
+                                                    <h6 class="mb-0">@team.Name</h6>
+                                                </div>
+                                            </div>
                                         </td>
                                         <td>
-                                            @{
-                                                if ((bool)(@team.ManagmentDashboard))
-                                                {
-                                                    <span class="badge bg-warning text-white py-1 px-2">فعال</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-secondary text-white py-1 px-2">غیر فعال</span>
-                                                }
-
+                                            @if (!string.IsNullOrEmpty(team.DefaultPageForTeam))
+                                            {
+                                                <span class="text-muted">@team.DefaultPageForTeam</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">تعیین نشده</span>
                                             }
                                         </td>
                                         <td>
-                                            @{
-                                                if ((bool)(@team.Setting))
-                                                {
-                                                    <span class="badge bg-warning text-white py-1 px-2">فعال</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-secondary text-white py-1 px-2">غیر فعال</span>
-                                                }
-
+                                            @if (team.IsActive == true)
+                                            {
+                                                <span class="badge bg-success-subtle text-success py-1 px-2">فعال</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger-subtle text-danger py-1 px-2">غیرفعال</span>
                                             }
                                         </td>
                                         <td>
-                                            @{
-                                                if ((bool)(@team.SystemUsers))
+                                            <div class="d-flex flex-wrap gap-1">
+                                                @if (team.ManagmentDashboard == true)
                                                 {
-                                                    <span class="badge bg-warning text-white py-1 px-2">فعال</span>
+                                                    <span class="badge bg-warning-subtle text-warning py-1 px-2" title="مدیریت">مدیریت</span>
                                                 }
-                                                else
+                                                @if (team.Setting == true)
                                                 {
-                                                    <span class="badge bg-secondary text-white py-1 px-2">غیر فعال</span>
+                                                    <span class="badge bg-info-subtle text-info py-1 px-2" title="تنظیمات">تنظیمات</span>
                                                 }
-
-                                            }
-
-
-
+                                                @if (team.SystemUsers == true)
+                                                {
+                                                    <span class="badge bg-primary-subtle text-primary py-1 px-2" title="کاربران">کاربران</span>
+                                                }
+                                                @if (team.Financial == true)
+                                                {
+                                                    <span class="badge bg-success-subtle text-success py-1 px-2" title="مالی">مالی</span>
+                                                }
+                                                @if (team.Inventory == true)
+                                                {
+                                                    <span class="badge bg-secondary-subtle text-secondary py-1 px-2" title="انبار">انبار</span>
+                                                }
+                                                @if (team.Product == true)
+                                                {
+                                                    <span class="badge bg-dark-subtle text-dark py-1 px-2" title="محصولات">محصولات</span>
+                                                }
+                                                @if (team.SellCommercial == true)
+                                                {
+                                                    <span class="badge bg-success-subtle text-success py-1 px-2" title="فروش">فروش</span>
+                                                }
+                                                @if (team.BuyCommercial == true)
+                                                {
+                                                    <span class="badge bg-primary-subtle text-primary py-1 px-2" title="خرید">خرید</span>
+                                                }
+                                                @if (team.RandD == true)
+                                                {
+                                                    <span class="badge bg-info-subtle text-info py-1 px-2" title="تحقیق و توسعه">R&D</span>
+                                                }
+                                                @if (team.Qc == true)
+                                                {
+                                                    <span class="badge bg-warning-subtle text-warning py-1 px-2" title="کنترل کیفیت">QC</span>
+                                                }
+                                                @if (team.Qa == true)
+                                                {
+                                                    <span class="badge bg-success-subtle text-success py-1 px-2" title="تضمین کیفیت">QA</span>
+                                                }
+                                                @if (team.Pmo == true)
+                                                {
+                                                    <span class="badge bg-secondary-subtle text-secondary py-1 px-2" title="PMO">PMO</span>
+                                                }
+                                            </div>
                                         </td>
-                                        <td>
-                                            @{
-                                                if ((bool)(@team.Financial))
+                                        <td dir="ltr" align="right">
+                                         @*    @{
+                                                if (team.crea.HasValue)
                                                 {
-                                                    <span class="badge bg-warning text-white py-1 px-2">فعال</span>
+                                                    var date = team.DateCreated.Value;
+                                                    var persianDate = $"{pc.GetYear(date)}/{pc.GetMonth(date):00}/{pc.GetDayOfMonth(date):00} {date:HH:mm}";
+                                                    @persianDate
                                                 }
                                                 else
                                                 {
-                                                    <span class="badge bg-secondary text-white py-1 px-2">غیر فعال</span>
+                                                    <span class="text-muted">نامشخص</span>
                                                 }
-
-                                            }
+                                            } *@
                                         </td>
-
-                                        <td>
-                                            @{
-                                                if ((bool)(@team.Inventory))
+                                        <td dir="ltr" align="right">
+                                           @*  @{
+                                                if (team.DateModified.HasValue)
                                                 {
-                                                    <span class="badge bg-warning text-white py-1 px-2">فعال</span>
+                                                    var date = team.DateModified.Value;
+                                                    var persianDate = $"{pc.GetYear(date)}/{pc.GetMonth(date):00}/{pc.GetDayOfMonth(date):00} {date:HH:mm}";
+                                                    @persianDate
                                                 }
                                                 else
                                                 {
-                                                    <span class="badge bg-secondary text-white py-1 px-2">غیر فعال</span>
+                                                    <span class="text-muted">نامشخص</span>
                                                 }
-
-                                            }
-                                        </td>
-                                        <td>
-                                            @{
-                                                if ((bool)(@team.Product))
-                                                {
-                                                    <span class="badge bg-warning text-white py-1 px-2">فعال</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-secondary text-white py-1 px-2">غیر فعال</span>
-                                                }
-
-                                            }
-                                        </td>
-                                        <td>
-                                            @{
-                                                if ((bool)(@team.SellCommercial))
-                                                {
-                                                    <span class="badge bg-warning text-white py-1 px-2">فعال</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-secondary text-white py-1 px-2">غیر فعال</span>
-                                                }
-
-                                            }
-                                        </td>
-                                        <td>
-                                            @{
-                                                if ((bool)(@team.BuyCommercial))
-                                                {
-                                                    <span class="badge bg-warning text-white py-1 px-2">فعال</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-secondary text-white py-1 px-2">غیر فعال</span>
-                                                }
-
-                                            }
-                                        </td>
-                                        <td>
-                                            @{
-                                                if ((bool)(@team.RandD))
-                                                {
-                                                    <span class="badge bg-warning text-white py-1 px-2">فعال</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-secondary text-white py-1 px-2">غیر فعال</span>
-                                                }
-
-                                            }
-                                        </td>
-                                        <td>
-                                            @{
-                                                if ((bool)(@team.Qc))
-                                                {
-                                                    <span class="badge bg-warning text-white py-1 px-2">فعال</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-secondary text-white py-1 px-2">غیر فعال</span>
-                                                }
-
-                                            }
-                                        </td>
-                                        <td>
-                                            @{
-                                                if ((bool)(@team.Qa))
-                                                {
-                                                    <span class="badge bg-warning text-white py-1 px-2">فعال</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-secondary text-white py-1 px-2">غیر فعال</span>
-                                                }
-
-                                            }
-                                        </td>
-                                        <td>
-                                            @{
-                                                if ((bool)(@team.Pmo))
-                                                {
-                                                    <span class="badge bg-warning text-white py-1 px-2">فعال</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-secondary text-white py-1 px-2">غیر فعال</span>
-                                                }
-
-                                            }
+                                            } *@
                                         </td>
                                         <td>
                                             <div class="d-flex gap-2">
-
-                                                <a href="@Url.Action("EditTeam", "Team", new { id = team.Id })" class="btn btn-soft-primary btn-sm">
+                                                <button type="button" class="btn btn-light btn-sm" onclick="viewTeamDetails('@team.Id')" title="مشاهده جزئیات">
+                                                    <iconify-icon icon="solar:eye-broken" class="align-middle fs-18"></iconify-icon>
+                                                </button>
+                                                <a href="@Url.Action("EditTeam", "Team", new { id = team.Id })" class="btn btn-soft-primary btn-sm" title="ویرایش تیم">
                                                     <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
                                                 </a>
-                                                <form id="deleteUserForm_@team.Id" method="post" action="@Url.Action("DeleteTeam", "Team")" style="display:inline;">
+                                                <form id="deleteTeamForm_@team.Id" method="post" action="@Url.Action("DeleteTeam", "Team")" style="display:inline;">
                                                     <input type="hidden" name="id" value="@team.Id" />
-                                                    <button type="button" class="btn btn-soft-danger btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal_@team.Id">
+                                                    <button type="button" class="btn btn-soft-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal_@team.Id" title="حذف تیم">
                                                         <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
                                                     </button>
 
-
-                                                    <!-- Modal -->
-                                                    <div class="modal fade" id="exampleModal_@team.Id" tabindex="-1" aria-labelledby="exampleModalLabel_@team.Id" aria-hidden="true">
+                                                    <!-- Delete Modal -->
+                                                    <div class="modal fade" id="deleteModal_@team.Id" tabindex="-1" aria-labelledby="deleteModalLabel_@team.Id" aria-hidden="true">
                                                         <div class="modal-dialog">
                                                             <div class="modal-content">
                                                                 <div class="modal-header">
-                                                                    <h5 class="modal-title" id="exampleModalLabel_@team.Id">عنوان مودال</h5>
+                                                                    <h5 class="modal-title" id="deleteModalLabel_@team.Id">حذف تیم</h5>
                                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
                                                                 </div>
                                                                 <div class="modal-body">
-                                                                    <p>از حذف کردن این رکورد مطمئن هستید؟!</p>
-                                                                    <p>@team.Name</p>
+                                                                    <p>از حذف کردن این تیم مطمئن هستید؟!</p>
+                                                                    <p><strong>@team.Name</strong></p>
+                                                                    <div class="alert alert-warning">
+                                                                        <small>این عمل قابل برگشت نیست!</small>
+                                                                    </div>
                                                                 </div>
                                                                 <div class="modal-footer">
                                                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">بستن</button>
@@ -297,7 +213,6 @@
                                                             </div>
                                                         </div>
                                                     </div>
-
                                                 </form>
                                             </div>
                                         </td>
@@ -305,20 +220,33 @@
                                 }
 
                                 <script>
-                                    function confirmDelete(userId) {
+                                    function confirmDelete(teamId) {
                                         // Close the modal
-                                        var modal = new bootstrap.Modal(document.getElementById('exampleModal_' + userId));
+                                        var modal = new bootstrap.Modal(document.getElementById('deleteModal_' + teamId));
                                         modal.hide();
 
                                         // Submit the form after confirmation
-                                        document.getElementById('deleteTeamForm_' + userId).submit();
+                                        document.getElementById('deleteTeamForm_' + teamId).submit();
+                                    }
+
+                                    function viewTeamDetails(teamId) {
+                                        // Implement team details view
+                                        alert('نمایش جزئیات تیم - ID: ' + teamId);
                                     }
                                 </script>
                             }
                             else
                             {
                                 <tr>
-                                    <td colspan="8" class="text-center">No users found.</td>
+                                    <td colspan="7" class="text-center py-4">
+                                        <div class="text-muted">
+                                            <i class="bx bx-users-alt fs-24 mb-2"></i>
+                                            <p class="mb-2">هیچ تیمی یافت نشد</p>
+                                            <a href="@Url.Action("AddNewTeam", "Team")" class="btn btn-primary btn-sm">
+                                                <i class="bx bx-plus me-1"></i>تیم جدید
+                                            </a>
+                                        </div>
+                                    </td>
                                 </tr>
                             }
                         </tbody>
@@ -326,48 +254,65 @@
                 </div>
                 <!-- end table-responsive -->
             </div>
-            <div class="card-footer border-top">
-                <nav aria-label="Page navigation example">
-                    <ul class="pagination justify-content-end mb-0">
-                        @if (Model.HasPreviousPage)
-                        {
-                            <li class="page-item">
-                                <a class="page-link" href="@Url.Action("TeamList", new { page = Model.PageIndex - 1, SearchKey = Context.Request.Query["SearchKey"] })">قبلی</a>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">قبلی</a>
-                            </li>
-                        }
 
-                        @for (int i = 1; i <= Model.TotalPages; i++)
-                        {
-                            <li class="page-item @(i == Model.PageIndex ? "active" : "")">
-                                <a class="page-link" href="@Url.Action("TeamList", new { page = i, SearchKey = Context.Request.Query["SearchKey"] })">@i</a>
-                            </li>
-                        }
+            <!-- Pagination -->
+            @if (Model != null && Model.TotalPages > 1)
+            {
+                <div class="card-footer border-top">
+                    <nav aria-label="Page navigation example">
+                        <ul class="pagination justify-content-end mb-0">
+                            @if (Model.HasPreviousPage)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("TeamList", new { page = Model.PageIndex - 1, SearchKey = Context.Request.Query["SearchKey"] })">قبلی</a>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">قبلی</a>
+                                </li>
+                            }
 
-                        @if (Model.HasNextPage)
-                        {
-                            <li class="page-item">
-                                <a class="page-link" href="@Url.Action("TeamList", new { page = Model.PageIndex + 1, SearchKey = Context.Request.Query["SearchKey"] })">بعدی</a>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">بعدی</a>
-                            </li>
-                        }
-                    </ul>
+                            @for (int i = 1; i <= Model.TotalPages; i++)
+                            {
+                                <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                                    <a class="page-link" href="@Url.Action("TeamList", new { page = i, SearchKey = Context.Request.Query["SearchKey"] })">@i</a>
+                                </li>
+                            }
 
-                </nav>
-            </div>
+                            @if (Model.HasNextPage)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("TeamList", new { page = Model.PageIndex + 1, SearchKey = Context.Request.Query["SearchKey"] })">بعدی</a>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">بعدی</a>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+                </div>
+            }
         </div>
     </div>
 </div>
 
-
-
+@section Scripts {
+    <script>
+        // Auto-dismiss alerts
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function () {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function (alert) {
+                    if (alert.classList.contains('alert-success') || alert.classList.contains('alert-primary')) {
+                        alert.style.display = 'none';
+                    }
+                });
+            }, 5000);
+        });
+    </script>
+}

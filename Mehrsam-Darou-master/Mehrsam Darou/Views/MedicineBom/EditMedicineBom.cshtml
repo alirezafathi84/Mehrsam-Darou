@@ -1,0 +1,310 @@
+﻿@model Mehrsam_Darou.Models.MedicineBom
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+@{
+    ViewData["Title"] = "ویرایش فرمول دارو";
+}
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Success and Error Alerts -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success px-2" role="alert">
+                        <p class="mb-0">با موفقیت انجام شد</p>
+                        <p class="mb-0">@TempData["SuccessMessage"]</p>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger px-2" role="alert">
+                        <p class="mb-0">خطا</p>
+                        <p class="mb-0">@TempData["ErrorMessage"]</p>
+                    </div>
+                }
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4>ویرایش فرمول دارو</h4>
+                    <div class="d-flex gap-2">
+                        <a href="@Url.Action("MedicineBomList")" class="btn btn-secondary">
+                            <i class="bx bx-arrow-back me-1"></i> بازگشت به لیست
+                        </a>
+                        <button type="button" class="btn btn-info" onclick="showCurrentFormula()">
+                            <i class="bx bx-list-ul me-1"></i> فرمول کامل
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Current Formula Info -->
+                <div class="alert alert-info">
+                    <div class="d-flex align-items-center">
+                        <i class="bx bx-info-circle fs-4 me-2"></i>
+                        <div>
+                            <strong>فرمول فعلی:</strong> @Model.Medicine?.BrandName
+                            <i class="bx bx-right-arrow-alt mx-2"></i>
+                            @Model.Material?.MaterialName (@Model.Quantity.ToString("N6") @Model.Unit?.UnitSymbol)
+                        </div>
+                    </div>
+                </div>
+
+                <form asp-action="EditMedicineBom">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="BomId" />
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="MedicineId" class="form-label">دارو <span class="text-danger">*</span></label>
+                                <select asp-for="MedicineId" class="form-select" id="medicineSelect" disabled>
+                                    <option value="">-- انتخاب دارو --</option>
+                                    @foreach (var medicine in ViewBag.Medicines as List<SelectListItem>)
+                                    {
+                                        <option value="@medicine.Value" selected="@(medicine.Value == Model.MedicineId.ToString())">@medicine.Text</option>
+                                    }
+                                </select>
+                                <input type="hidden" asp-for="MedicineId" />
+                                <span asp-validation-for="MedicineId" class="text-danger"></span>
+                                <div class="form-text">
+                                    <i class="bx bx-lock me-1"></i>
+                                    دارو قابل تغییر نیست. برای تغییر دارو، فرمول جدید ایجاد کنید.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="MaterialId" class="form-label">ماده اولیه <span class="text-danger">*</span></label>
+                                <select asp-for="MaterialId" class="form-select" id="materialSelect" disabled>
+                                    <option value="">-- انتخاب ماده اولیه --</option>
+                                    @foreach (var material in ViewBag.Materials as List<SelectListItem>)
+                                    {
+                                        <option value="@material.Value" selected="@(material.Value == Model.MaterialId.ToString())">@material.Text</option>
+                                    }
+                                </select>
+                                <input type="hidden" asp-for="MaterialId" />
+                                <span asp-validation-for="MaterialId" class="text-danger"></span>
+                                <div class="form-text">
+                                    <i class="bx bx-lock me-1"></i>
+                                    ماده اولیه قابل تغییر نیست. برای تغییر ماده، فرمول جدید ایجاد کنید.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Quantity" class="form-label">مقدار <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input asp-for="Quantity" type="number" step="0.000001" min="0" class="form-control" placeholder="مقدار مورد نیاز را وارد کنید" />
+                                    <span class="input-group-text">
+                                        <i class="bx bx-calculator"></i>
+                                    </span>
+                                </div>
+                                <span asp-validation-for="Quantity" class="text-danger"></span>
+                                <div class="form-text">
+                                    <i class="bx bx-info-circle me-1"></i>
+                                    مقدار فعلی: <strong>@Model.Quantity.ToString("N6")</strong> @Model.Unit?.UnitSymbol
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="UnitId" class="form-label">واحد <span class="text-danger">*</span></label>
+                                <select asp-for="UnitId" class="form-select" id="unitSelect">
+                                    <option value="">-- انتخاب واحد --</option>
+                                    @foreach (var unit in ViewBag.Units as List<SelectListItem>)
+                                    {
+                                        <option value="@unit.Value" selected="@(unit.Value == Model.UnitId.ToString())">@unit.Text</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="UnitId" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="IsActive" class="form-label">وضعیت</label>
+                                <select asp-for="IsActive" class="form-select">
+                                    <option value="true">فعال</option>
+                                    <option value="false">غیرفعال</option>
+                                </select>
+                                <span asp-validation-for="IsActive" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="form-text mt-4">
+                                    <i class="bx bx-history me-1"></i>
+                                    <strong>نکته:</strong> تغییرات در فرمول روی تولیدات آینده تأثیر خواهد گذاشت
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Change Preview Section -->
+                    <div class="row" id="changePreviewSection" style="display: none;">
+                        <div class="col-12">
+                            <div class="card bg-warning-subtle">
+                                <div class="card-header bg-warning">
+                                    <h6 class="mb-0 text-white">پیش‌نمایش تغییرات</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="border-end">
+                                                <h6 class="text-muted">مقادیر فعلی</h6>
+                                                <div><strong>مقدار:</strong> @Model.Quantity.ToString("N6")</div>
+                                                <div><strong>واحد:</strong> @Model.Unit?.UnitName (@Model.Unit?.UnitSymbol)</div>
+                                                <div><strong>وضعیت:</strong> @(Model.IsActive == true ? "فعال" : "غیرفعال")</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6 class="text-success">مقادیر جدید</h6>
+                                            <div><strong>مقدار:</strong> <span id="newQuantity">-</span></div>
+                                            <div><strong>واحد:</strong> <span id="newUnit">-</span></div>
+                                            <div><strong>وضعیت:</strong> <span id="newStatus">-</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="bx bx-save me-1"></i> ذخیره تغییرات
+                        </button>
+                        <button type="button" class="btn btn-outline-info" onclick="updateChangePreview()">
+                            <i class="bx bx-show me-1"></i> پیش‌نمایش تغییرات
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Current Formula Modal -->
+<div class="modal fade" id="currentFormulaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">فرمول کامل دارو: @Model.Medicine?.BrandName</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <div class="modal-body" id="currentFormulaContent">
+                <!-- Current formula will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Monitor form changes
+            const formFields = ['Quantity', 'UnitId', 'IsActive'];
+            formFields.forEach(fieldName => {
+                const field = document.querySelector(`[name="${fieldName}"]`);
+                if (field) {
+                    field.addEventListener('change', updateChangePreview);
+                    field.addEventListener('input', updateChangePreview);
+                }
+            });
+
+            // Initial values
+            window.originalValues = {
+                quantity: @Model.Quantity,
+                unitId: '@Model.UnitId',
+                unitName: '@Model.Unit?.UnitName',
+                unitSymbol: '@Model.Unit?.UnitSymbol',
+                isActive: @Model.IsActive.ToString().ToLower()
+            };
+        });
+
+        function updateChangePreview() {
+            const quantityInput = document.querySelector('input[name="Quantity"]');
+            const unitSelect = document.querySelector('select[name="UnitId"]');
+            const statusSelect = document.querySelector('select[name="IsActive"]');
+            const previewSection = document.getElementById('changePreviewSection');
+
+            let hasChanges = false;
+
+            // Check for changes
+            if (parseFloat(quantityInput.value) !== window.originalValues.quantity ||
+                unitSelect.value !== window.originalValues.unitId ||
+                statusSelect.value !== window.originalValues.isActive.toString()) {
+                hasChanges = true;
+            }
+
+            if (hasChanges) {
+                document.getElementById('newQuantity').textContent = parseFloat(quantityInput.value).toFixed(6);
+                document.getElementById('newUnit').textContent = unitSelect.options[unitSelect.selectedIndex].text;
+                document.getElementById('newStatus').textContent = statusSelect.value === 'true' ? 'فعال' : 'غیرفعال';
+
+                previewSection.style.display = 'block';
+            } else {
+                previewSection.style.display = 'none';
+            }
+        }
+
+        function showCurrentFormula() {
+            var modal = new bootstrap.Modal(document.getElementById('currentFormulaModal'));
+            document.getElementById('currentFormulaContent').innerHTML =
+                '<div class="text-center"><div class="spinner-border" role="status"></div><p class="mt-2">در حال بارگذاری...</p></div>';
+            modal.show();
+
+            // Load current formula via AJAX
+            fetch('@Url.Action("GetMedicineFormula", new { medicineId = Model.MedicineId })')
+                .then(response => response.json())
+                .then(data => {
+                    let content = '<div class="table-responsive"><table class="table table-sm"><thead class="bg-light"><tr><th>ماده اولیه</th><th>کد</th><th>مقدار</th><th>واحد</th><th>وضعیت</th></tr></thead><tbody>';
+
+                    data.forEach((item, index) => {
+                        const isCurrentItem = item.materialCode === '@Model.Material?.MaterialCode';
+                        const rowClass = isCurrentItem ? 'table-warning' : '';
+                        const badge = isCurrentItem ? '<span class="badge bg-warning ms-2">در حال ویرایش</span>' : '';
+
+                        content += `<tr class="${rowClass}">
+                            <td>${item.materialName} ${badge}</td>
+                            <td><span class="badge bg-light text-dark">${item.materialCode}</span></td>
+                            <td><span class="fw-medium">${item.quantity}</span></td>
+                            <td><span class="badge bg-info-subtle text-info">${item.unitName} (${item.unitSymbol})</span></td>
+                            <td><span class="badge bg-success">فعال</span></td>
+                        </tr>`;
+                    });
+
+                    content += '</tbody></table></div>';
+
+                    if (data.length === 0) {
+                        content = '<div class="text-center py-4"><i class="bx bx-package text-muted fs-1"></i><p class="mt-2">فرمولی برای این دارو تعریف نشده است.</p></div>';
+                    }
+
+                    document.getElementById('currentFormulaContent').innerHTML = content;
+                })
+                .catch(error => {
+                    document.getElementById('currentFormulaContent').innerHTML =
+                        '<div class="text-center py-4 text-danger"><i class="bx bx-error fs-1"></i><p class="mt-2">خطا در بارگذاری اطلاعات</p></div>';
+                });
+        }
+
+        // Enhanced form validation
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const quantity = document.querySelector('input[name="Quantity"]').value;
+            if (quantity && parseFloat(quantity) <= 0) {
+                e.preventDefault();
+                alert('مقدار باید بیشتر از صفر باشد');
+                return false;
+            }
+        });
+    </script>
+}

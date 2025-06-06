@@ -1,0 +1,376 @@
+﻿@using static Mehrsam_Darou.Helper.Helper
+@model PaginatedList<Mehrsam_Darou.Models.Supplier>
+@using System.Globalization
+
+@{
+    PersianCalendar pc = new PersianCalendar();
+    ViewData["Title"] = "لیست تأمین‌کنندگان";
+}
+
+<h2 class="mb-4">لیست تأمین‌کنندگان</h2>
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Success and Error Alerts -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success px-2" role="alert">
+                        <p class="mb-0">با موفقیت انجام شد</p>
+                        <p class="mb-0">@TempData["SuccessMessage"]</p>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger px-2" role="alert">
+                        <p class="mb-0">خطا</p>
+                        <p class="mb-0">@TempData["ErrorMessage"]</p>
+                    </div>
+                }
+
+                <div class="d-flex flex-wrap justify-content-between gap-3">
+                    <form method="get" asp-action="SupplierList">
+                        <div class="search-bar">
+                            <span><i class="bx bx-search-alt"></i></span>
+                            <input type="search" name="searchKey" value="@Context.Request.Query["searchKey"]" class="form-control" placeholder="جستجو...">
+                        </div>
+                    </form>
+                    <div>
+                        <a href="@Url.Action("AddSupplier")" class="btn btn-primary">
+                            <i class="bx bx-plus me-1"></i> تأمین‌کننده جدید
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0 table-hover table-centered">
+                        <thead class="bg-light-subtle">
+                            <tr>
+                                <th>نام تأمین‌کننده</th>
+                                <th>کد تأمین‌کننده</th>
+                                <th>شخص رابط</th>
+                                <th>تلفن</th>
+                                <th>ایمیل</th>
+                                <th>مدت تحویل</th>
+                                <th>شرایط پرداخت</th>
+                                <th>وضعیت</th>
+                                <th>تاریخ ایجاد</th>
+                                <th>اقدامات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Any())
+                            {
+                                foreach (var supplier in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm bg-warning-subtle rounded me-2">
+                                                    <span class="avatar-title">
+                                                        <iconify-icon icon="solar:buildings-3-bold-duotone" class="fs-18"></iconify-icon>
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0 fw-medium">@supplier.SupplierName</h6>
+                                                    @if (!string.IsNullOrEmpty(supplier.ContactPerson))
+                                                    {
+                                                        <small class="text-muted">@supplier.ContactPerson</small>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><span class="badge bg-light text-dark">@supplier.SupplierCode</span></td>
+                                        <td>@supplier.ContactPerson</td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(supplier.Phone))
+                                            {
+                                                <a href="tel:@supplier.Phone" class="text-decoration-none">@supplier.Phone</a>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(supplier.Email))
+                                            {
+                                                <a href="mailto:@supplier.Email" class="text-decoration-none">@supplier.Email</a>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (supplier.LeadTimeDays.HasValue)
+                                            {
+                                                <span class="badge bg-info-subtle text-info">@supplier.LeadTimeDays روز</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(supplier.PaymentTerms))
+                                            {
+                                                <span class="badge bg-primary-subtle text-primary">@supplier.PaymentTerms</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (supplier.IsActive == true)
+                                            {
+                                                <span class="badge bg-success">فعال</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">غیرفعال</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                @pc.GetYear(supplier.CreatedDate)/@pc.GetMonth(supplier.CreatedDate).ToString("00")/@pc.GetDayOfMonth(supplier.CreatedDate).ToString("00")
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-2 justify-content-center">
+                                                <a href="@Url.Action("EditSupplier", new { id = supplier.SupplierId })" class="btn btn-soft-primary btn-sm" title="ویرایش">
+                                                    <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
+                                                </a>
+                                                <button type="button" class="btn btn-soft-info btn-sm"
+                                                        onclick="showSupplierDetails('@supplier.SupplierId')"
+                                                        title="مشاهده جزئیات">
+                                                    <iconify-icon icon="solar:eye-broken" class="align-middle fs-18"></iconify-icon>
+                                                </button>
+                                                <button type="button" class="btn btn-soft-danger btn-sm"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#deleteModal"
+                                                        data-bs-id="@supplier.SupplierId"
+                                                        data-bs-name="@supplier.SupplierName"
+                                                        title="حذف">
+                                                    <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="10" class="text-center py-4">
+                                        <i class="bx bx-buildings text-muted fs-1"></i>
+                                        <p class="mt-2">هیچ تأمین‌کننده‌ای یافت نشد.</p>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card-footer border-top">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-end mb-0">
+                        @if (Model.HasPreviousPage)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("SupplierList", new { page = Model.PageIndex - 1, searchKey = Context.Request.Query["searchKey"] })">
+                                    <i class="bx bx-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                    <i class="bx bx-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("SupplierList", new { page = i, searchKey = Context.Request.Query["searchKey"] })">@i</a>
+                            </li>
+                        }
+
+                        @if (Model.HasNextPage)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("SupplierList", new { page = Model.PageIndex + 1, searchKey = Context.Request.Query["searchKey"] })">
+                                    <i class="bx bx-chevron-left"></i>
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                    <i class="bx bx-chevron-left"></i>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">حذف تأمین‌کننده</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <div class="modal-body">
+                <p>آیا از حذف این تأمین‌کننده مطمئن هستید؟</p>
+                <p id="supplierNameToDelete" class="fw-bold"></p>
+                <div class="alert alert-warning">
+                    <small><i class="bx bx-info-circle me-1"></i> در صورت وجود سفارش خرید یا فاکتور خرید، امکان حذف وجود ندارد.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <form id="deleteForm" method="post" asp-action="Delete">
+                    <input type="hidden" id="supplierIdToDelete" name="id" />
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">حذف</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Supplier Details Modal -->
+<div class="modal fade" id="supplierDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">جزئیات تأمین‌کننده</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <div class="modal-body" id="supplierDetailsContent">
+                <!-- Supplier details will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var deleteModal = document.getElementById('deleteModal');
+            deleteModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                var supplierId = button.getAttribute('data-bs-id');
+                var supplierName = button.getAttribute('data-bs-name');
+
+                document.getElementById('supplierNameToDelete').textContent = supplierName;
+                document.getElementById('supplierIdToDelete').value = supplierId;
+            });
+
+            // Auto-dismiss alerts after 5 seconds
+            setTimeout(function () {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function (alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+        });
+
+        function showSupplierDetails(supplierId) {
+            var modal = new bootstrap.Modal(document.getElementById('supplierDetailsModal'));
+            document.getElementById('supplierDetailsContent').innerHTML =
+                '<div class="text-center"><div class="spinner-border" role="status"></div><p class="mt-2">در حال بارگذاری...</p></div>';
+            modal.show();
+
+            // Load supplier details via AJAX
+            fetch('@Url.Action("GetSupplierDetails")/' + supplierId)
+                .then(response => response.json())
+                .then(data => {
+                    let supplier = data.supplier;
+                    let stats = data.statistics;
+
+                    let content = `
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h6 class="fw-bold text-primary mb-3">اطلاعات کلی</h6>
+                                <table class="table table-borderless table-sm">
+                                    <tr><td class="fw-medium">نام:</td><td>${supplier.supplierName}</td></tr>
+                                    <tr><td class="fw-medium">کد:</td><td><span class="badge bg-light text-dark">${supplier.supplierCode}</span></td></tr>
+                                    <tr><td class="fw-medium">شخص رابط:</td><td>${supplier.contactPerson || '-'}</td></tr>
+                                    <tr><td class="fw-medium">تلفن:</td><td>${supplier.phone || '-'}</td></tr>
+                                    <tr><td class="fw-medium">ایمیل:</td><td>${supplier.email || '-'}</td></tr>
+                                    <tr><td class="fw-medium">شماره مالیاتی:</td><td>${supplier.taxNumber || '-'}</td></tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="fw-bold text-success mb-3">شرایط تجاری</h6>
+                                <table class="table table-borderless table-sm">
+                                    <tr><td class="fw-medium">شرایط پرداخت:</td><td>${supplier.paymentTerms || '-'}</td></tr>
+                                    <tr><td class="fw-medium">مدت تحویل:</td><td>${supplier.leadTimeDays ? supplier.leadTimeDays + ' روز' : '-'}</td></tr>
+                                    <tr><td class="fw-medium">وضعیت:</td><td><span class="badge ${supplier.isActive ? 'bg-success' : 'bg-secondary'}">${supplier.isActive ? 'فعال' : 'غیرفعال'}</span></td></tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <h6 class="fw-bold text-info mb-3">آمار فعالیت</h6>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="card bg-primary-subtle">
+                                            <div class="card-body text-center">
+                                                <h4 class="mb-1 text-primary">${stats.totalOrders}</h4>
+                                                <p class="mb-0 text-muted">سفارش خرید</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card bg-success-subtle">
+                                            <div class="card-body text-center">
+                                                <h4 class="mb-1 text-success">${stats.totalInvoices}</h4>
+                                                <p class="mb-0 text-muted">فاکتور خرید</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card bg-warning-subtle">
+                                            <div class="card-body text-center">
+                                                <h4 class="mb-1 text-warning">${stats.totalAmount.toLocaleString()}</h4>
+                                                <p class="mb-0 text-muted">مجموع خرید (ریال)</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        ${supplier.address ? `
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h6 class="fw-bold text-secondary mb-3">آدرس</h6>
+                                <div class="alert alert-light">
+                                    <i class="bx bx-map me-2"></i>${supplier.address}
+                                </div>
+                            </div>
+                        </div>
+                        ` : ''}
+                    `;
+
+                    document.getElementById('supplierDetailsContent').innerHTML = content;
+                })
+                .catch(error => {
+                    document.getElementById('supplierDetailsContent').innerHTML =
+                        '<div class="text-center py-4 text-danger"><i class="bx bx-error fs-1"></i><p class="mt-2">خطا در بارگذاری اطلاعات</p></div>';
+                });
+        }
+    </script>
+}

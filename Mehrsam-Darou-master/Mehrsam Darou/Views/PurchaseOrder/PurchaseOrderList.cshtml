@@ -1,0 +1,258 @@
+﻿@using static Mehrsam_Darou.Helper.Helper
+@model PaginatedList<Mehrsam_Darou.Models.PurchaseOrder>
+@using System.Globalization
+@using Microsoft.AspNetCore.Html
+
+@{
+    ViewData["Title"] = "لیست سفارشات خرید";
+}
+
+<h2 class="mb-4">لیست سفارشات خرید</h2>
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Success and Error Alerts -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success px-2" role="alert">
+                        <p class="mb-0">با موفقیت انجام شد</p>
+                        <p class="mb-0">@TempData["SuccessMessage"]</p>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger px-2" role="alert">
+                        <p class="mb-0">خطا</p>
+                        <p class="mb-0">@TempData["ErrorMessage"]</p>
+                    </div>
+                }
+
+                <div class="d-flex flex-wrap justify-content-between gap-3">
+                    <form method="get" asp-action="PurchaseOrderList">
+                        <div class="search-bar">
+                            <span><i class="bx bx-search-alt"></i></span>
+                            <input type="search" name="searchKey" value="@Context.Request.Query["searchKey"]" class="form-control" placeholder="جستجو...">
+                        </div>
+                    </form>
+                    <div>
+                        <a href="@Url.Action("AddPurchaseOrder")" class="btn btn-primary">
+                            <i class="bx bx-plus me-1"></i> سفارش جدید
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0 table-hover table-centered">
+                        <thead class="bg-light-subtle">
+                            <tr>
+                                <th>شماره سفارش</th>
+                                <th>تامین کننده</th>
+                                <th>تاریخ سفارش</th>
+                                <th>تاریخ تحویل</th>
+                                <th>مبلغ کل</th>
+                                <th>وضعیت</th>
+                                <th>تاریخ ایجاد</th>
+                                <th>اقدامات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Any())
+                            {
+                                foreach (var order in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            <span class="badge bg-light text-dark">@order.PoNumber</span>
+                                        </td>
+                                        <td>
+                                            @order.Supplier?.SupplierName
+                                        </td>
+                                        <td>
+                                            @if (order.OrderDate != null)
+                                            {
+                                                <small class="text-muted">
+                                                    @order.OrderDate.Year/@order.OrderDate.Month.ToString("00")/@order.OrderDate.Day.ToString("00")
+                                                </small>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (order.ExpectedDeliveryDate != null)
+                                            {
+                                                <small class="text-muted">
+                                                    @order.ExpectedDeliveryDate.Value.Year/@order.ExpectedDeliveryDate.Value.Month.ToString("00")/@order.ExpectedDeliveryDate.Value.Day.ToString("00")
+                                                </small>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (order.TotalAmount.HasValue)
+                                            {
+                                                <span class="text-success fw-medium">@order.TotalAmount.Value.ToString("N0") ریال</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @GetStatusBadge(order.Status)
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                @order.CreatedDate.Year/@order.CreatedDate.Month.ToString("00")/@order.CreatedDate.Day.ToString("00")
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-2 justify-content-center">
+                                                <a href="@Url.Action("EditPurchaseOrder", new { id = order.PurchaseOrderId })" class="btn btn-soft-primary btn-sm" title="ویرایش">
+                                                    <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
+                                                </a>
+                                                <a href="@Url.Action("ViewPurchaseOrder", new { id = order.PurchaseOrderId })" class="btn btn-soft-info btn-sm" title="مشاهده">
+                                                    <iconify-icon icon="solar:eye-broken" class="align-middle fs-18"></iconify-icon>
+                                                </a>
+                                                <button type="button" class="btn btn-soft-danger btn-sm"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#deleteModal"
+                                                        data-bs-id="@order.PurchaseOrderId"
+                                                        data-bs-number="@order.PoNumber"
+                                                        title="حذف">
+                                                    <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="8" class="text-center py-4">
+                                        <i class="bx bx-package text-muted fs-1"></i>
+                                        <p class="mt-2">هیچ سفارش خریدی یافت نشد.</p>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card-footer border-top">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-end mb-0">
+                        @if (Model.HasPreviousPage)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("PurchaseOrderList", new { page = Model.PageIndex - 1, searchKey = Context.Request.Query["searchKey"] })">
+                                    <i class="bx bx-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                    <i class="bx bx-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("PurchaseOrderList", new { page = i, searchKey = Context.Request.Query["searchKey"] })">@i</a>
+                            </li>
+                        }
+
+                        @if (Model.HasNextPage)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("PurchaseOrderList", new { page = Model.PageIndex + 1, searchKey = Context.Request.Query["searchKey"] })">
+                                    <i class="bx bx-chevron-left"></i>
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                    <i class="bx bx-chevron-left"></i>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">حذف سفارش خرید</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <div class="modal-body">
+                <p>آیا از حذف این سفارش خرید مطمئن هستید؟</p>
+                <p id="poNumberToDelete" class="fw-bold"></p>
+                <div class="alert alert-warning">
+                    <small><i class="bx bx-info-circle me-1"></i> در صورت وجود فاکتور خرید مرتبط، امکان حذف وجود ندارد.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <form id="deleteForm" method="post" asp-action="Delete">
+                    <input type="hidden" id="poIdToDelete" name="id" />
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">حذف</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    public IHtmlContent GetStatusBadge(string status)
+    {
+        var badgeClass = status switch
+        {
+            "پیش‌نویس" => "bg-secondary",
+            "ارسال شده" => "bg-info",
+            "تایید شده" => "bg-primary",
+            "دریافت جزئی" => "bg-warning",
+            "دریافت شده" => "bg-success",
+            "لغو شده" => "bg-danger",
+            _ => "bg-light text-dark"
+        };
+
+        return new HtmlString($"<span class=\"badge {badgeClass}\">{status}</span>");
+    }
+}
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var deleteModal = document.getElementById('deleteModal');
+            deleteModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                var poId = button.getAttribute('data-bs-id');
+                var poNumber = button.getAttribute('data-bs-number');
+
+                document.getElementById('poNumberToDelete').textContent = poNumber;
+                document.getElementById('poIdToDelete').value = poId;
+            });
+
+            // Auto-dismiss alerts after 5 seconds
+            setTimeout(function () {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function (alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+        });
+    </script>
+}

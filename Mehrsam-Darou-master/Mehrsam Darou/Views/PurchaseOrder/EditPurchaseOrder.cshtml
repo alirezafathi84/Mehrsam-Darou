@@ -1,0 +1,323 @@
+﻿@model Mehrsam_Darou.Models.PurchaseOrder
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "ویرایش سفارش خرید";
+    var itemsList = Model.PurchaseOrderItems.ToList(); // Convert to List to enable indexing
+    PersianCalendar pc = new PersianCalendar();
+}
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Success and Error Alerts -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success px-2" role="alert">
+                        <p class="mb-0">با موفقیت انجام شد</p>
+                        <p class="mb-0">@TempData["SuccessMessage"]</p>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger px-2" role="alert">
+                        <p class="mb-0">خطا</p>
+                        <p class="mb-0">@TempData["ErrorMessage"]</p>
+                    </div>
+                }
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4>ویرایش سفارش خرید</h4>
+                    <a href="@Url.Action("PurchaseOrderList")" class="btn btn-secondary">
+                        <i class="bx bx-arrow-back me-1"></i> بازگشت به لیست
+                    </a>
+                </div>
+
+                <form asp-action="EditPurchaseOrder">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="PurchaseOrderId" />
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="PoNumber" class="form-label">شماره سفارش <span class="text-danger">*</span></label>
+                                <input asp-for="PoNumber" class="form-control" readonly />
+                                <span asp-validation-for="PoNumber" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="SupplierId" class="form-label">تامین کننده <span class="text-danger">*</span></label>
+                                <select asp-for="SupplierId" class="form-select" asp-items="@(new SelectList(ViewBag.Suppliers, "SupplierId", "SupplierName"))">
+                                    <option value="">-- انتخاب تامین کننده --</option>
+                                </select>
+                                <span asp-validation-for="SupplierId" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="OrderDate" class="form-label">تاریخ سفارش <span class="text-danger">*</span></label>
+                                <input asp-for="OrderDate" type="date" class="form-control"
+                                       value="@Model.OrderDate.ToString("yyyy-MM-dd")" />
+                                <span asp-validation-for="OrderDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="ExpectedDeliveryDate" class="form-label">تاریخ تحویل مورد انتظار</label>
+                                <input asp-for="ExpectedDeliveryDate" type="date" class="form-control"
+                                       value="@(Model.ExpectedDeliveryDate?.ToString("yyyy-MM-dd"))" />
+                                <span asp-validation-for="ExpectedDeliveryDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="Currency" class="form-label">واحد پول</label>
+                                <select asp-for="Currency" class="form-select">
+                                    <option value="IRR">ریال</option>
+                                    <option value="USD">دلار</option>
+                                    <option value="EUR">یورو</option>
+                                </select>
+                                <span asp-validation-for="Currency" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="Status" class="form-label">وضعیت</label>
+                                <select asp-for="Status" class="form-select">
+                                    <option value="پیش‌نویس">پیش‌نویس</option>
+                                    <option value="ارسال شده">ارسال شده</option>
+                                    <option value="تایید شده">تایید شده</option>
+                                    <option value="دریافت جزئی">دریافت جزئی</option>
+                                    <option value="دریافت شده">دریافت شده</option>
+                                    <option value="لغو شده">لغو شده</option>
+                                </select>
+                                <span asp-validation-for="Status" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label asp-for="Notes" class="form-label">توضیحات</label>
+                                <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+                                <span asp-validation-for="Notes" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">موارد سفارش</h5>
+                            <button type="button" class="btn btn-sm btn-primary" id="addItemBtn">
+                                <i class="bx bx-plus me-1"></i> افزودن مورد
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div id="orderItemsContainer">
+                                @for (int i = 0; i < itemsList.Count; i++)
+                                {
+                                    var item = itemsList[i];
+                                    <div class="row item-row mb-3">
+                                        <input type="hidden" asp-for="@itemsList[i].PoItemId" />
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label class="form-label">ماده <span class="text-danger">*</span></label>
+                                                <select asp-for="@itemsList[i].MaterialId" class="form-select material-select"
+                                                        asp-items="@(new SelectList(ViewBag.Materials, "MaterialId", "MaterialName"))">
+                                                    <option value="">-- انتخاب ماده --</option>
+                                                </select>
+                                                <span asp-validation-for="@itemsList[i].MaterialId" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="mb-3">
+                                                <label class="form-label">مقدار <span class="text-danger">*</span></label>
+                                                <input asp-for="@itemsList[i].Quantity" type="number" step="0.001" class="form-control quantity" />
+                                                <span asp-validation-for="@itemsList[i].Quantity" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="mb-3">
+                                                <label class="form-label">واحد <span class="text-danger">*</span></label>
+                                                <select asp-for="@itemsList[i].UnitId" class="form-select unit-select"
+                                                        asp-items="@(new SelectList(ViewBag.Units, "UnitId", "UnitName"))">
+                                                    <option value="">-- انتخاب واحد --</option>
+                                                </select>
+                                                <span asp-validation-for="@itemsList[i].UnitId" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="mb-3">
+                                                <label class="form-label">قیمت واحد <span class="text-danger">*</span></label>
+                                                <input asp-for="@itemsList[i].UnitPrice" type="number" step="0.0001" class="form-control unit-price" />
+                                                <span asp-validation-for="@itemsList[i].UnitPrice" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <div class="mb-3">
+                                                <label class="form-label">جمع</label>
+                                                <input type="text" class="form-control total-price" readonly
+                                                       value="@((item.Quantity * item.UnitPrice).ToString("N2"))" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <div class="mb-3">
+                                                <label class="form-label">حذف</label>
+                                                <button type="button" class="btn btn-sm btn-danger w-100 remove-item">
+                                                    <i class="bx bx-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 offset-md-6">
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <tbody>
+                                        <tr>
+                                            <th>جمع کل:</th>
+                                            <td class="text-end" id="subtotal">@itemsList.Sum(poi => poi.Quantity * poi.UnitPrice).ToString("N0")</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bx bx-save me-1"></i> ذخیره تغییرات
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function() {
+            // Add new item row
+            $('#addItemBtn').click(function() {
+                var index = $('.item-row').length;
+                var newRow = `
+                    <div class="row item-row mb-3">
+                        <input type="hidden" name="PurchaseOrderItems[${index}].PoItemId" value="00000000-0000-0000-0000-000000000000" />
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">ماده <span class="text-danger">*</span></label>
+                                <select name="PurchaseOrderItems[${index}].MaterialId" class="form-select material-select">
+                                    <option value="">-- انتخاب ماده --</option>
+        @foreach (var material in ViewBag.Materials)
+        {
+                                            <option value="@material.MaterialId">@material.MaterialName</option>
+        }
+                                </select>
+                                <span class="text-danger field-validation-valid" data-valmsg-for="PurchaseOrderItems[${index}].MaterialId" data-valmsg-replace="true"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="mb-3">
+                                <label class="form-label">مقدار <span class="text-danger">*</span></label>
+                                <input name="PurchaseOrderItems[${index}].Quantity" type="number" step="0.001" class="form-control quantity" />
+                                <span class="text-danger field-validation-valid" data-valmsg-for="PurchaseOrderItems[${index}].Quantity" data-valmsg-replace="true"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="mb-3">
+                                <label class="form-label">واحد <span class="text-danger">*</span></label>
+                                <select name="PurchaseOrderItems[${index}].UnitId" class="form-select unit-select">
+                                    <option value="">-- انتخاب واحد --</option>
+        @foreach (var unit in ViewBag.Units)
+        {
+                                            <option value="@unit.UnitId">@unit.UnitName</option>
+        }
+                                </select>
+                                <span class="text-danger field-validation-valid" data-valmsg-for="PurchaseOrderItems[${index}].UnitId" data-valmsg-replace="true"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="mb-3">
+                                <label class="form-label">قیمت واحد <span class="text-danger">*</span></label>
+                                <input name="PurchaseOrderItems[${index}].UnitPrice" type="number" step="0.0001" class="form-control unit-price" />
+                                <span class="text-danger field-validation-valid" data-valmsg-for="PurchaseOrderItems[${index}].UnitPrice" data-valmsg-replace="true"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="mb-3">
+                                <label class="form-label">جمع</label>
+                                <input type="text" class="form-control total-price" readonly value="0" />
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="mb-3">
+                                <label class="form-label">حذف</label>
+                                <button type="button" class="btn btn-sm btn-danger w-100 remove-item">
+                                    <i class="bx bx-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                $('#orderItemsContainer').append(newRow);
+            });
+
+            // Remove item row
+            $(document).on('click', '.remove-item', function() {
+                $(this).closest('.item-row').remove();
+                calculateTotal();
+                reindexItems();
+            });
+
+            // Calculate total price when quantity or unit price changes
+            $(document).on('input', '.quantity, .unit-price', function() {
+                var row = $(this).closest('.item-row');
+                var quantity = parseFloat(row.find('.quantity').val()) || 0;
+                var unitPrice = parseFloat(row.find('.unit-price').val()) || 0;
+                var total = quantity * unitPrice;
+                row.find('.total-price').val(total.toFixed(2));
+                calculateTotal();
+            });
+
+            // Reindex items after adding or removing
+            function reindexItems() {
+                $('.item-row').each(function(index) {
+                    $(this).find('input, select').each(function() {
+                        var name = $(this).attr('name');
+                        if (name) {
+                            name = name.replace(/\[\d+\]/, '[' + index + ']');
+                            $(this).attr('name', name);
+                        }
+                    });
+                });
+            }
+
+            // Calculate subtotal
+            function calculateTotal() {
+                var subtotal = 0;
+                $('.item-row').each(function() {
+                    var quantity = parseFloat($(this).find('.quantity').val()) || 0;
+                    var unitPrice = parseFloat($(this).find('.unit-price').val()) || 0;
+                    subtotal += quantity * unitPrice;
+                });
+                $('#subtotal').text(subtotal.toLocaleString());
+            }
+        });
+    </script>
+}
