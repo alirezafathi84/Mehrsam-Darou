@@ -264,18 +264,46 @@ public class BaseController : Controller
             ViewData["PmoMenu"] = false;
         }
 
+        // Updated notification logic to include both user-specific and global notifications
         var unreadCount = await _context.Notifications
-            .Where(n => !n.Seen && n.UserId == user.Id)
+            .Where(n => !n.Seen && (n.UserId == user.Id || n.UserId == null))
             .CountAsync();
 
         var notifications = await _context.Notifications
-            .Where(n => n.UserId == user.Id && !n.Seen)
+            .Where(n => (n.UserId == user.Id || n.UserId == null) && !n.Seen)
             .OrderByDescending(n => n.CreatedDate)
             .Take(10)
             .ToListAsync();
 
+        // Get recent notifications (last 7 days) for notification dropdown
+        var recentNotifications = await _context.Notifications
+            .Where(n => (n.UserId == user.Id || n.UserId == null) &&
+                       n.CreatedDate >= DateTime.Now.AddDays(-7))
+            .OrderByDescending(n => n.CreatedDate)
+            .Take(15)
+            .ToListAsync();
+
+        // Get notification statistics for dashboard
+        var todayNotifications = await _context.Notifications
+            .Where(n => (n.UserId == user.Id || n.UserId == null) &&
+                       n.CreatedDate.Date == DateTime.Today)
+            .CountAsync();
+
+        var weekNotifications = await _context.Notifications
+            .Where(n => (n.UserId == user.Id || n.UserId == null) &&
+                       n.CreatedDate >= DateTime.Now.AddDays(-7))
+            .CountAsync();
+
+        // Group notifications by type for better organization
+        var notificationsByType = notifications.GroupBy(n => n.Type ?? "General")
+            .ToDictionary(g => g.Key, g => g.Count());
+
         ViewData["UnreadNotificationsCount"] = unreadCount;
         ViewData["Notifications"] = notifications;
+        ViewData["RecentNotifications"] = recentNotifications;
+        ViewData["TodayNotificationsCount"] = todayNotifications;
+        ViewData["WeekNotificationsCount"] = weekNotifications;
+        ViewData["NotificationsByType"] = notificationsByType;
 
         await next();
     }

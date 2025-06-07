@@ -68,115 +68,6 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                             </button>
                         </div>
 
-          @*               <!-- اعلان‌ها -->
-                        <div class="dropdown topbar-item">
-                            <button type="button" class="topbar-button position-relative"
-                            id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-haspopup="true"
-                            aria-expanded="false">
-                                <iconify-icon icon="solar:bell-bing-bold-duotone" class="fs-24 align-middle"></iconify-icon>
-                                <span class="position-absolute topbar-badge fs-10 translate-middle badge bg-danger rounded-pill">
-                                    3<span class="visually-hidden">پیام‌های خوانده نشده</span>
-                                </span>
-                            </button>
-                            <div class="dropdown-menu py-0 dropdown-lg dropdown-menu-end"
-                            aria-labelledby="page-header-notifications-dropdown">
-                                <div class="p-3 border-top-0 border-start-0 border-end-0 border-dashed border">
-                                    <div class="row align-items-center">
-                                        <div class="col">
-                                            <h6 class="m-0 fs-16 fw-semibold"> اعلان‌ها</h6>
-                                        </div>
-                                        <div class="col-auto">
-                                            <a href="javascript: void(0);" class="text-dark text-decoration-underline">
-                                                <small>پاک کردن همه</small>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div data-simplebar style="max-height: 280px;">
-                                    <!-- آیتم -->
-                                    <a href="javascript:void(0);" class="dropdown-item py-3 border-bottom text-wrap">
-                                        <div class="d-flex">
-                                            <div class="flex-shrink-0">
-                                                <img src="images/users/avatar-1.jpg"
-                                                class="img-fluid me-2 avatar-sm rounded-circle" alt="avatar-1" />
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <p class="mb-0">
-                                                    <span class="fw-medium">جوزفین تامپسون </span>در مورد پنل مدیر نظر داده
-                                                    <span>" وای 😍! این پنل مدیر عالی و طراحی جذاب است"</span>
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <!-- آیتم -->
-                                    <a href="javascript:void(0);" class="dropdown-item py-3 border-bottom">
-                                        <div class="d-flex">
-                                            <div class="flex-shrink-0">
-                                                <div class="avatar-sm me-2">
-                                                    <span class="avatar-title bg-soft-info text-info fs-20 rounded-circle">
-                                                        D
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <p class="mb-0 fw-semibold">دونوگویی سوزان</p>
-                                                <p class="mb-0 text-wrap">
-                                                    سلام، حال شما چطور است؟ جلسه بعدی ما چی؟
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <!-- آیتم -->
-                                    <a href="javascript:void(0);" class="dropdown-item py-3 border-bottom">
-                                        <div class="d-flex">
-                                            <div class="flex-shrink-0">
-                                                <img src="/images/users/avatar-3.jpg"
-                                                class="img-fluid me-2 avatar-sm rounded-circle" alt="avatar-3" />
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <p class="mb-0 fw-semibold">جیکوب گینس</p>
-                                                <p class="mb-0 text-wrap">پاسخ داد به کامنت شما در گراف پیش‌بینی جریان نقدی 🔔.</p>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <!-- آیتم -->
-                                    <a href="javascript:void(0);" class="dropdown-item py-3 border-bottom">
-                                        <div class="d-flex">
-                                            <div class="flex-shrink-0">
-                                                <div class="avatar-sm me-2">
-                                                    <span class="avatar-title bg-soft-warning text-warning fs-20 rounded-circle">
-                                                        <iconify-icon icon="iconamoon:comment-dots-duotone"></iconify-icon>
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <p class="mb-0 fw-semibold text-wrap">شما <b>20</b> پیام جدید در مکالمه دریافت کرده‌اید</p>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <!-- آیتم -->
-                                    <a href="javascript:void(0);" class="dropdown-item py-3 border-bottom">
-                                        <div class="d-flex">
-                                            <div class="flex-shrink-0">
-                                                <img src="/images/users/avatar-5.jpg"
-                                                class="img-fluid me-2 avatar-sm rounded-circle" alt="avatar-5" />
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <p class="mb-0 fw-semibold">شان بنچ</p>
-                                                <p class="mb-0 text-wrap">
-                                                    نظر داده در پنل مدیر
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-                                <div class="text-center py-3">
-                                    <a href="javascript:void(0);" class="btn btn-primary btn-sm">
-                                        مشاهده تمامی اعلان‌ها <i class="bx bx-left-arrow-alt ms-1"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div> *@
 
 
                         <!-- اعلان‌ها -->
@@ -193,47 +84,73 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                             </button>
                             <div class="dropdown-menu py-0 dropdown-lg dropdown-menu-end"
                                  aria-labelledby="page-header-notifications-dropdown">
-                                <div class="p-3 border-top-0 border-start-0 border-end-0 border-dashed border">
-                                    <div class="row align-items-center">
-                                        <div class="col">
-                                            <h6 class="m-0 fs-16 fw-semibold"> اعلان‌ها</h6>
-                                        </div>
-                                        <div class="col-auto">
-                                            <a href="javascript:void(0);" class="text-dark text-decoration-underline">
-                                                <small>پاک کردن همه</small>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
                                 <div data-simplebar style="max-height: 280px;">
                                     @if (ViewData["Notifications"] != null && ((List<Notification>)ViewData["Notifications"]).Any())
                                     {
                                         var notifications = (List<Notification>)ViewData["Notifications"];
                                         foreach (var n in notifications)
                                         {
-                                            <a href="@Url.Action("Noti", "Notification",new {notificationId = n.Id})" class="dropdown-item py-1 border-bottom text-wrap">
-                                                <div class="d-flex">
-                                                    <div class="flex-shrink-0">
-                                                        @* Use avatar url if available, otherwise fallback to default *@
-                                                        <img src="@(!string.IsNullOrEmpty(n.Img) ? n.Img : "images/users/dummy-avatar.jpg")"
-                                                             class="img-fluid me-2 avatar-sm rounded-circle"
-                                                             alt="avatar-@n.Id" />
+                                            @if (n.Type == "chat")
+                                            {
+                                                <!-- Chat notifications go to chat -->
+                                                <a href="@Url.Action("Noti", "Notification",new {notificationId = n.Id})" class="dropdown-item py-1 border-bottom text-wrap">
+                                                    <div class="d-flex">
+                                                        <div class="flex-shrink-0">
+                                                            @if (!string.IsNullOrEmpty(n.Img))
+                                                            {
+                                                                <img src="@n.Img" class="img-fluid me-2 avatar-sm rounded-circle" alt="avatar-@n.Id" />
+                                                            }
+                                                            else
+                                                            {
+                                                                <div class="avatar-sm me-2">
+                                                                    <span class="avatar-title rounded-circle bg-primary text-white">
+                                                                        <iconify-icon icon="solar:chat-round-dots-bold" class="fs-16"></iconify-icon>
+                                                                    </span>
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                        <div class="flex-grow-1">
+                                                            <p class="mb-0 fw-semibold">@n.Title</p>
+                                                            <p class="fs-12 mb-0 mt-1 text-wrap">@n.Message</p>
+                                                            @if (n.CreatedDate != null)
+                                                            {
+                                                                var date = n.CreatedDate;
+                                                                var persianDate = $"{pc1.GetYear(date)}/{pc1.GetMonth(date):00}/{pc1.GetDayOfMonth(date):00} {date.ToString("HH:mm")}";
+                                                                <p class="text-muted fs-12 mb-0 mt-1" style="text-align:left;">
+                                                                    <span dir="ltr">@persianDate</span>
+                                                                </p>
+                                                            }
+                                                        </div>
                                                     </div>
-                                                    <div class="flex-grow-1">
-                                                        <p class="mb-0 fw-semibold">@n.Title</p>
-                                                        <p class="fs-12 mb-0 mt-1 text-wrap">@n.Message</p>
-
-                                                        @if (n.CreatedDate != null)
-                                                        {
-                                                            var date = n.CreatedDate;
-                                                            var persianDate = $"{pc1.GetYear(date)}/{pc1.GetMonth(date):00}/{pc1.GetDayOfMonth(date):00} {date.ToString("HH:mm")}";
-                                                            <p class="text-muted fs-12 mb-0 mt-1" style="text-align:left;">
-                                                                <span dir="ltr">@persianDate</span>
-                                                            </p>
-                                                        }
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <!-- Other notifications go to notification list -->
+                                                <a href="@Url.Action("NotificationList", "Notification")" class="dropdown-item py-1 border-bottom text-wrap">
+                                                    <div class="d-flex">
+                                                        <div class="flex-shrink-0">
+                                                            <div class="avatar-sm me-2">
+                                                                <span class="avatar-title rounded-circle bg-primary text-white">
+                                                                    <iconify-icon icon="solar:bell-bold" class="fs-16"></iconify-icon>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex-grow-1">
+                                                            <p class="mb-0 fw-semibold">@n.Title</p>
+                                                            <p class="fs-12 mb-0 mt-1 text-wrap">@n.Message</p>
+                                                            @if (n.CreatedDate != null)
+                                                            {
+                                                                var date = n.CreatedDate;
+                                                                var persianDate = $"{pc1.GetYear(date)}/{pc1.GetMonth(date):00}/{pc1.GetDayOfMonth(date):00} {date.ToString("HH:mm")}";
+                                                                <p class="text-muted fs-12 mb-0 mt-1" style="text-align:left;">
+                                                                    <span dir="ltr">@persianDate</span>
+                                                                </p>
+                                                            }
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </a>
+                                                </a>
+                                            }
                                         }
                                     }
                                     else
@@ -242,25 +159,23 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                                     }
                                 </div>
                                 <div class="text-center py-3">
-
-                                    <form method="post" action="@Url.Action("Chat", "Chat")">
-                                        <button type="submit" class="btn btn-primary btn-sm">
-
-                                                ورود به صفحه چت <i class="bx bx-left-arrow-alt ms-1"></i>
-                                        
-                                        </button>
-
-                                    </form>
-
-
-                           
-
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <a href="@Url.Action("NotificationList", "Notification")" class="btn btn-primary btn-sm">
+                                                <i class="bx bx-list-ul me-1"></i>
+                                                مشاهده همه
+                                            </a>
+                                        </div>
+                                        <div class="col-6">
+                                            <a href="@Url.Action("Chat", "Chat")" class="btn btn-outline-primary btn-sm">
+                                                <i class="bx bx-chat me-1"></i>
+                                                چت
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    
-
-
 
 
                         <!-- تنظیمات تم -->
@@ -426,7 +341,7 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
             </button>
 
             <div class="scrollbar" data-simplebar>
-          
+
                 <ul class="navbar-nav" id="navbar-nav">
 
                     <li class="menu-title">عمومی</li>
@@ -475,6 +390,67 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                                         <form method="post" action="@Url.Action("TeamList", "Team")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
                                                 <span class="nav-text">مدیریت تیم‌ها</span>
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                    }
+
+                    <li class="menu-title">منابع انسانی</li>
+
+                    @if ((bool)ViewData["SystemUsersMenu"])
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link menu-arrow" href="#sidebarHR" data-bs-toggle="collapse" role="button"
+                               aria-expanded="false" aria-controls="sidebarHR">
+                                <span class="nav-icon">
+                                    <iconify-icon icon="solar:user-id-bold-duotone"></iconify-icon>
+                                </span>
+                                <span class="nav-text"> منابع انسانی </span>
+                            </a>
+                            <div class="collapse" id="sidebarHR">
+                                <ul class="nav sub-navbar-nav">
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("AttendanceLogList", "AttendanceLog")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                <span class="nav-text">ثبت ورود و خروج</span>
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("DailyAttendanceList", "DailyAttendance")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                <span class="nav-text">گزارش حضور و غیاب</span>
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("SalaryInfoList", "Salary")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                <span class="nav-text">مدیریت حقوق</span>
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("VacationList", "Vacation")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                <span class="nav-text">مرخصی‌ها</span>
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("VacationTypeList", "VacationType")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                <span class="nav-text">انواع مرخصی</span>
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("UserStatusList", "UserStatus")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                <span class="nav-text">وضعیت کاربران</span>
                                             </button>
                                         </form>
                                     </li>
@@ -952,7 +928,6 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                     }
 
                 </ul>
-
 
 
             </div>

@@ -1,0 +1,479 @@
+﻿@model Mehrsam_Darou.Models.DailyAttendance
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+@{
+    ViewData["Title"] = "ویرایش حضور روزانه";
+}
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Success and Error Alerts -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success px-2" role="alert">
+                        <p class="mb-0">با موفقیت انجام شد</p>
+                        <p class="mb-0">@TempData["SuccessMessage"]</p>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger px-2" role="alert">
+                        <p class="mb-0">خطا</p>
+                        <p class="mb-0">@TempData["ErrorMessage"]</p>
+                    </div>
+                }
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4>ویرایش حضور روزانه</h4>
+                    <a href="@Url.Action("DailyAttendanceList")" class="btn btn-secondary">
+                        <i class="bx bx-arrow-back me-1"></i> بازگشت به لیست
+                    </a>
+                </div>
+
+                <form asp-action="EditDailyAttendance">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="UserId" class="form-label">کاربر <span class="text-danger">*</span></label>
+                                <select asp-for="UserId" asp-items="@(ViewBag.Users as IEnumerable<SelectListItem>)" class="form-select">
+                                    <option value="">-- انتخاب کاربر --</option>
+                                </select>
+                                <span asp-validation-for="UserId" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Date" class="form-label">تاریخ <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input asp-for="Date" type="date" class="form-control" id="dateInput" />
+                                    <button type="button" class="btn btn-outline-secondary" onclick="openPersianDatePicker()">
+                                        <i class="bx bx-calendar"></i>
+                                    </button>
+                                </div>
+                                <span asp-validation-for="Date" class="text-danger"></span>
+                                <!-- Persian Date Display -->
+                                <small class="text-muted mt-1 d-block" id="persianDateDisplay"></small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="FirstEntryTime" class="form-label">زمان ورود</label>
+                                <input asp-for="FirstEntryTime" type="time" class="form-control" />
+                                <span asp-validation-for="FirstEntryTime" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="LastExitTime" class="form-label">زمان خروج</label>
+                                <input asp-for="LastExitTime" type="time" class="form-control" />
+                                <span asp-validation-for="LastExitTime" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="TotalHours" class="form-label">مجموع ساعات</label>
+                                <input asp-for="TotalHours" type="number" step="0.25" min="0" max="24" class="form-control" placeholder="8.5" />
+                                <span asp-validation-for="TotalHours" class="text-danger"></span>
+                                <small class="form-text text-muted">مثال: 8.5 برای 8 ساعت و 30 دقیقه</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Status" class="form-label">وضعیت <span class="text-danger">*</span></label>
+                                <select asp-for="Status" class="form-select">
+                                    <option value="Present">حاضر</option>
+                                    <option value="Absent">غایب</option>
+                                    <option value="Vacation">مرخصی</option>
+                                    <option value="Mission">ماموریت</option>
+                                    <option value="Holiday">تعطیل</option>
+                                </select>
+                                <span asp-validation-for="Status" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="IsWorkingDay" class="form-label">نوع روز</label>
+                                <select asp-for="IsWorkingDay" class="form-select">
+                                    <option value="true">روز کاری</option>
+                                    <option value="false">روز غیرکاری</option>
+                                </select>
+                                <span asp-validation-for="IsWorkingDay" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="PersianDate" class="form-label">تاریخ شمسی</label>
+                                <input asp-for="PersianDate" class="form-control" readonly />
+                                <span asp-validation-for="PersianDate" class="text-danger"></span>
+                                <small class="form-text text-muted">بر اساس تاریخ خودکار محاسبه می‌شود</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Persian Date Picker Modal -->
+                    <div class="modal fade" id="persianDateModal" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">انتخاب تاریخ شمسی</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <label class="form-label">سال</label>
+                                            <select id="persianYear" class="form-select">
+                                                <!-- Will be populated by JavaScript -->
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">ماه</label>
+                                            <select id="persianMonth" class="form-select">
+                                                <option value="1">فروردین</option>
+                                                <option value="2">اردیبهشت</option>
+                                                <option value="3">خرداد</option>
+                                                <option value="4">تیر</option>
+                                                <option value="5">مرداد</option>
+                                                <option value="6">شهریور</option>
+                                                <option value="7">مهر</option>
+                                                <option value="8">آبان</option>
+                                                <option value="9">آذر</option>
+                                                <option value="10">دی</option>
+                                                <option value="11">بهمن</option>
+                                                <option value="12">اسفند</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">روز</label>
+                                            <select id="persianDay" class="form-select">
+                                                <!-- Will be populated by JavaScript -->
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary" onclick="setPersianDate()">تایید</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Display creation info -->
+                    @if (Model.DateCreated.HasValue)
+                    {
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="alert alert-info">
+                                    <small>
+                                        <i class="bx bx-info-circle me-1"></i>
+                                        تاریخ ایجاد: @Model.DateCreated.Value.ToString("yyyy/MM/dd HH:mm:ss")
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bx bx-save me-1"></i> ذخیره تغییرات
+                        </button>
+                        <button type="button" class="btn btn-info ms-2" onclick="calculateHours()">
+                            <i class="bx bx-calculator me-1"></i> محاسبه ساعات
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // Persian calendar functions
+        const persianMonthNames = [
+            'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
+            'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'
+        ];
+
+        function isLeapYear(year) {
+            const breaks = [
+                -61, 9, 38, 199, 426, 686, 756, 818, 1111, 1181, 1210,
+                1635, 2060, 2097, 2192, 2262, 2324, 2394, 2456, 3178
+            ];
+            const jp = breaks.length;
+            let jump = 0;
+            for (let j = 1; j < jp; j++) {
+                const jm = breaks[j];
+                jump = jm - breaks[j - 1];
+                if (year < jm) break;
+            }
+            let n = year - breaks[jp - 1];
+            if (n < jump) {
+                n = n - Math.floor(n / 33) * 33;
+                return ((n % 4) === 1);
+            }
+            return false;
+        }
+
+        function getDaysInMonth(year, month) {
+            if (month <= 6) return 31;
+            if (month <= 11) return 30;
+            return isLeapYear(year) ? 30 : 29;
+        }
+
+        function persianToGregorian(jy, jm, jd) {
+            const PERSIAN_EPOCH = 1948321;
+            let epyear = jy - 979;
+            let epbase;
+            if (epyear >= 0) {
+                epbase = epyear;
+            } else {
+                epbase = epyear - 128;
+            }
+            let epochAux = Math.floor(epbase / 128);
+            let aux1 = (epbase % 128);
+            let aux2;
+            if (aux1 >= 29) {
+                aux2 = Math.floor(aux1 / 33);
+                aux1 = (aux1 % 33);
+            } else {
+                aux2 = 0;
+            }
+            let jday = PERSIAN_EPOCH - 1 + 365 * jy + Math.floor(epyear / 33) * 8 + Math.floor((aux1 + 3) / 4);
+            for (let i = 1; i < jm; i++) {
+                jday += getDaysInMonth(jy, i);
+            }
+            jday += jd;
+
+            // Convert Julian day to Gregorian
+            let l = jday + 68569;
+            let n = Math.floor((4 * l) / 146097);
+            l = l - Math.floor((146097 * n + 3) / 4);
+            let i = Math.floor((4000 * (l + 1)) / 1461001);
+            l = l - Math.floor((1461 * i) / 4) + 31;
+            let j = Math.floor((80 * l) / 2447);
+            let d = l - Math.floor((2447 * j) / 80);
+            l = Math.floor(j / 11);
+            let m = j + 2 - (12 * l);
+            let y = 100 * (n - 49) + i + l;
+
+            return new Date(y, m - 1, d);
+        }
+
+        function gregorianToPersian(date) {
+            const gy = date.getFullYear();
+            const gm = date.getMonth() + 1;
+            const gd = date.getDate();
+
+            let jy, jm, jd;
+            if (gy <= 1600) {
+                jy = 0; jm = 1; jd = 1;
+                let gy2 = gy + 1;
+                let days = 365 * gy + Math.floor((gy2 + 3) / 4) - Math.floor((gy2 + 99) / 100) + Math.floor((gy2 + 399) / 400) - 80 + gd + [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334][gm - 1];
+                if (gm > 2) days += Math.floor(gy2 / 4) - Math.floor(gy2 / 100) + Math.floor(gy2 / 400) - Math.floor(gy / 4) + Math.floor(gy / 100) - Math.floor(gy / 400);
+                gy2 = 1600;
+                days -= 365 * 1600 + Math.floor(1600 / 4) - Math.floor(1600 / 100) + Math.floor(1600 / 400);
+            } else {
+                gy2 = gy;
+                let days = 365 * gy + Math.floor((gy2 + 3) / 4) - Math.floor((gy2 + 99) / 100) + Math.floor((gy2 + 399) / 400) - 80 + gd + [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334][gm - 1];
+                if (gm > 2) days += Math.floor(gy2 / 4) - Math.floor(gy2 / 100) + Math.floor(gy2 / 400) - Math.floor(gy / 4) + Math.floor(gy / 100) - Math.floor(gy / 400);
+                days -= 365 * 1600 + Math.floor(1600 / 4) - Math.floor(1600 / 100) + Math.floor(1600 / 400);
+            }
+
+            jy = Math.floor(days / 365.25);
+            days %= Math.floor(365.25 * jy);
+            if (days < 186) {
+                jm = 1 + Math.floor(days / 31);
+                jd = 1 + (days % 31);
+            } else {
+                jm = 7 + Math.floor((days - 186) / 30);
+                jd = 1 + ((days - 186) % 30);
+            }
+            return { year: jy + 979, month: jm, day: jd };
+        }
+
+        function openPersianDatePicker() {
+            const currentDate = new Date();
+            const dateInput = document.getElementById('dateInput');
+
+            if (dateInput.value) {
+                const inputDate = new Date(dateInput.value);
+                currentDate.setTime(inputDate.getTime());
+            }
+
+            const persian = gregorianToPersian(currentDate);
+
+            // Populate year dropdown
+            const yearSelect = document.getElementById('persianYear');
+            yearSelect.innerHTML = '';
+            for (let year = persian.year - 10; year <= persian.year + 10; year++) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                if (year === persian.year) option.selected = true;
+                yearSelect.appendChild(option);
+            }
+
+            // Set month
+            document.getElementById('persianMonth').value = persian.month;
+
+            // Populate day dropdown
+            updateDays();
+            document.getElementById('persianDay').value = persian.day;
+
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('persianDateModal'));
+            modal.show();
+        }
+
+        function updateDays() {
+            const year = parseInt(document.getElementById('persianYear').value);
+            const month = parseInt(document.getElementById('persianMonth').value);
+            const daySelect = document.getElementById('persianDay');
+            const currentDay = parseInt(daySelect.value) || 1;
+
+            daySelect.innerHTML = '';
+            const daysInMonth = getDaysInMonth(year, month);
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const option = document.createElement('option');
+                option.value = day;
+                option.textContent = day;
+                if (day === currentDay && day <= daysInMonth) option.selected = true;
+                daySelect.appendChild(option);
+            }
+        }
+
+        function setPersianDate() {
+            const year = parseInt(document.getElementById('persianYear').value);
+            const month = parseInt(document.getElementById('persianMonth').value);
+            const day = parseInt(document.getElementById('persianDay').value);
+
+            const gregorianDate = persianToGregorian(year, month, day);
+
+            const dateInput = document.getElementById('dateInput');
+            const year2 = gregorianDate.getFullYear();
+            const month2 = String(gregorianDate.getMonth() + 1).padStart(2, '0');
+            const day2 = String(gregorianDate.getDate()).padStart(2, '0');
+
+            dateInput.value = `${year2}-${month2}-${day2}`;
+
+            updatePersianDateDisplay();
+
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('persianDateModal'));
+            modal.hide();
+        }
+
+        function updatePersianDateDisplay() {
+            const dateInput = document.getElementById('dateInput');
+            const persianDateDisplay = document.getElementById('persianDateDisplay');
+
+            if (dateInput.value) {
+                const date = new Date(dateInput.value);
+                const persian = gregorianToPersian(date);
+                const monthName = persianMonthNames[persian.month - 1];
+
+                persianDateDisplay.textContent = `${persian.day} ${monthName} ${persian.year}`;
+            }
+        }
+
+        function calculateHours() {
+            const entryTimeInput = document.querySelector('input[name="FirstEntryTime"]');
+            const exitTimeInput = document.querySelector('input[name="LastExitTime"]');
+            const totalHoursInput = document.querySelector('input[name="TotalHours"]');
+
+            if (entryTimeInput.value && exitTimeInput.value) {
+                const entryTime = new Date('2000-01-01 ' + entryTimeInput.value);
+                const exitTime = new Date('2000-01-01 ' + exitTimeInput.value);
+
+                // Handle case where exit time is next day
+                if (exitTime < entryTime) {
+                    exitTime.setDate(exitTime.getDate() + 1);
+                }
+
+                const diffMs = exitTime - entryTime;
+                const diffHours = diffMs / (1000 * 60 * 60);
+
+                totalHoursInput.value = diffHours.toFixed(2);
+            } else {
+                alert('لطفا ابتدا زمان ورود و خروج را وارد کنید');
+            }
+        }
+
+        // Format date input value on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateInput = document.getElementById('dateInput');
+            if (dateInput && dateInput.value) {
+                // Ensure proper date format for input[type="date"]
+                const date = new Date(dateInput.value);
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                dateInput.value = `${year}-${month}-${day}`;
+                updatePersianDateDisplay();
+            }
+
+            // Update Persian date display when date input changes
+            dateInput.addEventListener('change', updatePersianDateDisplay);
+
+            // Update days when year or month changes
+            document.getElementById('persianYear').addEventListener('change', updateDays);
+            document.getElementById('persianMonth').addEventListener('change', updateDays);
+
+            // Format time inputs
+            const firstEntryInput = document.querySelector('input[name="FirstEntryTime"]');
+            const lastExitInput = document.querySelector('input[name="LastExitTime"]');
+
+            if (firstEntryInput && firstEntryInput.value) {
+                // Ensure proper time format for input[type="time"]
+                const timeValue = firstEntryInput.value;
+                if (timeValue.includes(':') && timeValue.split(':').length >= 2) {
+                    const parts = timeValue.split(':');
+                    firstEntryInput.value = `${parts[0].padStart(2, '0')}:${parts[1].padStart(2, '0')}`;
+                }
+            }
+
+            if (lastExitInput && lastExitInput.value) {
+                const timeValue = lastExitInput.value;
+                if (timeValue.includes(':') && timeValue.split(':').length >= 2) {
+                    const parts = timeValue.split(':');
+                    lastExitInput.value = `${parts[0].padStart(2, '0')}:${parts[1].padStart(2, '0')}`;
+                }
+            }
+        });
+
+        // Auto-calculate hours when times change
+        document.querySelector('input[name="FirstEntryTime"]').addEventListener('change', function() {
+            if (document.querySelector('input[name="LastExitTime"]').value) {
+                calculateHours();
+            }
+        });
+
+        document.querySelector('input[name="LastExitTime"]').addEventListener('change', function() {
+            if (document.querySelector('input[name="FirstEntryTime"]').value) {
+                calculateHours();
+            }
+        });
+    </script>
+}

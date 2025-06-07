@@ -1,6 +1,5 @@
 ﻿dotnet ef dbcontext scaffold "Server=DESKTOP-PL06GAP;Database=DarouApp;Trusted_Connection=true;TrustServerCertificate=true;" Microsoft.EntityFrameworkCore.SqlServer -o Models -c DarouAppContext --force --project "D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\Mehrsam Darou.csproj"
 
-
 USE [DarouApp]
 GO
 /****** Object:  StoredProcedure [dbo].[sp_UpdateUserStatus]    Script Date: 6/1/2025 6:32:11 PM ******/

@@ -1,0 +1,184 @@
+﻿@model Mehrsam_Darou.Models.Notification
+
+@{
+    ViewData["Title"] = "افزودن اعلان جدید";
+}
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Success and Error Alerts -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success px-2" role="alert">
+                        <p class="mb-0">با موفقیت انجام شد</p>
+                        <p class="mb-0">@TempData["SuccessMessage"]</p>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger px-2" role="alert">
+                        <p class="mb-0">خطا</p>
+                        <p class="mb-0">@TempData["ErrorMessage"]</p>
+                    </div>
+                }
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4>افزودن اعلان جدید</h4>
+                    <a href="@Url.Action("NotificationList")" class="btn btn-secondary">
+                        <i class="bx bx-arrow-back me-1"></i> بازگشت به لیست
+                    </a>
+                </div>
+
+                <form asp-action="AddNotification">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Title" class="form-label">عنوان اعلان <span class="text-danger">*</span></label>
+                                <input asp-for="Title" class="form-control" maxlength="50" />
+                                <span asp-validation-for="Title" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Type" class="form-label">نوع اعلان</label>
+                                <select asp-for="Type" class="form-select">
+                                    <option value="Info">اطلاعات</option>
+                                    <option value="Warning">هشدار</option>
+                                    <option value="Error">خطا</option>
+                                    <option value="Success">موفقیت</option>
+                                    <option value="System">سیستم</option>
+                                    <option value="chat">چت</option>
+                                </select>
+                                <span asp-validation-for="Type" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="UserId" class="form-label">کاربر</label>
+                                <select asp-for="UserId" class="form-select">
+                                    <option value="">-- همه کاربران --</option>
+                                    @foreach (var user in ViewBag.Users)
+                                    {
+                                        <option value="@user.Id">@user.DisplayName</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="UserId" class="text-danger"></span>
+                                <small class="form-text text-muted">اگر کاربری انتخاب نشود، اعلان برای همه کاربران نمایش داده می‌شود</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="RelatedId" class="form-label">شناسه مرتبط</label>
+                                <input asp-for="RelatedId" class="form-control" />
+                                <span asp-validation-for="RelatedId" class="text-danger"></span>
+                                <small class="form-text text-muted">شناسه رکورد مرتبط با این اعلان (اختیاری)</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label asp-for="Message" class="form-label">پیام اعلان <span class="text-danger">*</span></label>
+                                <textarea asp-for="Message" class="form-control" rows="4" maxlength="150"></textarea>
+                                <span asp-validation-for="Message" class="text-danger"></span>
+                                <small class="form-text text-muted">حداکثر 150 کاراکتر</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Img" class="form-label">تصویر اعلان</label>
+                                <input asp-for="Img" class="form-control" maxlength="150" />
+                                <span asp-validation-for="Img" class="text-danger"></span>
+                                <small class="form-text text-muted">آدرس تصویر یا نام فایل (اختیاری)</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">پیش‌نمایش اعلان</label>
+                                <div class="card">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-light-subtle rounded me-2">
+                                                <span class="avatar-title">
+                                                    <iconify-icon icon="solar:bell-bold-duotone" class="fs-18"></iconify-icon>
+                                                </span>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-0 fw-medium" id="preview-title">عنوان اعلان</h6>
+                                                <p class="mb-0 text-muted small" id="preview-message">پیام اعلان اینجا نمایش داده می‌شود</p>
+                                                <small class="text-muted" id="preview-type">نوع: اطلاعات</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bx bx-send me-1"></i> ارسال اعلان
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                            <i class="bx bx-reset me-1"></i> بازنشانی
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Update preview when form fields change
+            updatePreview();
+
+            document.getElementById('Title').addEventListener('input', updatePreview);
+            document.getElementById('Message').addEventListener('input', updatePreview);
+            document.getElementById('Type').addEventListener('change', updatePreview);
+        });
+
+        function updatePreview() {
+            const title = document.getElementById('Title').value || 'عنوان اعلان';
+            const message = document.getElementById('Message').value || 'پیام اعلان اینجا نمایش داده می‌شود';
+            const type = document.getElementById('Type').value;
+
+            document.getElementById('preview-title').textContent = title;
+            document.getElementById('preview-message').textContent = message;
+
+            const typeNames = {
+                'Info': 'اطلاعات',
+                'Warning': 'هشدار',
+                'Error': 'خطا',
+                'Success': 'موفقیت',
+                'System': 'سیستم',
+                'chat': 'چت'
+            };
+
+            document.getElementById('preview-type').textContent = 'نوع: ' + (typeNames[type] || type);
+        }
+
+        function resetForm() {
+            document.querySelector('form').reset();
+            updatePreview();
+        }
+    </script>
+}

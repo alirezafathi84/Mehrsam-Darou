@@ -1,0 +1,483 @@
+﻿@using static Mehrsam_Darou.Helper.Helper
+@model PaginatedList<Mehrsam_Darou.Models.Notification>
+@using System.Globalization
+
+@{
+    PersianCalendar pc = new PersianCalendar();
+    ViewData["Title"] = "مدیریت اعلانات";
+}
+
+<h2 class="mb-4">مدیریت اعلانات</h2>
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Success and Error Alerts -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success px-2" role="alert">
+                        <p class="mb-0">با موفقیت انجام شد</p>
+                        <p class="mb-0">@TempData["SuccessMessage"]</p>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger px-2" role="alert">
+                        <p class="mb-0">خطا</p>
+                        <p class="mb-0">@TempData["ErrorMessage"]</p>
+                    </div>
+                }
+
+                <div class="d-flex flex-wrap justify-content-between gap-3 mb-3">
+                    <form method="get" asp-action="NotificationList" class="d-flex gap-2 flex-wrap align-items-center">
+                        <div class="search-bar">
+                            <span><i class="bx bx-search-alt"></i></span>
+                            <input type="search" name="searchKey" value="@Context.Request.Query["searchKey"]" class="form-control" placeholder="جستجو در عنوان، پیام یا کاربر...">
+                        </div>
+                        <select name="type" class="form-select" style="width: 150px;">
+                            <option value="">همه انواع</option>
+                            <option value="Info" selected="@(ViewBag.TypeFilter == "Info")">اطلاعات</option>
+                            <option value="Warning" selected="@(ViewBag.TypeFilter == "Warning")">هشدار</option>
+                            <option value="Error" selected="@(ViewBag.TypeFilter == "Error")">خطا</option>
+                            <option value="Success" selected="@(ViewBag.TypeFilter == "Success")">موفقیت</option>
+                            <option value="System" selected="@(ViewBag.TypeFilter == "System")">سیستم</option>
+                        </select>
+                        <select name="seen" class="form-select" style="width: 150px;">
+                            <option value="">همه وضعیت‌ها</option>
+                            <option value="false" selected="@(ViewBag.SeenFilter == false)">خوانده نشده</option>
+                            <option value="true" selected="@(ViewBag.SeenFilter == true)">خوانده شده</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bx bx-search me-1"></i> جستجو
+                        </button>
+                    </form>
+                    <div class="d-flex gap-2 align-items-center">
+                        <form method="post" asp-action="MarkAllAsSeen" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-success">
+                                <i class="bx bx-check-double me-1"></i> علامت‌گذاری همه به عنوان خوانده شده
+                            </button>
+                        </form>
+                        <button type="button" class="btn btn-danger" onclick="deleteSelected()">
+                            <i class="bx bx-trash me-1"></i> حذف انتخاب شده‌ها
+                        </button>
+                        <a href="@Url.Action("AddNotification")" class="btn btn-primary">
+                            <i class="bx bx-plus me-1"></i> اعلان جدید
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Bulk Actions Toolbar -->
+                <div id="bulkActionsToolbar" class="alert alert-info d-none" role="alert">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span><span id="selectedCount">0</span> اعلان انتخاب شده</span>
+                        <div>
+                            <button type="button" class="btn btn-sm btn-success me-2" onclick="markSelectedAsSeen()">
+                                علامت‌گذاری به عنوان خوانده شده
+                            </button>
+                            <button type="button" class="btn btn-sm btn-warning me-2" onclick="markSelectedAsUnseen()">
+                                علامت‌گذاری به عنوان خوانده نشده
+                            </button>
+                            <button type="button" class="btn btn-sm btn-danger" onclick="deleteSelected()">
+                                حذف انتخاب شده‌ها
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0 table-hover table-centered">
+                        <thead class="bg-light-subtle">
+                            <tr>
+                                <th width="40">
+                                    <input type="checkbox" id="selectAll" class="form-check-input">
+                                </th>
+                                <th>وضعیت</th>
+                                <th>نوع</th>
+                                <th>عنوان</th>
+                                <th>پیام</th>
+                                <th>کاربر</th>
+                                <th>تاریخ ایجاد</th>
+                                <th>اقدامات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Any())
+                            {
+                                foreach (var notification in Model)
+                                {
+                                    <tr class="@(notification.Seen ? "" : "table-warning")">
+                                        <td>
+                                            <input type="checkbox" class="form-check-input notification-checkbox" value="@notification.Id">
+                                        </td>
+                                        <td>
+                                            @if (notification.Seen)
+                                            {
+                                                <span class="badge bg-light text-muted">
+                                                    <i class="bx bx-check-circle me-1"></i> خوانده شده
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning">
+                                                    <i class="bx bx-bell me-1"></i> جدید
+                                                </span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @switch (notification.Type)
+                                            {
+                                                case "Info":
+                                                    <span class="badge bg-info">
+                                                        <i class="bx bx-info-circle me-1"></i> اطلاعات
+                                                    </span>
+                                                    break;
+                                                case "Warning":
+                                                    <span class="badge bg-warning">
+                                                        <i class="bx bx-error me-1"></i> هشدار
+                                                    </span>
+                                                    break;
+                                                case "Error":
+                                                    <span class="badge bg-danger">
+                                                        <i class="bx bx-x-circle me-1"></i> خطا
+                                                    </span>
+                                                    break;
+                                                case "Success":
+                                                    <span class="badge bg-success">
+                                                        <i class="bx bx-check-circle me-1"></i> موفقیت
+                                                    </span>
+                                                    break;
+                                                case "System":
+                                                    <span class="badge bg-secondary">
+                                                        <i class="bx bx-cog me-1"></i> سیستم
+                                                    </span>
+                                                    break;
+                                                default:
+                                                    <span class="badge bg-light text-dark">@notification.Type</span>
+                                                    break;
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                @if (!string.IsNullOrEmpty(notification.Img))
+                                                {
+                                                    <img src="@notification.Img" alt="notification" class="avatar-sm rounded me-2">
+                                                }
+                                                else
+                                                {
+                                                    <div class="avatar-sm bg-light-subtle rounded me-2">
+                                                        <span class="avatar-title">
+                                                            <iconify-icon icon="solar:bell-bold-duotone" class="fs-18"></iconify-icon>
+                                                        </span>
+                                                    </div>
+                                                }
+                                                <div>
+                                                    <h6 class="mb-0 fw-medium">@notification.Title</h6>
+                                                    @if (notification.RelatedId.HasValue)
+                                                    {
+                                                        <small class="text-muted">شناسه مرتبط: @notification.RelatedId</small>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="notification-message" style="max-width: 300px;">
+                                                @if (notification.Message.Length > 100)
+                                                {
+                                                    <span class="message-preview">@notification.Message.Substring(0, 100)...</span>
+                                                    <span class="message-full d-none">@notification.Message</span>
+                                                    <a href="javascript:void(0)" class="text-primary small" onclick="toggleMessage(this)">بیشتر</a>
+                                                }
+                                                else
+                                                {
+                                                    @notification.Message
+                                                }
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @if (notification.User != null)
+                                            {
+                                                <div>
+                                                    <h6 class="mb-0">@((notification.User.FirstName ?? "") + " " + (notification.User.LastName ?? ""))</h6>
+                                                    <small class="text-muted">@notification.User.Username</small>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">همه کاربران</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                @pc.GetYear(notification.CreatedDate)/@pc.GetMonth(notification.CreatedDate).ToString("00")/@pc.GetDayOfMonth(notification.CreatedDate).ToString("00")
+                                                <br>
+                                                @notification.CreatedDate.ToString("HH:mm")
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-1 justify-content-center">
+                                                @if (!notification.Seen)
+                                                {
+                                                    <button type="button" class="btn btn-soft-success btn-sm"
+                                                            onclick="markAsSeen('@notification.Id')"
+                                                            title="علامت‌گذاری به عنوان خوانده شده">
+                                                        <iconify-icon icon="solar:check-circle-broken" class="align-middle fs-16"></iconify-icon>
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <button type="button" class="btn btn-soft-warning btn-sm"
+                                                            onclick="markAsUnseen('@notification.Id')"
+                                                            title="علامت‌گذاری به عنوان خوانده نشده">
+                                                        <iconify-icon icon="solar:bell-broken" class="align-middle fs-16"></iconify-icon>
+                                                    </button>
+                                                }
+                                                <a href="@Url.Action("EditNotification", new { id = notification.Id })"
+                                                   class="btn btn-soft-primary btn-sm" title="ویرایش">
+                                                    <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-16"></iconify-icon>
+                                                </a>
+                                                <button type="button" class="btn btn-soft-danger btn-sm"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#deleteModal"
+                                                        data-bs-id="@notification.Id"
+                                                        data-bs-title="@notification.Title"
+                                                        title="حذف">
+                                                    <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-16"></iconify-icon>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="8" class="text-center py-4">
+                                        <i class="bx bx-bell text-muted fs-1"></i>
+                                        <p class="mt-2">هیچ اعلانی یافت نشد.</p>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card-footer border-top">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-end mb-0">
+                        @if (Model.HasPreviousPage)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("NotificationList", new { page = Model.PageIndex - 1, searchKey = Context.Request.Query["searchKey"], type = ViewBag.TypeFilter, seen = ViewBag.SeenFilter })">
+                                    <i class="bx bx-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                    <i class="bx bx-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("NotificationList", new { page = i, searchKey = Context.Request.Query["searchKey"], type = ViewBag.TypeFilter, seen = ViewBag.SeenFilter })">@i</a>
+                            </li>
+                        }
+
+                        @if (Model.HasNextPage)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("NotificationList", new { page = Model.PageIndex + 1, searchKey = Context.Request.Query["searchKey"], type = ViewBag.TypeFilter, seen = ViewBag.SeenFilter })">
+                                    <i class="bx bx-chevron-left"></i>
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                    <i class="bx bx-chevron-left"></i>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">حذف اعلان</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <div class="modal-body">
+                <p>آیا از حذف این اعلان مطمئن هستید؟</p>
+                <p id="notificationTitleToDelete" class="fw-bold"></p>
+            </div>
+            <div class="modal-footer">
+                <form id="deleteForm" method="post" asp-action="Delete">
+                    <input type="hidden" id="notificationIdToDelete" name="id" />
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">حذف</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Delete Form -->
+<form id="bulkDeleteForm" method="post" asp-action="DeleteSelected" class="d-none">
+    <input type="hidden" name="selectedIds" id="selectedIdsInput" />
+    @Html.AntiForgeryToken()
+</form>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Delete modal
+            var deleteModal = document.getElementById('deleteModal');
+            deleteModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                var notificationId = button.getAttribute('data-bs-id');
+                var notificationTitle = button.getAttribute('data-bs-title');
+
+                document.getElementById('notificationTitleToDelete').textContent = notificationTitle;
+                document.getElementById('notificationIdToDelete').value = notificationId;
+            });
+
+            // Select all checkbox
+            document.getElementById('selectAll').addEventListener('change', function() {
+                var checkboxes = document.querySelectorAll('.notification-checkbox');
+                checkboxes.forEach(function(checkbox) {
+                    checkbox.checked = this.checked;
+                }, this);
+                updateBulkActionsToolbar();
+            });
+
+            // Individual checkboxes
+            document.querySelectorAll('.notification-checkbox').forEach(function(checkbox) {
+                checkbox.addEventListener('change', updateBulkActionsToolbar);
+            });
+
+            // Auto-dismiss alerts after 5 seconds
+            setTimeout(function () {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function (alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+        });
+
+        function updateBulkActionsToolbar() {
+            var selectedCheckboxes = document.querySelectorAll('.notification-checkbox:checked');
+            var toolbar = document.getElementById('bulkActionsToolbar');
+            var countSpan = document.getElementById('selectedCount');
+
+            if (selectedCheckboxes.length > 0) {
+                toolbar.classList.remove('d-none');
+                countSpan.textContent = selectedCheckboxes.length;
+            } else {
+                toolbar.classList.add('d-none');
+            }
+        }
+
+        function getSelectedIds() {
+            var selectedCheckboxes = document.querySelectorAll('.notification-checkbox:checked');
+            return Array.from(selectedCheckboxes).map(function(checkbox) {
+                return checkbox.value;
+            });
+        }
+
+        function deleteSelected() {
+            var selectedIds = getSelectedIds();
+            if (selectedIds.length === 0) {
+                alert('لطفاً حداقل یک اعلان انتخاب کنید');
+                return;
+            }
+
+            if (confirm('آیا از حذف ' + selectedIds.length + ' اعلان انتخاب شده مطمئن هستید؟')) {
+                document.getElementById('selectedIdsInput').value = selectedIds.join(',');
+                document.getElementById('bulkDeleteForm').submit();
+            }
+        }
+
+        function markAsSeen(notificationId) {
+            fetch('@Url.Action("MarkAsSeen")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: 'id=' + notificationId
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('خطا در ارسال درخواست');
+            });
+        }
+
+        function markAsUnseen(notificationId) {
+            fetch('@Url.Action("MarkAsUnseen")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: 'id=' + notificationId
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('خطا در ارسال درخواست');
+            });
+        }
+
+        function toggleMessage(element) {
+            var messageDiv = element.closest('.notification-message');
+            var preview = messageDiv.querySelector('.message-preview');
+            var full = messageDiv.querySelector('.message-full');
+
+            if (full.classList.contains('d-none')) {
+                preview.classList.add('d-none');
+                full.classList.remove('d-none');
+                element.textContent = 'کمتر';
+            } else {
+                preview.classList.remove('d-none');
+                full.classList.add('d-none');
+                element.textContent = 'بیشتر';
+            }
+        }
+    </script>
+}

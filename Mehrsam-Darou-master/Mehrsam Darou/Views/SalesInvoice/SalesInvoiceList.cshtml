@@ -1,0 +1,351 @@
+﻿@using static Mehrsam_Darou.Helper.Helper
+@model PaginatedList<Mehrsam_Darou.Models.SalesInvoice>
+@using System.Globalization
+
+@{
+    PersianCalendar pc = new PersianCalendar();
+    ViewData["Title"] = "لیست فاکتورهای فروش";
+}
+
+<h2 class="mb-4">لیست فاکتورهای فروش</h2>
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Success and Error Alerts -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success px-2" role="alert">
+                        <p class="mb-0">با موفقیت انجام شد</p>
+                        <p class="mb-0">@TempData["SuccessMessage"]</p>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger px-2" role="alert">
+                        <p class="mb-0">خطا</p>
+                        <p class="mb-0">@TempData["ErrorMessage"]</p>
+                    </div>
+                }
+
+                <div class="d-flex flex-wrap justify-content-between gap-3 mb-3">
+                    <form method="get" asp-action="SalesInvoiceList" class="d-flex gap-2">
+                        <div class="search-bar">
+                            <span><i class="bx bx-search-alt"></i></span>
+                            <input type="search" name="searchKey" value="@Context.Request.Query["searchKey"]" class="form-control" placeholder="جستجو...">
+                        </div>
+                        <select name="status" class="form-select" style="width: 200px;">
+                            <option value="">همه وضعیت‌ها</option>
+                            <option value="پیش‌نویس" selected="@(ViewBag.StatusFilter == "پیش‌نویس")">پیش‌نویس</option>
+                            <option value="ارسال شده" selected="@(ViewBag.StatusFilter == "ارسال شده")">ارسال شده</option>
+                            <option value="پرداخت شده" selected="@(ViewBag.StatusFilter == "پرداخت شده")">پرداخت شده</option>
+                            <option value="پرداخت جزئی" selected="@(ViewBag.StatusFilter == "پرداخت جزئی")">پرداخت جزئی</option>
+                            <option value="سررسید گذشته" selected="@(ViewBag.StatusFilter == "سررسید گذشته")">سررسید گذشته</option>
+                            <option value="لغو شده" selected="@(ViewBag.StatusFilter == "لغو شده")">لغو شده</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bx bx-search me-1"></i> جستجو
+                        </button>
+                    </form>
+                    <div>
+                        <a href="@Url.Action("AddSalesInvoice")" class="btn btn-primary">
+                            <i class="bx bx-plus me-1"></i> فاکتور جدید
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0 table-hover table-centered">
+                        <thead class="bg-light-subtle">
+                            <tr>
+                                <th>شماره فاکتور</th>
+                                <th>مشتری</th>
+                                <th>تاریخ فاکتور</th>
+                                <th>سررسید</th>
+                                <th>مبلغ کل</th>
+                                <th>مبلغ پرداخت شده</th>
+                                <th>باقی مانده</th>
+                                <th>وضعیت</th>
+                                <th>روش پرداخت</th>
+                                <th>اقدامات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Any())
+                            {
+                                foreach (var invoice in Model)
+                                {
+                                    decimal remainingAmount = invoice.TotalAmount - (invoice.PaidAmount ?? 0);
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm bg-light-subtle rounded me-2">
+                                                    <span class="avatar-title">
+                                                        <iconify-icon icon="solar:bill-list-bold-duotone" class="fs-18"></iconify-icon>
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0 fw-medium">@invoice.InvoiceNumber</h6>
+                                                    @if (invoice.SalesOrder != null)
+                                                    {
+                                                        <small class="text-muted">سفارش: @invoice.SalesOrder.SoNumber</small>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <h6 class="mb-0">@invoice.Customer?.CustomerName</h6>
+                                                <small class="text-muted">@invoice.Customer?.CustomerCode</small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                @pc.GetYear(invoice.InvoiceDate.ToDateTime(TimeOnly.MinValue))/@pc.GetMonth(invoice.InvoiceDate.ToDateTime(TimeOnly.MinValue)).ToString("00")/@pc.GetDayOfMonth(invoice.InvoiceDate.ToDateTime(TimeOnly.MinValue)).ToString("00")
+                                            </small>
+                                        </td>
+                                        <td>
+                                            @if (invoice.DueDate.HasValue)
+                                            {
+                                                <small class="text-muted">
+                                                    @pc.GetYear(invoice.DueDate.Value.ToDateTime(TimeOnly.MinValue))/@pc.GetMonth(invoice.DueDate.Value.ToDateTime(TimeOnly.MinValue)).ToString("00")/@pc.GetDayOfMonth(invoice.DueDate.Value.ToDateTime(TimeOnly.MinValue)).ToString("00")
+                                                </small>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <span class="fw-medium">@invoice.TotalAmount.ToString("N0") ریال</span>
+                                        </td>
+                                        <td>
+                                            @if (invoice.PaidAmount.HasValue && invoice.PaidAmount > 0)
+                                            {
+                                                <span class="text-success fw-medium">@invoice.PaidAmount.Value.ToString("N0") ریال</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (remainingAmount > 0)
+                                            {
+                                                <span class="text-danger fw-medium">@remainingAmount.ToString("N0") ریال</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-success fw-medium">تسویه شده</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @switch (invoice.Status)
+                                            {
+                                                case "پیش‌نویس":
+                                                    <span class="badge bg-secondary">پیش‌نویس</span>
+                                                    break;
+                                                case "ارسال شده":
+                                                    <span class="badge bg-info">ارسال شده</span>
+                                                    break;
+                                                case "پرداخت شده":
+                                                    <span class="badge bg-success">پرداخت شده</span>
+                                                    break;
+                                                case "پرداخت جزئی":
+                                                    <span class="badge bg-warning">پرداخت جزئی</span>
+                                                    break;
+                                                case "سررسید گذشته":
+                                                    <span class="badge bg-danger">سررسید گذشته</span>
+                                                    break;
+                                                case "لغو شده":
+                                                    <span class="badge bg-dark">لغو شده</span>
+                                                    break;
+                                                default:
+                                                    <span class="badge bg-light text-dark">@invoice.Status</span>
+                                                    break;
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(invoice.PaymentMethod))
+                                            {
+                                                <span class="badge bg-light-subtle text-info">@invoice.PaymentMethod</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-2 justify-content-center">
+                                                <a href="@Url.Action("EditSalesInvoice", new { id = invoice.SalesInvoiceId })" class="btn btn-soft-primary btn-sm" title="ویرایش">
+                                                    <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
+                                                </a>
+                                                <button type="button" class="btn btn-soft-info btn-sm"
+                                                        onclick="showInvoiceDetails('@invoice.SalesInvoiceId')"
+                                                        title="مشاهده جزئیات">
+                                                    <iconify-icon icon="solar:eye-broken" class="align-middle fs-18"></iconify-icon>
+                                                </button>
+                                                @if (invoice.Status == "پیش‌نویس")
+                                                {
+                                                    <button type="button" class="btn btn-soft-danger btn-sm"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#deleteModal"
+                                                            data-bs-id="@invoice.SalesInvoiceId"
+                                                            data-bs-number="@invoice.InvoiceNumber"
+                                                            title="حذف">
+                                                        <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
+                                                    </button>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="10" class="text-center py-4">
+                                        <i class="bx bx-file text-muted fs-1"></i>
+                                        <p class="mt-2">هیچ فاکتوری یافت نشد.</p>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card-footer border-top">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-end mb-0">
+                        @if (Model.HasPreviousPage)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("SalesInvoiceList", new { page = Model.PageIndex - 1, searchKey = Context.Request.Query["searchKey"], status = ViewBag.StatusFilter })">
+                                    <i class="bx bx-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                    <i class="bx bx-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("SalesInvoiceList", new { page = i, searchKey = Context.Request.Query["searchKey"], status = ViewBag.StatusFilter })">@i</a>
+                            </li>
+                        }
+
+                        @if (Model.HasNextPage)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("SalesInvoiceList", new { page = Model.PageIndex + 1, searchKey = Context.Request.Query["searchKey"], status = ViewBag.StatusFilter })">
+                                    <i class="bx bx-chevron-left"></i>
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                    <i class="bx bx-chevron-left"></i>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">حذف فاکتور</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <div class="modal-body">
+                <p>آیا از حذف این فاکتور مطمئن هستید؟</p>
+                <p id="invoiceNumberToDelete" class="fw-bold"></p>
+                <div class="alert alert-warning">
+                    <small><i class="bx bx-info-circle me-1"></i> تنها فاکتورهای پیش‌نویس قابل حذف هستند.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <form id="deleteForm" method="post" asp-action="Delete">
+                    <input type="hidden" id="invoiceIdToDelete" name="id" />
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">حذف</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Invoice Details Modal -->
+<div class="modal fade" id="invoiceDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">جزئیات فاکتور</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <div class="modal-body" id="invoiceDetailsContent">
+                <!-- Invoice details will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var deleteModal = document.getElementById('deleteModal');
+            deleteModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                var invoiceId = button.getAttribute('data-bs-id');
+                var invoiceNumber = button.getAttribute('data-bs-number');
+
+                document.getElementById('invoiceNumberToDelete').textContent = invoiceNumber;
+                document.getElementById('invoiceIdToDelete').value = invoiceId;
+            });
+
+            // Auto-dismiss alerts after 5 seconds
+            setTimeout(function () {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function (alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+        });
+
+        function showInvoiceDetails(invoiceId) {
+            var modal = new bootstrap.Modal(document.getElementById('invoiceDetailsModal'));
+            document.getElementById('invoiceDetailsContent').innerHTML =
+                '<div class="text-center"><div class="spinner-border" role="status"></div><p class="mt-2">در حال بارگذاری...</p></div>';
+            modal.show();
+
+            // Simulate loading details
+            setTimeout(function() {
+                document.getElementById('invoiceDetailsContent').innerHTML =
+                    '<p>جزئیات کامل فاکتور اینجا نمایش داده خواهد شد.</p>' +
+                    '<p>شامل آیتم‌های فاکتور، تاریخچه پرداخت و ...</p>';
+            }, 1000);
+        }
+    </script>
+}

@@ -25,15 +25,25 @@ public partial class User
 
     public string? AvatarImg { get; set; }
 
+    public virtual ICollection<AttendanceLog> AttendanceLogs { get; set; } = new List<AttendanceLog>();
+
     public virtual ICollection<ChatMessage> ChatMessageReceivers { get; set; } = new List<ChatMessage>();
 
     public virtual ICollection<ChatMessage> ChatMessageSenders { get; set; } = new List<ChatMessage>();
 
+    public virtual ICollection<DailyAttendance> DailyAttendances { get; set; } = new List<DailyAttendance>();
+
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+
+    public virtual ICollection<SalaryInfo> SalaryInfos { get; set; } = new List<SalaryInfo>();
 
     public virtual Team? Team { get; set; }
 
     public virtual ICollection<UserEnterLog> UserEnterLogs { get; set; } = new List<UserEnterLog>();
 
     public virtual UserStatus? UserStatus { get; set; }
+
+    public virtual ICollection<Vacation> VacationApprovedByNavigations { get; set; } = new List<Vacation>();
+
+    public virtual ICollection<Vacation> VacationUsers { get; set; } = new List<Vacation>();
 }
