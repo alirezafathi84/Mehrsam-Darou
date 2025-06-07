@@ -1,0 +1,285 @@
+﻿@using static Mehrsam_Darou.Helper.Helper
+@model PaginatedList<Mehrsam_Darou.Models.UnitType>
+
+@{
+    ViewData["Title"] = "لیست انواع واحد";
+}
+
+<h2 class="mb-4">لیست انواع واحد</h2>
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Success and Error Alerts -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success px-2" role="alert">
+                        <p class="mb-0">با موفقیت انجام شد</p>
+                        <p class="mb-0">@TempData["SuccessMessage"]</p>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger px-2" role="alert">
+                        <p class="mb-0">خطا</p>
+                        <p class="mb-0">@TempData["ErrorMessage"]</p>
+                    </div>
+                }
+
+                <div class="d-flex flex-wrap justify-content-between gap-3">
+                    <form method="get" asp-action="UnitTypeList">
+                        <div class="search-bar">
+                            <span><i class="bx bx-search-alt"></i></span>
+                            <input type="search" name="searchKey" value="@Context.Request.Query["searchKey"]" class="form-control" placeholder="جستجو...">
+                        </div>
+                    </form>
+                    <div>
+                        <a href="@Url.Action("AddUnitType")" class="btn btn-primary">
+                            <i class="bx bx-plus me-1"></i> نوع واحد جدید
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0 table-hover table-centered">
+                        <thead class="bg-light-subtle">
+                            <tr>
+                                <th>نام نوع واحد</th>
+                                <th>توضیحات</th>
+                                <th>نوع</th>
+                                <th>تعداد واحدها</th>
+                                <th>اقدامات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Any())
+                            {
+                                foreach (var unitType in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm bg-light-subtle rounded me-2">
+                                                    <span class="avatar-title">
+                                                        <iconify-icon icon="solar:scale-outline" class="fs-18"></iconify-icon>
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0 fw-medium">@unitType.TypeName</h6>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(unitType.Description))
+                                            {
+                                                <span class="text-muted">@unitType.Description</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (unitType.IsSystem == true)
+                                            {
+                                                <span class="badge bg-warning-subtle text-warning">
+                                                    <i class="bx bx-shield me-1"></i>سیستمی
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-info-subtle text-info">
+                                                    <i class="bx bx-user me-1"></i>کاربری
+                                                </span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-light text-dark">
+                                                @{
+                                                    var unitCount = Context.RequestServices.GetService<Mehrsam_Darou.Models.DarouAppContext>()?.Units.Count(u => u.UnitTypeId == unitType.UnitTypeId) ?? 0;
+                                                }
+                                                @unitCount واحد
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-2 justify-content-center">
+                                                <a href="@Url.Action("EditUnitType", new { id = unitType.UnitTypeId })" class="btn btn-soft-primary btn-sm" title="ویرایش">
+                                                    <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
+                                                </a>
+                                                <button type="button" class="btn btn-soft-info btn-sm"
+                                                        onclick="showUnitTypeDetails('@unitType.UnitTypeId')"
+                                                        title="مشاهده جزئیات">
+                                                    <iconify-icon icon="solar:eye-broken" class="align-middle fs-18"></iconify-icon>
+                                                </button>
+                                                @if (unitType.IsSystem != true)
+                                                {
+                                                    <button type="button" class="btn btn-soft-danger btn-sm"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#deleteModal"
+                                                            data-bs-id="@unitType.UnitTypeId"
+                                                            data-bs-name="@unitType.TypeName"
+                                                            title="حذف">
+                                                        <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <button type="button" class="btn btn-soft-secondary btn-sm" disabled title="واحد سیستمی قابل حذف نیست">
+                                                        <iconify-icon icon="solar:lock-keyhole-minimalistic-broken" class="align-middle fs-18"></iconify-icon>
+                                                    </button>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center py-4">
+                                        <i class="bx bx-package text-muted fs-1"></i>
+                                        <p class="mt-2">هیچ نوع واحدی یافت نشد.</p>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card-footer border-top">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-end mb-0">
+                        @if (Model.HasPreviousPage)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("UnitTypeList", new { page = Model.PageIndex - 1, searchKey = Context.Request.Query["searchKey"] })">
+                                    <i class="bx bx-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                    <i class="bx bx-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("UnitTypeList", new { page = i, searchKey = Context.Request.Query["searchKey"] })">@i</a>
+                            </li>
+                        }
+
+                        @if (Model.HasNextPage)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("UnitTypeList", new { page = Model.PageIndex + 1, searchKey = Context.Request.Query["searchKey"] })">
+                                    <i class="bx bx-chevron-left"></i>
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                    <i class="bx bx-chevron-left"></i>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">حذف نوع واحد</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <div class="modal-body">
+                <p>آیا از حذف این نوع واحد مطمئن هستید؟</p>
+                <p id="unitTypeNameToDelete" class="fw-bold"></p>
+                <div class="alert alert-warning">
+                    <small><i class="bx bx-info-circle me-1"></i> در صورت وجود واحد وابسته، امکان حذف وجود ندارد.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <form id="deleteForm" method="post" asp-action="Delete">
+                    <input type="hidden" id="unitTypeIdToDelete" name="id" />
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">حذف</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Unit Type Details Modal -->
+<div class="modal fade" id="unitTypeDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">جزئیات نوع واحد</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <div class="modal-body" id="unitTypeDetailsContent">
+                <!-- Unit type details will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var deleteModal = document.getElementById('deleteModal');
+            deleteModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                var unitTypeId = button.getAttribute('data-bs-id');
+                var unitTypeName = button.getAttribute('data-bs-name');
+
+                document.getElementById('unitTypeNameToDelete').textContent = unitTypeName;
+                document.getElementById('unitTypeIdToDelete').value = unitTypeId;
+            });
+
+            // Auto-dismiss alerts after 5 seconds
+            setTimeout(function () {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function (alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+        });
+
+        function showUnitTypeDetails(unitTypeId) {
+            // This would typically load unit type details via AJAX
+            // For now, just show a placeholder
+            var modal = new bootstrap.Modal(document.getElementById('unitTypeDetailsModal'));
+            document.getElementById('unitTypeDetailsContent').innerHTML =
+                '<div class="text-center"><div class="spinner-border" role="status"></div><p class="mt-2">در حال بارگذاری...</p></div>';
+            modal.show();
+
+            // Simulate loading details
+            setTimeout(function() {
+                document.getElementById('unitTypeDetailsContent').innerHTML =
+                    '<p>جزئیات کامل نوع واحد اینجا نمایش داده خواهد شد.</p>' +
+                    '<p>شامل لیست واحدهای وابسته و ...</p>';
+            }, 1000);
+        }
+    </script>
+}

@@ -1,0 +1,309 @@
+﻿@model Mehrsam_Darou.Models.SalesOrder
+@using System.Globalization
+
+@{
+    PersianCalendar pc = new PersianCalendar();
+    ViewData["Title"] = "جزئیات سفارش فروش";
+}
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">جزئیات سفارش فروش - @Model.SoNumber</h4>
+                    <div>
+                        <a href="@Url.Action("EditSalesOrder", new { id = Model.SalesOrderId })" class="btn btn-primary me-2">
+                            <i class="bx bx-edit me-1"></i> ویرایش
+                        </a>
+                        <a href="@Url.Action("SalesOrderList")" class="btn btn-secondary">
+                            <i class="bx bx-arrow-back me-1"></i> بازگشت به لیست
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Order Header Info -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h6 class="text-muted mb-3">اطلاعات سفارش</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <td width="40%"><strong>شماره سفارش:</strong></td>
+                                <td>@Model.SoNumber</td>
+                            </tr>
+                            <tr>
+                                <td><strong>تاریخ سفارش:</strong></td>
+                                <td>
+                                    @{
+                                        var orderDateTime = Model.OrderDate.ToDateTime(TimeOnly.MinValue);
+                                    }
+                                    @($"{pc.GetYear(orderDateTime)}/{pc.GetMonth(orderDateTime):00}/{pc.GetDayOfMonth(orderDateTime):00}")
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>تاریخ تحویل درخواستی:</strong></td>
+                                <td>
+                                    @if (Model.RequestedDeliveryDate.HasValue)
+                                    {
+                                        var requestedDateTime = Model.RequestedDeliveryDate.Value.ToDateTime(TimeOnly.MinValue);
+                                        @($"{pc.GetYear(requestedDateTime)}/{pc.GetMonth(requestedDateTime):00}/{pc.GetDayOfMonth(requestedDateTime):00}")
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">تعیین نشده</span>
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>تاریخ تحویل متعهد شده:</strong></td>
+                                <td>
+                                    @if (Model.PromisedDeliveryDate.HasValue)
+                                    {
+                                        var promisedDateTime = Model.PromisedDeliveryDate.Value.ToDateTime(TimeOnly.MinValue);
+                                        @($"{pc.GetYear(promisedDateTime)}/{pc.GetMonth(promisedDateTime):00}/{pc.GetDayOfMonth(promisedDateTime):00}")
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">تعیین نشده</span>
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>وضعیت:</strong></td>
+                                <td>
+                                    @{
+                                        var statusClass = Model.Status switch
+                                        {
+                                            "پیش‌نویس" => "bg-secondary",
+                                            "تایید شده" => "bg-info",
+                                            "در حال تولید" => "bg-warning",
+                                            "آماده ارسال" => "bg-primary",
+                                            "ارسال شده" => "bg-success",
+                                            "تحویل داده شده" => "bg-success",
+                                            "لغو شده" => "bg-danger",
+                                            _ => "bg-light"
+                                        };
+                                    }
+                                    <span class="badge @statusClass">@Model.Status</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>اولویت:</strong></td>
+                                <td>
+                                    @{
+                                        var priorityClass = Model.Priority switch
+                                        {
+                                            1 => "bg-danger-subtle text-danger",
+                                            2 => "bg-warning-subtle text-warning",
+                                            3 => "bg-info-subtle text-info",
+                                            4 => "bg-light text-muted",
+                                            _ => "bg-light text-muted"
+                                        };
+                                        var priorityText = Model.Priority switch
+                                        {
+                                            1 => "بالا",
+                                            2 => "متوسط",
+                                            3 => "عادی",
+                                            4 => "پایین",
+                                            _ => "نامشخص"
+                                        };
+                                    }
+                                    <span class="badge @priorityClass">@priorityText</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted mb-3">اطلاعات مشتری</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <td width="40%"><strong>نام مشتری:</strong></td>
+                                <td>@Model.Customer?.CustomerName</td>
+                            </tr>
+                            <tr>
+                                <td><strong>کد مشتری:</strong></td>
+                                <td>@Model.Customer?.CustomerCode</td>
+                            </tr>
+                            <tr>
+                                <td><strong>شخص رابط:</strong></td>
+                                <td>@Model.Customer?.ContactPerson</td>
+                            </tr>
+                            <tr>
+                                <td><strong>تلفن:</strong></td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(Model.Customer?.Phone))
+                                    {
+                                        <a href="tel:@Model.Customer.Phone">@Model.Customer.Phone</a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>ایمیل:</strong></td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(Model.Customer?.Email))
+                                    {
+                                        <a href="mailto:@Model.Customer.Email">@Model.Customer.Email</a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>نوع مشتری:</strong></td>
+                                <td>@Model.Customer?.CustomerType</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Order Items -->
+                <div class="row">
+                    <div class="col-xl-12">
+                        <h6 class="text-muted mb-3">آیتم‌های سفارش</h6>
+                        @if (Model.SalesOrderItems != null && Model.SalesOrderItems.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>دارو</th>
+                                            <th>مقدار</th>
+                                            <th>واحد</th>
+                                            <th>قیمت واحد</th>
+                                            <th>تخفیف</th>
+                                            <th>قیمت کل</th>
+                                            <th>ارسال شده</th>
+                                            <th>باقی مانده</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{
+                                            int itemNumber = 1;
+                                        }
+                                        @foreach (var item in Model.SalesOrderItems)
+                                        {
+                                            <tr>
+                                                <td>@itemNumber</td>
+                                                <td>
+                                                    <div>
+                                                        <h6 class="mb-0">@item.Medicine?.BrandName</h6>
+                                                        <small class="text-muted">@item.Medicine?.MedicineCode</small>
+                                                    </div>
+                                                </td>
+                                                <td>@item.Quantity.ToString("N3")</td>
+                                                <td>@item.Unit?.UnitName</td>
+                                                <td>@item.UnitPrice.ToString("N2") ریال</td>
+                                                <td>@((item.DiscountPercent ?? 0).ToString("N2"))%</td>
+                                                <td class="fw-medium">@item.TotalPrice.ToString("N2") ریال</td>
+                                                <td>
+                                                    @if ((item.ShippedQuantity ?? 0) > 0)
+                                                    {
+                                                        <span class="text-success">@((item.ShippedQuantity ?? 0).ToString("N3"))</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">0</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @{
+                                                        var remaining = item.Quantity - (item.ShippedQuantity ?? 0);
+                                                    }
+                                                    @if (remaining > 0)
+                                                    {
+                                                        <span class="text-warning">@remaining.ToString("N3")</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-success">تکمیل شده</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                            itemNumber++;
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center py-4">
+                                <i class="bx bx-package text-muted fs-1"></i>
+                                <p class="mt-2 text-muted">هیچ آیتمی در این سفارش وجود ندارد.</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Order Summary -->
+                <div class="row mt-4">
+                    <div class="col-md-6 offset-md-6">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="card-title">خلاصه سفارش</h6>
+                                <table class="table table-sm mb-0">
+                                    <tr>
+                                        <td>جمع کل:</td>
+                                        <td class="text-end fw-medium">@((Model.TotalAmount ?? 0).ToString("N2")) ریال</td>
+                                    </tr>
+                                    <tr>
+                                        <td>مالیات:</td>
+                                        <td class="text-end">@((Model.TaxAmount ?? 0).ToString("N2")) ریال</td>
+                                    </tr>
+                                    <tr>
+                                        <td>تخفیف:</td>
+                                        <td class="text-end text-success">-@((Model.DiscountAmount ?? 0).ToString("N2")) ریال</td>
+                                    </tr>
+                                    <tr class="border-top">
+                                        <td class="fw-bold">مبلغ نهایی:</td>
+                                        <td class="text-end fw-bold text-primary fs-5">@((Model.NetAmount ?? 0).ToString("N2")) ریال</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                @if (!string.IsNullOrEmpty(Model.Notes))
+                {
+                    <div class="row mt-4">
+                        <div class="col-xl-12">
+                            <h6 class="text-muted mb-3">یادداشت</h6>
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <p class="mb-0">@Model.Notes</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- Creation Info -->
+                <div class="row mt-4">
+                    <div class="col-xl-12">
+                        <small class="text-muted">
+                            تاریخ ایجاد:
+                            @{
+                                var createdDateTime = Model.CreatedDate;
+                            }
+                            @($"{pc.GetYear(createdDateTime)}/{pc.GetMonth(createdDateTime):00}/{pc.GetDayOfMonth(createdDateTime):00}")
+                            @if (Model.CreatedBy.HasValue)
+                            {
+                                <span> - ایجاد شده توسط: @Model.CreatedBy</span>
+                            }
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
