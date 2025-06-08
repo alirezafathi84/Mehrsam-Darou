@@ -1,0 +1,279 @@
+﻿@model Mehrsam_Darou.Models.PersianDateConverter
+
+@{
+    ViewData["Title"] = "ویرایش تاریخ";
+}
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Success and Error Alerts -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success px-2" role="alert">
+                        <p class="mb-0">با موفقیت انجام شد</p>
+                        <p class="mb-0">@TempData["SuccessMessage"]</p>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger px-2" role="alert">
+                        <p class="mb-0">خطا</p>
+                        <p class="mb-0">@TempData["ErrorMessage"]</p>
+                    </div>
+                }
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4>ویرایش تاریخ</h4>
+                    <a href="@Url.Action("Index")" class="btn btn-secondary">
+                        <i class="bx bx-arrow-back me-1"></i> بازگشت به لیست
+                    </a>
+                </div>
+
+                <form asp-action="Edit">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="GregorianDate" />
+
+                    <!-- Display the Gregorian Date (read-only) -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">تاریخ میلادی</label>
+                                <input value="@Model.GregorianDate.ToString("yyyy-MM-dd")" type="date" class="form-control" readonly />
+                                <small class="form-text text-muted">تاریخ میلادی قابل تغییر نیست</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">روز هفته</label>
+                                <input value="@Model.GregorianDate.ToDateTime(TimeOnly.MinValue).ToString("dddd", new System.Globalization.CultureInfo("fa-IR"))" class="form-control" readonly />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="PersianDate" class="form-label">تاریخ شمسی <span class="text-danger">*</span></label>
+                                <input asp-for="PersianDate" class="form-control" />
+                                <span asp-validation-for="PersianDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="PersianYear" class="form-label">سال شمسی <span class="text-danger">*</span></label>
+                                <input asp-for="PersianYear" type="number" class="form-control" />
+                                <span asp-validation-for="PersianYear" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="PersianMonth" class="form-label">ماه شمسی <span class="text-danger">*</span></label>
+                                <select asp-for="PersianMonth" class="form-select">
+                                    <option value="1" selected="@(Model.PersianMonth == 1)">فروردین</option>
+                                    <option value="2" selected="@(Model.PersianMonth == 2)">اردیبهشت</option>
+                                    <option value="3" selected="@(Model.PersianMonth == 3)">خرداد</option>
+                                    <option value="4" selected="@(Model.PersianMonth == 4)">تیر</option>
+                                    <option value="5" selected="@(Model.PersianMonth == 5)">مرداد</option>
+                                    <option value="6" selected="@(Model.PersianMonth == 6)">شهریور</option>
+                                    <option value="7" selected="@(Model.PersianMonth == 7)">مهر</option>
+                                    <option value="8" selected="@(Model.PersianMonth == 8)">آبان</option>
+                                    <option value="9" selected="@(Model.PersianMonth == 9)">آذر</option>
+                                    <option value="10" selected="@(Model.PersianMonth == 10)">دی</option>
+                                    <option value="11" selected="@(Model.PersianMonth == 11)">بهمن</option>
+                                    <option value="12" selected="@(Model.PersianMonth == 12)">اسفند</option>
+                                </select>
+                                <span asp-validation-for="PersianMonth" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="PersianDay" class="form-label">روز شمسی <span class="text-danger">*</span></label>
+                                <input asp-for="PersianDay" type="number" min="1" max="31" class="form-control" />
+                                <span asp-validation-for="PersianDay" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="IsHoliday" class="form-label">وضعیت تعطیلی</label>
+                                <select asp-for="IsHoliday" class="form-select" id="isHolidaySelect">
+                                    @if (Model.IsHoliday)
+                                    {
+                                        <option value="false">عادی (غیر تعطیل)</option>
+                                        <option value="true" selected>تعطیل</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="false" selected>عادی (غیر تعطیل)</option>
+                                        <option value="true">تعطیل</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="IsHoliday" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="IsWorkingDay" class="form-label">روز کاری</label>
+                                <select asp-for="IsWorkingDay" class="form-select" id="isWorkingDaySelect">
+                                    @if (Model.IsWorkingDay)
+                                    {
+                                        <option value="true" selected>کاری</option>
+                                        <option value="false">غیر کاری</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="true">کاری</option>
+                                        <option value="false" selected>غیر کاری</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="IsWorkingDay" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status Information -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="alert alert-info">
+                                <h6><i class="bx bx-info-circle me-1"></i>وضعیت فعلی:</h6>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <strong>تاریخ میلادی:</strong> @Model.GregorianDate.ToString("yyyy/MM/dd")
+                                    </div>
+                                    <div class="col-md-3">
+                                        <strong>روز هفته:</strong> @Model.GregorianDate.ToDateTime(TimeOnly.MinValue).ToString("dddd", new System.Globalization.CultureInfo("fa-IR"))
+                                    </div>
+                                    <div class="col-md-3">
+                                        <strong>تعطیل:</strong>
+                                        @if (Model.IsHoliday)
+                                        {
+                                            <span class="badge bg-danger">بله</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">خیر</span>
+                                        }
+                                    </div>
+                                    <div class="col-md-3">
+                                        <strong>روز کاری:</strong>
+                                        @if (Model.IsWorkingDay)
+                                        {
+                                            <span class="badge bg-primary">بله</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">خیر</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Weekend Warning -->
+                    @{
+                        var gregorianDateTime = Model.GregorianDate.ToDateTime(TimeOnly.MinValue);
+                        var dayOfWeek = (int)gregorianDateTime.DayOfWeek;
+                        var isWeekend = dayOfWeek == 4 || dayOfWeek == 5; // Thursday = 4, Friday = 5
+                    }
+                    @if (isWeekend)
+                    {
+                        <div class="alert alert-warning">
+                            <i class="bx bx-calendar-exclamation me-1"></i>
+                            <strong>توجه:</strong> این روز (@gregorianDateTime.ToString("dddd", new System.Globalization.CultureInfo("fa-IR"))) جزو تعطیلات آخر هفته (پنج‌شنبه یا جمعه) است.
+                        </div>
+                    }
+
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bx bx-save me-1"></i> ذخیره تغییرات
+                        </button>
+                        <button type="button" class="btn btn-warning ms-2" onclick="updatePersianDateFromInputs()">
+                            <i class="bx bx-refresh me-1"></i> به‌روزرسانی تاریخ شمسی
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        function updatePersianDateFromInputs() {
+            const year = document.getElementById('PersianYear').value;
+            const month = document.getElementById('PersianMonth').value;
+            const day = document.getElementById('PersianDay').value;
+
+            if (year && month && day) {
+                const persianDateString = year + '/' + month.padStart(2, '0') + '/' + day.padStart(2, '0');
+                document.getElementById('PersianDate').value = persianDateString;
+            }
+        }
+
+        // Sync holiday and working day status
+        document.getElementById('isHolidaySelect').addEventListener('change', function() {
+            if (this.value === 'true') {
+                document.getElementById('isWorkingDaySelect').value = 'false';
+                showAlert('اگر روزی تعطیل باشد، به طور خودکار غیر کاری در نظر گرفته می‌شود.', 'info');
+            }
+        });
+
+        document.getElementById('isWorkingDaySelect').addEventListener('change', function() {
+            if (this.value === 'true') {
+                document.getElementById('isHolidaySelect').value = 'false';
+                showAlert('اگر روزی کاری باشد، نمی‌تواند تعطیل باشد.', 'info');
+            }
+        });
+
+        // Update Persian date when components change
+        ['PersianYear', 'PersianMonth', 'PersianDay'].forEach(id => {
+            document.getElementById(id).addEventListener('change', updatePersianDateFromInputs);
+        });
+
+        function showAlert(message, type) {
+            // Create a temporary alert
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+
+            // Insert at the top of the form
+            const form = document.querySelector('form');
+            form.insertBefore(alertDiv, form.firstChild);
+
+            // Auto-dismiss after 3 seconds
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 3000);
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-dismiss alerts after 5 seconds
+            setTimeout(function () {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function (alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+        });
+    </script>
+}

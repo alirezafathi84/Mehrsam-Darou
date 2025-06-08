@@ -1,0 +1,250 @@
+﻿@{
+    ViewData["Title"] = "محاسبه حقوق و دستمزد";
+}
+
+<h2 class="mb-4">محاسبه حقوق و دستمزد</h2>
+
+<div class="row">
+    <div class="col-xl-12">
+        <!-- Success and Error Alerts -->
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success px-2" role="alert">
+                <p class="mb-0">با موفقیت انجام شد</p>
+                <p class="mb-0">@TempData["SuccessMessage"]</p>
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger px-2" role="alert">
+                <p class="mb-0">خطا</p>
+                <p class="mb-0">@TempData["ErrorMessage"]</p>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="row">
+    <!-- Monthly Salary Calculation -->
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bx bx-calculator me-2"></i>محاسبه حقوق ماهانه
+                </h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="MonthlyCalculation" method="post">
+                    <div class="mb-3">
+                        <label class="form-label">ماه فارسی <span class="text-danger">*</span></label>
+                        <input type="text" name="persianYearMonth" class="form-control"
+                               value="@ViewBag.CurrentPersianMonth"
+                               placeholder="1404/03"
+                               pattern="[0-9]{4}/[0-9]{2}"
+                               title="فرمت: سال/ماه (مثال: 1404/03)"
+                               required />
+                        <small class="form-text text-muted">فرمت: سال/ماه (مثال: 1404/03 برای خرداد 1404)</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">تیم (اختیاری)</label>
+                        <select name="teamId" class="form-select">
+                            <option value="">همه تیم‌ها</option>
+                            @foreach (var team in ViewBag.Teams)
+                            {
+                                <option value="@team.Id">@team.Name</option>
+                            }
+                        </select>
+                        <small class="form-text text-muted">برای محاسبه حقوق یک تیم خاص انتخاب کنید</small>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <h6><i class="bx bx-info-circle me-1"></i>محاسبات شامل:</h6>
+                        <ul class="mb-0">
+                            <li>روزهای کارکرد و ماموریت</li>
+                            <li>مرخصی‌های با حقوق و بدون حقوق</li>
+                            <li>اضافه‌کاری (بیش از 8 ساعت در روز)</li>
+                            <li>کسورات غیبت</li>
+                        </ul>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bx bx-calculator me-1"></i>محاسبه حقوق ماهانه
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Individual Calculation -->
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bx bx-detail me-2"></i>محاسبه جزئیات فردی
+                </h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="DetailedCalculation" method="post">
+                    <div class="mb-3">
+                        <label class="form-label">کارمند <span class="text-danger">*</span></label>
+                        <select name="userId" class="form-select" required>
+                            <option value="">-- انتخاب کارمند --</option>
+                            @foreach (var user in ViewBag.Users)
+                            {
+                                <option value="@user.Id">@user.FullName</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">تاریخ شروع <span class="text-danger">*</span></label>
+                                <input type="date" name="startDate" class="form-control" required />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">تاریخ پایان <span class="text-danger">*</span></label>
+                                <input type="date" name="endDate" class="form-control" required />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <h6><i class="bx bx-info-circle me-1"></i>گزارش جزئیات شامل:</h6>
+                        <ul class="mb-0">
+                            <li>جزئیات روزانه حضور و غیاب</li>
+                            <li>محاسبه تأثیر هر روز بر حقوق</li>
+                            <li>جزئیات اضافه‌کاری و مرخصی‌ها</li>
+                            <li>خلاصه محاسبات دوره</li>
+                        </ul>
+                    </div>
+
+                    <button type="submit" class="btn btn-info">
+                        <i class="bx bx-detail me-1"></i>محاسبه جزئیات فردی
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mt-4">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bx bx-cog me-2"></i>عملیات سریع
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="card border-primary">
+                            <div class="card-body text-center">
+                                <i class="bx bx-calendar-check text-primary fs-1"></i>
+                                <h6 class="mt-2">ماه جاری</h6>
+                                <form asp-action="MonthlyCalculation" method="post" class="d-inline">
+                                    <input type="hidden" name="persianYearMonth" value="@ViewBag.CurrentPersianMonth" />
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">محاسبه</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-success">
+                            <div class="card-body text-center">
+                                <i class="bx bx-money text-success fs-1"></i>
+                                <h6 class="mt-2">حقوق‌ها</h6>
+                                <a href="@Url.Action("SalaryInfoList", "SalaryInfo")" class="btn btn-sm btn-outline-success">مدیریت</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-info">
+                            <div class="card-body text-center">
+                                <i class="bx bx-time text-info fs-1"></i>
+                                <h6 class="mt-2">حضور و غیاب</h6>
+                                <a href="#" class="btn btn-sm btn-outline-info">گزارش‌ها</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-warning">
+                            <div class="card-body text-center">
+                                <i class="bx bx-calendar-minus text-warning fs-1"></i>
+                                <h6 class="mt-2">مرخصی‌ها</h6>
+                                <a href="@Url.Action("VacationList", "Vacation")" class="btn btn-sm btn-outline-warning">مدیریت</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Set default dates to current month
+            const today = new Date();
+            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+            const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+            const startDateInput = document.querySelector('input[name="startDate"]');
+            const endDateInput = document.querySelector('input[name="endDate"]');
+
+            if (startDateInput) {
+                startDateInput.value = firstDay.toISOString().split('T')[0];
+            }
+            if (endDateInput) {
+                endDateInput.value = lastDay.toISOString().split('T')[0];
+            }
+
+            // Validate Persian month format
+            const persianMonthInput = document.querySelector('input[name="persianYearMonth"]');
+            if (persianMonthInput) {
+                persianMonthInput.addEventListener('input', function() {
+                    const value = this.value;
+                    const pattern = /^[0-9]{4}\/[0-9]{2}$/;
+
+                    if (value && !pattern.test(value)) {
+                        this.setCustomValidity('فرمت صحیح: سال/ماه (مثال: 1404/03)');
+                    } else {
+                        this.setCustomValidity('');
+                    }
+                });
+            }
+
+            // Validate date range
+            if (startDateInput && endDateInput) {
+                function validateDateRange() {
+                    if (startDateInput.value && endDateInput.value) {
+                        if (new Date(startDateInput.value) > new Date(endDateInput.value)) {
+                            endDateInput.setCustomValidity('تاریخ پایان باید بعد از تاریخ شروع باشد');
+                        } else {
+                            endDateInput.setCustomValidity('');
+                        }
+                    }
+                }
+
+                startDateInput.addEventListener('change', validateDateRange);
+                endDateInput.addEventListener('change', validateDateRange);
+            }
+
+            // Auto-dismiss alerts after 5 seconds
+            setTimeout(function () {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function (alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+        });
+    </script>
+}

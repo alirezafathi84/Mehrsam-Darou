@@ -1,0 +1,272 @@
+﻿@model List<MonthlySalaryCalculation>
+
+@{
+    ViewData["Title"] = "نتایج محاسبه حقوق ماهانه";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>نتایج محاسبه حقوق ماهانه</h2>
+    <a href="@Url.Action("Index")" class="btn btn-secondary">
+        <i class="bx bx-arrow-back me-1"></i> بازگشت
+    </a>
+</div>
+
+<div class="row mb-4">
+    <div class="col-xl-12">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <h6 class="text-white-50">ماه فارسی</h6>
+                        <h5>@ViewBag.PersianYearMonth</h5>
+                    </div>
+                    <div class="col-md-3">
+                        <h6 class="text-white-50">بازه میلادی</h6>
+                        <h5>@ViewBag.DateRange</h5>
+                    </div>
+                    <div class="col-md-3">
+                        <h6 class="text-white-50">تیم</h6>
+                        <h5>@ViewBag.TeamName</h5>
+                    </div>
+                    <div class="col-md-3">
+                        <h6 class="text-white-50">تعداد کارمندان</h6>
+                        <h5>@Model.Count نفر</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 bg-success-subtle">
+            <div class="card-body text-center">
+                <h3 class="text-success mb-1">@Model.Sum(m => m.NetSalary).ToString("N0")</h3>
+                <p class="text-muted mb-0">کل حقوق خالص (ریال)</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 bg-info-subtle">
+            <div class="card-body text-center">
+                <h3 class="text-info mb-1">@Model.Sum(m => m.TotalWorkedHours).ToString("N0")</h3>
+                <p class="text-muted mb-0">کل ساعات کار</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 bg-warning-subtle">
+            <div class="card-body text-center">
+                <h3 class="text-warning mb-1">@Model.Sum(m => m.OvertimePay).ToString("N0")</h3>
+                <p class="text-muted mb-0">کل اضافه‌کاری (ریال)</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 bg-danger-subtle">
+            <div class="card-body text-center">
+                <h3 class="text-danger mb-1">@Model.Sum(m => m.AbsenceDeductions + m.UnpaidVacationDeductions).ToString("N0")</h3>
+                <p class="text-muted mb-0">کل کسورات (ریال)</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Results Table -->
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">جزئیات محاسبه حقوق</h5>
+                    <div>
+                        <button class="btn btn-success btn-sm" onclick="exportToExcel()">
+                            <i class="bx bx-download me-1"></i>خروجی Excel
+                        </button>
+                        <button class="btn btn-info btn-sm" onclick="printReport()">
+                            <i class="bx bx-printer me-1"></i>چاپ
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0" id="salaryTable">
+                        <thead class="bg-light-subtle">
+                            <tr>
+                                <th>کارمند</th>
+                                <th>تیم</th>
+                                <th>کارکرد</th>
+                                <th>مرخصی با حقوق</th>
+                                <th>مرخصی بدون حقوق</th>
+                                <th>غیبت</th>
+                                <th>کل ساعات</th>
+                                <th>حقوق پایه</th>
+                                <th>اضافه‌کاری</th>
+                                <th>کسورات</th>
+                                <th>حقوق خالص</th>
+                                <th>عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var salary in Model.OrderBy(m => m.TeamName).ThenBy(m => m.FullName))
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-light-subtle rounded me-2">
+                                                <span class="avatar-title">
+                                                    <iconify-icon icon="solar:user-rounded-bold-duotone" class="fs-18"></iconify-icon>
+                                                </span>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0 fw-medium">@salary.FullName</h6>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info-subtle text-info">@salary.TeamName</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-success">@salary.WorkedDays روز</span>
+                                        @if (salary.MissionDays > 0)
+                                        {
+                                            <br>
+
+                                            <small class="text-muted">+ @salary.MissionDays ماموریت</small>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (salary.PaidVacationDays > 0)
+                                        {
+                                            <span class="badge bg-primary">@salary.PaidVacationDays روز</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (salary.UnpaidVacationDays > 0)
+                                        {
+                                            <span class="badge bg-warning">@salary.UnpaidVacationDays روز</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (salary.AbsentDays > 0)
+                                        {
+                                            <span class="badge bg-danger">@salary.AbsentDays روز</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="fw-medium">@salary.TotalWorkedHours.ToString("F1")</span>
+                                    </td>
+                                    <td>
+                                        <span class="text-success">@salary.MonthlyBaseSalary.ToString("N0")</span>
+                                    </td>
+                                    <td>
+                                        @if (salary.OvertimePay > 0)
+                                        {
+                                            <span class="text-warning fw-medium">@salary.OvertimePay.ToString("N0")</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @{
+                                            var totalDeductions = salary.AbsenceDeductions + salary.UnpaidVacationDeductions;
+                                        }
+                                        @if (totalDeductions > 0)
+                                        {
+                                            <span class="text-danger fw-medium">@totalDeductions.ToString("N0")</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold text-success fs-6">@salary.NetSalary.ToString("N0")</span>
+                                        <small class="text-muted d-block">ریال</small>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex gap-1">
+                                            <a href="@Url.Action("DetailedCalculation", new {
+                                                userId = salary.UserId,
+                                                startDate = ViewBag.DateRange.Split(" - ")[0],
+                                                endDate = ViewBag.DateRange.Split(" - ")[1]
+                                            })" class="btn btn-soft-info btn-sm" title="جزئیات">
+                                                <iconify-icon icon="solar:eye-broken" class="fs-16"></iconify-icon>
+                                            </a>
+                                            <a href="@Url.Action("DailyAttendanceReport", new {
+                                                userId = salary.UserId,
+                                                startDate = ViewBag.DateRange.Split(" - ")[0],
+                                                endDate = ViewBag.DateRange.Split(" - ")[1]
+                                            })" class="btn btn-soft-primary btn-sm" title="گزارش روزانه">
+                                                <iconify-icon icon="solar:calendar-broken" class="fs-16"></iconify-icon>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot class="bg-light">
+                            <tr>
+                                <th colspan="7">جمع کل:</th>
+                                <th class="text-success">@Model.Sum(m => m.MonthlyBaseSalary).ToString("N0")</th>
+                                <th class="text-warning">@Model.Sum(m => m.OvertimePay).ToString("N0")</th>
+                                <th class="text-danger">@Model.Sum(m => m.AbsenceDeductions + m.UnpaidVacationDeductions).ToString("N0")</th>
+                                <th class="text-success fw-bold">@Model.Sum(m => m.NetSalary).ToString("N0")</th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        function exportToExcel() {
+            const table = document.getElementById('salaryTable');
+            const wb = XLSX.utils.table_to_book(table, { sheet: "حقوق ماهانه" });
+
+            // Set Persian filename
+            const filename = `حقوق_ماهانه_@(ViewBag.PersianYearMonth?.Replace("/", "_"))_${new Date().toISOString().split('T')[0]}.xlsx`;
+            XLSX.writeFile(wb, filename);
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        // Print styles
+        const printStyles = `
+            <style>
+                @@media print {
+                    body * { visibility: hidden; }
+                    .card, .card * { visibility: visible; }
+                    .card { position: absolute; top: 0; left: 0; width: 100%; }
+                    .btn { display: none !important; }
+                    h2 { color: black !important; }
+                }
+            </style>
+        `;
+        document.head.insertAdjacentHTML('beforeend', printStyles);
+    </script>
+}

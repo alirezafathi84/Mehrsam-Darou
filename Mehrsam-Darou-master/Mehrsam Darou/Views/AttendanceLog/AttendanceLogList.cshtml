@@ -4,10 +4,10 @@
 
 @{
     PersianCalendar pc = new PersianCalendar();
-    ViewData["Title"] = "لیست حضور و غیاب";
+    ViewData["Title"] = "لیست ورود و خروج";
 }
 
-<h2 class="mb-4">لیست حضور و غیاب</h2>
+<h2 class="mb-4">لیست ورود و خروج</h2>
 
 <div class="row">
     <div class="col-xl-12">
@@ -30,39 +30,44 @@
                     </div>
                 }
 
-                <!-- Filters and Search -->
-                <div class="row mb-3">
-                    <div class="col-md-12">
-                        <form method="get" asp-action="AttendanceLogList">
-                            <div class="row g-3">
-                                <div class="col-md-3">
-                                    <div class="search-bar">
-                                        <span><i class="bx bx-search-alt"></i></span>
-                                        <input type="search" name="searchKey" value="@ViewBag.SearchKey" class="form-control" placeholder="جستجو کاربر، دستگاه، موقعیت...">
-                                    </div>
-                                </div>
-                                <div class="col-md-2">
-                                    <select name="logType" class="form-select">
-                                        <option value="">-- همه انواع --</option>
-                                        <option value="Entry" selected="@(ViewBag.LogType == "Entry")">ورود</option>
-                                        <option value="Exit" selected="@(ViewBag.LogType == "Exit")">خروج</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-2">
-                                    <input type="text" name="deviceId" value="@ViewBag.DeviceId" class="form-control" placeholder="شناسه دستگاه">
-                                </div>
-                                <div class="col-md-2">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="bx bx-search me-1"></i> جستجو
-                                    </button>
-                                </div>
-                                <div class="col-md-3 text-end">
-                                    <a href="@Url.Action("AddAttendanceLog")" class="btn btn-success">
-                                        <i class="bx bx-plus me-1"></i> ثبت جدید
-                                    </a>
-                                </div>
-                            </div>
-                        </form>
+                <!-- Search and Filter Form -->
+                <form method="get" asp-action="AttendanceLogList" class="row g-3 mb-3">
+                    <div class="col-md-3">
+                        <label class="form-label">جستجو</label>
+                        <input type="search" name="searchKey" value="@ViewBag.SearchKey" class="form-control" placeholder="نام کاربر، نوع ورود/خروج...">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">از تاریخ</label>
+                        <input type="date" name="startDate" value="@ViewBag.StartDate" class="form-control">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">تا تاریخ</label>
+                        <input type="date" name="endDate" value="@ViewBag.EndDate" class="form-control">
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary me-2">
+                            <i class="bx bx-search me-1"></i>جستجو
+                        </button>
+                        <a href="@Url.Action("AttendanceLogList")" class="btn btn-secondary">
+                            <i class="bx bx-refresh me-1"></i>پاک کردن
+                        </a>
+                    </div>
+                </form>
+
+                <!-- Action Buttons -->
+                <div class="d-flex flex-wrap justify-content-between gap-3 mb-3">
+                    <div>
+                        <a href="@Url.Action("AddAttendanceLog")" class="btn btn-success">
+                            <i class="bx bx-plus me-1"></i>ثبت ورود/خروج جدید
+                        </a>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#recalculateModal">
+                            <i class="bx bx-calculator me-1"></i>محاسبه مجدد حضور روزانه
+                        </button>
+                        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#quickEntryModal">
+                            <i class="bx bx-time me-1"></i>ورود/خروج سریع
+                        </button>
                     </div>
                 </div>
             </div>
@@ -73,12 +78,11 @@
                         <thead class="bg-light-subtle">
                             <tr>
                                 <th>کاربر</th>
-                                <th>زمان ثبت</th>
-                                <th>نوع ثبت</th>
-                                <th>شناسه دستگاه</th>
-                                <th>موقعیت</th>
-                                <th>تاریخ شمسی</th>
-                                <th>تاریخ ایجاد</th>
+                                <th>تاریخ و ساعت</th>
+                                <th>تاریخ فارسی</th>
+                                <th>نوع</th>
+                                <th>مکان</th>
+                                <th>دستگاه</th>
                                 <th>اقدامات</th>
                             </tr>
                         </thead>
@@ -96,52 +100,35 @@
                                                     </span>
                                                 </div>
                                                 <div>
-                                                    <h6 class="mb-0 fw-medium">@(log.User?.FirstName + " " + log.User?.LastName)</h6>
-                                                    <small class="text-muted">@log.User?.Username</small>
+                                                    <h6 class="mb-0 fw-medium">@log.User.FirstName @log.User.LastName</h6>
+                                                    <small class="text-muted">@log.User.Username</small>
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
                                             <div>
-                                                <span class="fw-medium">@log.LogTime.ToString("HH:mm:ss")</span>
+                                                <span class="fw-medium">@log.LogTime.ToString("yyyy/MM/dd")</span>
                                                 <br>
-                                                <small class="text-muted">@log.LogTime.ToString("yyyy/MM/dd")</small>
+                                                <span class="text-primary">@log.LogTime.ToString("HH:mm:ss")</span>
                                             </div>
+                                        </td>
+                                        <td>
+                                            <span class="text-muted">@log.PersianDate</span>
                                         </td>
                                         <td>
                                             @if (log.LogType == "Entry")
                                             {
-                                                <span class="badge bg-success-subtle text-success">
-                                                    <i class="bx bx-log-in me-1"></i> ورود
-                                                </span>
-                                            }
-                                            else if (log.LogType == "Exit")
-                                            {
-                                                <span class="badge bg-danger-subtle text-danger">
-                                                    <i class="bx bx-log-out me-1"></i> خروج
-                                                </span>
+                                                <span class="badge bg-success">ورود</span>
                                             }
                                             else
                                             {
-                                                <span class="badge bg-secondary">@log.LogType</span>
-                                            }
-                                        </td>
-                                        <td>
-                                            @if (!string.IsNullOrEmpty(log.DeviceId))
-                                            {
-                                                <span class="badge bg-info-subtle text-info">@log.DeviceId</span>
-                                            }
-                                            else
-                                            {
-                                                <span class="text-muted">-</span>
+                                                <span class="badge bg-danger">خروج</span>
                                             }
                                         </td>
                                         <td>
                                             @if (!string.IsNullOrEmpty(log.Location))
                                             {
-                                                <i class="bx bx-map me-1 text-muted"></i>
-
-                                                @log.Location
+                                                <small class="text-muted">@log.Location</small>
                                             }
                                             else
                                             {
@@ -149,44 +136,26 @@
                                             }
                                         </td>
                                         <td>
-                                            @if (!string.IsNullOrEmpty(log.PersianDate))
+                                            @if (!string.IsNullOrEmpty(log.DeviceId))
                                             {
-                                                <small class="text-muted">@log.PersianDate</small>
+                                                <small class="text-muted">@log.DeviceId</small>
                                             }
                                             else
                                             {
-                                                <small class="text-muted">
-                                                    @pc.GetYear(log.LogTime)/@pc.GetMonth(log.LogTime).ToString("00")/@pc.GetDayOfMonth(log.LogTime).ToString("00")
-                                                </small>
+                                                <span class="text-muted">-</span>
                                             }
                                         </td>
                                         <td>
-                                            @if (log.DateCreated.HasValue)
-                                            {
-                                                <small class="text-muted">
-                                                    @pc.GetYear(log.DateCreated.Value)/@pc.GetMonth(log.DateCreated.Value).ToString("00")/@pc.GetDayOfMonth(log.DateCreated.Value).ToString("00")
-                                                    <br />
-                                                    @log.DateCreated.Value.ToString("HH:mm")
-                                                </small>
-                                            }
-                                        </td>
-                                        <td>
-                                            <div class="d-flex gap-2 justify-content-center">
-                                                <a href="@Url.Action("Details", new { id = log.Id })" class="btn btn-soft-info btn-sm" title="مشاهده جزئیات">
-                                                    <iconify-icon icon="solar:eye-broken" class="align-middle fs-18"></iconify-icon>
+                                            <div class="d-flex gap-1 justify-content-center">
+                                                <a href="@Url.Action("Details", new { id = log.Id })" class="btn btn-soft-info btn-sm" title="جزئیات">
+                                                    <iconify-icon icon="solar:eye-broken" class="align-middle fs-16"></iconify-icon>
                                                 </a>
                                                 <a href="@Url.Action("EditAttendanceLog", new { id = log.Id })" class="btn btn-soft-primary btn-sm" title="ویرایش">
-                                                    <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
+                                                    <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-16"></iconify-icon>
                                                 </a>
-                                                <button type="button" class="btn btn-soft-danger btn-sm"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#deleteModal"
-                                                        data-bs-id="@log.Id"
-                                                        data-bs-user="@(log.User?.FirstName + " " + log.User?.LastName)"
-                                                        data-bs-time="@log.LogTime.ToString("yyyy/MM/dd HH:mm")"
-                                                        title="حذف">
-                                                    <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
-                                                </button>
+                                                <a href="@Url.Action("Delete", new { id = log.Id })" class="btn btn-soft-danger btn-sm" title="حذف">
+                                                    <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-16"></iconify-icon>
+                                                </a>
                                             </div>
                                         </td>
                                     </tr>
@@ -195,9 +164,9 @@
                             else
                             {
                                 <tr>
-                                    <td colspan="8" class="text-center py-4">
+                                    <td colspan="7" class="text-center py-4">
                                         <i class="bx bx-time text-muted fs-1"></i>
-                                        <p class="mt-2">هیچ رکورد حضور و غیابی یافت نشد.</p>
+                                        <p class="mt-2">هیچ رکورد ورود/خروجی یافت نشد.</p>
                                     </td>
                                 </tr>
                             }
@@ -207,20 +176,12 @@
             </div>
 
             <div class="card-footer border-top">
-                <nav aria-label="Page navigation example">
+                <nav aria-label="Page navigation">
                     <ul class="pagination justify-content-end mb-0">
                         @if (Model.HasPreviousPage)
                         {
                             <li class="page-item">
-                                <a class="page-link" href="@Url.Action("AttendanceLogList", new { page = Model.PageIndex - 1, searchKey = ViewBag.SearchKey, logType = ViewBag.LogType, deviceId = ViewBag.DeviceId })">
-                                    <i class="bx bx-chevron-right"></i>
-                                </a>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                <a class="page-link" href="@Url.Action("AttendanceLogList", new { page = Model.PageIndex - 1, searchKey = ViewBag.SearchKey, startDate = ViewBag.StartDate, endDate = ViewBag.EndDate })">
                                     <i class="bx bx-chevron-right"></i>
                                 </a>
                             </li>
@@ -229,22 +190,14 @@
                         @for (int i = 1; i <= Model.TotalPages; i++)
                         {
                             <li class="page-item @(i == Model.PageIndex ? "active" : "")">
-                                <a class="page-link" href="@Url.Action("AttendanceLogList", new { page = i, searchKey = ViewBag.SearchKey, logType = ViewBag.LogType, deviceId = ViewBag.DeviceId })">@i</a>
+                                <a class="page-link" href="@Url.Action("AttendanceLogList", new { page = i, searchKey = ViewBag.SearchKey, startDate = ViewBag.StartDate, endDate = ViewBag.EndDate })">@i</a>
                             </li>
                         }
 
                         @if (Model.HasNextPage)
                         {
                             <li class="page-item">
-                                <a class="page-link" href="@Url.Action("AttendanceLogList", new { page = Model.PageIndex + 1, searchKey = ViewBag.SearchKey, logType = ViewBag.LogType, deviceId = ViewBag.DeviceId })">
-                                    <i class="bx bx-chevron-left"></i>
-                                </a>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                <a class="page-link" href="@Url.Action("AttendanceLogList", new { page = Model.PageIndex + 1, searchKey = ViewBag.SearchKey, startDate = ViewBag.StartDate, endDate = ViewBag.EndDate })">
                                     <i class="bx bx-chevron-left"></i>
                                 </a>
                             </li>
@@ -256,28 +209,68 @@
     </div>
 </div>
 
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+<!-- Recalculate Modal -->
+<div class="modal fade" id="recalculateModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">حذف رکورد حضور و غیاب</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+                <h5 class="modal-title">محاسبه مجدد حضور روزانه</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" asp-action="RecalculateDailyAttendance">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">از تاریخ</label>
+                        <input type="date" name="startDate" class="form-control" value="@DateTime.Today.AddDays(-30).ToString("yyyy-MM-dd")">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">تا تاریخ</label>
+                        <input type="date" name="endDate" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")">
+                    </div>
+                    <div class="alert alert-info">
+                        <small>این عملیات تمام رکوردهای حضور روزانه را در بازه زمانی مشخص شده مجدداً محاسبه می‌کند.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-primary">محاسبه مجدد</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Entry Modal -->
+<div class="modal fade" id="quickEntryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">ورود/خروج سریع</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <p>آیا از حذف این رکورد حضور و غیاب مطمئن هستید؟</p>
-                <div id="deleteDetails" class="fw-bold"></div>
-                <div class="alert alert-warning mt-2">
-                    <small><i class="bx bx-info-circle me-1"></i> این عمل قابل بازگشت نیست.</small>
+                <div class="mb-3">
+                    <label class="form-label">انتخاب کاربر</label>
+                    <select id="quickUserId" class="form-select">
+                        <option value="">-- انتخاب کاربر --</option>
+                        @if (ViewBag.Users != null)
+                        {
+                            @foreach (var user in ViewBag.Users)
+                            {
+                                <option value="@user.Id">@user.FullName</option>
+                            }
+                        }
+                    </select>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <form id="deleteForm" method="post" asp-action="Delete">
-                    <input type="hidden" id="logIdToDelete" name="id" />
-                    @Html.AntiForgeryToken()
-                    <button type="submit" class="btn btn-danger">حذف</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
-                </form>
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-success" onclick="quickEntry()">
+                        <i class="bx bx-log-in me-1"></i>ثبت ورود
+                    </button>
+                    <button type="button" class="btn btn-danger" onclick="quickExit()">
+                        <i class="bx bx-log-out me-1"></i>ثبت خروج
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -285,28 +278,67 @@
 
 @section Scripts {
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            var deleteModal = document.getElementById('deleteModal');
-            deleteModal.addEventListener('show.bs.modal', function (event) {
-                var button = event.relatedTarget;
-                var logId = button.getAttribute('data-bs-id');
-                var userName = button.getAttribute('data-bs-user');
-                var logTime = button.getAttribute('data-bs-time');
+        function quickEntry() {
+            const userId = document.getElementById('quickUserId').value;
+            if (!userId) {
+                alert('لطفاً کاربر را انتخاب کنید');
+                return;
+            }
 
-                document.getElementById('deleteDetails').innerHTML =
-                    '<p>کاربر: ' + userName + '</p>' +
-                    '<p>زمان: ' + logTime + '</p>';
-                document.getElementById('logIdToDelete').value = logId;
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '@Url.Action("QuickEntry")';
+
+            const userIdInput = document.createElement('input');
+            userIdInput.type = 'hidden';
+            userIdInput.name = 'userId';
+            userIdInput.value = userId;
+
+            const tokenInput = document.createElement('input');
+            tokenInput.type = 'hidden';
+            tokenInput.name = '__RequestVerificationToken';
+            tokenInput.value = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            form.appendChild(userIdInput);
+            form.appendChild(tokenInput);
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        function quickExit() {
+            const userId = document.getElementById('quickUserId').value;
+            if (!userId) {
+                alert('لطفاً کاربر را انتخاب کنید');
+                return;
+            }
+
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '@Url.Action("QuickExit")';
+
+            const userIdInput = document.createElement('input');
+            userIdInput.type = 'hidden';
+            userIdInput.name = 'userId';
+            userIdInput.value = userId;
+
+            const tokenInput = document.createElement('input');
+            tokenInput.type = 'hidden';
+            tokenInput.name = '__RequestVerificationToken';
+            tokenInput.value = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            form.appendChild(userIdInput);
+            form.appendChild(tokenInput);
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(function () {
+            var alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function (alert) {
+                var bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
             });
-
-            // Auto-dismiss alerts after 5 seconds
-            setTimeout(function () {
-                var alerts = document.querySelectorAll('.alert');
-                alerts.forEach(function (alert) {
-                    var bsAlert = new bootstrap.Alert(alert);
-                    bsAlert.close();
-                });
-            }, 5000);
-        });
+        }, 5000);
     </script>
 }

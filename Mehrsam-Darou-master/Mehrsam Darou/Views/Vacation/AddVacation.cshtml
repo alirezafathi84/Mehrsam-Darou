@@ -1,0 +1,250 @@
+﻿@model Mehrsam_Darou.Models.Vacation
+
+@{
+    ViewData["Title"] = "ثبت درخواست مرخصی جدید";
+}
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Success and Error Alerts -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success px-2" role="alert">
+                        <p class="mb-0">با موفقیت انجام شد</p>
+                        <p class="mb-0">@TempData["SuccessMessage"]</p>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger px-2" role="alert">
+                        <p class="mb-0">خطا</p>
+                        <p class="mb-0">@TempData["ErrorMessage"]</p>
+                    </div>
+                }
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4>ثبت درخواست مرخصی جدید</h4>
+                    <a href="@Url.Action("VacationList")" class="btn btn-secondary">
+                        <i class="bx bx-arrow-back me-1"></i> بازگشت به لیست
+                    </a>
+                </div>
+
+                <form asp-action="AddVacation">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="UserId" class="form-label">کارمند <span class="text-danger">*</span></label>
+                                <select asp-for="UserId" class="form-select" required>
+                                    <option value="">-- انتخاب کارمند --</option>
+                                    @foreach (var user in ViewBag.Users)
+                                    {
+                                        <option value="@user.Id">@user.FullName</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="UserId" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="TypeId" class="form-label">نوع مرخصی <span class="text-danger">*</span></label>
+                                <select asp-for="TypeId" class="form-select" required id="vacationTypeSelect">
+                                    <option value="">-- انتخاب نوع مرخصی --</option>
+                                    @foreach (var type in ViewBag.VacationTypes)
+                                    {
+                                        <option value="@type.Id"
+                                                data-description="@type.Description"
+                                                data-ispaid="@type.IsPaid"
+                                                data-maxdays="@type.MaxDaysPerYear">
+                                            @type.Name @(type.IsPaid ? "(با حقوق)" : "(بدون حقوق)")
+                                        </option>
+                                    }
+                                </select>
+                                <span asp-validation-for="TypeId" class="text-danger"></span>
+                                <small id="vacationTypeInfo" class="form-text text-muted"></small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="StartDate" class="form-label">تاریخ شروع <span class="text-danger">*</span></label>
+                                <input asp-for="StartDate" type="date" class="form-control" required id="startDate" />
+                                <span asp-validation-for="StartDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="EndDate" class="form-label">تاریخ پایان <span class="text-danger">*</span></label>
+                                <input asp-for="EndDate" type="date" class="form-control" required id="endDate" />
+                                <span asp-validation-for="EndDate" class="text-danger"></span>
+                                <small id="durationInfo" class="form-text text-muted"></small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label asp-for="Notes" class="form-label">توضیحات</label>
+                                <textarea asp-for="Notes" class="form-control" rows="4" placeholder="توضیحات اضافی در مورد درخواست مرخصی..."></textarea>
+                                <span asp-validation-for="Notes" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <h6><i class="bx bx-info-circle me-1"></i> نکات مهم:</h6>
+                        <ul class="mb-0">
+                            <li>درخواست مرخصی پس از ثبت در وضعیت "در انتظار تایید" قرار می‌گیرد</li>
+                            <li>تاریخ پایان باید بعد از تاریخ شروع باشد</li>
+                            <li>در صورت تداخل با مرخصی‌های قبلی، درخواست رد خواهد شد</li>
+                            <li>انواع مختلف مرخصی ممکن است محدودیت‌های مختلفی داشته باشند</li>
+                        </ul>
+                    </div>
+
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bx bx-send me-1"></i> ثبت درخواست
+                        </button>
+                        <button type="button" class="btn btn-info ms-2" onclick="calculateWorkingDays()">
+                            <i class="bx bx-calculator me-1"></i> محاسبه روزهای کاری
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+            const vacationTypeSelect = document.getElementById('vacationTypeSelect');
+            const vacationTypeInfo = document.getElementById('vacationTypeInfo');
+            const durationInfo = document.getElementById('durationInfo');
+
+            // Update vacation type info when selection changes
+            vacationTypeSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                if (selectedOption.value) {
+                    const description = selectedOption.dataset.description;
+                    const isPaid = selectedOption.dataset.ispaid === 'True';
+                    const maxDays = selectedOption.dataset.maxdays;
+
+                    let info = description ? description + ' - ' : '';
+                    info += isPaid ? 'با حقوق' : 'بدون حقوق';
+                    if (maxDays && maxDays !== '0') {
+                        info += ` - حداکثر ${maxDays} روز در سال`;
+                    }
+
+                    vacationTypeInfo.textContent = info;
+                } else {
+                    vacationTypeInfo.textContent = '';
+                }
+            });
+
+            // Calculate duration when dates change
+            function updateDuration() {
+                if (startDateInput.value && endDateInput.value) {
+                    const startDate = new Date(startDateInput.value);
+                    const endDate = new Date(endDateInput.value);
+
+                    if (endDate >= startDate) {
+                        const timeDiff = Math.abs(endDate.getTime() - startDate.getTime());
+                        const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
+                        durationInfo.textContent = `مدت: ${dayDiff} روز`;
+                        durationInfo.className = 'form-text text-success';
+                    } else {
+                        durationInfo.textContent = 'تاریخ پایان باید بعد از تاریخ شروع باشد';
+                        durationInfo.className = 'form-text text-danger';
+                    }
+                } else {
+                    durationInfo.textContent = '';
+                }
+            }
+
+            startDateInput.addEventListener('change', updateDuration);
+            endDateInput.addEventListener('change', updateDuration);
+
+            // Set minimum date to today
+            const today = new Date().toISOString().split('T')[0];
+            startDateInput.min = today;
+
+            // Update end date minimum when start date changes
+            startDateInput.addEventListener('change', function() {
+                endDateInput.min = this.value;
+            });
+        });
+
+        function calculateWorkingDays() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            if (!startDate || !endDate) {
+                alert('لطفاً ابتدا تاریخ شروع و پایان را انتخاب کنید.');
+                return;
+            }
+
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+
+            if (end <= start) {
+                alert('تاریخ پایان باید بعد از تاریخ شروع باشد.');
+                return;
+            }
+
+            let workingDays = 0;
+            let totalDays = 0;
+            const currentDate = new Date(start);
+
+            while (currentDate <= end) {
+                totalDays++;
+                // Skip Fridays (5) in Iran (Friday is weekend)
+                if (currentDate.getDay() !== 5) {
+                    workingDays++;
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+
+            // Show result
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-info alert-dismissible fade show mt-2';
+            alert.innerHTML = `
+                <strong>محاسبه انجام شد!</strong>
+                کل روزها: ${totalDays} روز - روزهای کاری: ${workingDays} روز
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.querySelector('.card-body').insertBefore(alert, document.querySelector('form'));
+
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.parentNode.removeChild(alert);
+                }
+            }, 5000);
+        }
+
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(function () {
+            var alerts = document.querySelectorAll('.alert:not(.alert-info)');
+            alerts.forEach(function (alert) {
+                if (alert.classList.contains('alert-success') || alert.classList.contains('alert-danger')) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }
+            });
+        }, 5000);
+    </script>
+}

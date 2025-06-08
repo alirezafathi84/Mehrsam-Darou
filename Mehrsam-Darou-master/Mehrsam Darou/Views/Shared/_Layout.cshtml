@@ -427,7 +427,7 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                                         </form>
                                     </li>
                                     <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("SalaryInfoList", "Salary")">
+                                        <form method="post" action="@Url.Action("SalaryInfoList", "SalaryInfo")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
                                                 <span class="nav-text">مدیریت حقوق</span>
                                             </button>
@@ -447,13 +447,32 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                                             </button>
                                         </form>
                                     </li>
+
                                     <li class="sub-nav-item">
+                                        <a class="nav-link" href="@Url.Action("Index", "SalaryCalculation")">
+                                            <span class="nav-text">محاسبه حقوق و دستمزد</span>
+                                        </a>
+                                    </li>
+
+
+                                    <li class="sub-nav-item">
+                                        <a class="nav-link" href="@Url.Action("Index", "PersianDateConverter")">
+                                            <span class="nav-text">تعریف روز های سال</span>
+                                        </a>
+                                    </li>
+
+
+
+
+
+
+            @*                         <li class="sub-nav-item">
                                         <form method="post" action="@Url.Action("UserStatusList", "UserStatus")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
                                                 <span class="nav-text">وضعیت کاربران</span>
                                             </button>
                                         </form>
-                                    </li>
+                                    </li> *@
                                 </ul>
                             </div>
                         </li>

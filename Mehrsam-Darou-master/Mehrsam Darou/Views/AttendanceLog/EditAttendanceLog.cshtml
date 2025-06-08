@@ -41,8 +41,22 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label asp-for="UserId" class="form-label">کاربر <span class="text-danger">*</span></label>
-                                <select asp-for="UserId" asp-items="@(ViewBag.Users as IEnumerable<SelectListItem>)" class="form-select">
+                                <select asp-for="UserId" class="form-select">
                                     <option value="">-- انتخاب کاربر --</option>
+                                    @if (ViewBag.Users != null)
+                                    {
+                                        @foreach (var user in ViewBag.Users)
+                                        {
+                                            if (user.Id == Model.UserId)
+                                            {
+                                                <option value="@user.Id" selected>@user.FullName</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@user.Id">@user.FullName</option>
+                                            }
+                                        }
+                                    }
                                 </select>
                                 <span asp-validation-for="UserId" class="text-danger"></span>
                             </div>
@@ -51,8 +65,16 @@
                             <div class="mb-3">
                                 <label asp-for="LogType" class="form-label">نوع ثبت <span class="text-danger">*</span></label>
                                 <select asp-for="LogType" class="form-select">
-                                    <option value="Entry">ورود</option>
-                                    <option value="Exit">خروج</option>
+                                    @if (Model.LogType == "Entry")
+                                    {
+                                        <option value="Entry" selected>ورود</option>
+                                        <option value="Exit">خروج</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="Entry">ورود</option>
+                                        <option value="Exit" selected>خروج</option>
+                                    }
                                 </select>
                                 <span asp-validation-for="LogType" class="text-danger"></span>
                             </div>
@@ -63,8 +85,15 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label asp-for="LogTime" class="form-label">زمان ثبت <span class="text-danger">*</span></label>
-                                <input asp-for="LogTime" type="datetime-local" class="form-control" />
+                                <div class="input-group">
+                                    <input asp-for="LogTime" type="datetime-local" class="form-control" id="logTimeInput" />
+                                    <button type="button" class="btn btn-outline-secondary" onclick="openPersianDatePicker()">
+                                        <i class="bx bx-calendar"></i>
+                                    </button>
+                                </div>
                                 <span asp-validation-for="LogTime" class="text-danger"></span>
+                                <!-- Persian Date Display -->
+                                <small class="text-muted mt-1 d-block" id="persianDateDisplay"></small>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -72,6 +101,69 @@
                                 <label asp-for="DeviceId" class="form-label">شناسه دستگاه</label>
                                 <input asp-for="DeviceId" class="form-control" placeholder="مثال: Device001" />
                                 <span asp-validation-for="DeviceId" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Persian Date Picker Modal -->
+                    <div class="modal fade" id="persianDateModal" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">انتخاب تاریخ شمسی</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <label class="form-label">سال</label>
+                                            <select id="persianYear" class="form-select">
+                                                <!-- Will be populated by JavaScript -->
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">ماه</label>
+                                            <select id="persianMonth" class="form-select">
+                                                <option value="1">فروردین</option>
+                                                <option value="2">اردیبهشت</option>
+                                                <option value="3">خرداد</option>
+                                                <option value="4">تیر</option>
+                                                <option value="5">مرداد</option>
+                                                <option value="6">شهریور</option>
+                                                <option value="7">مهر</option>
+                                                <option value="8">آبان</option>
+                                                <option value="9">آذر</option>
+                                                <option value="10">دی</option>
+                                                <option value="11">بهمن</option>
+                                                <option value="12">اسفند</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">روز</label>
+                                            <select id="persianDay" class="form-select">
+                                                <!-- Will be populated by JavaScript -->
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">ساعت</label>
+                                            <select id="persianHour" class="form-select">
+                                                <!-- Will be populated by JavaScript -->
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">دقیقه</label>
+                                            <select id="persianMinute" class="form-select">
+                                                <!-- Will be populated by JavaScript -->
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary" onclick="setPersianDate()">تایید</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -103,6 +195,10 @@
                                     <small>
                                         <i class="bx bx-info-circle me-1"></i>
                                         تاریخ ایجاد: @Model.DateCreated.Value.ToString("yyyy/MM/dd HH:mm:ss")
+                                        @if (!string.IsNullOrEmpty(Model.PersianDate))
+                                        {
+                                            <span class="ms-3">تاریخ شمسی فعلی: @Model.PersianDate</span>
+                                        }
                                     </small>
                                 </div>
                             </div>
@@ -129,6 +225,106 @@
     }
 
     <script>
+        // Persian to Gregorian conversion functions
+        function persianToGregorian(jy, jm, jd) {
+            const PERSIAN_EPOCH = 1948320.5;
+            let epyear = jy - 979;
+            let epbase = 0;
+
+            if (jy >= 0) {
+                epyear = jy - 979;
+                epbase = 0;
+            } else {
+                epyear = jy - 978;
+                epbase = -1;
+            }
+
+            let aux1 = Math.floor(epyear / 33) * 12053;
+            let aux2 = (epyear % 33) * 365;
+            let aux3 = Math.floor(((epyear % 33) + 3) / 4);
+
+            if ((epyear % 33) % 4 !== 0 && (epyear % 33) > 1) {
+                aux3 = Math.floor(((epyear % 33) + 4) / 4);
+            }
+
+            let julday = aux1 + aux2 + aux3 + PERSIAN_EPOCH - 1;
+
+            if (jm <= 6) {
+                julday += (jm - 1) * 31;
+            } else {
+                julday += (jm - 1) * 30 + 6;
+            }
+
+            julday += jd;
+
+            return julianToGregorian(julday);
+        }
+
+        function gregorianToPersian(gy, gm, gd) {
+            const PERSIAN_EPOCH = 1948320.5;
+            let julday = gregorianToJulian(gy, gm, gd);
+            let depoch = julday - PERSIAN_EPOCH;
+            let cycle = Math.floor(depoch / 12053);
+            let cyear = depoch % 12053;
+
+            let ycycle = 0;
+            if (cyear < 366) {
+                ycycle = 0;
+            } else {
+                let aux1 = Math.floor((cyear - 366) / 365);
+                let aux2 = (cyear - 366) % 365;
+                ycycle = Math.floor((aux1 + 1) / 33) * 33;
+                ycycle += ((aux1 + 1) % 33 <= 4) ? aux1 + 1 : Math.floor(((aux1 + 1) + 1) / 4) + Math.floor(((aux1 + 1) % 4 + 1) / 4) * 4 + Math.floor(((aux1 + 1) % 4) / 4);
+            }
+
+            let jyear = ycycle + cycle * 33 + 979;
+            let yday = julday - persianNewYear(jyear) + 1;
+
+            let jmonth = (yday <= 186) ? Math.ceil(yday / 31) : Math.ceil((yday - 6) / 30);
+            let jday = yday - ((jmonth <= 6) ? (jmonth - 1) * 31 : (jmonth - 1) * 30 + 6);
+
+            return [jyear, jmonth, jday];
+        }
+
+        function persianNewYear(jyear) {
+            const PERSIAN_EPOCH = 1948320.5;
+            let epyear = jyear - 979;
+            let aux1 = Math.floor(epyear / 33) * 12053;
+            let aux2 = (epyear % 33) * 365;
+            let aux3 = Math.floor(((epyear % 33) + 3) / 4);
+
+            if ((epyear % 33) % 4 !== 0 && (epyear % 33) > 1) {
+                aux3 = Math.floor(((epyear % 33) + 4) / 4);
+            }
+
+            return aux1 + aux2 + aux3 + PERSIAN_EPOCH;
+        }
+
+        function gregorianToJulian(gy, gm, gd) {
+            if (gm <= 2) {
+                gy--;
+                gm += 12;
+            }
+            let a = Math.floor(gy / 100);
+            let b = 2 - a + Math.floor(a / 4);
+            return Math.floor(365.25 * (gy + 4716)) + Math.floor(30.6001 * (gm + 1)) + gd + b - 1524.5;
+        }
+
+        function julianToGregorian(julday) {
+            let a = julday + 32044;
+            let b = Math.floor((4 * a + 3) / 146097);
+            let c = a - Math.floor((b * 146097) / 4);
+            let d = Math.floor((4 * c + 3) / 1461);
+            let e = c - Math.floor((1461 * d) / 4);
+            let m = Math.floor((5 * e + 2) / 153);
+
+            let day = e - Math.floor((153 * m + 2) / 5) + 1;
+            let month = m + 3 - 12 * Math.floor(m / 10);
+            let year = b * 100 + d - 4800 + Math.floor(m / 10);
+
+            return [year, month, day];
+        }
+
         function setCurrentTime() {
             const now = new Date();
             const year = now.getFullYear();
@@ -139,22 +335,181 @@
 
             const dateTimeString = `${year}-${month}-${day}T${hours}:${minutes}`;
             document.querySelector('input[name="LogTime"]').value = dateTimeString;
+            updatePersianDateDisplay();
+        }
+
+        function updatePersianDateDisplay() {
+            const logTimeInput = document.querySelector('input[name="LogTime"]');
+            if (logTimeInput.value) {
+                const date = new Date(logTimeInput.value);
+                const persianDate = convertToPersianDate(date);
+                document.getElementById('persianDateDisplay').textContent = 'تاریخ شمسی: ' + persianDate;
+            }
+        }
+
+        function convertToPersianDate(date) {
+            const [pYear, pMonth, pDay] = gregorianToPersian(date.getFullYear(), date.getMonth() + 1, date.getDate());
+            return `${pYear}/${String(pMonth).padStart(2, '0')}/${String(pDay).padStart(2, '0')}`;
+        }
+
+        function openPersianDatePicker() {
+            initializePersianDatePicker();
+            const modal = new bootstrap.Modal(document.getElementById('persianDateModal'));
+            modal.show();
+        }
+
+        function initializePersianDatePicker() {
+            const logTimeInput = document.querySelector('input[name="LogTime"]');
+            const currentDate = logTimeInput.value ? new Date(logTimeInput.value) : new Date();
+
+            // Convert current Gregorian date to Persian
+            const [pYear, pMonth, pDay] = gregorianToPersian(
+                currentDate.getFullYear(),
+                currentDate.getMonth() + 1,
+                currentDate.getDate()
+            );
+
+            // Populate years
+            const yearSelect = document.getElementById('persianYear');
+            yearSelect.innerHTML = '';
+            for (let i = pYear - 10; i <= pYear + 5; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                if (i === pYear) option.selected = true;
+                yearSelect.appendChild(option);
+            }
+
+            // Set month
+            document.getElementById('persianMonth').value = pMonth;
+
+            // Populate days based on selected month
+            updatePersianDays();
+            document.getElementById('persianDay').value = pDay;
+
+            // Populate hours
+            const hourSelect = document.getElementById('persianHour');
+            hourSelect.innerHTML = '';
+            for (let i = 0; i < 24; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = String(i).padStart(2, '0');
+                if (i === currentDate.getHours()) option.selected = true;
+                hourSelect.appendChild(option);
+            }
+
+            // Populate minutes
+            const minuteSelect = document.getElementById('persianMinute');
+            minuteSelect.innerHTML = '';
+            for (let i = 0; i < 60; i += 5) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = String(i).padStart(2, '0');
+                if (Math.abs(i - currentDate.getMinutes()) < 3) option.selected = true;
+                minuteSelect.appendChild(option);
+            }
+
+            // Add event listener for month change
+            document.getElementById('persianMonth').addEventListener('change', updatePersianDays);
+        }
+
+        function updatePersianDays() {
+            const month = parseInt(document.getElementById('persianMonth').value);
+            const daySelect = document.getElementById('persianDay');
+            const currentDay = parseInt(daySelect.value) || 1;
+
+            daySelect.innerHTML = '';
+
+            let maxDays = 31;
+            if (month >= 1 && month <= 6) {
+                maxDays = 31;
+            } else if (month >= 7 && month <= 11) {
+                maxDays = 30;
+            } else if (month === 12) {
+                // For simplicity, assume 29 days for Esfand
+                // In reality, you'd need to check if it's a leap year
+                maxDays = 29;
+            }
+
+            for (let i = 1; i <= maxDays; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                if (i === currentDay && i <= maxDays) option.selected = true;
+                daySelect.appendChild(option);
+            }
+        }
+
+        function setPersianDate() {
+            const pYear = parseInt(document.getElementById('persianYear').value);
+            const pMonth = parseInt(document.getElementById('persianMonth').value);
+            const pDay = parseInt(document.getElementById('persianDay').value);
+            const hour = parseInt(document.getElementById('persianHour').value);
+            const minute = parseInt(document.getElementById('persianMinute').value);
+
+            // Convert Persian date to Gregorian
+            const [gYear, gMonth, gDay] = persianToGregorian(pYear, pMonth, pDay);
+
+            const dateString = `${gYear}-${String(gMonth).padStart(2, '0')}-${String(gDay).padStart(2, '0')}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+
+            document.querySelector('input[name="LogTime"]').value = dateString;
+            updatePersianDateDisplay();
+
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('persianDateModal'));
+            modal.hide();
         }
 
         // Format datetime-local input value on page load
         document.addEventListener('DOMContentLoaded', function() {
             const logTimeInput = document.querySelector('input[name="LogTime"]');
-            if (logTimeInput && logTimeInput.value) {
-                // Convert server datetime to local datetime-local format
-                const date = new Date(logTimeInput.value);
-                const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const day = String(date.getDate()).padStart(2, '0');
-                const hours = String(date.getHours()).padStart(2, '0');
-                const minutes = String(date.getMinutes()).padStart(2, '0');
 
-                logTimeInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+            // Format existing datetime value for datetime-local input
+            if (logTimeInput && logTimeInput.value) {
+                // Handle different date formats that might come from server
+                let date;
+                if (logTimeInput.value.includes('T')) {
+                    date = new Date(logTimeInput.value);
+                } else {
+                    date = new Date(logTimeInput.value.replace(' ', 'T'));
+                }
+
+                if (!isNaN(date.getTime())) {
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const hours = String(date.getHours()).padStart(2, '0');
+                    const minutes = String(date.getMinutes()).padStart(2, '0');
+
+                    logTimeInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+                }
             }
+
+            // Remove any time restrictions - allow editing any time
+            logTimeInput.removeAttribute('min');
+            logTimeInput.removeAttribute('max');
+
+            // Update Persian date display when datetime input changes
+            logTimeInput.addEventListener('change', function() {
+                updatePersianDateDisplay();
+                // Remove any validation errors when time changes
+                const errorSpan = document.querySelector('[data-valmsg-for="LogTime"]');
+                if (errorSpan) {
+                    errorSpan.textContent = '';
+                }
+            });
+
+            // Initialize Persian date display
+            updatePersianDateDisplay();
+
+            // Auto-dismiss alerts after 5 seconds
+            setTimeout(function () {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function (alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
         });
     </script>
 }

@@ -1,0 +1,325 @@
+﻿@model Mehrsam_Darou.Models.VacationType
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "جزئیات نوع مرخصی";
+    PersianCalendar pc = new PersianCalendar();
+    var stats = ViewBag.UsageStats;
+}
+
+<div class="row">
+    <div class="col-xl-12">
+        <!-- Main Info Card -->
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4>@Model.Name</h4>
+                    <div>
+                        <a href="@Url.Action("EditVacationType", new { id = Model.Id })" class="btn btn-primary me-2">
+                            <i class="bx bx-edit me-1"></i> ویرایش
+                        </a>
+                        <a href="@Url.Action("VacationTypeList")" class="btn btn-secondary">
+                            <i class="bx bx-arrow-back me-1"></i> بازگشت به لیست
+                        </a>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="table-responsive">
+                            <table class="table table-borderless">
+                                <tbody>
+                                    <tr>
+                                        <td class="fw-medium" style="width: 30%;">نام نوع مرخصی:</td>
+                                        <td>
+                                            <span class="badge @(Model.IsPaid ? "bg-success" : "bg-secondary") fs-6">
+                                                @Model.Name @(Model.IsPaid ? "(با حقوق)" : "(بدون حقوق)")
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-medium">نوع پرداخت:</td>
+                                        <td>
+                                            @if (Model.IsPaid)
+                                            {
+                                                <span class="text-success">
+                                                    <i class="bx bx-money me-1"></i>با حقوق
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-secondary">
+                                                    <i class="bx bx-money-withdraw me-1"></i>بدون حقوق
+                                                </span>
+                                            }
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-medium">حداکثر روز در سال:</td>
+                                        <td>
+                                            @if (Model.MaxDaysPerYear.HasValue && Model.MaxDaysPerYear > 0)
+                                            {
+                                                <span class="badge bg-info">@Model.MaxDaysPerYear روز</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-light text-muted">نامحدود</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-medium">توضیحات:</td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(Model.Description))
+                                            {
+                                                <span>@Model.Description</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">توضیحات ثبت نشده</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <div class="avatar-lg mx-auto mb-3" style="width: 100px; height: 100px;">
+                                <div class="avatar-title rounded-circle @(Model.IsPaid ? "bg-success-subtle" : "bg-secondary-subtle") fs-1">
+                                    @if (Model.IsPaid)
+                                    {
+                                        <iconify-icon icon="solar:calendar-mark-bold-duotone" class="text-success"></iconify-icon>
+                                    }
+                                    else
+                                    {
+                                        <iconify-icon icon="solar:calendar-bold-duotone" class="text-secondary"></iconify-icon>
+                                    }
+                                </div>
+                            </div>
+                            <p class="text-muted">نوع مرخصی @(Model.IsPaid ? "با حقوق" : "بدون حقوق")</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Usage Statistics -->
+<div class="row mt-4">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bx bx-bar-chart-alt-2 me-2"></i>آمار استفاده
+                </h5>
+            </div>
+            <div class="card-body">
+                @if (stats != null)
+                {
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="card border-0 bg-primary-subtle">
+                                <div class="card-body text-center">
+                                    <h3 class="text-primary mb-1">@stats.TotalVacations</h3>
+                                    <p class="text-muted mb-0">کل درخواست‌ها</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card border-0 bg-success-subtle">
+                                <div class="card-body text-center">
+                                    <h3 class="text-success mb-1">@stats.ApprovedVacations</h3>
+                                    <p class="text-muted mb-0">تایید شده</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card border-0 bg-warning-subtle">
+                                <div class="card-body text-center">
+                                    <h3 class="text-warning mb-1">@stats.PendingVacations</h3>
+                                    <p class="text-muted mb-0">در انتظار</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card border-0 bg-danger-subtle">
+                                <div class="card-body text-center">
+                                    <h3 class="text-danger mb-1">@stats.RejectedVacations</h3>
+                                    <p class="text-muted mb-0">رد شده</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-info-subtle">
+                                <div class="card-body text-center">
+                                    <h3 class="text-info mb-1">@stats.TotalDaysUsed</h3>
+                                    <p class="text-muted mb-0">کل روزهای مصرف شده</p>
+                                    @if (Model.MaxDaysPerYear.HasValue && Model.MaxDaysPerYear > 0)
+                                    {
+                                        var percentage = (double)stats.TotalDaysUsed / (double)Model.MaxDaysPerYear * 100;
+                                        <div class="progress mt-2">
+                                            <div class="progress-bar bg-info" style="width: @Math.Min(percentage, 100)%"></div>
+                                        </div>
+                                        <small class="text-muted">@percentage.ToString("F1")% از حداکثر مجاز</small>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-secondary-subtle">
+                                <div class="card-body text-center">
+                                    @if (stats.MostActiveUser != null)
+                                    {
+                                        <h6 class="text-secondary mb-1">فعال‌ترین کاربر</h6>
+                                        <p class="mb-0">@stats.MostActiveUser.Key.FirstName @stats.MostActiveUser.Key.LastName</p>
+                                        <small class="text-muted">@stats.MostActiveUser.Count() درخواست</small>
+                                    }
+                                    else
+                                    {
+                                        <h6 class="text-muted mb-1">هیچ کاربری</h6>
+                                        <p class="text-muted mb-0">استفاده نکرده</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-4">
+                        <i class="bx bx-data text-muted fs-1"></i>
+                        <p class="text-muted mt-2">آمار استفاده در دسترس نیست</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Vacations -->
+@if (Model.Vacations != null && Model.Vacations.Any())
+{
+    <div class="row mt-4">
+        <div class="col-xl-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bx bx-history me-2"></i>آخرین درخواست‌ها
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="bg-light-subtle">
+                                <tr>
+                                    <th>کارمند</th>
+                                    <th>تاریخ شروع</th>
+                                    <th>تاریخ پایان</th>
+                                    <th>مدت</th>
+                                    <th>وضعیت</th>
+                                    <th>تاریخ درخواست</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var vacation in Model.Vacations.OrderByDescending(v => v.DateCreated).Take(10))
+                                {
+                                    var duration = vacation.EndDate.DayNumber - vacation.StartDate.DayNumber + 1;
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm bg-light-subtle rounded me-2">
+                                                    <span class="avatar-title">
+                                                        <iconify-icon icon="solar:user-rounded-bold-duotone" class="fs-16"></iconify-icon>
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0 fw-medium">@vacation.User.FirstName @vacation.User.LastName</h6>
+                                                    <small class="text-muted">@vacation.User.Username</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                @if (!string.IsNullOrEmpty(vacation.PersianStartDate))
+                                                {
+                                                    @vacation.PersianStartDate
+                                                }
+                                                else
+                                                {
+                                                    var startDateTime = vacation.StartDate.ToDateTime(TimeOnly.MinValue);
+                                                    @($"{pc.GetYear(startDateTime)}/{pc.GetMonth(startDateTime):00}/{pc.GetDayOfMonth(startDateTime):00}")
+                                                }
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                @if (!string.IsNullOrEmpty(vacation.PersianEndDate))
+                                                {
+                                                    @vacation.PersianEndDate
+                                                }
+                                                else
+                                                {
+                                                    var endDateTime = vacation.EndDate.ToDateTime(TimeOnly.MinValue);
+                                                    @($"{pc.GetYear(endDateTime)}/{pc.GetMonth(endDateTime):00}/{pc.GetDayOfMonth(endDateTime):00}")
+                                                }
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-light text-dark">@duration روز</span>
+                                        </td>
+                                        <td>
+                                            @if (vacation.Status == "Pending")
+                                            {
+                                                <span class="badge bg-warning">در انتظار</span>
+                                            }
+                                            else if (vacation.Status == "Approved")
+                                            {
+                                                <span class="badge bg-success">تایید شده</span>
+                                            }
+                                            else if (vacation.Status == "Rejected")
+                                            {
+                                                <span class="badge bg-danger">رد شده</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (vacation.DateCreated.HasValue)
+                                            {
+                                                <small class="text-muted">
+                                                    @($"{pc.GetYear(vacation.DateCreated.Value)}/{pc.GetMonth(vacation.DateCreated.Value):00}/{pc.GetDayOfMonth(vacation.DateCreated.Value):00}")
+                                                </small>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    @if (Model.Vacations.Count > 10)
+                    {
+                        <div class="text-center mt-3">
+                            <a href="@Url.Action("VacationList", "Vacation", new { searchKey = Model.Name })" class="btn btn-outline-primary">
+                                <i class="bx bx-list-ul me-1"></i>مشاهده تمام درخواست‌ها (@Model.Vacations.Count)
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Any additional JavaScript can be added here
+            console.log('VacationType details page loaded');
+        });
+    </script>
+}

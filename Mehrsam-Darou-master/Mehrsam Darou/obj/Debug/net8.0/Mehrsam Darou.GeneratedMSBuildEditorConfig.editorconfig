@@ -212,6 +212,22 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcT3JnYW5pemF0aW9uXE9yZ2FuaXphdGlvbkxpc3QuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/PersianDateConverter/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGVyc2lhbkRhdGVDb252ZXJ0ZXJcQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/PersianDateConverter/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGVyc2lhbkRhdGVDb252ZXJ0ZXJcRGV0YWlscy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/PersianDateConverter/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGVyc2lhbkRhdGVDb252ZXJ0ZXJcRWRpdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/PersianDateConverter/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGVyc2lhbkRhdGVDb252ZXJ0ZXJcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/ProductionOrderStep/AddProductionOrderStep.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZHVjdGlvbk9yZGVyU3RlcFxBZGRQcm9kdWN0aW9uT3JkZXJTdGVwLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
@@ -270,6 +286,34 @@ build_metadata.AdditionalFiles.CssScope =
 
 [D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/RawMaterial/RawMaterialList.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmF3TWF0ZXJpYWxcUmF3TWF0ZXJpYWxMaXN0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/SalaryCalculation/DailyAttendanceReport.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2FsYXJ5Q2FsY3VsYXRpb25cRGFpbHlBdHRlbmRhbmNlUmVwb3J0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/SalaryCalculation/DetailedCalculationResult.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2FsYXJ5Q2FsY3VsYXRpb25cRGV0YWlsZWRDYWxjdWxhdGlvblJlc3VsdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/SalaryCalculation/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2FsYXJ5Q2FsY3VsYXRpb25cSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/SalaryCalculation/MonthlyCalculationResult.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2FsYXJ5Q2FsY3VsYXRpb25cTW9udGhseUNhbGN1bGF0aW9uUmVzdWx0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/SalaryInfo/AddSalaryInfo.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2FsYXJ5SW5mb1xBZGRTYWxhcnlJbmZvLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/SalaryInfo/EditSalaryInfo.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2FsYXJ5SW5mb1xFZGl0U2FsYXJ5SW5mby5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/SalaryInfo/SalaryInfoList.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2FsYXJ5SW5mb1xTYWxhcnlJbmZvTGlzdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/SalesInvoice/AddSalesInvoice.cshtml]
@@ -394,6 +438,34 @@ build_metadata.AdditionalFiles.CssScope =
 
 [D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/User/UserList.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlclxVc2VyTGlzdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/VacationType/AddVacationType.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVmFjYXRpb25UeXBlXEFkZFZhY2F0aW9uVHlwZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/VacationType/EditVacationType.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVmFjYXRpb25UeXBlXEVkaXRWYWNhdGlvblR5cGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/VacationType/VacationTypeDetails.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVmFjYXRpb25UeXBlXFZhY2F0aW9uVHlwZURldGFpbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/VacationType/VacationTypeList.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVmFjYXRpb25UeXBlXFZhY2F0aW9uVHlwZUxpc3QuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Vacation/AddVacation.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVmFjYXRpb25cQWRkVmFjYXRpb24uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Vacation/EditVacation.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVmFjYXRpb25cRWRpdFZhY2F0aW9uLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Vacation/VacationList.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVmFjYXRpb25cVmFjYXRpb25MaXN0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/_ViewImports.cshtml]

@@ -1,0 +1,358 @@
+﻿@model List<DailyAttendanceWithSalaryImpact>
+
+@{
+    ViewData["Title"] = "گزارش حضور و غیاب روزانه";
+    var user = ViewBag.User as User;
+    var salaryInfo = ViewBag.SalaryInfo as SalaryInfo;
+    var startDate = (DateTime)ViewBag.StartDate;
+    var endDate = (DateTime)ViewBag.EndDate;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>گزارش حضور و غیاب روزانه</h2>
+    <div>
+        <button class="btn btn-success me-2" onclick="exportToExcel()">
+            <i class="bx bx-download me-1"></i>خروجی Excel
+        </button>
+        <button class="btn btn-info me-2" onclick="printReport()">
+            <i class="bx bx-printer me-1"></i>چاپ
+        </button>
+        <a href="@Url.Action("Index")" class="btn btn-secondary">
+            <i class="bx bx-arrow-back me-1"></i> بازگشت
+        </a>
+    </div>
+</div>
+
+<!-- Employee and Period Info -->
+<div class="row mb-4">
+    <div class="col-xl-12">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-1">
+                        <div class="avatar-lg">
+                            <div class="avatar-title rounded-circle bg-white bg-opacity-20 fs-1">
+                                <iconify-icon icon="solar:calendar-bold-duotone"></iconify-icon>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-11">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <h6 class="text-white-50">کارمند</h6>
+                                <h5>@user.FirstName @user.LastName</h5>
+                                <small>@user.Team?.Name</small>
+                            </div>
+                            <div class="col-md-3">
+                                <h6 class="text-white-50">بازه زمانی</h6>
+                                <h5>@startDate.ToString("yyyy/MM/dd") - @endDate.ToString("yyyy/MM/dd")</h5>
+                            </div>
+                            <div class="col-md-3">
+                                <h6 class="text-white-50">حقوق پایه</h6>
+                                <h5>@salaryInfo?.BaseSalary.ToString("N0") ریال</h5>
+                                <small>نرخ اضافه‌کاری: @salaryInfo?.OvertimeRate.ToString("N0")</small>
+                            </div>
+                            <div class="col-md-3">
+                                <h6 class="text-white-50">تعداد روزها</h6>
+                                <h5>@Model.Count روز</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Summary Statistics -->
+<div class="row mb-4">
+    <div class="col-md-2">
+        <div class="card border-0 bg-success-subtle">
+            <div class="card-body text-center">
+                <h4 class="text-success mb-1">@Model.Count(m => m.Status == "Present")</h4>
+                <p class="text-muted mb-0">روز حضور</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card border-0 bg-info-subtle">
+            <div class="card-body text-center">
+                <h4 class="text-info mb-1">@Model.Count(m => m.Status == "Mission")</h4>
+                <p class="text-muted mb-0">روز ماموریت</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card border-0 bg-primary-subtle">
+            <div class="card-body text-center">
+                <h4 class="text-primary mb-1">@Model.Count(m => m.Status == "Vacation")</h4>
+                <p class="text-muted mb-0">روز مرخصی</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card border-0 bg-danger-subtle">
+            <div class="card-body text-center">
+                <h4 class="text-danger mb-1">@Model.Count(m => m.Status == "Absent")</h4>
+                <p class="text-muted mb-0">روز غیبت</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card border-0 bg-warning-subtle">
+            <div class="card-body text-center">
+                <h4 class="text-warning mb-1">@Model.Sum(m => m.OvertimeHours).ToString("F1")</h4>
+                <p class="text-muted mb-0">ساعت اضافه‌کاری</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card border-0 bg-secondary-subtle">
+            <div class="card-body text-center">
+                <h4 class="text-secondary mb-1">@Model.Sum(m => m.TotalHours).ToString("F1")</h4>
+                <p class="text-muted mb-0">کل ساعات کار</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Financial Impact Summary -->
+<div class="row mb-4">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">خلاصه تأثیر مالی</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h4 class="text-success">@Model.Where(m => m.DailySalaryImpact > 0).Sum(m => m.DailySalaryImpact).ToString("N0")</h4>
+                            <p class="text-muted">کل درآمد روزانه (ریال)</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h4 class="text-warning">@Model.Sum(m => m.OvertimePay).ToString("N0")</h4>
+                            <p class="text-muted">کل اضافه‌کاری (ریال)</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h4 class="text-danger">@Math.Abs(Model.Where(m => m.DailySalaryImpact < 0).Sum(m => m.DailySalaryImpact)).ToString("N0")</h4>
+                            <p class="text-muted">کل کسورات (ریال)</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h4 class="text-primary">@(Model.Sum(m => m.DailySalaryImpact) + Model.Sum(m => m.OvertimePay)).ToString("N0")</h4>
+                            <p class="text-muted">خالص تأثیر (ریال)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Daily Attendance Details -->
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">جزئیات روزانه حضور و غیاب</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0" id="attendanceTable">
+                        <thead class="bg-light-subtle">
+                            <tr>
+                                <th>تاریخ فارسی</th>
+                                <th>تاریخ میلادی</th>
+                                <th>روز هفته</th>
+                                <th>ساعت ورود</th>
+                                <th>ساعت خروج</th>
+                                <th>کل ساعات</th>
+                                <th>اضافه‌کاری</th>
+                                <th>وضعیت</th>
+                                <th>نوع مرخصی</th>
+                                <th>تأثیر حقوق روزانه</th>
+                                <th>پرداخت اضافه‌کاری</th>
+                                <th>کل تأثیر</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var attendance in Model.OrderBy(m => m.Date))
+                            {
+                                var dayOfWeek = attendance.Date.ToString("dddd", new System.Globalization.CultureInfo("fa-IR"));
+                                var totalImpact = attendance.DailySalaryImpact + attendance.OvertimePay;
+
+                                <tr class="@(attendance.Date.DayOfWeek == DayOfWeek.Friday ? "bg-light" : "")">
+                                    <td>
+                                        <span class="fw-medium">@attendance.PersianDate</span>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">@attendance.Date.ToString("yyyy/MM/dd")</small>
+                                    </td>
+                                    <td>
+                                        <small class="@(attendance.Date.DayOfWeek == DayOfWeek.Friday ? "text-danger" : "text-muted")">
+                                            @dayOfWeek
+                                        </small>
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(attendance.FirstEntryTime))
+                                        {
+                                            <span class="badge bg-success-subtle text-success">@attendance.FirstEntryTime</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(attendance.LastExitTime))
+                                        {
+                                            <span class="badge bg-info-subtle text-info">@attendance.LastExitTime</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="fw-medium">@attendance.TotalHours.ToString("F1")</span>
+                                        @if (attendance.TotalHours > 8)
+                                        {
+                                            <small class="text-success d-block">عادی: 8.0</small>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (attendance.OvertimeHours > 0)
+                                        {
+                                            <span class="text-warning fw-medium">@attendance.OvertimeHours.ToString("F1")</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @{
+                                            var statusInfo = attendance.Status switch
+                                            {
+                                                "Present" => ("bg-success", "حاضر"),
+                                                "Mission" => ("bg-info", "ماموریت"),
+                                                "Vacation" => ("bg-primary", "مرخصی"),
+                                                "Absent" => ("bg-danger", "غایب"),
+                                                "Holiday" => ("bg-secondary", "تعطیل"),
+                                                _ => ("bg-light text-dark", attendance.Status)
+                                            };
+                                        }
+                                        <span class="badge @statusInfo.Item1">@statusInfo.Item2</span>
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(attendance.VacationType))
+                                        {
+                                            <span class="badge @(attendance.IsVacationPaid == true ? "bg-success-subtle text-success" : "bg-warning-subtle text-warning")">
+                                                @attendance.VacationType
+                                                <small class="d-block">@(attendance.IsVacationPaid == true ? "با حقوق" : "بدون حقوق")</small>
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (attendance.DailySalaryImpact != 0)
+                                        {
+                                            <span class="@(attendance.DailySalaryImpact > 0 ? "text-success" : "text-danger") fw-medium">
+                                                @(attendance.DailySalaryImpact > 0 ? "+" : "")@attendance.DailySalaryImpact.ToString("N0")
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">0</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (attendance.OvertimePay > 0)
+                                        {
+                                            <span class="text-warning fw-medium">+@attendance.OvertimePay.ToString("N0")</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (totalImpact != 0)
+                                        {
+                                            <span class="@(totalImpact > 0 ? "text-success" : "text-danger") fw-bold">
+                                                @(totalImpact > 0 ? "+" : "")@totalImpact.ToString("N0")
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">0</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot class="bg-light">
+                            <tr>
+                                <th colspan="5">جمع کل:</th>
+                                <th>@Model.Sum(m => m.TotalHours).ToString("F1")</th>
+                                <th>@Model.Sum(m => m.OvertimeHours).ToString("F1")</th>
+                                <th colspan="2"></th>
+                                <th class="@(Model.Sum(m => m.DailySalaryImpact) > 0 ? "text-success" : "text-danger") fw-bold">
+                                    @(Model.Sum(m => m.DailySalaryImpact) > 0 ? "+" : "")@Model.Sum(m => m.DailySalaryImpact).ToString("N0")
+                                </th>
+                                <th class="text-warning fw-bold">+@Model.Sum(m => m.OvertimePay).ToString("N0")</th>
+                                <th class="text-primary fw-bold">
+                                    @{
+                                        var grandTotal = Model.Sum(m => m.DailySalaryImpact) + Model.Sum(m => m.OvertimePay);
+                                    }
+                                    @(grandTotal > 0 ? "+" : "")@grandTotal.ToString("N0")
+                                </th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        function exportToExcel() {
+            const table = document.getElementById('attendanceTable');
+            const wb = XLSX.utils.table_to_book(table, { sheet: "گزارش حضور و غیاب" });
+
+            const filename = `گزارش_حضور_غیاب_@(user.FirstName)_@(user.LastName)_${new Date().toISOString().split('T')[0]}.xlsx`;
+            XLSX.writeFile(wb, filename);
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        // Print styles
+        const printStyles = `
+            <style>
+                @@media print {
+                    .btn { display: none !important; }
+                    .card { box-shadow: none !important; border: 1px solid #dee2e6 !important; }
+                    h2, h5 { color: black !important; }
+                    .text-white { color: black !important; }
+                    .bg-info { background-color: #f8f9fa !important; color: black !important; }
+                    .table { font-size: 0.8rem; }
+                }
+            </style>
+        `;
+        document.head.insertAdjacentHTML('beforeend', printStyles);
+    </script>
+}

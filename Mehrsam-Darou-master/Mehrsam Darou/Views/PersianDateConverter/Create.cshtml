@@ -1,0 +1,263 @@
+﻿@model Mehrsam_Darou.Models.PersianDateConverter
+
+@{
+    ViewData["Title"] = "افزودن تاریخ جدید";
+}
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Success and Error Alerts -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success px-2" role="alert">
+                        <p class="mb-0">با موفقیت انجام شد</p>
+                        <p class="mb-0">@TempData["SuccessMessage"]</p>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger px-2" role="alert">
+                        <p class="mb-0">خطا</p>
+                        <p class="mb-0">@TempData["ErrorMessage"]</p>
+                    </div>
+                }
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4>افزودن تاریخ جدید</h4>
+                    <a href="@Url.Action("Index")" class="btn btn-secondary">
+                        <i class="bx bx-arrow-back me-1"></i> بازگشت به لیست
+                    </a>
+                </div>
+
+                <form asp-action="Create">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="GregorianDate" class="form-label">تاریخ میلادی <span class="text-danger">*</span></label>
+                                <input asp-for="GregorianDate" type="date" class="form-control" id="gregorianDateInput" />
+                                <span asp-validation-for="GregorianDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="PersianDate" class="form-label">تاریخ شمسی</label>
+                                <input asp-for="PersianDate" class="form-control" readonly />
+                                <span asp-validation-for="PersianDate" class="text-danger"></span>
+                                <small class="form-text text-muted">بر اساس تاریخ میلادی خودکار محاسبه می‌شود</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="PersianYear" class="form-label">سال شمسی</label>
+                                <input asp-for="PersianYear" type="number" class="form-control" readonly />
+                                <span asp-validation-for="PersianYear" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="PersianMonth" class="form-label">ماه شمسی</label>
+                                <select asp-for="PersianMonth" class="form-select" disabled>
+                                    <option value="1">فروردین</option>
+                                    <option value="2">اردیبهشت</option>
+                                    <option value="3">خرداد</option>
+                                    <option value="4">تیر</option>
+                                    <option value="5">مرداد</option>
+                                    <option value="6">شهریور</option>
+                                    <option value="7">مهر</option>
+                                    <option value="8">آبان</option>
+                                    <option value="9">آذر</option>
+                                    <option value="10">دی</option>
+                                    <option value="11">بهمن</option>
+                                    <option value="12">اسفند</option>
+                                </select>
+                                <span asp-validation-for="PersianMonth" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="PersianDay" class="form-label">روز شمسی</label>
+                                <input asp-for="PersianDay" type="number" class="form-control" readonly />
+                                <span asp-validation-for="PersianDay" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="IsHoliday" class="form-label">وضعیت تعطیلی</label>
+                                <select asp-for="IsHoliday" class="form-select" id="isHolidaySelect">
+                                    <option value="false">عادی (غیر تعطیل)</option>
+                                    <option value="true">تعطیل</option>
+                                </select>
+                                <span asp-validation-for="IsHoliday" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="IsWorkingDay" class="form-label">روز کاری</label>
+                                <select asp-for="IsWorkingDay" class="form-select" id="isWorkingDaySelect">
+                                    <option value="true">کاری</option>
+                                    <option value="false">غیر کاری</option>
+                                </select>
+                                <span asp-validation-for="IsWorkingDay" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Information Alert -->
+                    <div class="alert alert-info">
+                        <h6><i class="bx bx-info-circle me-1"></i>راهنما:</h6>
+                        <ul class="mb-0">
+                            <li>تاریخ شمسی بر اساس تاریخ میلادی خودکار محاسبه می‌شود</li>
+                            <li>پنج‌شنبه و جمعه به صورت خودکار به عنوان تعطیل در نظر گرفته می‌شوند</li>
+                            <li>اگر روزی تعطیل باشد، به طور خودکار غیر کاری در نظر گرفته می‌شود</li>
+                        </ul>
+                    </div>
+
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bx bx-save me-1"></i> ذخیره
+                        </button>
+                        <button type="button" class="btn btn-success ms-2" onclick="setToday()">
+                            <i class="bx bx-calendar-today me-1"></i> امروز
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // Persian calendar conversion functions (simplified)
+        function gregorianToPersian(gDate) {
+            // This is a simplified conversion - in production, use a proper library
+            const date = new Date(gDate);
+            try {
+                const options = {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    calendar: 'persian',
+                    numberingSystem: 'latn'
+                };
+                const persianDateStr = new Intl.DateTimeFormat('fa-IR-u-ca-persian-nu-latn', options).format(date);
+                return persianDateStr.replace(/\//g, '/');
+            } catch (e) {
+                // Fallback calculation
+                const pc = date.toLocaleDateString('fa-IR', { calendar: 'persian' });
+                return pc.replace(/\//g, '/');
+            }
+        }
+
+        function updatePersianDate() {
+            const gregorianInput = document.getElementById('gregorianDateInput');
+            const persianDateInput = document.querySelector('input[name="PersianDate"]');
+            const persianYearInput = document.querySelector('input[name="PersianYear"]');
+            const persianMonthSelect = document.querySelector('select[name="PersianMonth"]');
+            const persianDayInput = document.querySelector('input[name="PersianDay"]');
+
+            if (gregorianInput.value) {
+                const gDate = new Date(gregorianInput.value);
+
+                // Check if it's Thursday (4) or Friday (5)
+                const dayOfWeek = gDate.getDay();
+                const isWeekend = dayOfWeek === 4 || dayOfWeek === 5;
+
+                // Update weekend status
+                if (isWeekend) {
+                    document.getElementById('isHolidaySelect').value = 'true';
+                    document.getElementById('isWorkingDaySelect').value = 'false';
+                }
+
+                // Calculate Persian date (simplified)
+                try {
+                    // Using Intl API for Persian calendar
+                    const persianDate = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
+                        year: 'numeric',
+                        month: 'numeric',
+                        day: 'numeric',
+                        numberingSystem: 'latn'
+                    }).formatToParts(gDate);
+
+                    const year = persianDate.find(part => part.type === 'year')?.value;
+                    const month = persianDate.find(part => part.type === 'month')?.value;
+                    const day = persianDate.find(part => part.type === 'day')?.value;
+
+                    if (year && month && day) {
+                        persianDateInput.value = `${year}/${month.padStart(2, '0')}/${day.padStart(2, '0')}`;
+                        persianYearInput.value = year;
+                        persianMonthSelect.value = month;
+                        persianDayInput.value = day;
+                    }
+                } catch (e) {
+                    console.log('Persian calendar API not available, using approximation');
+                    // Fallback - approximate calculation
+                    const approximateYear = gDate.getFullYear() - 621;
+                    const approximateMonth = gDate.getMonth() + 1;
+                    const approximateDay = gDate.getDate();
+
+                    persianDateInput.value = `${approximateYear}/${approximateMonth.toString().padStart(2, '0')}/${approximateDay.toString().padStart(2, '0')}`;
+                    persianYearInput.value = approximateYear;
+                    persianMonthSelect.value = approximateMonth;
+                    persianDayInput.value = approximateDay;
+                }
+            }
+        }
+
+        function setToday() {
+            const today = new Date();
+            const todayString = today.toISOString().split('T')[0];
+            document.getElementById('gregorianDateInput').value = todayString;
+            updatePersianDate();
+        }
+
+        // Sync holiday and working day status
+        document.getElementById('isHolidaySelect').addEventListener('change', function() {
+            if (this.value === 'true') {
+                document.getElementById('isWorkingDaySelect').value = 'false';
+            }
+        });
+
+        document.getElementById('isWorkingDaySelect').addEventListener('change', function() {
+            if (this.value === 'false') {
+                // If not working day, it could be a holiday
+                // But don't automatically set it - let user decide
+            } else {
+                // If working day, it's definitely not a holiday
+                document.getElementById('isHolidaySelect').value = 'false';
+            }
+        });
+
+        // Update Persian date when Gregorian date changes
+        document.getElementById('gregorianDateInput').addEventListener('change', updatePersianDate);
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updatePersianDate();
+
+            // Auto-dismiss alerts after 5 seconds
+            setTimeout(function () {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function (alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+        });
+    </script>
+}

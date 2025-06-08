@@ -1,0 +1,474 @@
+﻿@using static Mehrsam_Darou.Helper.Helper
+@model PaginatedList<Mehrsam_Darou.Models.PersianDateConverter>
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "مدیریت تقویم فارسی";
+}
+
+<h2 class="mb-4">مدیریت تقویم فارسی</h2>
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Success and Error Alerts -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success px-2" role="alert">
+                        <p class="mb-0">با موفقیت انجام شد</p>
+                        <p class="mb-0">@TempData["SuccessMessage"]</p>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger px-2" role="alert">
+                        <p class="mb-0">خطا</p>
+                        <p class="mb-0">@TempData["ErrorMessage"]</p>
+                    </div>
+                }
+
+                <!-- Filters and Search -->
+                <form method="get" asp-action="Index" class="row g-3 mb-3">
+                    <div class="col-md-2">
+                        <label class="form-label">جستجو</label>
+                        <input type="search" name="searchKey" value="@ViewBag.SearchKey" class="form-control" placeholder="تاریخ...">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">سال</label>
+                        <select name="year" class="form-select">
+                            <option value="">-- همه سال‌ها --</option>
+                            @if (ViewBag.AvailableYears != null)
+                            {
+                                @foreach (int yearItem in ViewBag.AvailableYears)
+                                {
+                                    <option value="@yearItem" selected="@(ViewBag.Year == yearItem)">@yearItem</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">ماه</label>
+                        <select name="month" class="form-select">
+                            <option value="">-- همه ماه‌ها --</option>
+                            <option value="1" selected="@(ViewBag.Month == 1)">فروردین</option>
+                            <option value="2" selected="@(ViewBag.Month == 2)">اردیبهشت</option>
+                            <option value="3" selected="@(ViewBag.Month == 3)">خرداد</option>
+                            <option value="4" selected="@(ViewBag.Month == 4)">تیر</option>
+                            <option value="5" selected="@(ViewBag.Month == 5)">مرداد</option>
+                            <option value="6" selected="@(ViewBag.Month == 6)">شهریور</option>
+                            <option value="7" selected="@(ViewBag.Month == 7)">مهر</option>
+                            <option value="8" selected="@(ViewBag.Month == 8)">آبان</option>
+                            <option value="9" selected="@(ViewBag.Month == 9)">آذر</option>
+                            <option value="10" selected="@(ViewBag.Month == 10)">دی</option>
+                            <option value="11" selected="@(ViewBag.Month == 11)">بهمن</option>
+                            <option value="12" selected="@(ViewBag.Month == 12)">اسفند</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">تعطیل</label>
+                        <select name="isHoliday" class="form-select">
+                            <option value="">-- همه --</option>
+                            <option value="true" selected="@(ViewBag.IsHoliday == true)">تعطیل</option>
+                            <option value="false" selected="@(ViewBag.IsHoliday == false)">غیر تعطیل</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">کاری</label>
+                        <select name="isWorkingDay" class="form-select">
+                            <option value="">-- همه --</option>
+                            <option value="true" selected="@(ViewBag.IsWorkingDay == true)">کاری</option>
+                            <option value="false" selected="@(ViewBag.IsWorkingDay == false)">غیر کاری</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary me-2">
+                            <i class="bx bx-search me-1"></i>جستجو
+                        </button>
+                        <a href="@Url.Action("Index")" class="btn btn-secondary">
+                            <i class="bx bx-refresh me-1"></i>پاک کردن
+                        </a>
+                    </div>
+                </form>
+
+                <!-- Action Buttons -->
+                <div class="d-flex flex-wrap justify-content-between gap-3 mb-3">
+                    <div>
+                        <a href="@Url.Action("Create")" class="btn btn-success">
+                            <i class="bx bx-plus me-1"></i>افزودن تاریخ جدید
+                        </a>
+                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#generateYearModal">
+                            <i class="bx bx-calendar me-1"></i>تولید سال جدید
+                        </button>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#bulkUpdateModal">
+                            <i class="bx bx-edit me-1"></i>ویرایش دسته‌ای
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0 table-hover table-centered">
+                        <thead class="bg-light-subtle">
+                            <tr>
+                                <th>تاریخ میلادی</th>
+                                <th>روز هفته</th>
+                                <th>تاریخ شمسی</th>
+                                <th>سال</th>
+                                <th>ماه</th>
+                                <th>روز</th>
+                                <th>تعطیل</th>
+                                <th>روز کاری</th>
+                                <th>اقدامات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Any())
+                            {
+                                @foreach (var dateItem in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div>
+                                                <span class="fw-medium">@dateItem.GregorianDate.ToString("yyyy/MM/dd")</span>
+                                                <br>
+                                                <small class="text-muted">@dateItem.GregorianDate.ToDateTime(TimeOnly.MinValue).ToString("dddd", new CultureInfo("fa-IR"))</small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @{
+                                                var gregorianDateTime = dateItem.GregorianDate.ToDateTime(TimeOnly.MinValue);
+                                                var dayOfWeek = (int)gregorianDateTime.DayOfWeek;
+                                                var persianDayName = gregorianDateTime.ToString("dddd", new CultureInfo("fa-IR"));
+                                                var isWeekend = dayOfWeek == 4 || dayOfWeek == 5; // Thursday = 4, Friday = 5
+                                            }
+                                            <span class="badge @(isWeekend ? "bg-danger" : "bg-primary")">@persianDayName</span>
+                                        </td>
+                                        <td>
+                                            <span class="fw-medium text-primary">@dateItem.PersianDate</span>
+                                        </td>
+                                        <td>@dateItem.PersianYear</td>
+                                        <td>
+                                            @{
+                                                var monthNames = new[] { "", "فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند" };
+                                            }
+                                            <span class="badge bg-info-subtle text-info">@monthNames[dateItem.PersianMonth]</span>
+                                        </td>
+                                        <td>@dateItem.PersianDay</td>
+                                        <td>
+                                            @if (dateItem.IsHoliday)
+                                            {
+                                                <span class="badge bg-danger">
+                                                    <i class="bx bx-x me-1"></i>تعطیل
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-success">
+                                                    <i class="bx bx-check me-1"></i>عادی
+                                                </span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (dateItem.IsWorkingDay)
+                                            {
+                                                <span class="badge bg-primary">
+                                                    <i class="bx bx-briefcase me-1"></i>کاری
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">
+                                                    <i class="bx bx-home me-1"></i>غیر کاری
+                                                </span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-1 justify-content-center">
+                                                <a href="@Url.Action("Details", new { gregorianDate = dateItem.GregorianDate })" class="btn btn-soft-info btn-sm" title="جزئیات">
+                                                    <iconify-icon icon="solar:eye-broken" class="align-middle fs-16"></iconify-icon>
+                                                </a>
+                                                <a href="@Url.Action("Edit", new { gregorianDate = dateItem.GregorianDate })" class="btn btn-soft-primary btn-sm" title="ویرایش">
+                                                    <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-16"></iconify-icon>
+                                                </a>
+                                                <button type="button" class="btn btn-soft-danger btn-sm"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#deleteModal"
+                                                        data-bs-date="@dateItem.GregorianDate.ToString("yyyy-MM-dd")"
+                                                        data-bs-persian="@dateItem.PersianDate"
+                                                        title="حذف">
+                                                    <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-16"></iconify-icon>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="9" class="text-center py-4">
+                                        <i class="bx bx-calendar text-muted fs-1"></i>
+                                        <p class="mt-2">هیچ تاریخی یافت نشد.</p>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card-footer border-top">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-end mb-0">
+                        @if (Model.HasPreviousPage)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("Index", new { page = Model.PageIndex - 1, searchKey = ViewBag.SearchKey, year = ViewBag.Year, month = ViewBag.Month, isHoliday = ViewBag.IsHoliday, isWorkingDay = ViewBag.IsWorkingDay })">
+                                    <i class="bx bx-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+
+                        @{
+                            int startPage = Math.Max(1, Model.PageIndex - 2);
+                            int endPage = Math.Min(Model.TotalPages, Model.PageIndex + 2);
+
+                            if (endPage - startPage < 4)
+                            {
+                                if (startPage == 1)
+                                {
+                                    endPage = Math.Min(Model.TotalPages, startPage + 4);
+                                }
+                                else if (endPage == Model.TotalPages)
+                                {
+                                    startPage = Math.Max(1, endPage - 4);
+                                }
+                            }
+                        }
+
+                        @if (startPage > 1)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("Index", new { page = 1, searchKey = ViewBag.SearchKey, year = ViewBag.Year, month = ViewBag.Month, isHoliday = ViewBag.IsHoliday, isWorkingDay = ViewBag.IsWorkingDay })">1</a>
+                            </li>
+                            @if (startPage > 2)
+                            {
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                            }
+                        }
+
+                        @for (int i = startPage; i <= endPage; i++)
+                        {
+                            <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("Index", new { page = i, searchKey = ViewBag.SearchKey, year = ViewBag.Year, month = ViewBag.Month, isHoliday = ViewBag.IsHoliday, isWorkingDay = ViewBag.IsWorkingDay })">@i</a>
+                            </li>
+                        }
+
+                        @if (endPage < Model.TotalPages)
+                        {
+                            @if (endPage < Model.TotalPages - 1)
+                            {
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                            }
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("Index", new { page = Model.TotalPages, searchKey = ViewBag.SearchKey, year = ViewBag.Year, month = ViewBag.Month, isHoliday = ViewBag.IsHoliday, isWorkingDay = ViewBag.IsWorkingDay })">@Model.TotalPages</a>
+                            </li>
+                        }
+
+                        @if (Model.HasNextPage)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("Index", new { page = Model.PageIndex + 1, searchKey = ViewBag.SearchKey, year = ViewBag.Year, month = ViewBag.Month, isHoliday = ViewBag.IsHoliday, isWorkingDay = ViewBag.IsWorkingDay })">
+                                    <i class="bx bx-chevron-left"></i>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modals -->
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">حذف تاریخ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <div class="modal-body">
+                <p>آیا از حذف این تاریخ مطمئن هستید؟</p>
+                <div id="deleteDetails" class="fw-bold"></div>
+                <div class="alert alert-warning mt-2">
+                    <small><i class="bx bx-info-circle me-1"></i> این عمل قابل بازگشت نیست.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <form id="deleteForm" method="post" asp-action="Delete">
+                    <input type="hidden" id="dateToDelete" name="gregorianDate" />
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">حذف</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Generate Year Modal -->
+<div class="modal fade" id="generateYearModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">تولید سال جدید</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <form method="post" asp-action="GenerateYear">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">سال شمسی <span class="text-danger">*</span></label>
+                        <input type="number" name="persianYear" class="form-control" min="1300" max="1500"
+                               value="@(DateTime.Now.Year - 621 + 1)" required />
+                        <small class="form-text text-muted">مثال: 1405، 1406</small>
+                    </div>
+                    <div class="alert alert-info">
+                        <h6><i class="bx bx-info-circle me-1"></i>توضیحات:</h6>
+                        <ul class="mb-0">
+                            <li>تمام روزهای سال انتخابی تولید می‌شود</li>
+                            <li>پنج‌شنبه و جمعه به عنوان تعطیل تنظیم می‌شوند</li>
+                            <li>سایر روزها به عنوان روز کاری در نظر گرفته می‌شوند</li>
+                            <li>پس از تولید، می‌توانید تعطیلات رسمی را دستی اضافه کنید</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bx bx-plus me-1"></i>تولید سال
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Update Modal -->
+<div class="modal fade" id="bulkUpdateModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">ویرایش دسته‌ای</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <form method="post" asp-action="MarkHolidaysInRange">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">از تاریخ <span class="text-danger">*</span></label>
+                                <input type="date" name="startDate" class="form-control" required />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">تا تاریخ <span class="text-danger">*</span></label>
+                                <input type="date" name="endDate" class="form-control" required />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">عملیات</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="isHoliday" value="true" id="markAsHoliday" checked>
+                            <label class="form-check-label" for="markAsHoliday">
+                                علامت‌گذاری به عنوان تعطیل
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="isHoliday" value="false" id="markAsWorking">
+                            <label class="form-check-label" for="markAsWorking">
+                                علامت‌گذاری به عنوان روز عادی
+                            </label>
+                        </div>
+                    </div>
+                    <div class="alert alert-warning">
+                        <h6><i class="bx bx-exclamation-triangle me-1"></i>توجه:</h6>
+                        <ul class="mb-0">
+                            <li>این عملیات تمام تاریخ‌های موجود در بازه انتخابی را تغییر می‌دهد</li>
+                            <li>اگر تاریخی تعطیل تنظیم شود، به طور خودکار غیر کاری نیز می‌شود</li>
+                            <li>این عمل قابل بازگشت نیست</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-warning">
+                        <i class="bx bx-edit me-1"></i>اعمال تغییرات
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Delete modal handler
+            var deleteModal = document.getElementById('deleteModal');
+            if (deleteModal) {
+                deleteModal.addEventListener('show.bs.modal', function (event) {
+                    var button = event.relatedTarget;
+                    var date = button.getAttribute('data-bs-date');
+                    var persianDate = button.getAttribute('data-bs-persian');
+
+                    document.getElementById('deleteDetails').innerHTML =
+                        '<p>تاریخ میلادی: ' + date + '</p>' +
+                        '<p>تاریخ شمسی: ' + persianDate + '</p>';
+                    document.getElementById('dateToDelete').value = date;
+                });
+            }
+
+            // Auto-dismiss alerts
+            setTimeout(function () {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function (alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+        });
+
+        // Quick actions functions
+        function setCommonHolidays() {
+            alert('این قابلیت در نسخه‌های آینده اضافه خواهد شد.\nشامل تعطیلات رسمی ایران مانند عید نوروز، محرم، صفر و...');
+            // TODO: Implement common Iranian holidays setting
+        }
+
+        function resetWeekends() {
+            if (confirm('آیا می‌خواهید تمام پنج‌شنبه‌ها و جمعه‌ها را به عنوان تعطیل تنظیم کنید؟')) {
+                // TODO: Implement weekend reset functionality
+                alert('این قابلیت در حال توسعه است.');
+            }
+        }
+
+        function showStatistics() {
+            // TODO: Create and show statistics modal
+            alert('آمار تقویم در حال توسعه است.');
+        }
+    </script>
+}

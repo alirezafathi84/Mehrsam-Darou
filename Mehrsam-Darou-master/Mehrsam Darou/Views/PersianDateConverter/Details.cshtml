@@ -1,0 +1,274 @@
+﻿@model Mehrsam_Darou.Models.PersianDateConverter
+
+@{
+    ViewData["Title"] = "جزئیات تاریخ";
+    var gregorianDateTime = Model.GregorianDate.ToDateTime(TimeOnly.MinValue);
+    var dayOfWeek = (int)gregorianDateTime.DayOfWeek;
+    var isWeekend = dayOfWeek == 4 || dayOfWeek == 5; // Thursday = 4, Friday = 5
+    var monthNames = new[] { "", "فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند" };
+}
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4>جزئیات تاریخ</h4>
+                    <div>
+                        <a href="@Url.Action("Edit", new { gregorianDate = Model.GregorianDate })" class="btn btn-primary me-2">
+                            <i class="bx bx-edit me-1"></i>ویرایش
+                        </a>
+                        <a href="@Url.Action("Index")" class="btn btn-secondary">
+                            <i class="bx bx-arrow-back me-1"></i>بازگشت به لیست
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Main Date Information -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card bg-light-subtle">
+                            <div class="card-body text-center">
+                                <h2 class="text-primary mb-1">@Model.GregorianDate.ToString("yyyy/MM/dd")</h2>
+                                <h5 class="text-muted mb-3">تاریخ میلادی</h5>
+                                <span class="badge @(isWeekend ? "bg-danger" : "bg-primary") fs-6">
+                                    @gregorianDateTime.ToString("dddd", new System.Globalization.CultureInfo("fa-IR"))
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-primary-subtle">
+                            <div class="card-body text-center">
+                                <h2 class="text-primary mb-1">@Model.PersianDate</h2>
+                                <h5 class="text-muted mb-3">تاریخ شمسی</h5>
+                                <span class="badge bg-info fs-6">@monthNames[Model.PersianMonth] @Model.PersianYear</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Information -->
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">اطلاعات تفصیلی</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">سال شمسی:</label>
+                                            <div class="fs-5 text-primary">@Model.PersianYear</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">ماه شمسی:</label>
+                                            <div class="fs-5">
+                                                <span class="badge bg-info-subtle text-info fs-6">
+                                                    @monthNames[Model.PersianMonth] (@Model.PersianMonth)
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">روز شمسی:</label>
+                                            <div class="fs-5 text-primary">@Model.PersianDay</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">روز هفته:</label>
+                                            <div class="fs-6">
+                                                <span class="badge @(isWeekend ? "bg-danger" : "bg-primary") fs-6">
+                                                    @gregorianDateTime.ToString("dddd", new System.Globalization.CultureInfo("fa-IR"))
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <hr>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">وضعیت تعطیلی:</label>
+                                            <div class="fs-5">
+                                                @if (Model.IsHoliday)
+                                                {
+                                                    <span class="badge bg-danger fs-6">
+                                                        <i class="bx bx-x me-1"></i>تعطیل
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-success fs-6">
+                                                        <i class="bx bx-check me-1"></i>عادی (غیر تعطیل)
+                                                    </span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">روز کاری:</label>
+                                            <div class="fs-5">
+                                                @if (Model.IsWorkingDay)
+                                                {
+                                                    <span class="badge bg-primary fs-6">
+                                                        <i class="bx bx-briefcase me-1"></i>کاری
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary fs-6">
+                                                        <i class="bx bx-home me-1"></i>غیر کاری
+                                                    </span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Information -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">اطلاعات تقویم میلادی</h6>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-sm">
+                                    <tr>
+                                        <td><strong>تاریخ کامل:</strong></td>
+                                        <td>@gregorianDateTime.ToString("dddd, MMMM dd, yyyy", new System.Globalization.CultureInfo("en-US"))</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>ماه میلادی:</strong></td>
+                                        <td>@gregorianDateTime.ToString("MMMM", new System.Globalization.CultureInfo("fa-IR")) (@gregorianDateTime.Month)</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>روز سال:</strong></td>
+                                        <td>@gregorianDateTime.DayOfYear</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>هفته سال:</strong></td>
+                                        <td>@(System.Globalization.CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(gregorianDateTime, System.Globalization.CalendarWeekRule.FirstDay, DayOfWeek.Saturday))</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">اطلاعات تقویم شمسی</h6>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-sm">
+                                    <tr>
+                                        <td><strong>فصل:</strong></td>
+                                        <td>
+                                            @{
+                                                string season = "";
+                                                if (Model.PersianMonth >= 1 && Model.PersianMonth <= 3) season = "بهار";
+                                                else if (Model.PersianMonth >= 4 && Model.PersianMonth <= 6) season = "تابستان";
+                                                else if (Model.PersianMonth >= 7 && Model.PersianMonth <= 9) season = "پاییز";
+                                                else season = "زمستان";
+                                            }
+                                            <span class="badge bg-info">@season</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>نیمسال:</strong></td>
+                                        <td>@(Model.PersianMonth <= 6 ? "نیمسال اول" : "نیمسال دوم")</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>سه‌ماهه:</strong></td>
+                                        <td>
+                                            @{
+                                                int quarter = (Model.PersianMonth - 1) / 3 + 1;
+                                            }
+                                            سه‌ماهه @quarter
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>سال کبیسه:</strong></td>
+                                        <td>
+                                            @{
+                                                var pc = new System.Globalization.PersianCalendar();
+                                                bool isLeapYear = pc.IsLeapYear(Model.PersianYear);
+                                            }
+                                            @(isLeapYear ? "بله" : "خیر")
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weekend/Holiday Analysis -->
+                @if (isWeekend || Model.IsHoliday)
+                {
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div class="alert @(isWeekend ? "alert-warning" : "alert-info")">
+                                <h6><i class="bx @(isWeekend ? "bx-calendar-exclamation" : "bx-info-circle") me-1"></i>تحلیل وضعیت:</h6>
+                                <ul class="mb-0">
+                                    @if (isWeekend)
+                                    {
+                                        <li>این روز جزو تعطیلات آخر هفته (پنج‌شنبه یا جمعه) محسوب می‌شود</li>
+                                    }
+                                    @if (Model.IsHoliday && !isWeekend)
+                                    {
+                                        <li>این روز به عنوان تعطیل رسمی تنظیم شده است</li>
+                                    }
+                                    @if (!Model.IsWorkingDay)
+                                    {
+                                        <li>این روز جزو روزهای غیر کاری محسوب می‌شود</li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- Navigation -->
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <div class="d-flex justify-content-between">
+                            @{
+                                var previousDay = DateOnly.FromDateTime(Model.GregorianDate.ToDateTime(TimeOnly.MinValue).AddDays(-1));
+                                var nextDay = DateOnly.FromDateTime(Model.GregorianDate.ToDateTime(TimeOnly.MinValue).AddDays(1));
+                            }
+                            <a href="@Url.Action("Details", new { gregorianDate = previousDay })" class="btn btn-outline-secondary">
+                                <i class="bx bx-chevron-right me-1"></i>روز قبل
+                                <small class="d-block">@previousDay.ToString("yyyy/MM/dd")</small>
+                            </a>
+
+                            <div class="text-center">
+                                <a href="@Url.Action("Index")" class="btn btn-primary">
+                                    <i class="bx bx-calendar me-1"></i>بازگشت به تقویم
+                                </a>
+                            </div>
+
+                            <a href="@Url.Action("Details", new { gregorianDate = nextDay })" class="btn btn-outline-secondary">
+                                روز بعد<i class="bx bx-chevron-left ms-1"></i>
+                                <small class="d-block">@nextDay.ToString("yyyy/MM/dd")</small>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
