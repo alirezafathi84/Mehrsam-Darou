@@ -104,10 +104,6 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmluaXNoZWRHb29kc0JhdGNoXEZpbmlzaGVkR29vZHNCYXRjaExpc3QuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/FinishedGoodsBatch/_PrintTemplate.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmluaXNoZWRHb29kc0JhdGNoXF9QcmludFRlbXBsYXRlLmNzaHRtbA==
-build_metadata.AdditionalFiles.CssScope = 
-
 [D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
@@ -262,6 +258,18 @@ build_metadata.AdditionalFiles.CssScope =
 
 [D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/ProductionStep/ProductionStepList.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZHVjdGlvblN0ZXBcUHJvZHVjdGlvblN0ZXBMaXN0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/PurchaseInvoice/AddPurchaseInvoice.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHVyY2hhc2VJbnZvaWNlXEFkZFB1cmNoYXNlSW52b2ljZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/PurchaseInvoice/EditPurchaseInvoice.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHVyY2hhc2VJbnZvaWNlXEVkaXRQdXJjaGFzZUludm9pY2UuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/PurchaseInvoice/PurchaseInvoiceList.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHVyY2hhc2VJbnZvaWNlXFB1cmNoYXNlSW52b2ljZUxpc3QuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/PurchaseOrder/AddPurchaseOrder.cshtml]

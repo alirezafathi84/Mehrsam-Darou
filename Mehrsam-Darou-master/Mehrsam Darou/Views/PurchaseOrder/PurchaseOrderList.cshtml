@@ -1,9 +1,9 @@
 ﻿@using static Mehrsam_Darou.Helper.Helper
 @model PaginatedList<Mehrsam_Darou.Models.PurchaseOrder>
 @using System.Globalization
-@using Microsoft.AspNetCore.Html
 
 @{
+    PersianCalendar pc = new PersianCalendar();
     ViewData["Title"] = "لیست سفارشات خرید";
 }
 
@@ -39,7 +39,7 @@
                     </form>
                     <div>
                         <a href="@Url.Action("AddPurchaseOrder")" class="btn btn-primary">
-                            <i class="bx bx-plus me-1"></i> سفارش جدید
+                            <i class="bx bx-plus me-1"></i> سفارش خرید جدید
                         </a>
                     </div>
                 </div>
@@ -51,9 +51,10 @@
                         <thead class="bg-light-subtle">
                             <tr>
                                 <th>شماره سفارش</th>
-                                <th>تامین کننده</th>
+                                <th>تامین‌کننده</th>
                                 <th>تاریخ سفارش</th>
-                                <th>تاریخ تحویل</th>
+                                <th>تاریخ تحویل مورد انتظار</th>
+                                <th>تاریخ تحویل واقعی</th>
                                 <th>مبلغ کل</th>
                                 <th>وضعیت</th>
                                 <th>تاریخ ایجاد</th>
@@ -63,58 +64,119 @@
                         <tbody>
                             @if (Model != null && Model.Any())
                             {
-                                foreach (var order in Model)
+                                foreach (var purchaseOrder in Model)
                                 {
                                     <tr>
                                         <td>
-                                            <span class="badge bg-light text-dark">@order.PoNumber</span>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm bg-light-subtle rounded me-2">
+                                                    <span class="avatar-title">
+                                                        <iconify-icon icon="solar:cart-2-bold-duotone" class="fs-18"></iconify-icon>
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0 fw-medium">@purchaseOrder.PoNumber</h6>
+                                                </div>
+                                            </div>
                                         </td>
                                         <td>
-                                            @order.Supplier?.SupplierName
-                                        </td>
-                                        <td>
-                                            @if (order.OrderDate != null)
+                                            @if (purchaseOrder.Supplier != null)
                                             {
-                                                <small class="text-muted">
-                                                    @order.OrderDate.Year/@order.OrderDate.Month.ToString("00")/@order.OrderDate.Day.ToString("00")
-                                                </small>
+                                                <span class="text-primary fw-medium">@purchaseOrder.Supplier.SupplierName</span>
+                                                if (!string.IsNullOrEmpty(purchaseOrder.Supplier.ContactPerson))
+                                                {
+                                                    <br>
+
+                                                    <small class="text-muted">@purchaseOrder.Supplier.ContactPerson</small>
+                                                }
                                             }
-                                        </td>
-                                        <td>
-                                            @if (order.ExpectedDeliveryDate != null)
-                                            {
-                                                <small class="text-muted">
-                                                    @order.ExpectedDeliveryDate.Value.Year/@order.ExpectedDeliveryDate.Value.Month.ToString("00")/@order.ExpectedDeliveryDate.Value.Day.ToString("00")
-                                                </small>
-                                            }
-                                        </td>
-                                        <td>
-                                            @if (order.TotalAmount.HasValue)
-                                            {
-                                                <span class="text-success fw-medium">@order.TotalAmount.Value.ToString("N0") ریال</span>
-                                            }
-                                        </td>
-                                        <td>
-                                            @GetStatusBadge(order.Status)
                                         </td>
                                         <td>
                                             <small class="text-muted">
-                                                @order.CreatedDate.Year/@order.CreatedDate.Month.ToString("00")/@order.CreatedDate.Day.ToString("00")
+                                                @{
+                                                    var orderDateTime = purchaseOrder.OrderDate.ToDateTime(TimeOnly.MinValue);
+                                                }
+                                                @pc.GetYear(orderDateTime)/@pc.GetMonth(orderDateTime).ToString("00")/@pc.GetDayOfMonth(orderDateTime).ToString("00")
+                                            </small>
+                                        </td>
+                                        <td>
+                                            @if (purchaseOrder.ExpectedDeliveryDate.HasValue)
+                                            {
+                                                <small class="text-muted">
+                                                    @{
+                                                        var expectedDateTime = purchaseOrder.ExpectedDeliveryDate.Value.ToDateTime(TimeOnly.MinValue);
+                                                    }
+                                                    @pc.GetYear(expectedDateTime)/@pc.GetMonth(expectedDateTime).ToString("00")/@pc.GetDayOfMonth(expectedDateTime).ToString("00")
+                                                </small>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (purchaseOrder.ActualDeliveryDate.HasValue)
+                                            {
+                                                <small class="text-success">
+                                                    @{
+                                                        var actualDateTime = purchaseOrder.ActualDeliveryDate.Value.ToDateTime(TimeOnly.MinValue);
+                                                    }
+                                                    @pc.GetYear(actualDateTime)/@pc.GetMonth(actualDateTime).ToString("00")/@pc.GetDayOfMonth(actualDateTime).ToString("00")
+                                                </small>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (purchaseOrder.TotalAmount.HasValue)
+                                            {
+                                                <span class="text-success fw-medium">
+                                                    @purchaseOrder.TotalAmount.Value.ToString("N0")
+                                                    @(purchaseOrder.Currency == "IRR" ? "ریال" : purchaseOrder.Currency)
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @{
+                                                string badgeClass = purchaseOrder.Status switch
+                                                {
+                                                    "پیش‌نویس" => "bg-secondary",
+                                                    "ارسال شده" => "bg-info",
+                                                    "تایید شده" => "bg-primary",
+                                                    "دریافت جزئی" => "bg-warning",
+                                                    "دریافت شده" => "bg-success",
+                                                    "لغو شده" => "bg-danger",
+                                                    _ => "bg-secondary"
+                                                };
+                                            }
+                                            <span class="badge @badgeClass">@purchaseOrder.Status</span>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                @pc.GetYear(purchaseOrder.CreatedDate)/@pc.GetMonth(purchaseOrder.CreatedDate).ToString("00")/@pc.GetDayOfMonth(purchaseOrder.CreatedDate).ToString("00")
                                             </small>
                                         </td>
                                         <td>
                                             <div class="d-flex gap-2 justify-content-center">
-                                                <a href="@Url.Action("EditPurchaseOrder", new { id = order.PurchaseOrderId })" class="btn btn-soft-primary btn-sm" title="ویرایش">
+                                                <a href="@Url.Action("EditPurchaseOrder", new { id = purchaseOrder.PurchaseOrderId })" class="btn btn-soft-primary btn-sm" title="ویرایش">
                                                     <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
                                                 </a>
-                                                <a href="@Url.Action("ViewPurchaseOrder", new { id = order.PurchaseOrderId })" class="btn btn-soft-info btn-sm" title="مشاهده">
+                                                <button type="button" class="btn btn-soft-info btn-sm"
+                                                        onclick="showPurchaseOrderDetails('@purchaseOrder.PurchaseOrderId')"
+                                                        title="مشاهده جزئیات">
                                                     <iconify-icon icon="solar:eye-broken" class="align-middle fs-18"></iconify-icon>
-                                                </a>
+                                                </button>
                                                 <button type="button" class="btn btn-soft-danger btn-sm"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#deleteModal"
-                                                        data-bs-id="@order.PurchaseOrderId"
-                                                        data-bs-number="@order.PoNumber"
+                                                        data-bs-id="@purchaseOrder.PurchaseOrderId"
+                                                        data-bs-name="@purchaseOrder.PoNumber"
                                                         title="حذف">
                                                     <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
                                                 </button>
@@ -126,8 +188,8 @@
                             else
                             {
                                 <tr>
-                                    <td colspan="8" class="text-center py-4">
-                                        <i class="bx bx-package text-muted fs-1"></i>
+                                    <td colspan="9" class="text-center py-4">
+                                        <i class="bx bx-cart text-muted fs-1"></i>
                                         <p class="mt-2">هیچ سفارش خریدی یافت نشد.</p>
                                     </td>
                                 </tr>
@@ -197,14 +259,14 @@
             </div>
             <div class="modal-body">
                 <p>آیا از حذف این سفارش خرید مطمئن هستید؟</p>
-                <p id="poNumberToDelete" class="fw-bold"></p>
+                <p id="purchaseOrderNumberToDelete" class="fw-bold"></p>
                 <div class="alert alert-warning">
-                    <small><i class="bx bx-info-circle me-1"></i> در صورت وجود فاکتور خرید مرتبط، امکان حذف وجود ندارد.</small>
+                    <small><i class="bx bx-info-circle me-1"></i> در صورت وجود فاکتور یا آیتم، امکان حذف وجود ندارد.</small>
                 </div>
             </div>
             <div class="modal-footer">
                 <form id="deleteForm" method="post" asp-action="Delete">
-                    <input type="hidden" id="poIdToDelete" name="id" />
+                    <input type="hidden" id="purchaseOrderIdToDelete" name="id" />
                     @Html.AntiForgeryToken()
                     <button type="submit" class="btn btn-danger">حذف</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
@@ -214,23 +276,20 @@
     </div>
 </div>
 
-@functions {
-    public IHtmlContent GetStatusBadge(string status)
-    {
-        var badgeClass = status switch
-        {
-            "پیش‌نویس" => "bg-secondary",
-            "ارسال شده" => "bg-info",
-            "تایید شده" => "bg-primary",
-            "دریافت جزئی" => "bg-warning",
-            "دریافت شده" => "bg-success",
-            "لغو شده" => "bg-danger",
-            _ => "bg-light text-dark"
-        };
-
-        return new HtmlString($"<span class=\"badge {badgeClass}\">{status}</span>");
-    }
-}
+<!-- Purchase Order Details Modal -->
+<div class="modal fade" id="purchaseOrderDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">جزئیات سفارش خرید</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <div class="modal-body" id="purchaseOrderDetailsContent">
+                <!-- Purchase order details will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     <script>
@@ -238,11 +297,11 @@
             var deleteModal = document.getElementById('deleteModal');
             deleteModal.addEventListener('show.bs.modal', function (event) {
                 var button = event.relatedTarget;
-                var poId = button.getAttribute('data-bs-id');
-                var poNumber = button.getAttribute('data-bs-number');
+                var purchaseOrderId = button.getAttribute('data-bs-id');
+                var purchaseOrderNumber = button.getAttribute('data-bs-name');
 
-                document.getElementById('poNumberToDelete').textContent = poNumber;
-                document.getElementById('poIdToDelete').value = poId;
+                document.getElementById('purchaseOrderNumberToDelete').textContent = purchaseOrderNumber;
+                document.getElementById('purchaseOrderIdToDelete').value = purchaseOrderId;
             });
 
             // Auto-dismiss alerts after 5 seconds
@@ -254,5 +313,21 @@
                 });
             }, 5000);
         });
+
+        function showPurchaseOrderDetails(purchaseOrderId) {
+            // This would typically load purchase order details via AJAX
+            // For now, just show a placeholder
+            var modal = new bootstrap.Modal(document.getElementById('purchaseOrderDetailsModal'));
+            document.getElementById('purchaseOrderDetailsContent').innerHTML =
+                '<div class="text-center"><div class="spinner-border" role="status"></div><p class="mt-2">در حال بارگذاری...</p></div>';
+            modal.show();
+
+            // Simulate loading details
+            setTimeout(function() {
+                document.getElementById('purchaseOrderDetailsContent').innerHTML =
+                    '<p>جزئیات کامل سفارش خرید اینجا نمایش داده خواهد شد.</p>' +
+                    '<p>شامل آیتم‌ها، فاکتورها و ...</p>';
+            }, 1000);
+        }
     </script>
 }

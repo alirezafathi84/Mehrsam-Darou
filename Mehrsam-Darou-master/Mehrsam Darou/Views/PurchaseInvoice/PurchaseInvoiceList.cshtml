@@ -1,13 +1,13 @@
 ﻿@using static Mehrsam_Darou.Helper.Helper
-@model PaginatedList<Mehrsam_Darou.Models.FinishedGoodsBatch>
+@model PaginatedList<Mehrsam_Darou.Models.PurchaseInvoice>
 @using System.Globalization
 
 @{
     PersianCalendar pc = new PersianCalendar();
-    ViewData["Title"] = "لیست بچ‌های محصول نهایی";
+    ViewData["Title"] = "لیست فاکتورهای خرید";
 }
 
-<h2 class="mb-4">لیست بچ‌های محصول نهایی</h2>
+<h2 class="mb-4">لیست فاکتورهای خرید</h2>
 
 <div class="row">
     <div class="col-xl-12">
@@ -31,15 +31,15 @@
                 }
 
                 <div class="d-flex flex-wrap justify-content-between gap-3">
-                    <form method="get" asp-action="FinishedGoodsBatchList">
+                    <form method="get" asp-action="PurchaseInvoiceList">
                         <div class="search-bar">
                             <span><i class="bx bx-search-alt"></i></span>
                             <input type="search" name="searchKey" value="@Context.Request.Query["searchKey"]" class="form-control" placeholder="جستجو...">
                         </div>
                     </form>
                     <div>
-                        <a href="@Url.Action("AddFinishedGoodsBatch")" class="btn btn-primary">
-                            <i class="bx bx-plus me-1"></i> بچ جدید
+                        <a href="@Url.Action("AddPurchaseInvoice")" class="btn btn-primary">
+                            <i class="bx bx-plus me-1"></i> فاکتور خرید جدید
                         </a>
                     </div>
                 </div>
@@ -50,49 +50,56 @@
                     <table class="table align-middle mb-0 table-hover table-centered">
                         <thead class="bg-light-subtle">
                             <tr>
-                                <th>دارو</th>
-                                <th>شماره بچ</th>
-                                <th>مقدار</th>
-                                <th>واحد</th>
-                                <th>موقعیت</th>
-                                <th>تاریخ تولید</th>
-                                <th>تاریخ انقضا</th>
+                                <th>شماره فاکتور</th>
+                                <th>تامین‌کننده</th>
+                                <th>سفارش خرید</th>
+                                <th>تاریخ فاکتور</th>
+                                <th>تاریخ سررسید</th>
+                                <th>مبلغ کل</th>
+                                <th>مبلغ پرداخت شده</th>
                                 <th>وضعیت</th>
-                                <th>سفارش تولید</th>
+                                <th>تاریخ ایجاد</th>
                                 <th>اقدامات</th>
                             </tr>
                         </thead>
                         <tbody>
                             @if (Model != null && Model.Any())
                             {
-                                foreach (var batch in Model)
+                                foreach (var purchaseInvoice in Model)
                                 {
                                     <tr>
                                         <td>
                                             <div class="d-flex align-items-center">
                                                 <div class="avatar-sm bg-light-subtle rounded me-2">
                                                     <span class="avatar-title">
-                                                        <iconify-icon icon="solar:pill-bold-duotone" class="fs-18"></iconify-icon>
+                                                        <iconify-icon icon="solar:bill-list-bold-duotone" class="fs-18"></iconify-icon>
                                                     </span>
                                                 </div>
                                                 <div>
-                                                    <h6 class="mb-0 fw-medium">@batch.Medicine?.BrandName</h6>
-                                                    @if (!string.IsNullOrEmpty(batch.Medicine?.MedicineCode))
+                                                    <h6 class="mb-0 fw-medium">@purchaseInvoice.InvoiceNumber</h6>
+                                                    @if (!string.IsNullOrEmpty(purchaseInvoice.SupplierInvoiceNumber))
                                                     {
-                                                        <small class="text-muted">@batch.Medicine.MedicineCode</small>
+                                                        <small class="text-muted">تامین‌کننده: @purchaseInvoice.SupplierInvoiceNumber</small>
                                                     }
                                                 </div>
                                             </div>
                                         </td>
-                                        <td><span class="badge bg-light text-dark">@batch.BatchNumber</span></td>
                                         <td>
-                                            <span class="fw-medium">@batch.Quantity.ToString("N2")</span>
-                                        </td>
-                                        <td>@batch.Unit?.UnitName</td>
-                                        <td>
-                                            @if (batch.Location != null)
+                                            @if (purchaseInvoice.Supplier != null)
                                             {
-                                                <span class="badge bg-info-subtle text-info">@batch.Location.LocationName</span>
+                                                <span class="text-primary fw-medium">@purchaseInvoice.Supplier.SupplierName</span>
+                                                if (!string.IsNullOrEmpty(purchaseInvoice.Supplier.ContactPerson))
+                                                {
+                                                    <br>
+
+                                                    <small class="text-muted">@purchaseInvoice.Supplier.ContactPerson</small>
+                                                }
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (purchaseInvoice.PurchaseOrder != null)
+                                            {
+                                                <span class="badge bg-info-subtle text-info">@purchaseInvoice.PurchaseOrder.PoNumber</span>
                                             }
                                             else
                                             {
@@ -101,36 +108,27 @@
                                         </td>
                                         <td>
                                             <small class="text-muted">
-                                                @pc.GetYear(batch.ManufactureDate.ToDateTime(TimeOnly.MinValue))/@pc.GetMonth(batch.ManufactureDate.ToDateTime(TimeOnly.MinValue)).ToString("00")/@pc.GetDayOfMonth(batch.ManufactureDate.ToDateTime(TimeOnly.MinValue)).ToString("00")
+                                                @{
+                                                    var invoiceDateTime = purchaseInvoice.InvoiceDate.ToDateTime(TimeOnly.MinValue);
+                                                }
+                                                @pc.GetYear(invoiceDateTime)/@pc.GetMonth(invoiceDateTime).ToString("00")/@pc.GetDayOfMonth(invoiceDateTime).ToString("00")
                                             </small>
                                         </td>
                                         <td>
-                                            <small class="@(batch.ExpiryDate < DateOnly.FromDateTime(DateTime.Now) ? "text-danger" : (batch.ExpiryDate < DateOnly.FromDateTime(DateTime.Now.AddMonths(3)) ? "text-warning" : "text-muted"))">
-                                                @pc.GetYear(batch.ExpiryDate.ToDateTime(TimeOnly.MinValue))/@pc.GetMonth(batch.ExpiryDate.ToDateTime(TimeOnly.MinValue)).ToString("00")/@pc.GetDayOfMonth(batch.ExpiryDate.ToDateTime(TimeOnly.MinValue)).ToString("00")
-                                            </small>
-                                        </td>
-                                        <td>
-                                            @if (batch.Status == "آزاد شده")
+                                            @if (purchaseInvoice.DueDate.HasValue)
                                             {
-                                                <span class="badge bg-success">آزاد شده</span>
-                                            }
-                                            else if (batch.Status == "قرنطینه")
-                                            {
-                                                <span class="badge bg-warning">قرنطینه</span>
-                                            }
-                                            else if (batch.Status == "رد شده")
-                                            {
-                                                <span class="badge bg-danger">رد شده</span>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge bg-secondary">@batch.Status</span>
-                                            }
-                                        </td>
-                                        <td>
-                                            @if (batch.Order != null)
-                                            {
-                                                <span class="badge bg-light text-dark">@batch.Order.OrderNumber</span>
+                                                <small class="text-muted">
+                                                    @{
+                                                        var dueDateTime = purchaseInvoice.DueDate.Value.ToDateTime(TimeOnly.MinValue);
+                                                    }
+                                                    @pc.GetYear(dueDateTime)/@pc.GetMonth(dueDateTime).ToString("00")/@pc.GetDayOfMonth(dueDateTime).ToString("00")
+                                                </small>
+                                                @if (purchaseInvoice.DueDate.Value < DateOnly.FromDateTime(DateTime.Now) && purchaseInvoice.Status != "پرداخت شده")
+                                                {
+                                                    <br>
+
+                                                    <span class="badge bg-danger">سررسید گذشته</span>
+                                                }
                                             }
                                             else
                                             {
@@ -138,20 +136,66 @@
                                             }
                                         </td>
                                         <td>
+                                            <span class="text-success fw-medium">
+                                                @purchaseInvoice.TotalAmount.ToString("N0")
+                                                @(purchaseInvoice.Currency == "IRR" ? "ریال" : purchaseInvoice.Currency)
+                                            </span>
+                                        </td>
+                                        <td>
+                                            @if (purchaseInvoice.PaidAmount.HasValue && purchaseInvoice.PaidAmount > 0)
+                                            {
+                                                var remainingAmount = purchaseInvoice.TotalAmount - purchaseInvoice.PaidAmount.Value;
+                                                <span class="text-info fw-medium">
+                                                    @purchaseInvoice.PaidAmount.Value.ToString("N0")
+                                                    @(purchaseInvoice.Currency == "IRR" ? "ریال" : purchaseInvoice.Currency)
+                                                </span>
+                                                if (remainingAmount > 0)
+                                                {
+                                                    <br>
+
+                                                    <small class="text-warning">باقیمانده: @remainingAmount.ToString("N0")</small>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">پرداخت نشده</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @{
+                                                string badgeClass = purchaseInvoice.Status switch
+                                                {
+                                                    "پیش‌نویس" => "bg-secondary",
+                                                    "در انتظار" => "bg-warning",
+                                                    "تایید شده" => "bg-primary",
+                                                    "پرداخت شده" => "bg-success",
+                                                    "سررسید گذشته" => "bg-danger",
+                                                    "لغو شده" => "bg-danger",
+                                                    _ => "bg-secondary"
+                                                };
+                                            }
+                                            <span class="badge @badgeClass">@purchaseInvoice.Status</span>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                @pc.GetYear(purchaseInvoice.CreatedDate)/@pc.GetMonth(purchaseInvoice.CreatedDate).ToString("00")/@pc.GetDayOfMonth(purchaseInvoice.CreatedDate).ToString("00")
+                                            </small>
+                                        </td>
+                                        <td>
                                             <div class="d-flex gap-2 justify-content-center">
-                                                <a href="@Url.Action("EditFinishedGoodsBatch", new { id = batch.BatchId })" class="btn btn-soft-primary btn-sm" title="ویرایش">
+                                                <a href="@Url.Action("EditPurchaseInvoice", new { id = purchaseInvoice.PurchaseInvoiceId })" class="btn btn-soft-primary btn-sm" title="ویرایش">
                                                     <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
                                                 </a>
                                                 <button type="button" class="btn btn-soft-info btn-sm"
-                                                        onclick="showBatchDetails('@batch.BatchId')"
+                                                        onclick="showPurchaseInvoiceDetails('@purchaseInvoice.PurchaseInvoiceId')"
                                                         title="مشاهده جزئیات">
                                                     <iconify-icon icon="solar:eye-broken" class="align-middle fs-18"></iconify-icon>
                                                 </button>
                                                 <button type="button" class="btn btn-soft-danger btn-sm"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#deleteModal"
-                                                        data-bs-id="@batch.BatchId"
-                                                        data-bs-name="@batch.BatchNumber"
+                                                        data-bs-id="@purchaseInvoice.PurchaseInvoiceId"
+                                                        data-bs-name="@purchaseInvoice.InvoiceNumber"
                                                         title="حذف">
                                                     <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
                                                 </button>
@@ -164,8 +208,8 @@
                             {
                                 <tr>
                                     <td colspan="10" class="text-center py-4">
-                                        <i class="bx bx-package text-muted fs-1"></i>
-                                        <p class="mt-2">هیچ بچ محصول نهایی‌ای یافت نشد.</p>
+                                        <i class="bx bx-file text-muted fs-1"></i>
+                                        <p class="mt-2">هیچ فاکتور خریدی یافت نشد.</p>
                                     </td>
                                 </tr>
                             }
@@ -180,7 +224,7 @@
                         @if (Model.HasPreviousPage)
                         {
                             <li class="page-item">
-                                <a class="page-link" href="@Url.Action("FinishedGoodsBatchList", new { page = Model.PageIndex - 1, searchKey = Context.Request.Query["searchKey"] })">
+                                <a class="page-link" href="@Url.Action("PurchaseInvoiceList", new { page = Model.PageIndex - 1, searchKey = Context.Request.Query["searchKey"] })">
                                     <i class="bx bx-chevron-right"></i>
                                 </a>
                             </li>
@@ -197,14 +241,14 @@
                         @for (int i = 1; i <= Model.TotalPages; i++)
                         {
                             <li class="page-item @(i == Model.PageIndex ? "active" : "")">
-                                <a class="page-link" href="@Url.Action("FinishedGoodsBatchList", new { page = i, searchKey = Context.Request.Query["searchKey"] })">@i</a>
+                                <a class="page-link" href="@Url.Action("PurchaseInvoiceList", new { page = i, searchKey = Context.Request.Query["searchKey"] })">@i</a>
                             </li>
                         }
 
                         @if (Model.HasNextPage)
                         {
                             <li class="page-item">
-                                <a class="page-link" href="@Url.Action("FinishedGoodsBatchList", new { page = Model.PageIndex + 1, searchKey = Context.Request.Query["searchKey"] })">
+                                <a class="page-link" href="@Url.Action("PurchaseInvoiceList", new { page = Model.PageIndex + 1, searchKey = Context.Request.Query["searchKey"] })">
                                     <i class="bx bx-chevron-left"></i>
                                 </a>
                             </li>
@@ -229,19 +273,19 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">حذف بچ محصول نهایی</h5>
+                <h5 class="modal-title">حذف فاکتور خرید</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
             </div>
             <div class="modal-body">
-                <p>آیا از حذف این بچ محصول نهایی مطمئن هستید؟</p>
-                <p id="batchNameToDelete" class="fw-bold"></p>
+                <p>آیا از حذف این فاکتور خرید مطمئن هستید؟</p>
+                <p id="purchaseInvoiceNumberToDelete" class="fw-bold"></p>
                 <div class="alert alert-warning">
-                    <small><i class="bx bx-info-circle me-1"></i> در صورت استفاده در فاکتورها یا حمل و نقل، امکان حذف وجود ندارد.</small>
+                    <small><i class="bx bx-info-circle me-1"></i> در صورت وجود آیتم، امکان حذف وجود ندارد.</small>
                 </div>
             </div>
             <div class="modal-footer">
                 <form id="deleteForm" method="post" asp-action="Delete">
-                    <input type="hidden" id="batchIdToDelete" name="id" />
+                    <input type="hidden" id="purchaseInvoiceIdToDelete" name="id" />
                     @Html.AntiForgeryToken()
                     <button type="submit" class="btn btn-danger">حذف</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
@@ -251,16 +295,16 @@
     </div>
 </div>
 
-<!-- Batch Details Modal -->
-<div class="modal fade" id="batchDetailsModal" tabindex="-1" aria-hidden="true">
+<!-- Purchase Invoice Details Modal -->
+<div class="modal fade" id="purchaseInvoiceDetailsModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">جزئیات بچ محصول نهایی</h5>
+                <h5 class="modal-title">جزئیات فاکتور خرید</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
             </div>
-            <div class="modal-body" id="batchDetailsContent">
-                <!-- Batch details will be loaded here -->
+            <div class="modal-body" id="purchaseInvoiceDetailsContent">
+                <!-- Purchase invoice details will be loaded here -->
             </div>
         </div>
     </div>
@@ -272,11 +316,11 @@
             var deleteModal = document.getElementById('deleteModal');
             deleteModal.addEventListener('show.bs.modal', function (event) {
                 var button = event.relatedTarget;
-                var batchId = button.getAttribute('data-bs-id');
-                var batchName = button.getAttribute('data-bs-name');
+                var purchaseInvoiceId = button.getAttribute('data-bs-id');
+                var purchaseInvoiceNumber = button.getAttribute('data-bs-name');
 
-                document.getElementById('batchNameToDelete').textContent = batchName;
-                document.getElementById('batchIdToDelete').value = batchId;
+                document.getElementById('purchaseInvoiceNumberToDelete').textContent = purchaseInvoiceNumber;
+                document.getElementById('purchaseInvoiceIdToDelete').value = purchaseInvoiceId;
             });
 
             // Auto-dismiss alerts after 5 seconds
@@ -289,19 +333,19 @@
             }, 5000);
         });
 
-        function showBatchDetails(batchId) {
-            // This would typically load batch details via AJAX
+        function showPurchaseInvoiceDetails(purchaseInvoiceId) {
+            // This would typically load purchase invoice details via AJAX
             // For now, just show a placeholder
-            var modal = new bootstrap.Modal(document.getElementById('batchDetailsModal'));
-            document.getElementById('batchDetailsContent').innerHTML =
+            var modal = new bootstrap.Modal(document.getElementById('purchaseInvoiceDetailsModal'));
+            document.getElementById('purchaseInvoiceDetailsContent').innerHTML =
                 '<div class="text-center"><div class="spinner-border" role="status"></div><p class="mt-2">در حال بارگذاری...</p></div>';
             modal.show();
 
             // Simulate loading details
             setTimeout(function() {
-                document.getElementById('batchDetailsContent').innerHTML =
-                    '<p>جزئیات کامل بچ محصول نهایی اینجا نمایش داده خواهد شد.</p>' +
-                    '<p>شامل تاریخچه تولید، کیفیت و ...</p>';
+                document.getElementById('purchaseInvoiceDetailsContent').innerHTML =
+                    '<p>جزئیات کامل فاکتور خرید اینجا نمایش داده خواهد شد.</p>' +
+                    '<p>شامل آیتم‌ها، پرداخت‌ها و ...</p>';
             }, 1000);
         }
     </script>

@@ -13,6 +13,7 @@
     <div class="col-xl-12">
         <div class="card">
             <div class="card-body">
+                <!-- Success and Error Alerts -->
                 @if (TempData["SuccessMessage"] != null)
                 {
                     <div class="alert alert-success px-2" role="alert">
@@ -33,11 +34,11 @@
                     <form method="get" asp-action="MaterialBatchList">
                         <div class="search-bar">
                             <span><i class="bx bx-search-alt"></i></span>
-                            <input type="search" name="SearchKey" value="@Context.Request.Query["SearchKey"]" class="form-control" placeholder="جستجو...">
+                            <input type="search" name="searchKey" value="@Context.Request.Query["searchKey"]" class="form-control" placeholder="جستجو...">
                         </div>
                     </form>
                     <div>
-                        <a href="@Url.Action("AddMaterialBatch", "MaterialBatch")" class="btn btn-primary">
+                        <a href="@Url.Action("AddMaterialBatch")" class="btn btn-primary">
                             <i class="bx bx-plus me-1"></i> بچ جدید
                         </a>
                     </div>
@@ -49,12 +50,14 @@
                     <table class="table align-middle mb-0 table-hover table-centered">
                         <thead class="bg-light-subtle">
                             <tr>
+                                <th>ماده اولیه</th>
                                 <th>شماره بچ</th>
-                                <th>نام ماده اولیه</th>
-                                <th>تعداد اولیه</th>
-                                <th>تعداد فعلی</th>
+                                <th>مقدار اولیه</th>
+                                <th>مقدار فعلی</th>
                                 <th>واحد</th>
+                                <th>محل نگهداری</th>
                                 <th>وضعیت</th>
+                                <th>تاریخ انقضا</th>
                                 <th>اقدامات</th>
                             </tr>
                         </thead>
@@ -64,39 +67,115 @@
                                 foreach (var batch in Model)
                                 {
                                     <tr>
-                                        <td>@batch.BatchNumber</td>
-                                        <td>@batch.Material?.MaterialName</td>
-                                        <td>@batch.InitialQuantity</td>
-                                        <td>@batch.CurrentQuantity</td>
-                                        <td>@batch.Unit?.UnitName</td>
                                         <td>
-                                            @if (batch.Status == "Released")
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm bg-light-subtle rounded me-2">
+                                                    <span class="avatar-title">
+                                                        <iconify-icon icon="solar:box-bold-duotone" class="fs-18"></iconify-icon>
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0 fw-medium">@batch.Material.MaterialName</h6>
+                                                    <small class="text-muted">@batch.Material.MaterialCode</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><span class="badge bg-light text-dark">@batch.BatchNumber</span></td>
+                                        <td>
+                                            <span class="text-info fw-medium">@batch.InitialQuantity.ToString("N3")</span>
+                                        </td>
+                                        <td>
+                                            @if (batch.CurrentQuantity > 0)
                                             {
-                                                <span class="badge bg-success">منتشر شده</span>
+                                                <span class="text-success fw-medium">@batch.CurrentQuantity.ToString("N3")</span>
                                             }
-                                            else if (batch.Status == "Quarantine")
+                                            else
                                             {
-                                                <span class="badge bg-warning">قرنطینه</span>
+                                                <span class="text-muted">@batch.CurrentQuantity.ToString("N3")</span>
                                             }
-                                            else if (batch.Status == "Rejected")
+                                        </td>
+                                        <td>
+                                            @if (batch.Unit != null)
                                             {
-                                                <span class="badge bg-danger">رد شده</span>
+                                                <span class="badge bg-secondary-subtle text-secondary">@batch.Unit.UnitSymbol</span>
                                             }
-                                            else if (batch.Status == "Consumed")
+                                        </td>
+                                        <td>
+                                            @if (batch.Location != null)
                                             {
-                                                <span class="badge bg-secondary">مصرف شده</span>
+                                                <span class="text-dark">@batch.Location.LocationName</span>
+                                                <br>
+
+                                                <small class="text-muted">@batch.Location.LocationCode</small>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @switch (batch.Status)
+                                            {
+                                                case "قرنطینه":
+                                                    <span class="badge bg-warning">قرنطینه</span>
+                                                    break;
+                                                case "آزاد شده":
+                                                    <span class="badge bg-success">آزاد شده</span>
+                                                    break;
+                                                case "رد شده":
+                                                    <span class="badge bg-danger">رد شده</span>
+                                                    break;
+                                                case "مصرف شده":
+                                                    <span class="badge bg-secondary">مصرف شده</span>
+                                                    break;
+                                                default:
+                                                    <span class="badge bg-light text-dark">@batch.Status</span>
+                                                    break;
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (batch.ExpiryDate.HasValue)
+                                            {
+                                                var expiryDate = batch.ExpiryDate.Value;
+                                                var daysToExpiry = (expiryDate - DateTime.Now).Days;
+
+                                                <small class="@(daysToExpiry < 30 ? "text-danger" : daysToExpiry < 90 ? "text-warning" : "text-muted")">
+                                                    @pc.GetYear(expiryDate)/@pc.GetMonth(expiryDate).ToString("00")/@pc.GetDayOfMonth(expiryDate).ToString("00")
+                                                </small>
+                                                @if (daysToExpiry < 30 && daysToExpiry > 0)
+                                                {
+                                                    <br>
+
+                                                    <small class="text-danger"><i class="bx bx-time-five"></i> @daysToExpiry روز</small>
+                                                }
+                                                else if (daysToExpiry <= 0)
+                                                {
+                                                    <br>
+
+                                                    <small class="text-danger"><i class="bx bx-x-circle"></i> منقضی شده</small>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
                                             }
                                         </td>
                                         <td>
                                             <div class="d-flex gap-2 justify-content-center">
-                                                <a href="@Url.Action("EditMaterialBatch", "MaterialBatch", new { id = batch.BatchId })" class="btn btn-soft-primary btn-sm" title="ویرایش">
+                                                <a href="@Url.Action("EditMaterialBatch", new { id = batch.BatchId })" class="btn btn-soft-primary btn-sm" title="ویرایش">
                                                     <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
                                                 </a>
+                                                <button type="button" class="btn btn-soft-info btn-sm"
+                                                        onclick="showBatchDetails('@batch.BatchId')"
+                                                        title="مشاهده جزئیات">
+                                                    <iconify-icon icon="solar:eye-broken" class="align-middle fs-18"></iconify-icon>
+                                                </button>
                                                 <button type="button" class="btn btn-soft-danger btn-sm"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#deleteModal"
                                                         data-bs-id="@batch.BatchId"
                                                         data-bs-name="@batch.BatchNumber"
+                                                        data-bs-material="@batch.Material.MaterialName"
                                                         title="حذف">
                                                     <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
                                                 </button>
@@ -108,8 +187,8 @@
                             else
                             {
                                 <tr>
-                                    <td colspan="7" class="text-center py-4">
-                                        <i class="bx bx-package text-muted fs-1"></i>
+                                    <td colspan="9" class="text-center py-4">
+                                        <i class="bx bx-box text-muted fs-1"></i>
                                         <p class="mt-2">هیچ بچی یافت نشد.</p>
                                     </td>
                                 </tr>
@@ -125,7 +204,7 @@
                         @if (Model.HasPreviousPage)
                         {
                             <li class="page-item">
-                                <a class="page-link" href="@Url.Action("MaterialBatchList", new { page = Model.PageIndex - 1, SearchKey = Context.Request.Query["SearchKey"] })">
+                                <a class="page-link" href="@Url.Action("MaterialBatchList", new { page = Model.PageIndex - 1, searchKey = Context.Request.Query["searchKey"] })">
                                     <i class="bx bx-chevron-right"></i>
                                 </a>
                             </li>
@@ -142,14 +221,14 @@
                         @for (int i = 1; i <= Model.TotalPages; i++)
                         {
                             <li class="page-item @(i == Model.PageIndex ? "active" : "")">
-                                <a class="page-link" href="@Url.Action("MaterialBatchList", new { page = i, SearchKey = Context.Request.Query["SearchKey"] })">@i</a>
+                                <a class="page-link" href="@Url.Action("MaterialBatchList", new { page = i, searchKey = Context.Request.Query["searchKey"] })">@i</a>
                             </li>
                         }
 
                         @if (Model.HasNextPage)
                         {
                             <li class="page-item">
-                                <a class="page-link" href="@Url.Action("MaterialBatchList", new { page = Model.PageIndex + 1, SearchKey = Context.Request.Query["SearchKey"] })">
+                                <a class="page-link" href="@Url.Action("MaterialBatchList", new { page = Model.PageIndex + 1, searchKey = Context.Request.Query["searchKey"] })">
                                     <i class="bx bx-chevron-left"></i>
                                 </a>
                             </li>
@@ -174,20 +253,39 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">حذف بچ مواد اولیه</h5>
+                <h5 class="modal-title">حذف بچ</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
             </div>
             <div class="modal-body">
                 <p>آیا از حذف این بچ مطمئن هستید؟</p>
-                <p id="batchNameToDelete" class="fw-bold"></p>
+                <p><strong>شماره بچ:</strong> <span id="batchNumberToDelete"></span></p>
+                <p><strong>ماده اولیه:</strong> <span id="materialNameToDelete"></span></p>
+                <div class="alert alert-warning">
+                    <small><i class="bx bx-info-circle me-1"></i> در صورت وجود موجودی یا استفاده در فاکتورها، امکان حذف وجود ندارد.</small>
+                </div>
             </div>
             <div class="modal-footer">
-                <form id="deleteForm" method="post" asp-action="DeleteMaterialBatch" asp-controller="MaterialBatch">
+                <form id="deleteForm" method="post" asp-action="Delete">
                     <input type="hidden" id="batchIdToDelete" name="id" />
                     @Html.AntiForgeryToken()
                     <button type="submit" class="btn btn-danger">حذف</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
                 </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Batch Details Modal -->
+<div class="modal fade" id="batchDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">جزئیات بچ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <div class="modal-body" id="batchDetailsContent">
+                <!-- Batch details will be loaded here -->
             </div>
         </div>
     </div>
@@ -200,9 +298,11 @@
             deleteModal.addEventListener('show.bs.modal', function (event) {
                 var button = event.relatedTarget;
                 var batchId = button.getAttribute('data-bs-id');
-                var batchName = button.getAttribute('data-bs-name');
+                var batchNumber = button.getAttribute('data-bs-name');
+                var materialName = button.getAttribute('data-bs-material');
 
-                document.getElementById('batchNameToDelete').textContent = batchName;
+                document.getElementById('batchNumberToDelete').textContent = batchNumber;
+                document.getElementById('materialNameToDelete').textContent = materialName;
                 document.getElementById('batchIdToDelete').value = batchId;
             });
 
@@ -215,5 +315,21 @@
                 });
             }, 5000);
         });
+
+        function showBatchDetails(batchId) {
+            // This would typically load batch details via AJAX
+            // For now, just show a placeholder
+            var modal = new bootstrap.Modal(document.getElementById('batchDetailsModal'));
+            document.getElementById('batchDetailsContent').innerHTML =
+                '<div class="text-center"><div class="spinner-border" role="status"></div><p class="mt-2">در حال بارگذاری...</p></div>';
+            modal.show();
+
+            // Simulate loading details
+            setTimeout(function() {
+                document.getElementById('batchDetailsContent').innerHTML =
+                    '<p>جزئیات کامل بچ اینجا نمایش داده خواهد شد.</p>' +
+                    '<p>شامل تاریخچه تراکنش‌ها، جابجایی‌ها و ...</p>';
+            }, 1000);
+        }
     </script>
 }

@@ -1,84 +1,137 @@
 ﻿@model Mehrsam_Darou.Models.MaterialBatch
 
 @{
-    ViewData["Title"] = "افزودن بچ مواد اولیه";
+    ViewData["Title"] = "افزودن بچ جدید";
 }
-
-<h2>افزودن بچ مواد اولیه</h2>
 
 <div class="row">
     <div class="col-xl-12">
         <div class="card">
             <div class="card-body">
+                <!-- Success and Error Alerts -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success px-2" role="alert">
+                        <p class="mb-0">با موفقیت انجام شد</p>
+                        <p class="mb-0">@TempData["SuccessMessage"]</p>
+                    </div>
+                }
+
                 @if (TempData["ErrorMessage"] != null)
                 {
                     <div class="alert alert-danger px-2" role="alert">
+                        <p class="mb-0">خطا</p>
                         <p class="mb-0">@TempData["ErrorMessage"]</p>
                     </div>
                 }
 
-                <form asp-action="AddMaterialBatch" method="post">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4>افزودن بچ جدید</h4>
+                    <a href="@Url.Action("MaterialBatchList")" class="btn btn-secondary">
+                        <i class="bx bx-arrow-back me-1"></i> بازگشت به لیست
+                    </a>
+                </div>
+
+                <form asp-action="AddMaterialBatch">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
                     <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="BatchNumber" class="form-label">شماره بچ</label>
-                            <input asp-for="BatchNumber" class="form-control" />
-                            <span asp-validation-for="BatchNumber" class="text-danger"></span>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="MaterialId" class="form-label">ماده اولیه <span class="text-danger">*</span></label>
+                                <select asp-for="MaterialId" class="form-select" required>
+                                    <option value="">-- انتخاب ماده اولیه --</option>
+                                    @foreach (var material in ViewBag.Materials)
+                                    {
+                                        <option value="@material.MaterialId">@material.MaterialCode - @material.MaterialName</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="MaterialId" class="text-danger"></span>
+                            </div>
                         </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="MaterialId" class="form-label">ماده اولیه</label>
-                            <select asp-for="MaterialId" class="form-select" asp-items="ViewBag.Materials" required>
-                                <option value="">-- لطفاً انتخاب کنید --</option>
-                            </select>
-                            <span asp-validation-for="MaterialId" class="text-danger"></span>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="InitialQuantity" class="form-label">تعداد اولیه</label>
-                            <input asp-for="InitialQuantity" type="number" step="0.001" class="form-control" />
-                            <span asp-validation-for="InitialQuantity" class="text-danger"></span>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="CurrentQuantity" class="form-label">تعداد فعلی</label>
-                            <input asp-for="CurrentQuantity" type="number" step="0.001" class="form-control" />
-                            <span asp-validation-for="CurrentQuantity" class="text-danger"></span>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="UnitId" class="form-label">واحد</label>
-                            <select asp-for="UnitId" class="form-select" asp-items="ViewBag.Units" required>
-                                <option value="">-- لطفاً انتخاب کنید --</option>
-                            </select>
-                            <span asp-validation-for="UnitId" class="text-danger"></span>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="LocationId" class="form-label">محل ذخیره‌سازی</label>
-                            <select asp-for="LocationId" class="form-select" asp-items="ViewBag.Locations">
-                                <option value="">-- لطفاً انتخاب کنید --</option>
-                            </select>
-                            <span asp-validation-for="LocationId" class="text-danger"></span>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="Status" class="form-label">وضعیت</label>
-                            <select asp-for="Status" class="form-select" asp-items="ViewBag.StatusOptions" required>
-                                <option value="">-- لطفاً انتخاب کنید --</option>
-                            </select>
-                            <span asp-validation-for="Status" class="text-danger"></span>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="ExpiryDate" class="form-label">تاریخ انقضا</label>
-                            <input asp-for="ExpiryDate" type="date" class="form-control" />
-                            <span asp-validation-for="ExpiryDate" class="text-danger"></span>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="BatchNumber" class="form-label">شماره بچ <span class="text-danger">*</span></label>
+                                <input asp-for="BatchNumber" class="form-control" required />
+                                <span asp-validation-for="BatchNumber" class="text-danger"></span>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="form-group mt-4">
-                        <button type="submit" class="btn btn-primary">ذخیره</button>
-                        <a asp-action="MaterialBatchList" class="btn btn-secondary">انصراف</a>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="InitialQuantity" class="form-label">مقدار اولیه <span class="text-danger">*</span></label>
+                                <input asp-for="InitialQuantity" type="number" step="0.001" class="form-control" required />
+                                <span asp-validation-for="InitialQuantity" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="CurrentQuantity" class="form-label">مقدار فعلی</label>
+                                <input asp-for="CurrentQuantity" type="number" step="0.001" class="form-control" readonly />
+                                <small class="text-muted">این فیلد به طور خودکار با مقدار اولیه پر می‌شود</small>
+                                <span asp-validation-for="CurrentQuantity" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="UnitId" class="form-label">واحد <span class="text-danger">*</span></label>
+                                <select asp-for="UnitId" class="form-select" required>
+                                    <option value="">-- انتخاب واحد --</option>
+                                    @foreach (var unit in ViewBag.Units)
+                                    {
+                                        <option value="@unit.UnitId">@unit.UnitName (@unit.UnitSymbol)</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="UnitId" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="LocationId" class="form-label">محل نگهداری</label>
+                                <select asp-for="LocationId" class="form-select">
+                                    <option value="">-- انتخاب محل نگهداری --</option>
+                                    @foreach (var location in ViewBag.Locations)
+                                    {
+                                        <option value="@location.LocationId">@location.LocationCode - @location.LocationName</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="LocationId" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Status" class="form-label">وضعیت <span class="text-danger">*</span></label>
+                                <select asp-for="Status" class="form-select" required>
+                                    <option value="">-- انتخاب وضعیت --</option>
+                                    <option value="قرنطینه">قرنطینه</option>
+                                    <option value="آزاد شده">آزاد شده</option>
+                                    <option value="رد شده">رد شده</option>
+                                    <option value="مصرف شده">مصرف شده</option>
+                                </select>
+                                <span asp-validation-for="Status" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="ExpiryDate" class="form-label">تاریخ انقضا</label>
+                                <input asp-for="ExpiryDate" type="date" class="form-control" />
+                                <span asp-validation-for="ExpiryDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bx bx-save me-1"></i> ذخیره
+                        </button>
                     </div>
                 </form>
             </div>
@@ -90,4 +143,19 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script>
+        // Auto-fill current quantity with initial quantity
+        document.getElementById('InitialQuantity').addEventListener('input', function() {
+            document.getElementById('CurrentQuantity').value = this.value;
+        });
+
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(function () {
+            var alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function (alert) {
+                var bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    </script>
 }

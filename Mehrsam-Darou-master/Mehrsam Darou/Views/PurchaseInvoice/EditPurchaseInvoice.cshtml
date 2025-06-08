@@ -1,0 +1,229 @@
+﻿@model Mehrsam_Darou.Models.PurchaseInvoice
+
+@{
+    ViewData["Title"] = "ویرایش فاکتور خرید";
+}
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Success and Error Alerts -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success px-2" role="alert">
+                        <p class="mb-0">با موفقیت انجام شد</p>
+                        <p class="mb-0">@TempData["SuccessMessage"]</p>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger px-2" role="alert">
+                        <p class="mb-0">خطا</p>
+                        <p class="mb-0">@TempData["ErrorMessage"]</p>
+                    </div>
+                }
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4>ویرایش فاکتور خرید</h4>
+                    <a href="@Url.Action("PurchaseInvoiceList")" class="btn btn-secondary">
+                        <i class="bx bx-arrow-back me-1"></i> بازگشت به لیست
+                    </a>
+                </div>
+
+                <form asp-action="EditPurchaseInvoice">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="PurchaseInvoiceId" />
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="InvoiceNumber" class="form-label">شماره فاکتور <span class="text-danger">*</span></label>
+                                <input asp-for="InvoiceNumber" class="form-control" readonly />
+                                <span asp-validation-for="InvoiceNumber" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="SupplierInvoiceNumber" class="form-label">شماره فاکتور تامین‌کننده</label>
+                                <input asp-for="SupplierInvoiceNumber" class="form-control" />
+                                <span asp-validation-for="SupplierInvoiceNumber" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="SupplierId" class="form-label">تامین‌کننده <span class="text-danger">*</span></label>
+                                <select asp-for="SupplierId" class="form-select">
+                                    <option value="">-- انتخاب تامین‌کننده --</option>
+                                    @foreach (var supplier in ViewBag.Suppliers as List<Mehrsam_Darou.Models.Supplier>)
+                                    {
+                                        <option value="@supplier.SupplierId" selected="@(supplier.SupplierId == Model.SupplierId)">@supplier.SupplierName</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="SupplierId" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="PurchaseOrderId" class="form-label">سفارش خرید مرتبط</label>
+                                <select asp-for="PurchaseOrderId" class="form-select">
+                                    <option value="">-- انتخاب سفارش خرید --</option>
+                                    @foreach (var po in ViewBag.PurchaseOrders as List<Mehrsam_Darou.Models.PurchaseOrder>)
+                                    {
+                                        <option value="@po.PurchaseOrderId" selected="@(po.PurchaseOrderId == Model.PurchaseOrderId)">@po.PoNumber - @po.Supplier?.SupplierName</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="PurchaseOrderId" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="InvoiceDate" class="form-label">تاریخ فاکتور <span class="text-danger">*</span></label>
+                                <input asp-for="InvoiceDate" type="date" class="form-control" />
+                                <span asp-validation-for="InvoiceDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="DueDate" class="form-label">تاریخ سررسید</label>
+                                <input asp-for="DueDate" type="date" class="form-control" />
+                                <span asp-validation-for="DueDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Subtotal" class="form-label">مبلغ قبل از تخفیف و مالیات <span class="text-danger">*</span></label>
+                                <input asp-for="Subtotal" type="number" step="0.01" class="form-control" />
+                                <span asp-validation-for="Subtotal" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="TaxAmount" class="form-label">مبلغ مالیات</label>
+                                <input asp-for="TaxAmount" type="number" step="0.01" class="form-control" />
+                                <span asp-validation-for="TaxAmount" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="DiscountAmount" class="form-label">مبلغ تخفیف</label>
+                                <input asp-for="DiscountAmount" type="number" step="0.01" class="form-control" />
+                                <span asp-validation-for="DiscountAmount" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="TotalAmount" class="form-label">مبلغ کل <span class="text-danger">*</span></label>
+                                <input asp-for="TotalAmount" type="number" step="0.01" class="form-control" />
+                                <span asp-validation-for="TotalAmount" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="PaidAmount" class="form-label">مبلغ پرداخت شده</label>
+                                <input asp-for="PaidAmount" type="number" step="0.01" class="form-control" />
+                                <span asp-validation-for="PaidAmount" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Currency" class="form-label">واحد پول</label>
+                                <select asp-for="Currency" class="form-select">
+                                    <option value="IRR">ریال (IRR)</option>
+                                    <option value="USD">دلار آمریکا (USD)</option>
+                                    <option value="EUR">یورو (EUR)</option>
+                                </select>
+                                <span asp-validation-for="Currency" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Status" class="form-label">وضعیت</label>
+                                <select asp-for="Status" class="form-select">
+                                    <option value="پیش‌نویس">پیش‌نویس</option>
+                                    <option value="در انتظار">در انتظار</option>
+                                    <option value="تایید شده">تایید شده</option>
+                                    <option value="پرداخت شده">پرداخت شده</option>
+                                    <option value="سررسید گذشته">سررسید گذشته</option>
+                                    <option value="لغو شده">لغو شده</option>
+                                </select>
+                                <span asp-validation-for="Status" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="PaymentMethod" class="form-label">روش پرداخت</label>
+                                <select asp-for="PaymentMethod" class="form-select">
+                                    <option value="">-- انتخاب روش پرداخت --</option>
+                                    <option value="نقدی">نقدی</option>
+                                    <option value="چک">چک</option>
+                                    <option value="کارت به کارت">کارت به کارت</option>
+                                    <option value="حواله">حواله</option>
+                                    <option value="سفته">سفته</option>
+                                </select>
+                                <span asp-validation-for="PaymentMethod" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label asp-for="Notes" class="form-label">یادداشت‌ها</label>
+                                <textarea asp-for="Notes" class="form-control" rows="3" placeholder="یادداشت‌های اضافی در مورد فاکتور خرید..."></textarea>
+                                <span asp-validation-for="Notes" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bx bx-save me-1"></i> ذخیره تغییرات
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // Auto-calculate total amount
+        function calculateTotal() {
+            var subtotal = parseFloat(document.getElementById('Subtotal').value) || 0;
+            var taxAmount = parseFloat(document.getElementById('TaxAmount').value) || 0;
+            var discountAmount = parseFloat(document.getElementById('DiscountAmount').value) || 0;
+
+            var total = subtotal + taxAmount - discountAmount;
+            document.getElementById('TotalAmount').value = total.toFixed(2);
+        }
+
+        document.getElementById('Subtotal').addEventListener('input', calculateTotal);
+        document.getElementById('TaxAmount').addEventListener('input', calculateTotal);
+        document.getElementById('DiscountAmount').addEventListener('input', calculateTotal);
+    </script>
+}
