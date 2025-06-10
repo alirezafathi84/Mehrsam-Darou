@@ -1,0 +1,234 @@
+﻿@using static Mehrsam_Darou.Helper.Helper
+@model PaginatedList<Mehrsam_Darou.Models.FinancialReport>
+@using System.Globalization
+
+@{
+    PersianCalendar pc = new PersianCalendar();
+    ViewData["Title"] = "گزارشات مالی";
+}
+
+<h2 class="mb-4">گزارشات مالی</h2>
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Success and Error Alerts -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success px-2" role="alert">
+                        <p class="mb-0">با موفقیت انجام شد</p>
+                        <p class="mb-0">@TempData["SuccessMessage"]</p>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger px-2" role="alert">
+                        <p class="mb-0">خطا</p>
+                        <p class="mb-0">@TempData["ErrorMessage"]</p>
+                    </div>
+                }
+
+                <div class="d-flex flex-wrap justify-content-between gap-3 mb-3">
+                    <form method="get" asp-action="FinancialReport" class="d-flex gap-2">
+                        <div class="search-bar">
+                            <span><i class="bx bx-search-alt"></i></span>
+                            <input type="search" name="searchKey" value="@Context.Request.Query["searchKey"]" class="form-control" placeholder="جستجو...">
+                        </div>
+                        <select name="reportType" class="form-select" style="width: auto;">
+                            <option value="">-- همه انواع گزارش --</option>
+                            @foreach (var type in ViewBag.ReportTypes as List<string>)
+                            {
+                                <option value="@type" selected="@(Context.Request.Query["reportType"] == type ? "selected" : null)">@type</option>
+                            }
+                        </select>
+                        <select name="periodType" class="form-select" style="width: auto;">
+                            <option value="">-- همه دوره‌ها --</option>
+                            @foreach (var period in ViewBag.PeriodTypes as List<string>)
+                            {
+                                <option value="@period" selected="@(Context.Request.Query["periodType"] == period ? "selected" : null)">@period</option>
+                            }
+                        </select>
+                        <button type="submit" class="btn btn-primary">جستجو</button>
+                    </form>
+                    <div>
+                        <a href="@Url.Action("AddFinancialReport")" class="btn btn-primary">
+                            <i class="bx bx-plus me-1"></i> گزارش جدید
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0 table-hover table-centered">
+                        <thead class="bg-light-subtle">
+                            <tr>
+                                <th>کد گزارش</th>
+                                <th>نام گزارش</th>
+                                <th>نوع گزارش</th>
+                                <th>نوع دوره</th>
+                                <th>شروع دوره</th>
+                                <th>پایان دوره</th>
+                                <th>سال مالی</th>
+                                <th>وضعیت</th>
+                                <th>تاریخ ایجاد</th>
+                                <th>اقدامات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Any())
+                            {
+                                foreach (var report in Model)
+                                {
+                                    <tr>
+                                        <td><span class="badge bg-light text-dark">@report.ReportCode</span></td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm bg-light-subtle rounded me-2">
+                                                    <span class="avatar-title">
+                                                        <iconify-icon icon="solar:document-text-bold" class="fs-18"></iconify-icon>
+                                                    </span>
+                                                </div>
+                                                <h6 class="mb-0 fw-medium">@report.ReportName</h6>
+                                            </div>
+                                        </td>
+                                        <td><span class="badge bg-info-subtle text-info">@report.ReportType</span></td>
+                                        <td><span class="badge bg-secondary-subtle text-secondary">@report.PeriodType</span></td>
+                                        <td>@pc.GetYear(report.PeriodStart.ToDateTime(TimeOnly.MinValue))/@pc.GetMonth(report.PeriodStart.ToDateTime(TimeOnly.MinValue)).ToString("00")/@pc.GetDayOfMonth(report.PeriodStart.ToDateTime(TimeOnly.MinValue)).ToString("00")</td>
+                                        <td>@pc.GetYear(report.PeriodEnd.ToDateTime(TimeOnly.MinValue))/@pc.GetMonth(report.PeriodEnd.ToDateTime(TimeOnly.MinValue)).ToString("00")/@pc.GetDayOfMonth(report.PeriodEnd.ToDateTime(TimeOnly.MinValue)).ToString("00")</td>
+                                        <td>@report.FiscalYear</td>
+                                        <td>
+                                            @if (report.Status == "تایید شده")
+                                            {
+                                                <span class="badge bg-success">@report.Status</span>
+                                            }
+                                            else if (report.Status == "تکمیل شده")
+                                            {
+                                                <span class="badge bg-info">@report.Status</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning">@report.Status</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                @pc.GetYear(report.CreatedDate)/@pc.GetMonth(report.CreatedDate).ToString("00")/@pc.GetDayOfMonth(report.CreatedDate).ToString("00")
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-2 justify-content-center">
+                                                <a href="@Url.Action("EditFinancialReport", new { id = report.ReportId })" class="btn btn-soft-primary btn-sm" title="ویرایش">
+                                                    <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
+                                                </a>
+                                                <button type="button" class="btn btn-soft-danger btn-sm"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#deleteModal"
+                                                        data-bs-id="@report.ReportId"
+                                                        data-bs-name="@report.ReportName"
+                                                        title="حذف">
+                                                    <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="10" class="text-center py-4">
+                                        <i class="bx bx-file text-muted fs-1"></i>
+                                        <p class="mt-2">هیچ گزارش مالی‌ای یافت نشد.</p>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card-footer border-top">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-end mb-0">
+                        @if (Model.HasPreviousPage)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("FinancialReport", new { page = Model.PageIndex - 1, searchKey = Context.Request.Query["searchKey"], reportType = Context.Request.Query["reportType"], periodType = Context.Request.Query["periodType"] })">
+                                    <i class="bx bx-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("FinancialReport", new { page = i, searchKey = Context.Request.Query["searchKey"], reportType = Context.Request.Query["reportType"], periodType = Context.Request.Query["periodType"] })">@i</a>
+                            </li>
+                        }
+
+                        @if (Model.HasNextPage)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("FinancialReport", new { page = Model.PageIndex + 1, searchKey = Context.Request.Query["searchKey"], reportType = Context.Request.Query["reportType"], periodType = Context.Request.Query["periodType"] })">
+                                    <i class="bx bx-chevron-left"></i>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">حذف گزارش مالی</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <div class="modal-body">
+                <p>آیا از حذف این گزارش مالی مطمئن هستید؟</p>
+                <p id="reportNameToDelete" class="fw-bold"></p>
+            </div>
+            <div class="modal-footer">
+                <form id="deleteForm" method="post" asp-action="Delete">
+                    <input type="hidden" id="reportIdToDelete" name="id" />
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">حذف</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var deleteModal = document.getElementById('deleteModal');
+            deleteModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                var reportId = button.getAttribute('data-bs-id');
+                var reportName = button.getAttribute('data-bs-name');
+
+                document.getElementById('reportNameToDelete').textContent = reportName;
+                document.getElementById('reportIdToDelete').value = reportId;
+            });
+
+            // Auto-dismiss alerts after 5 seconds
+            setTimeout(function () {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function (alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+        });
+    </script>
+}

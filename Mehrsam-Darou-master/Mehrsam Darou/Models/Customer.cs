@@ -33,6 +33,8 @@ public partial class Customer
 
     public DateTime CreatedDate { get; set; }
 
+    public virtual ICollection<PaymentTransaction> PaymentTransactions { get; set; } = new List<PaymentTransaction>();
+
     public virtual ICollection<SalesInvoice> SalesInvoices { get; set; } = new List<SalesInvoice>();
 
     public virtual ICollection<SalesOrder> SalesOrders { get; set; } = new List<SalesOrder>();

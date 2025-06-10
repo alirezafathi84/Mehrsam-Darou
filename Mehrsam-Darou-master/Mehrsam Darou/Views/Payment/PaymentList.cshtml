@@ -1,0 +1,255 @@
+﻿@using static Mehrsam_Darou.Helper.Helper
+@model PaginatedList<Mehrsam_Darou.Models.PaymentTransaction>
+@using System.Globalization
+
+@{
+    PersianCalendar pc = new PersianCalendar();
+    ViewData["Title"] = "لیست پرداخت‌ها";
+}
+
+<h2 class="mb-4">لیست پرداخت‌ها</h2>
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Success and Error Alerts -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success px-2" role="alert">
+                        <p class="mb-0">با موفقیت انجام شد</p>
+                        <p class="mb-0">@TempData["SuccessMessage"]</p>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger px-2" role="alert">
+                        <p class="mb-0">خطا</p>
+                        <p class="mb-0">@TempData["ErrorMessage"]</p>
+                    </div>
+                }
+
+                <div class="d-flex flex-wrap justify-content-between gap-3 mb-3">
+                    <form method="get" asp-action="PaymentList" class="d-flex gap-2">
+                        <div class="search-bar">
+                            <span><i class="bx bx-search-alt"></i></span>
+                            <input type="search" name="searchKey" value="@Context.Request.Query["searchKey"]" class="form-control" placeholder="جستجو...">
+                        </div>
+                        <select name="transactionType" class="form-select" style="width: auto;">
+                            <option value="">-- همه انواع --</option>
+                            @foreach (var type in ViewBag.TransactionTypes as List<string>)
+                            {
+                                <option value="@type" selected="@(Context.Request.Query["transactionType"] == type ? "selected" : null)">@type</option>
+                            }
+                        </select>
+                        <select name="status" class="form-select" style="width: auto;">
+                            <option value="">-- همه وضعیت‌ها --</option>
+                            @foreach (var status in ViewBag.StatusList as List<string>)
+                            {
+                                <option value="@status" selected="@(Context.Request.Query["status"] == status ? "selected" : null)">@status</option>
+                            }
+                        </select>
+                        <button type="submit" class="btn btn-primary">جستجو</button>
+                    </form>
+                    <div>
+                        <a href="@Url.Action("AddPayment")" class="btn btn-primary">
+                            <i class="bx bx-plus me-1"></i> پرداخت جدید
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0 table-hover table-centered">
+                        <thead class="bg-light-subtle">
+                            <tr>
+                                <th>شماره تراکنش</th>
+                                <th>نوع تراکنش</th>
+                                <th>مبلغ</th>
+                                <th>روش پرداخت</th>
+                                <th>مشتری/تامین‌کننده</th>
+                                <th>تاریخ تراکنش</th>
+                                <th>وضعیت</th>
+                                <th>اقدامات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Any())
+                            {
+                                foreach (var payment in Model)
+                                {
+                                    <tr>
+                                        <td><span class="badge bg-light text-dark">@payment.TransactionNumber</span></td>
+                                        <td>
+                                            @if (payment.TransactionType == "دریافت")
+                                            {
+                                                <span class="badge bg-success-subtle text-success">@payment.TransactionType</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger-subtle text-danger">@payment.TransactionType</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <span class="fw-medium">@payment.Amount.ToString("N0") @payment.Currency</span>
+                                        </td>
+                                        <td>@payment.PaymentMethod?.MethodName</td>
+                                        <td>
+                                            @if (payment.Customer != null)
+                                            {
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-sm bg-primary-subtle rounded me-2">
+                                                        <span class="avatar-title text-primary">
+                                                            <iconify-icon icon="solar:user-rounded-bold" class="fs-16"></iconify-icon>
+                                                        </span>
+                                                    </div>
+                                                    <span>@payment.Customer.CustomerName</span>
+                                                </div>
+                                            }
+                                            else if (payment.Supplier != null)
+                                            {
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-sm bg-info-subtle rounded me-2">
+                                                        <span class="avatar-title text-info">
+                                                            <iconify-icon icon="solar:buildings-bold" class="fs-16"></iconify-icon>
+                                                        </span>
+                                                    </div>
+                                                    <span>@payment.Supplier.SupplierName</span>
+                                                </div>
+                                            }
+                                        </td>
+                                        <td>@pc.GetYear(payment.TransactionDate.ToDateTime(TimeOnly.MinValue))/@pc.GetMonth(payment.TransactionDate.ToDateTime(TimeOnly.MinValue)).ToString("00")/@pc.GetDayOfMonth(payment.TransactionDate.ToDateTime(TimeOnly.MinValue)).ToString("00")</td>
+                                        <td>
+                                            @if (payment.Status == "تایید شده")
+                                            {
+                                                <span class="badge bg-success">@payment.Status</span>
+                                            }
+                                            else if (payment.Status == "برگشت خورده")
+                                            {
+                                                <span class="badge bg-danger">@payment.Status</span>
+                                            }
+                                            else if (payment.Status == "لغو شده")
+                                            {
+                                                <span class="badge bg-secondary">@payment.Status</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning">@payment.Status</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-2 justify-content-center">
+                                                <a href="@Url.Action("EditPayment", new { id = payment.TransactionId })" class="btn btn-soft-primary btn-sm" title="ویرایش">
+                                                    <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
+                                                </a>
+                                                <button type="button" class="btn btn-soft-danger btn-sm"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#deleteModal"
+                                                        data-bs-id="@payment.TransactionId"
+                                                        data-bs-name="@payment.TransactionNumber"
+                                                        title="حذف">
+                                                    <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="8" class="text-center py-4">
+                                        <i class="bx bx-credit-card text-muted fs-1"></i>
+                                        <p class="mt-2">هیچ تراکنش پرداخت‌ای یافت نشد.</p>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card-footer border-top">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-end mb-0">
+                        @if (Model.HasPreviousPage)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("PaymentList", new { page = Model.PageIndex - 1, searchKey = Context.Request.Query["searchKey"], transactionType = Context.Request.Query["transactionType"], status = Context.Request.Query["status"] })">
+                                    <i class="bx bx-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("PaymentList", new { page = i, searchKey = Context.Request.Query["searchKey"], transactionType = Context.Request.Query["transactionType"], status = Context.Request.Query["status"] })">@i</a>
+                            </li>
+                        }
+
+                        @if (Model.HasNextPage)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("PaymentList", new { page = Model.PageIndex + 1, searchKey = Context.Request.Query["searchKey"], transactionType = Context.Request.Query["transactionType"], status = Context.Request.Query["status"] })">
+                                    <i class="bx bx-chevron-left"></i>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">حذف تراکنش پرداخت</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <div class="modal-body">
+                <p>آیا از حذف این تراکنش پرداخت مطمئن هستید؟</p>
+                <p id="paymentNameToDelete" class="fw-bold"></p>
+            </div>
+            <div class="modal-footer">
+                <form id="deleteForm" method="post" asp-action="Delete">
+                    <input type="hidden" id="paymentIdToDelete" name="id" />
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">حذف</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var deleteModal = document.getElementById('deleteModal');
+            deleteModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                var paymentId = button.getAttribute('data-bs-id');
+                var paymentName = button.getAttribute('data-bs-name');
+
+                document.getElementById('paymentNameToDelete').textContent = paymentName;
+                document.getElementById('paymentIdToDelete').value = paymentId;
+            });
+
+            // Auto-dismiss alerts after 5 seconds
+            setTimeout(function () {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function (alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+        });
+    </script>
+}

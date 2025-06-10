@@ -45,11 +45,23 @@ public partial class User
 
     public virtual ICollection<DevelopmentProject> DevelopmentProjectLastModifiedByNavigations { get; set; } = new List<DevelopmentProject>();
 
+    public virtual ICollection<FinancialReport> FinancialReportApprovedByNavigations { get; set; } = new List<FinancialReport>();
+
+    public virtual ICollection<FinancialReport> FinancialReportCreatedByNavigations { get; set; } = new List<FinancialReport>();
+
     public virtual ICollection<Formula> FormulaCreatedByNavigations { get; set; } = new List<Formula>();
 
     public virtual ICollection<Formula> FormulaLastModifiedByNavigations { get; set; } = new List<Formula>();
 
+    public virtual ICollection<JournalEntry> JournalEntryApprovedByNavigations { get; set; } = new List<JournalEntry>();
+
+    public virtual ICollection<JournalEntry> JournalEntryCreatedByNavigations { get; set; } = new List<JournalEntry>();
+
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+
+    public virtual ICollection<PaymentTransaction> PaymentTransactionApprovedByNavigations { get; set; } = new List<PaymentTransaction>();
+
+    public virtual ICollection<PaymentTransaction> PaymentTransactionCreatedByNavigations { get; set; } = new List<PaymentTransaction>();
 
     public virtual ICollection<QaAudit> QaAuditCreatedByNavigations { get; set; } = new List<QaAudit>();
 
