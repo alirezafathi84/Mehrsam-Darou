@@ -1,0 +1,567 @@
+﻿@model Mehrsam_Darou.Models.Certification
+@using System.Globalization
+
+@{
+    PersianCalendar pc = new PersianCalendar();
+    ViewData["Title"] = "جزئیات گواهینامه";
+}
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4>جزئیات گواهینامه</h4>
+                    <div>
+                        <a href="@Url.Action("EditCertification", new { id = Model.CertificationId })" class="btn btn-primary me-2">
+                            <i class="bx bx-edit me-1"></i> ویرایش
+                        </a>
+                        <a href="@Url.Action("CertificationList")" class="btn btn-secondary">
+                            <i class="bx bx-arrow-back me-1"></i> بازگشت به لیست
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Status Alert -->
+                @{
+                    var daysUntilExpiry = Model.ExpiryDate.HasValue ? (int)(Model.ExpiryDate.Value.ToDateTime(TimeOnly.MinValue) - DateTime.Now).TotalDays : (int?)null;
+                    var isExpired = daysUntilExpiry.HasValue && daysUntilExpiry.Value < 0;
+                    var isExpiringSoon = daysUntilExpiry.HasValue && daysUntilExpiry.Value <= 90 && daysUntilExpiry.Value >= 0;
+                }
+                @if (isExpired)
+                {
+                    <div class="alert alert-danger">
+                        <i class="bx bx-error-circle me-2"></i>
+                        <strong>توجه:</strong> این گواهینامه منقضی شده است!
+                    </div>
+                }
+                else if (isExpiringSoon)
+                {
+                    <div class="alert alert-warning">
+                        <i class="bx bx-time me-2"></i>
+                        <strong>هشدار:</strong> این گواهینامه @daysUntilExpiry روز دیگر منقضی می‌شود!
+                    </div>
+                }
+
+                <div class="row">
+                    <!-- Basic Information -->
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm mb-3">
+                            <div class="card-header bg-primary text-white">
+                                <h6 class="mb-0">اطلاعات اصلی</h6>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-borderless table-sm">
+                                    <tr>
+                                        <td><strong>نام گواهینامه:</strong></td>
+                                        <td>@Model.CertificationName</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>کد گواهینامه:</strong></td>
+                                        <td><span class="badge bg-light text-dark">@Model.CertificationCode</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>شماره گواهینامه:</strong></td>
+                                        <td>@(Model.CertificateNumber ?? "تعریف نشده")</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>نوع گواهینامه:</strong></td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(Model.CertificationType))
+                                            {
+                                                <span class="badge bg-info">@Model.CertificationType</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">تعریف نشده</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>دسته‌بندی:</strong></td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(Model.CertificationCategory))
+                                            {
+                                                <span class="badge bg-secondary">@Model.CertificationCategory</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">تعریف نشده</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>وضعیت:</strong></td>
+                                        <td>
+                                            @switch (Model.CertificationStatus)
+                                            {
+                                                case "فعال":
+                                                    <span class="badge bg-success">@Model.CertificationStatus</span>
+                                                    break;
+                                                case "منقضی شده":
+                                                    <span class="badge bg-danger">@Model.CertificationStatus</span>
+                                                    break;
+                                                case "در حال تمدید":
+                                                    <span class="badge bg-warning">@Model.CertificationStatus</span>
+                                                    break;
+                                                case "تعلیق شده":
+                                                    <span class="badge bg-secondary">@Model.CertificationStatus</span>
+                                                    break;
+                                                case "لغو شده":
+                                                    <span class="badge bg-dark">@Model.CertificationStatus</span>
+                                                    break;
+                                                case "در انتظار تایید":
+                                                    <span class="badge bg-primary">@Model.CertificationStatus</span>
+                                                    break;
+                                                default:
+                                                    <span class="badge bg-light text-dark">@Model.CertificationStatus</span>
+                                                    break;
+                                            }
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>اولویت:</strong></td>
+                                        <td>
+                                            @if (Model.PriorityLevel.HasValue)
+                                            {
+                                                var priorityText = Model.PriorityLevel.Value switch
+                                                {
+                                                    1 => "بسیار بالا",
+                                                    2 => "بالا",
+                                                    3 => "متوسط",
+                                                    4 => "پایین",
+                                                    5 => "بسیار پایین",
+                                                    _ => "نامشخص"
+                                                };
+                                                var priorityClass = Model.PriorityLevel.Value switch
+                                                {
+                                                    1 => "badge bg-danger",
+                                                    2 => "badge bg-warning",
+                                                    3 => "badge bg-info",
+                                                    4 => "badge bg-secondary",
+                                                    5 => "badge bg-light text-dark",
+                                                    _ => "badge bg-light text-dark"
+                                                };
+                                                <span class="@priorityClass">@priorityText</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">تعریف نشده</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Issuing Authority -->
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm mb-3">
+                            <div class="card-header bg-info text-white">
+                                <h6 class="mb-0">مرجع صادرکننده</h6>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-borderless table-sm">
+                                    <tr>
+                                        <td><strong>مرجع صادرکننده:</strong></td>
+                                        <td>@(Model.IssuingAuthority ?? "تعریف نشده")</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>کشور:</strong></td>
+                                        <td>@(Model.IssuingCountry ?? "تعریف نشده")</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>نهاد اعتباربخشی:</strong></td>
+                                        <td>@(Model.AccreditationBody ?? "تعریف نشده")</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>استاندارد انطباق:</strong></td>
+                                        <td>@(Model.ComplianceStandard ?? "تعریف نشده")</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>دارو مرتبط:</strong></td>
+                                        <td>
+                                            @if (Model.RelatedMedicine != null)
+                                            {
+                                                <span class="text-primary">@Model.RelatedMedicine.BrandName</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">ندارد</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>واحد مرتبط:</strong></td>
+                                        <td>@(Model.RelatedFacility ?? "تعریف نشده")</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dates and Validity -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm mb-3">
+                            <div class="card-header bg-warning text-dark">
+                                <h6 class="mb-0">تاریخ‌ها و اعتبار</h6>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-borderless table-sm">
+                                    <tr>
+                                        <td><strong>تاریخ صدور:</strong></td>
+                                        <td>
+                                            @if (Model.IssueDate.HasValue)
+                                            {
+                                                <span>@pc.GetYear(Model.IssueDate.Value.ToDateTime(TimeOnly.MinValue))/@pc.GetMonth(Model.IssueDate.Value.ToDateTime(TimeOnly.MinValue)).ToString("00")/@pc.GetDayOfMonth(Model.IssueDate.Value.ToDateTime(TimeOnly.MinValue)).ToString("00")</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">تعریف نشده</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>تاریخ انقضا:</strong></td>
+                                        <td>
+                                            @if (Model.ExpiryDate.HasValue)
+                                            {
+                                                <span class="@(isExpired ? "text-danger fw-bold" : isExpiringSoon ? "text-warning fw-medium" : "")">
+                                                    @pc.GetYear(Model.ExpiryDate.Value.ToDateTime(TimeOnly.MinValue))/@pc.GetMonth(Model.ExpiryDate.Value.ToDateTime(TimeOnly.MinValue)).ToString("00")/@pc.GetDayOfMonth(Model.ExpiryDate.Value.ToDateTime(TimeOnly.MinValue)).ToString("00")
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">تعریف نشده</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>باقی‌مانده:</strong></td>
+                                        <td>
+                                            @if (daysUntilExpiry.HasValue)
+                                            {
+                                                if (daysUntilExpiry.Value < 0)
+                                                {
+                                                    <span class="text-danger fw-bold">منقضی شده</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="@(isExpiringSoon ? "text-warning fw-medium" : "text-success")">
+                                                        @daysUntilExpiry روز
+                                                    </span>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>دوره تمدید:</strong></td>
+                                        <td>
+                                            @if (Model.RenewalPeriodMonths.HasValue)
+                                            {
+                                                <span>@Model.RenewalPeriodMonths ماه</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">تعریف نشده</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>یادآوری تمدید:</strong></td>
+                                        <td>
+                                            @if (Model.RenewalReminderDays.HasValue)
+                                            {
+                                                <span>@Model.RenewalReminderDays روز قبل</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">تعریف نشده</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Audit Information -->
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm mb-3">
+                            <div class="card-header bg-secondary text-white">
+                                <h6 class="mb-0">اطلاعات ممیزی</h6>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-borderless table-sm">
+                                    <tr>
+                                        <td><strong>دوره ممیزی:</strong></td>
+                                        <td>
+                                            @if (Model.AuditFrequencyMonths.HasValue)
+                                            {
+                                                <span>@Model.AuditFrequencyMonths ماه</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">تعریف نشده</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>آخرین ممیزی:</strong></td>
+                                        <td>
+                                            @if (Model.LastAuditDate.HasValue)
+                                            {
+                                                <span>@pc.GetYear(Model.LastAuditDate.Value.ToDateTime(TimeOnly.MinValue))/@pc.GetMonth(Model.LastAuditDate.Value.ToDateTime(TimeOnly.MinValue)).ToString("00")/@pc.GetDayOfMonth(Model.LastAuditDate.Value.ToDateTime(TimeOnly.MinValue)).ToString("00")</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">انجام نشده</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>ممیزی بعدی:</strong></td>
+                                        <td>
+                                            @if (Model.NextAuditDate.HasValue)
+                                            {
+                                                <span>@pc.GetYear(Model.NextAuditDate.Value.ToDateTime(TimeOnly.MinValue))/@pc.GetMonth(Model.NextAuditDate.Value.ToDateTime(TimeOnly.MinValue)).ToString("00")/@pc.GetDayOfMonth(Model.NextAuditDate.Value.ToDateTime(TimeOnly.MinValue)).ToString("00")</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">برنامه‌ریزی نشده</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>نتیجه ممیزی:</strong></td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(Model.AuditResults))
+                                            {
+                                                var resultClass = Model.AuditResults switch
+                                                {
+                                                    "موفق" => "badge bg-success",
+                                                    "موفق با نکات" => "badge bg-warning",
+                                                    "ناموفق" => "badge bg-danger",
+                                                    "در انتظار نتیجه" => "badge bg-info",
+                                                    _ => "badge bg-light text-dark"
+                                                };
+                                                <span class="@resultClass">@Model.AuditResults</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">تعریف نشده</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>اقدام اصلاحی:</strong></td>
+                                        <td>
+                                            @if (Model.CorrectiveActionsRequired == true)
+                                            {
+                                                <span class="badge bg-warning">مورد نیاز</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-success">مورد نیاز نیست</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact and Cost -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm mb-3">
+                            <div class="card-header bg-success text-white">
+                                <h6 class="mb-0">اطلاعات تماس</h6>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-borderless table-sm">
+                                    <tr>
+                                        <td><strong>مسئول:</strong></td>
+                                        <td>@(Model.ResponsiblePerson ?? "تعریف نشده")</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>ایمیل:</strong></td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(Model.ContactEmail))
+                                            {
+                                                <a href="mailto:@Model.ContactEmail">@Model.ContactEmail</a>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">تعریف نشده</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>تلفن:</strong></td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(Model.ContactPhone))
+                                            {
+                                                <a href="tel:@Model.ContactPhone">@Model.ContactPhone</a>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">تعریف نشده</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm mb-3">
+                            <div class="card-header bg-info text-white">
+                                <h6 class="mb-0">اطلاعات هزینه</h6>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-borderless table-sm">
+                                    <tr>
+                                        <td><strong>هزینه:</strong></td>
+                                        <td>
+                                            @if (Model.Cost.HasValue)
+                                            {
+                                                <span class="text-success fw-medium">
+                                                    @Model.Cost.Value.ToString("N0") @Model.Currency
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">تعریف نشده</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>مسیر مدرک:</strong></td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(Model.DocumentPath))
+                                            {
+                                                <small class="text-muted">@Model.DocumentPath</small>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">تعریف نشده</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Descriptions -->
+                @if (!string.IsNullOrEmpty(Model.Description) || !string.IsNullOrEmpty(Model.Requirements) ||
+                !string.IsNullOrEmpty(Model.ScopeOfCertification) || !string.IsNullOrEmpty(Model.Notes))
+                {
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card border-0 shadow-sm mb-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">توضیحات و یادداشت‌ها</h6>
+                                </div>
+                                <div class="card-body">
+                                    @if (!string.IsNullOrEmpty(Model.Description))
+                                    {
+                                        <div class="mb-3">
+                                            <h6>توضیحات:</h6>
+                                            <p class="text-muted">@Model.Description</p>
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(Model.Requirements))
+                                    {
+                                        <div class="mb-3">
+                                            <h6>الزامات:</h6>
+                                            <p class="text-muted">@Model.Requirements</p>
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(Model.ScopeOfCertification))
+                                    {
+                                        <div class="mb-3">
+                                            <h6>حوزه گواهینامه:</h6>
+                                            <p class="text-muted">@Model.ScopeOfCertification</p>
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(Model.Notes))
+                                    {
+                                        <div class="mb-0">
+                                            <h6>یادداشت‌ها:</h6>
+                                            <p class="text-muted mb-0">@Model.Notes</p>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- System Information -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-dark text-white">
+                                <h6 class="mb-0">اطلاعات سیستم</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <table class="table table-borderless table-sm">
+                                            <tr>
+                                                <td><strong>تاریخ ایجاد:</strong></td>
+                                                <td>@pc.GetYear(Model.CreatedDate)/@pc.GetMonth(Model.CreatedDate).ToString("00")/@pc.GetDayOfMonth(Model.CreatedDate).ToString("00")</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>وضعیت سیستم:</strong></td>
+                                                <td>
+                                                    @if (Model.IsActive == true)
+                                                    {
+                                                        <span class="badge bg-success">فعال</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-secondary">غیرفعال</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <table class="table table-borderless table-sm">
+                                            <tr>
+                                                <td><strong>آخرین تغییر:</strong></td>
+                                                <td>
+                                                    @if (Model.LastModifiedDate.HasValue)
+                                                    {
+                                                        <span>@pc.GetYear(Model.LastModifiedDate.Value)/@pc.GetMonth(Model.LastModifiedDate.Value).ToString("00")/@pc.GetDayOfMonth(Model.LastModifiedDate.Value).ToString("00")</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">تغییری نداشته</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,588 @@
+﻿@model List<Mehrsam_Darou.Models.FormulaIngredient>
+
+@{
+    ViewData["Title"] = "مدیریت مواد اولیه فرمول";
+    var formula = ViewBag.Formula as Mehrsam_Darou.Models.Formula;
+}
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Success and Error Alerts -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success px-2" role="alert">
+                        <p class="mb-0">با موفقیت انجام شد</p>
+                        <p class="mb-0">@TempData["SuccessMessage"]</p>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger px-2" role="alert">
+                        <p class="mb-0">خطا</p>
+                        <p class="mb-0">@TempData["ErrorMessage"]</p>
+                    </div>
+                }
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h4>مدیریت مواد اولیه فرمول</h4>
+                        <p class="text-muted mb-0">فرمول: <strong>@formula?.FormulaName</strong> - کد: <span class="badge bg-light text-dark">@formula?.FormulaCode</span></p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addIngredientModal">
+                            <i class="bx bx-plus me-1"></i> افزودن ماده
+                        </button>
+                        <a href="@Url.Action("EditFormula", new { id = formula?.FormulaId })" class="btn btn-info">
+                            <i class="bx bx-edit me-1"></i> ویرایش فرمول
+                        </a>
+                        <a href="@Url.Action("FormulaList")" class="btn btn-secondary">
+                            <i class="bx bx-arrow-back me-1"></i> بازگشت به لیست
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Formula Summary -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card bg-light border-0">
+                            <div class="card-body text-center">
+                                <h5 class="text-primary">@(Model?.Count ?? 0)</h5>
+                                <small class="text-muted">تعداد مواد</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-light border-0">
+                            <div class="card-body text-center">
+                                <h5 class="text-success">@(Model?.Sum(i => i.Percentage ?? 0).ToString("F2"))%</h5>
+                                <small class="text-muted">مجموع درصد</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-light border-0">
+                            <div class="card-body text-center">
+                                <h5 class="text-info">@(Model?.Sum(i => i.CostPerUnit ?? 0).ToString("N0"))</h5>
+                                <small class="text-muted">مجموع هزینه</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-light border-0">
+                            <div class="card-body text-center">
+                                <h5 class="text-warning">@(Model?.Count(i => i.FunctionType == "ماده فعال") ?? 0)</h5>
+                                <small class="text-muted">مواد فعال</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0 table-hover table-centered">
+                        <thead class="bg-light-subtle">
+                            <tr>
+                                <th>ترتیب</th>
+                                <th>نام ماده</th>
+                                <th>نوع عملکرد</th>
+                                <th>مقدار</th>
+                                <th>درصد</th>
+                                <th>هزینه واحد</th>
+                                <th>تأمین‌کننده</th>
+                                <th>مشخصات</th>
+                                <th>اقدامات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Any())
+                            {
+                                foreach (var ingredient in Model.OrderBy(i => i.SequenceOrder))
+                                {
+                                    <tr>
+                                        <td>
+                                            @if (ingredient.SequenceOrder.HasValue)
+                                            {
+                                                <span class="badge bg-primary-subtle text-primary">@ingredient.SequenceOrder</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm bg-light-subtle rounded me-2">
+                                                    <span class="avatar-title">
+                                                        @if (ingredient.FunctionType == "ماده فعال")
+                                                        {
+                                                            <iconify-icon icon="solar:pill-bold-duotone" class="fs-18 text-danger"></iconify-icon>
+                                                        }
+                                                        else
+                                                        {
+                                                            <iconify-icon icon="solar:bacteria-bold-duotone" class="fs-18 text-info"></iconify-icon>
+                                                        }
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0 fw-medium">@ingredient.IngredientName</h6>
+                                                    <small class="text-muted">کد: @ingredient.MaterialId</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(ingredient.FunctionType))
+                                            {
+                                                var functionClass = ingredient.FunctionType switch
+                                                {
+                                                    "ماده فعال" => "bg-danger-subtle text-danger",
+                                                    "جاذب" => "bg-info-subtle text-info",
+                                                    "چسب" => "bg-warning-subtle text-warning",
+                                                    "روان‌کننده" => "bg-success-subtle text-success",
+                                                    _ => "bg-secondary-subtle text-secondary"
+                                                };
+                                                <span class="badge @functionClass">@ingredient.FunctionType</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <strong>@ingredient.Quantity.ToString("G")</strong>
+                                            <small class="text-muted d-block">واحد: @ingredient.UnitId</small>
+                                        </td>
+                                        <td>
+                                            @if (ingredient.Percentage.HasValue)
+                                            {
+                                                <div class="d-flex align-items-center">
+                                                    <div class="progress me-2" style="width: 60px; height: 6px;">
+                                                        <div class="progress-bar bg-primary" role="progressbar"
+                                                             style="width: @(ingredient.Percentage.Value)%"
+                                                             aria-valuenow="@ingredient.Percentage.Value"
+                                                             aria-valuemin="0" aria-valuemax="100">
+                                                        </div>
+                                                    </div>
+                                                    <span class="fw-medium">@ingredient.Percentage.Value.ToString("F2")%</span>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (ingredient.CostPerUnit.HasValue)
+                                            {
+                                                <span class="text-success fw-medium">@ingredient.CostPerUnit.Value.ToString("N0") ریال</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(ingredient.SupplierPreference))
+                                            {
+                                                <small>@ingredient.SupplierPreference</small>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(ingredient.Specification))
+                                            {
+                                                <button type="button" class="btn btn-sm btn-outline-info"
+                                                        data-bs-toggle="tooltip"
+                                                        title="@ingredient.Specification">
+                                                    <i class="bx bx-info-circle"></i>
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-2 justify-content-center">
+                                                <button type="button" class="btn btn-soft-primary btn-sm"
+                                                        onclick="editIngredient('@ingredient.IngredientId', '@ingredient.IngredientName', '@ingredient.FunctionType', '@ingredient.Quantity', '@ingredient.UnitId', '@(ingredient.Percentage ?? 0)', '@(ingredient.CostPerUnit ?? 0)', '@ingredient.SupplierPreference', '@(ingredient.SequenceOrder ?? 0)', '@ingredient.Specification', '@ingredient.AdditionMethod', '@ingredient.Notes', '@ingredient.MaterialId')"
+                                                        title="ویرایش">
+                                                    <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
+                                                </button>
+                                                <button type="button" class="btn btn-soft-danger btn-sm"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#deleteIngredientModal"
+                                                        data-bs-id="@ingredient.IngredientId"
+                                                        data-bs-name="@ingredient.IngredientName"
+                                                        title="حذف">
+                                                    <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="9" class="text-center py-4">
+                                        <i class="bx bx-test-tube text-muted fs-1"></i>
+                                        <p class="mt-2">هیچ ماده‌ای به این فرمول اضافه نشده است.</p>
+                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addIngredientModal">
+                                            <i class="bx bx-plus me-1"></i> افزودن اولین ماده
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Ingredient Modal -->
+<div class="modal fade" id="addIngredientModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">افزودن ماده جدید</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <form asp-action="AddIngredient" method="post">
+                <input type="hidden" name="FormulaId" value="@formula?.FormulaId" />
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="MaterialId" class="form-label">ماده اولیه <span class="text-danger">*</span></label>
+                                <select name="MaterialId" class="form-select" required>
+                                    <option value="">-- انتخاب ماده --</option>
+                                    @foreach (var material in ViewBag.Materials)
+                                    {
+                                        <option value="@material.MaterialId">@material.MaterialCode - @material.MaterialName</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="IngredientName" class="form-label">نام ماده <span class="text-danger">*</span></label>
+                                <input type="text" name="IngredientName" class="form-control" required />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="FunctionType" class="form-label">نوع عملکرد</label>
+                                <select name="FunctionType" class="form-select">
+                                    <option value="">-- انتخاب نوع عملکرد --</option>
+                                    <option value="ماده فعال">ماده فعال</option>
+                                    <option value="جاذب">جاذب</option>
+                                    <option value="چسب">چسب</option>
+                                    <option value="ضدچسب">ضدچسب</option>
+                                    <option value="روان‌کننده">روان‌کننده</option>
+                                    <option value="رنگ‌دانه">رنگ‌دانه</option>
+                                    <option value="طعم‌دهنده">طعم‌دهنده</option>
+                                    <option value="عطردهنده">عطردهنده</option>
+                                    <option value="نگهدارنده">نگهدارنده</option>
+                                    <option value="تنظیم‌کننده pH">تنظیم‌کننده pH</option>
+                                    <option value="بافر">بافر</option>
+                                    <option value="حلال">حلال</option>
+                                    <option value="تثبیت‌کننده">تثبیت‌کننده</option>
+                                    <option value="سایر">سایر</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="SequenceOrder" class="form-label">ترتیب افزودن</label>
+                                <input type="number" name="SequenceOrder" class="form-control" min="1" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="Quantity" class="form-label">مقدار <span class="text-danger">*</span></label>
+                                <input type="number" name="Quantity" step="0.000001" class="form-control" required />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="UnitId" class="form-label">واحد <span class="text-danger">*</span></label>
+                                <select name="UnitId" class="form-select" required>
+                                    <option value="">-- انتخاب واحد --</option>
+                                    @foreach (var unit in ViewBag.Units)
+                                    {
+                                        <option value="@unit.UnitId">@unit.UnitName (@unit.UnitSymbol)</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="Percentage" class="form-label">درصد (%)</label>
+                                <input type="number" name="Percentage" step="0.0001" min="0" max="100" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="CostPerUnit" class="form-label">هزینه واحد</label>
+                                <input type="number" name="CostPerUnit" step="0.01" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="SupplierPreference" class="form-label">تأمین‌کننده ترجیحی</label>
+                                <input type="text" name="SupplierPreference" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="Specification" class="form-label">مشخصات</label>
+                        <textarea name="Specification" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="AdditionMethod" class="form-label">روش افزودن</label>
+                        <textarea name="AdditionMethod" class="form-control" rows="2"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="Notes" class="form-label">یادداشت‌ها</label>
+                        <textarea name="Notes" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bx bx-save me-1"></i> ذخیره
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Ingredient Modal -->
+<div class="modal fade" id="editIngredientModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">ویرایش ماده</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <form asp-action="EditIngredient" method="post">
+                <input type="hidden" name="IngredientId" id="editIngredientId" />
+                <input type="hidden" name="FormulaId" value="@formula?.FormulaId" />
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editMaterialId" class="form-label">ماده اولیه <span class="text-danger">*</span></label>
+                                <select name="MaterialId" id="editMaterialId" class="form-select" required>
+                                    <option value="">-- انتخاب ماده --</option>
+                                    @foreach (var material in ViewBag.Materials)
+                                    {
+                                        <option value="@material.MaterialId">@material.MaterialCode - @material.MaterialName</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editIngredientName" class="form-label">نام ماده <span class="text-danger">*</span></label>
+                                <input type="text" name="IngredientName" id="editIngredientName" class="form-control" required />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editFunctionType" class="form-label">نوع عملکرد</label>
+                                <select name="FunctionType" id="editFunctionType" class="form-select">
+                                    <option value="">-- انتخاب نوع عملکرد --</option>
+                                    <option value="ماده فعال">ماده فعال</option>
+                                    <option value="جاذب">جاذب</option>
+                                    <option value="چسب">چسب</option>
+                                    <option value="ضدچسب">ضدچسب</option>
+                                    <option value="روان‌کننده">روان‌کننده</option>
+                                    <option value="رنگ‌دانه">رنگ‌دانه</option>
+                                    <option value="طعم‌دهنده">طعم‌دهنده</option>
+                                    <option value="عطردهنده">عطردهنده</option>
+                                    <option value="نگهدارنده">نگهدارنده</option>
+                                    <option value="تنظیم‌کننده pH">تنظیم‌کننده pH</option>
+                                    <option value="بافر">بافر</option>
+                                    <option value="حلال">حلال</option>
+                                    <option value="تثبیت‌کننده">تثبیت‌کننده</option>
+                                    <option value="سایر">سایر</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editSequenceOrder" class="form-label">ترتیب افزودن</label>
+                                <input type="number" name="SequenceOrder" id="editSequenceOrder" class="form-control" min="1" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="editQuantity" class="form-label">مقدار <span class="text-danger">*</span></label>
+                                <input type="number" name="Quantity" id="editQuantity" step="0.000001" class="form-control" required />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="editUnitId" class="form-label">واحد <span class="text-danger">*</span></label>
+                                <select name="UnitId" id="editUnitId" class="form-select" required>
+                                    <option value="">-- انتخاب واحد --</option>
+                                    @foreach (var unit in ViewBag.Units)
+                                    {
+                                        <option value="@unit.UnitId">@unit.UnitName (@unit.UnitSymbol)</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="editPercentage" class="form-label">درصد (%)</label>
+                                <input type="number" name="Percentage" id="editPercentage" step="0.0001" min="0" max="100" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editCostPerUnit" class="form-label">هزینه واحد</label>
+                                <input type="number" name="CostPerUnit" id="editCostPerUnit" step="0.01" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editSupplierPreference" class="form-label">تأمین‌کننده ترجیحی</label>
+                                <input type="text" name="SupplierPreference" id="editSupplierPreference" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editSpecification" class="form-label">مشخصات</label>
+                        <textarea name="Specification" id="editSpecification" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editAdditionMethod" class="form-label">روش افزودن</label>
+                        <textarea name="AdditionMethod" id="editAdditionMethod" class="form-control" rows="2"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editNotes" class="form-label">یادداشت‌ها</label>
+                        <textarea name="Notes" id="editNotes" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bx bx-save me-1"></i> ذخیره تغییرات
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Ingredient Modal -->
+<div class="modal fade" id="deleteIngredientModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">حذف ماده</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <div class="modal-body">
+                <p>آیا از حذف این ماده از فرمول مطمئن هستید؟</p>
+                <p id="ingredientNameToDelete" class="fw-bold"></p>
+            </div>
+            <div class="modal-footer">
+                <form id="deleteIngredientForm" method="post" asp-action="DeleteIngredient">
+                    <input type="hidden" id="ingredientIdToDelete" name="id" />
+                    <input type="hidden" name="formulaId" value="@formula?.FormulaId" />
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">حذف</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            // Delete ingredient modal
+            var deleteIngredientModal = document.getElementById('deleteIngredientModal');
+            deleteIngredientModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                var ingredientId = button.getAttribute('data-bs-id');
+                var ingredientName = button.getAttribute('data-bs-name');
+
+                document.getElementById('ingredientNameToDelete').textContent = ingredientName;
+                document.getElementById('ingredientIdToDelete').value = ingredientId;
+            });
+
+            // Auto-dismiss alerts after 5 seconds
+            setTimeout(function () {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function (alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+        });
+
+        function editIngredient(ingredientId, ingredientName, functionType, quantity, unitId, percentage, costPerUnit, supplierPreference, sequenceOrder, specification, additionMethod, notes, materialId) {
+            // Populate the edit modal with current values
+            document.getElementById('editIngredientId').value = ingredientId;
+            document.getElementById('editIngredientName').value = ingredientName || '';
+            document.getElementById('editFunctionType').value = functionType || '';
+            document.getElementById('editQuantity').value = quantity || '';
+            document.getElementById('editUnitId').value = unitId || '';
+            document.getElementById('editPercentage').value = percentage || '';
+            document.getElementById('editCostPerUnit').value = costPerUnit || '';
+            document.getElementById('editSupplierPreference').value = supplierPreference || '';
+            document.getElementById('editSequenceOrder').value = sequenceOrder || '';
+            document.getElementById('editSpecification').value = specification || '';
+            document.getElementById('editAdditionMethod').value = additionMethod || '';
+            document.getElementById('editNotes').value = notes || '';
+            document.getElementById('editMaterialId').value = materialId || '';
+
+            // Show the modal
+            var editModal = new bootstrap.Modal(document.getElementById('editIngredientModal'));
+            editModal.show();
+        }
+    </script>
+}

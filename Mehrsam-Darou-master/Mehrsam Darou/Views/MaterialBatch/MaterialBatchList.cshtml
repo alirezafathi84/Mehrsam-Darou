@@ -137,21 +137,20 @@
                                             @if (batch.ExpiryDate.HasValue)
                                             {
                                                 var expiryDate = batch.ExpiryDate.Value;
-                                                var daysToExpiry = (expiryDate - DateTime.Now).Days;
+                                                var today = DateOnly.FromDateTime(DateTime.Now);
+                                                var daysToExpiry = expiryDate.DayNumber - today.DayNumber;
 
                                                 <small class="@(daysToExpiry < 30 ? "text-danger" : daysToExpiry < 90 ? "text-warning" : "text-muted")">
-                                                    @pc.GetYear(expiryDate)/@pc.GetMonth(expiryDate).ToString("00")/@pc.GetDayOfMonth(expiryDate).ToString("00")
+                                                    @pc.GetYear(expiryDate.ToDateTime(TimeOnly.MinValue))/@pc.GetMonth(expiryDate.ToDateTime(TimeOnly.MinValue)).ToString("00")/@pc.GetDayOfMonth(expiryDate.ToDateTime(TimeOnly.MinValue)).ToString("00")
                                                 </small>
                                                 @if (daysToExpiry < 30 && daysToExpiry > 0)
                                                 {
                                                     <br>
-
                                                     <small class="text-danger"><i class="bx bx-time-five"></i> @daysToExpiry روز</small>
                                                 }
                                                 else if (daysToExpiry <= 0)
                                                 {
                                                     <br>
-
                                                     <small class="text-danger"><i class="bx bx-x-circle"></i> منقضی شده</small>
                                                 }
                                             }

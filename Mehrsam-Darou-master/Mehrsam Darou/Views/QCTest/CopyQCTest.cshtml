@@ -1,0 +1,349 @@
+﻿@model Mehrsam_Darou.Models.QcTest
+
+@{
+    ViewData["Title"] = "کپی آزمایش";
+}
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Success and Error Alerts -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success px-2" role="alert">
+                        <p class="mb-0">با موفقیت انجام شد</p>
+                        <p class="mb-0">@TempData["SuccessMessage"]</p>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger px-2" role="alert">
+                        <p class="mb-0">خطا</p>
+                        <p class="mb-0">@TempData["ErrorMessage"]</p>
+                    </div>
+                }
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h4>کپی آزمایش</h4>
+                        @if (!string.IsNullOrEmpty(ViewBag.OriginalTestCode?.ToString()))
+                        {
+                            <div class="alert alert-info px-2 mt-2" role="alert">
+                                <i class="bx bx-copy me-1"></i> کپی از آزمایش: <strong>@ViewBag.OriginalTestCode</strong> - @ViewBag.OriginalTestName
+                            </div>
+                        }
+                    </div>
+                    <a href="@Url.Action("QCTestList")" class="btn btn-secondary">
+                        <i class="bx bx-arrow-back me-1"></i> بازگشت به لیست
+                    </a>
+                </div>
+
+                <!-- Copy Settings -->
+                <div class="card mb-4 border-warning">
+                    <div class="card-header bg-warning-subtle">
+                        <h5 class="card-title mb-0 text-warning">
+                            <i class="bx bx-cog me-1"></i> تنظیمات کپی
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="alert alert-warning">
+                                    <h6 class="alert-heading">
+                                        <i class="bx bx-info-circle me-1"></i> نکات مهم برای کپی آزمایش:
+                                    </h6>
+                                    <ul class="mb-0">
+                                        <li>کد آزمایش باید منحصر به فرد باشد</li>
+                                        <li>وضعیت اعتبارسنجی به "نیاز به اعتبارسنجی" تغییر می‌کند</li>
+                                        <li>تاریخ‌های اعتبارسنجی پاک می‌شوند</li>
+                                        <li>تاریخ‌های مؤثر و بازنگری بازنشانی می‌شوند</li>
+                                        <li>تاریخچه تجدیدنظر جدید ایجاد می‌شود</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="copyProcedures" checked>
+                                    <label class="form-check-label" for="copyProcedures">
+                                        کپی روش‌ها و رویه‌ها
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="copyLimits" checked>
+                                    <label class="form-check-label" for="copyLimits">
+                                        کپی حدود و مشخصات
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="copyEquipment" checked>
+                                    <label class="form-check-label" for="copyEquipment">
+                                        کپی تجهیزات و معرف‌ها
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="copyResponsibility" checked>
+                                    <label class="form-check-label" for="copyResponsibility">
+                                        کپی اطلاعات مسئولیت
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <button type="button" class="btn btn-warning" onclick="applyCopySettings()">
+                                    <i class="bx bx-check me-1"></i> اعمال تنظیمات کپی
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary ms-2" onclick="selectAll()">
+                                    انتخاب همه
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary ms-2" onclick="deselectAll()">
+                                    لغو انتخاب همه
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <form asp-action="CopyQCTest" id="copyForm">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <!-- Required Fields -->
+                    <div class="card mb-4 border-primary">
+                        <div class="card-header bg-primary-subtle">
+                            <h5 class="card-title mb-0 text-primary">
+                                <i class="bx bx-edit me-1"></i> فیلدهای ضروری برای تغییر
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="TestCode" class="form-label">کد آزمایش جدید <span class="text-danger">*</span></label>
+                                        <input asp-for="TestCode" class="form-control" placeholder="کد منحصر به فرد وارد کنید" />
+                                        <span asp-validation-for="TestCode" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="TestName" class="form-label">نام آزمایش <span class="text-danger">*</span></label>
+                                        <input asp-for="TestName" class="form-control" />
+                                        <span asp-validation-for="TestName" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label asp-for="Description" class="form-label">توضیحات</label>
+                                        <textarea asp-for="Description" class="form-control" rows="2"></textarea>
+                                        <span asp-validation-for="Description" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Copied Content (Collapsible) -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <button class="btn btn-link p-0 text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#copiedContent" aria-expanded="false">
+                                    <i class="bx bx-chevron-down me-1"></i> محتوای کپی شده (برای ویرایش کلیک کنید)
+                                </button>
+                            </h5>
+                        </div>
+                        <div class="collapse" id="copiedContent">
+                            <div class="card-body">
+                                <!-- Include all the form fields from AddQCTest here -->
+                                <!-- For brevity, I'll include key sections -->
+
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label asp-for="TestType" class="form-label">نوع آزمایش</label>
+                                            <select asp-for="TestType" class="form-select">
+                                                <option value="">-- انتخاب نوع آزمایش --</option>
+                                                <option value="میکروبیولوژیکی">میکروبیولوژیکی</option>
+                                                <option value="شیمیایی">شیمیایی</option>
+                                                <option value="فیزیکی">فیزیکی</option>
+                                                <option value="شناسایی">شناسایی</option>
+                                                <option value="خلوص">خلوص</option>
+                                                <option value="ثبات">ثبات</option>
+                                                <option value="حلالیت">حلالیت</option>
+                                                <option value="مقاومت">مقاومت</option>
+                                                <option value="سایر">سایر</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label asp-for="TestCategory" class="form-label">دسته‌بندی آزمایش</label>
+                                            <select asp-for="TestCategory" class="form-select">
+                                                <option value="">-- انتخاب دسته‌بندی --</option>
+                                                <option value="شناسایی">شناسایی</option>
+                                                <option value="خلوص">خلوص</option>
+                                                <option value="کیفیت">کیفیت</option>
+                                                <option value="کارایی">کارایی</option>
+                                                <option value="ایمنی">ایمنی</option>
+                                                <option value="محیط زیست">محیط زیست</option>
+                                                <option value="سایر">سایر</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label asp-for="TestMethod" class="form-label">روش آزمایش</label>
+                                            <input asp-for="TestMethod" class="form-control" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Add more fields as needed -->
+                                <div class="alert alert-info">
+                                    <i class="bx bx-info-circle me-1"></i>
+                                    سایر فیلدها از آزمایش اصلی کپی شده‌اند. در صورت نیاز می‌توانید آن‌ها را ویرایش کنید.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hidden fields for all copied data -->
+                    <input type="hidden" asp-for="TestId" />
+                    <input type="hidden" asp-for="StandardReference" />
+                    <input type="hidden" asp-for="TestProcedure" />
+                    <input type="hidden" asp-for="EquipmentRequired" />
+                    <input type="hidden" asp-for="ReagentsRequired" />
+                    <input type="hidden" asp-for="SamplePreparation" />
+                    <input type="hidden" asp-for="AcceptanceCriteria" />
+                    <input type="hidden" asp-for="SpecificationMin" />
+                    <input type="hidden" asp-for="SpecificationMax" />
+                    <input type="hidden" asp-for="UnitOfMeasure" />
+                    <input type="hidden" asp-for="TestDurationMinutes" />
+                    <input type="hidden" asp-for="TemperatureCondition" />
+                    <input type="hidden" asp-for="HumidityCondition" />
+                    <input type="hidden" asp-for="StorageCondition" />
+                    <input type="hidden" asp-for="Frequency" />
+                    <input type="hidden" asp-for="ResponsibleDepartment" />
+                    <input type="hidden" asp-for="ResponsiblePerson" />
+                    <input type="hidden" asp-for="BackupPerson" />
+                    <input type="hidden" asp-for="ValidationStatus" />
+                    <input type="hidden" asp-for="PriorityLevel" />
+                    <input type="hidden" asp-for="RiskLevel" />
+                    <input type="hidden" asp-for="ImpactLevel" />
+                    <input type="hidden" asp-for="Notes" />
+                    <input type="hidden" asp-for="RevisionHistory" />
+                    <input type="hidden" asp-for="IsActive" />
+
+                    <!-- Boolean fields -->
+                    <input type="hidden" name="CalibrationRequired" value="@(Model.CalibrationRequired ?? false ? "true" : "false")" />
+                    <input type="hidden" name="EnvironmentalControl" value="@(Model.EnvironmentalControl ?? false ? "true" : "false")" />
+                    <input type="hidden" name="ApprovalRequired" value="@(Model.ApprovalRequired ?? false ? "true" : "false")" />
+                    <input type="hidden" name="TrendAnalysisRequired" value="@(Model.TrendAnalysisRequired ?? false ? "true" : "false")" />
+                    <input type="hidden" name="StatisticalControl" value="@(Model.StatisticalControl ?? false ? "true" : "false")" />
+                    <input type="hidden" name="RegulatoryRequirement" value="@(Model.RegulatoryRequirement ?? false ? "true" : "false")" />
+                    <input type="hidden" name="StabilityImpact" value="@(Model.StabilityImpact ?? false ? "true" : "false")" />
+                    <input type="hidden" name="ChangeControlRequired" value="@(Model.ChangeControlRequired ?? false ? "true" : "false")" />
+
+                    <div class="mt-4 border-top pt-4">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="bx bx-copy me-1"></i> ایجاد آزمایش کپی شده
+                        </button>
+                        <a href="@Url.Action("QCTestList")" class="btn btn-secondary ms-2">
+                            <i class="bx bx-x me-1"></i> انصراف
+                        </a>
+                        <button type="button" class="btn btn-warning ms-2" onclick="resetForm()">
+                            <i class="bx bx-reset me-1"></i> بازنشانی
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-focus on test code field
+            var testCodeField = document.getElementById('TestCode');
+            if (testCodeField) {
+                testCodeField.focus();
+            }
+        });
+
+        function selectAll() {
+            var checkboxes = document.querySelectorAll('#copySettings input[type="checkbox"]');
+            checkboxes.forEach(function(checkbox) {
+                checkbox.checked = true;
+            });
+        }
+
+        function deselectAll() {
+            var checkboxes = document.querySelectorAll('#copySettings input[type="checkbox"]');
+            checkboxes.forEach(function(checkbox) {
+                checkbox.checked = false;
+            });
+        }
+
+        function applyCopySettings() {
+            var copyProcedures = document.getElementById('copyProcedures').checked;
+            var copyLimits = document.getElementById('copyLimits').checked;
+            var copyEquipment = document.getElementById('copyEquipment').checked;
+            var copyResponsibility = document.getElementById('copyResponsibility').checked;
+
+            // Clear fields based on settings
+            if (!copyProcedures) {
+                document.getElementById('TestProcedure').value = '';
+                document.getElementById('SamplePreparation').value = '';
+                document.getElementById('AcceptanceCriteria').value = '';
+            }
+
+            if (!copyLimits) {
+                document.getElementById('SpecificationMin').value = '';
+                document.getElementById('SpecificationMax').value = '';
+                document.getElementById('AlertLimit').value = '';
+                document.getElementById('ActionLimit').value = '';
+            }
+
+            if (!copyEquipment) {
+                document.getElementById('EquipmentRequired').value = '';
+                document.getElementById('ReagentsRequired').value = '';
+            }
+
+            if (!copyResponsibility) {
+                document.getElementById('ResponsibleDepartment').value = '';
+                document.getElementById('ResponsiblePerson').value = '';
+                document.getElementById('BackupPerson').value = '';
+            }
+
+            alert('تنظیمات کپی اعمال شد.');
+        }
+
+        function resetForm() {
+            if (confirm('آیا می‌خواهید فرم را بازنشانی کنید؟')) {
+                document.getElementById('copyForm').reset();
+                document.getElementById('TestCode').focus();
+            }
+        }
+    </script>
+}

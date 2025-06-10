@@ -1,0 +1,476 @@
+﻿@using static Mehrsam_Darou.Helper.Helper
+@model PaginatedList<Mehrsam_Darou.Models.QcReport>
+@using System.Globalization
+
+@{
+    PersianCalendar pc = new PersianCalendar();
+    ViewData["Title"] = "لیست گزارش‌های کنترل کیفیت";
+}
+
+<h2 class="mb-4">لیست گزارش‌های کنترل کیفیت</h2>
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Success and Error Alerts -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success px-2" role="alert">
+                        <p class="mb-0">با موفقیت انجام شد</p>
+                        <p class="mb-0">@TempData["SuccessMessage"]</p>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger px-2" role="alert">
+                        <p class="mb-0">خطا</p>
+                        <p class="mb-0">@TempData["ErrorMessage"]</p>
+                    </div>
+                }
+
+                <div class="d-flex flex-wrap justify-content-between gap-3">
+                    <form method="get" asp-action="QCReportList">
+                        <div class="search-bar">
+                            <span><i class="bx bx-search-alt"></i></span>
+                            <input type="search" name="searchKey" value="@Context.Request.Query["searchKey"]" class="form-control" placeholder="جستجو...">
+                        </div>
+                    </form>
+                    <div class="d-flex gap-2">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bx bx-download me-1"></i> دانلود انبوه
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="bulkDownload('pdf')">
+                                        <i class="bx bxs-file-pdf me-2"></i>دانلود همه به PDF
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="bulkDownload('excel')">
+                                        <i class="bx bxs-file-export me-2"></i>دانلود همه به Excel
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <a href="@Url.Action("AddQCReport")" class="btn btn-primary">
+                            <i class="bx bx-plus me-1"></i> گزارش جدید
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add CSRF token for AJAX requests -->
+            @Html.AntiForgeryToken()
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0 table-hover table-centered">
+                        <thead class="bg-light-subtle">
+                            <tr>
+                                <th>
+                                    <input type="checkbox" id="selectAll" onchange="toggleSelectAll()" />
+                                </th>
+                                <th>شماره گزارش</th>
+                                <th>عنوان</th>
+                                <th>نوع</th>
+                                <th>دسته‌بندی</th>
+                                <th>وضعیت</th>
+                                <th>اولویت</th>
+                                <th>محرمانگی</th>
+                                <th>تهیه‌کننده</th>
+                                <th>تاریخ ایجاد</th>
+                                <th>اقدامات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Any())
+                            {
+                                foreach (var report in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" class="report-checkbox" value="@report.ReportId" />
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm bg-light-subtle rounded me-2">
+                                                    <span class="avatar-title">
+                                                        <iconify-icon icon="solar:document-text-bold-duotone" class="fs-18"></iconify-icon>
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0 fw-medium">@report.ReportNumber</h6>
+                                                    @if (!string.IsNullOrEmpty(report.ReportPeriod))
+                                                    {
+                                                        <small class="text-muted">@report.ReportPeriod</small>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="fw-medium">@report.ReportTitle</span>
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(report.ReportType))
+                                            {
+                                                <span class="badge bg-info-subtle text-info">@report.ReportType</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(report.ReportCategory))
+                                            {
+                                                <span class="badge bg-primary-subtle text-primary">@report.ReportCategory</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @switch (report.ReportStatus)
+                                            {
+                                                case "پیش‌نویس":
+                                                    <span class="badge bg-secondary">@report.ReportStatus</span>
+                                                    break;
+                                                case "در حال تهیه":
+                                                    <span class="badge bg-warning">@report.ReportStatus</span>
+                                                    break;
+                                                case "تکمیل شده":
+                                                    <span class="badge bg-primary">@report.ReportStatus</span>
+                                                    break;
+                                                case "بررسی":
+                                                    <span class="badge bg-info">@report.ReportStatus</span>
+                                                    break;
+                                                case "تایید شده":
+                                                    <span class="badge bg-success">@report.ReportStatus</span>
+                                                    break;
+                                                case "آرشیو":
+                                                    <span class="badge bg-dark">@report.ReportStatus</span>
+                                                    break;
+                                                case "منقضی":
+                                                    <span class="badge bg-danger">@report.ReportStatus</span>
+                                                    break;
+                                                default:
+                                                    <span class="badge bg-light text-dark">@report.ReportStatus</span>
+                                                    break;
+                                            }
+                                        </td>
+                                        <td>
+                                            @switch (report.PriorityLevel)
+                                            {
+                                                case 1:
+                                                    <span class="badge bg-danger">بسیار بالا</span>
+                                                    break;
+                                                case 2:
+                                                    <span class="badge bg-warning">بالا</span>
+                                                    break;
+                                                case 3:
+                                                    <span class="badge bg-primary">متوسط</span>
+                                                    break;
+                                                case 4:
+                                                    <span class="badge bg-info">پایین</span>
+                                                    break;
+                                                case 5:
+                                                    <span class="badge bg-secondary">بسیار پایین</span>
+                                                    break;
+                                                default:
+                                                    <span class="badge bg-light text-dark">@report.PriorityLevel</span>
+                                                    break;
+                                            }
+                                        </td>
+                                        <td>
+                                            @switch (report.ConfidentialityLevel)
+                                            {
+                                                case "عمومی":
+                                                    <span class="badge bg-success-subtle text-success">@report.ConfidentialityLevel</span>
+                                                    break;
+                                                case "داخلی":
+                                                    <span class="badge bg-info-subtle text-info">@report.ConfidentialityLevel</span>
+                                                    break;
+                                                case "محرمانه":
+                                                    <span class="badge bg-warning-subtle text-warning">@report.ConfidentialityLevel</span>
+                                                    break;
+                                                case "کاملاً محرمانه":
+                                                    <span class="badge bg-danger-subtle text-danger">@report.ConfidentialityLevel</span>
+                                                    break;
+                                                default:
+                                                    <span class="badge bg-light text-dark">@report.ConfidentialityLevel</span>
+                                                    break;
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(report.PreparedBy))
+                                            {
+                                                <span class="text-muted">@report.PreparedBy</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                @pc.GetYear(report.CreatedDate)/@pc.GetMonth(report.CreatedDate).ToString("00")/@pc.GetDayOfMonth(report.CreatedDate).ToString("00")
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-2 justify-content-center">
+                                                <a href="@Url.Action("EditQCReport", new { id = report.ReportId })" class="btn btn-soft-primary btn-sm" title="ویرایش">
+                                                    <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
+                                                </a>
+                                                <button type="button" class="btn btn-soft-info btn-sm"
+                                                        onclick="showReportDetails('@report.ReportId')"
+                                                        title="مشاهده جزئیات">
+                                                    <iconify-icon icon="solar:eye-broken" class="align-middle fs-18"></iconify-icon>
+                                                </button>
+                                                <div class="btn-group" role="group">
+                                                    <button type="button" class="btn btn-soft-success btn-sm dropdown-toggle"
+                                                            data-bs-toggle="dropdown" aria-expanded="false"
+                                                            title="دانلود گزارش">
+                                                        <iconify-icon icon="solar:download-bold" class="align-middle fs-18"></iconify-icon>
+                                                    </button>
+                                                    <ul class="dropdown-menu">
+                                                        <li>
+                                                            <a class="dropdown-item" href="@Url.Action("DownloadReport", new { id = report.ReportId, format = "pdf" })">
+                                                                <i class="bx bxs-file-pdf me-2"></i>دانلود PDF
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item" href="@Url.Action("DownloadReport", new { id = report.ReportId, format = "excel" })">
+                                                                <i class="bx bxs-file-export me-2"></i>دانلود Excel
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item" href="@Url.Action("DownloadReport", new { id = report.ReportId, format = "word" })">
+                                                                <i class="bx bxs-file-doc me-2"></i>دانلود Word
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                                <button type="button" class="btn btn-soft-danger btn-sm"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#deleteModal"
+                                                        data-bs-id="@report.ReportId"
+                                                        data-bs-number="@report.ReportNumber"
+                                                        title="حذف">
+                                                    <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="11" class="text-center py-4">
+                                        <i class="bx bx-file text-muted fs-1"></i>
+                                        <p class="mt-2">هیچ گزارشی یافت نشد.</p>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card-footer border-top">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-end mb-0">
+                        @if (Model.HasPreviousPage)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("QCReportList", new { page = Model.PageIndex - 1, searchKey = Context.Request.Query["searchKey"] })">
+                                    <i class="bx bx-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                    <i class="bx bx-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("QCReportList", new { page = i, searchKey = Context.Request.Query["searchKey"] })">@i</a>
+                            </li>
+                        }
+
+                        @if (Model.HasNextPage)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("QCReportList", new { page = Model.PageIndex + 1, searchKey = Context.Request.Query["searchKey"] })">
+                                    <i class="bx bx-chevron-left"></i>
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                    <i class="bx bx-chevron-left"></i>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">حذف گزارش</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <div class="modal-body">
+                <p>آیا از حذف این گزارش مطمئن هستید؟</p>
+                <p id="reportNumberToDelete" class="fw-bold"></p>
+                <div class="alert alert-warning">
+                    <small><i class="bx bx-info-circle me-1"></i> این عمل قابل بازگشت نیست.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <form id="deleteForm" method="post" asp-action="Delete">
+                    <input type="hidden" id="reportIdToDelete" name="id" />
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">حذف</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Report Details Modal -->
+<div class="modal fade" id="reportDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">جزئیات گزارش</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <div class="modal-body" id="reportDetailsContent">
+                <!-- Report details will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var deleteModal = document.getElementById('deleteModal');
+            deleteModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                var reportId = button.getAttribute('data-bs-id');
+                var reportNumber = button.getAttribute('data-bs-number');
+
+                document.getElementById('reportNumberToDelete').textContent = reportNumber;
+                document.getElementById('reportIdToDelete').value = reportId;
+            });
+
+            // Auto-dismiss alerts after 5 seconds
+            setTimeout(function () {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function (alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+        });
+
+        function showReportDetails(reportId) {
+            // This would typically load report details via AJAX
+            // For now, just show a placeholder
+            var modal = new bootstrap.Modal(document.getElementById('reportDetailsModal'));
+            document.getElementById('reportDetailsContent').innerHTML =
+                '<div class="text-center"><div class="spinner-border" role="status"></div><p class="mt-2">در حال بارگذاری...</p></div>';
+            modal.show();
+
+            // Simulate loading details
+            setTimeout(function() {
+                document.getElementById('reportDetailsContent').innerHTML =
+                    '<div class="row">' +
+                    '<div class="col-md-6"><h6>خلاصه اجرایی:</h6><p>اطلاعات خلاصه گزارش اینجا نمایش داده می‌شود.</p></div>' +
+                    '<div class="col-md-6"><h6>یافته‌های کلیدی:</h6><p>یافته‌های مهم گزارش اینجا قرار می‌گیرد.</p></div>' +
+                    '</div>' +
+                    '<div class="row">' +
+                    '<div class="col-12"><h6>توصیه‌ها:</h6><p>توصیه‌های گزارش برای بهبود فرآیندها.</p></div>' +
+                    '</div>';
+            }, 1000);
+        }
+
+        function downloadReport(reportId, format) {
+            // Direct download via URL
+            window.location.href = '@Url.Action("DownloadReport")' + '/' + reportId + '?format=' + format;
+        }
+
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('.report-checkbox');
+
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAll.checked;
+            });
+        }
+
+        function bulkDownload(format) {
+            const selectedReports = [];
+            const checkboxes = document.querySelectorAll('.report-checkbox:checked');
+
+            if (checkboxes.length === 0) {
+                alert('لطفاً حداقل یک گزارش را انتخاب کنید.');
+                return;
+            }
+
+            checkboxes.forEach(checkbox => {
+                selectedReports.push(checkbox.value);
+            });
+
+            // Create a form and submit it for bulk download
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '@Url.Action("BulkDownload")';
+            form.style.display = 'none';
+
+            // Add CSRF token
+            const tokenInput = document.createElement('input');
+            tokenInput.type = 'hidden';
+            tokenInput.name = '__RequestVerificationToken';
+            tokenInput.value = document.querySelector('[name="__RequestVerificationToken"]').value;
+            form.appendChild(tokenInput);
+
+            // Add report IDs
+            const idsInput = document.createElement('input');
+            idsInput.type = 'hidden';
+            idsInput.name = 'reportIds';
+            idsInput.value = selectedReports.join(',');
+            form.appendChild(idsInput);
+
+            // Add format
+            const formatInput = document.createElement('input');
+            formatInput.type = 'hidden';
+            formatInput.name = 'format';
+            formatInput.value = format;
+            form.appendChild(formatInput);
+
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+
+            // Show feedback message
+            setTimeout(() => {
+                alert(`درخواست دانلود ${selectedReports.length} گزارش ارسال شد.`);
+            }, 500);
+        }
+    </script>
+}

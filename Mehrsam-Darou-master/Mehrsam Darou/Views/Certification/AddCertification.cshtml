@@ -1,0 +1,423 @@
+﻿@model Mehrsam_Darou.Models.Certification
+
+@{
+    ViewData["Title"] = "افزودن گواهینامه جدید";
+}
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Success and Error Alerts -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success px-2" role="alert">
+                        <p class="mb-0">با موفقیت انجام شد</p>
+                        <p class="mb-0">@TempData["SuccessMessage"]</p>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger px-2" role="alert">
+                        <p class="mb-0">خطا</p>
+                        <p class="mb-0">@TempData["ErrorMessage"]</p>
+                    </div>
+                }
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4>افزودن گواهینامه جدید</h4>
+                    <a href="@Url.Action("CertificationList")" class="btn btn-secondary">
+                        <i class="bx bx-arrow-back me-1"></i> بازگشت به لیست
+                    </a>
+                </div>
+
+                <form asp-action="AddCertification">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <!-- Basic Information -->
+                    <div class="card mb-3">
+                        <div class="card-header bg-primary text-white">
+                            <h6 class="mb-0">اطلاعات اصلی</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="CertificationName" class="form-label">نام گواهینامه <span class="text-danger">*</span></label>
+                                        <input asp-for="CertificationName" class="form-control" />
+                                        <span asp-validation-for="CertificationName" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="CertificationCode" class="form-label">کد گواهینامه <span class="text-danger">*</span></label>
+                                        <input asp-for="CertificationCode" class="form-control" />
+                                        <span asp-validation-for="CertificationCode" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label asp-for="CertificationType" class="form-label">نوع گواهینامه</label>
+                                        <select asp-for="CertificationType" class="form-select">
+                                            <option value="">-- انتخاب نوع --</option>
+                                            <option value="ISO">ISO</option>
+                                            <option value="GMP">GMP</option>
+                                            <option value="GDP">GDP</option>
+                                            <option value="GLP">GLP</option>
+                                            <option value="ISO 13485">ISO 13485</option>
+                                            <option value="ISO 14001">ISO 14001</option>
+                                            <option value="OHSAS 18001">OHSAS 18001</option>
+                                            <option value="FDA">FDA</option>
+                                            <option value="EMA">EMA</option>
+                                            <option value="WHO-GMP">WHO-GMP</option>
+                                            <option value="سایر">سایر</option>
+                                        </select>
+                                        <span asp-validation-for="CertificationType" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label asp-for="CertificationCategory" class="form-label">دسته‌بندی</label>
+                                        <select asp-for="CertificationCategory" class="form-select">
+                                            <option value="">-- انتخاب دسته --</option>
+                                            <option value="کیفیت">کیفیت</option>
+                                            <option value="ایمنی">ایمنی</option>
+                                            <option value="محیط زیست">محیط زیست</option>
+                                            <option value="نظارتی">نظارتی</option>
+                                            <option value="تولید">تولید</option>
+                                            <option value="تحقیق و توسعه">تحقیق و توسعه</option>
+                                            <option value="سایر">سایر</option>
+                                        </select>
+                                        <span asp-validation-for="CertificationCategory" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label asp-for="CertificationStatus" class="form-label">وضعیت</label>
+                                        <select asp-for="CertificationStatus" class="form-select">
+                                            <option value="">-- انتخاب وضعیت --</option>
+                                            <option value="فعال">فعال</option>
+                                            <option value="منقضی شده">منقضی شده</option>
+                                            <option value="در حال تمدید">در حال تمدید</option>
+                                            <option value="تعلیق شده">تعلیق شده</option>
+                                            <option value="لغو شده">لغو شده</option>
+                                            <option value="در انتظار تایید">در انتظار تایید</option>
+                                        </select>
+                                        <span asp-validation-for="CertificationStatus" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="CertificateNumber" class="form-label">شماره گواهینامه</label>
+                                        <input asp-for="CertificateNumber" class="form-control" />
+                                        <span asp-validation-for="CertificateNumber" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="ComplianceStandard" class="form-label">استاندارد انطباق</label>
+                                        <input asp-for="ComplianceStandard" class="form-control" />
+                                        <span asp-validation-for="ComplianceStandard" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Issuing Authority -->
+                    <div class="card mb-3">
+                        <div class="card-header bg-info text-white">
+                            <h6 class="mb-0">مرجع صادرکننده</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="IssuingAuthority" class="form-label">مرجع صادرکننده</label>
+                                        <input asp-for="IssuingAuthority" class="form-control" />
+                                        <span asp-validation-for="IssuingAuthority" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="IssuingCountry" class="form-label">کشور صادرکننده</label>
+                                        <input asp-for="IssuingCountry" class="form-control" />
+                                        <span asp-validation-for="IssuingCountry" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="AccreditationBody" class="form-label">نهاد اعتباربخشی</label>
+                                        <input asp-for="AccreditationBody" class="form-control" />
+                                        <span asp-validation-for="AccreditationBody" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="RelatedMedicineId" class="form-label">دارو مرتبط</label>
+                                        <select asp-for="RelatedMedicineId" asp-items="ViewBag.Medicines" class="form-select">
+                                            <option value="">-- انتخاب دارو --</option>
+                                        </select>
+                                        <span asp-validation-for="RelatedMedicineId" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dates and Validity -->
+                    <div class="card mb-3">
+                        <div class="card-header bg-warning text-dark">
+                            <h6 class="mb-0">تاریخ‌ها و اعتبار</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label asp-for="IssueDate" class="form-label">تاریخ صدور</label>
+                                        <input asp-for="IssueDate" type="date" class="form-control" />
+                                        <span asp-validation-for="IssueDate" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label asp-for="ExpiryDate" class="form-label">تاریخ انقضا</label>
+                                        <input asp-for="ExpiryDate" type="date" class="form-control" />
+                                        <span asp-validation-for="ExpiryDate" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label asp-for="RenewalPeriodMonths" class="form-label">دوره تمدید (ماه)</label>
+                                        <input asp-for="RenewalPeriodMonths" type="number" class="form-control" />
+                                        <span asp-validation-for="RenewalPeriodMonths" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="RenewalReminderDays" class="form-label">یادآوری تمدید (روز)</label>
+                                        <input asp-for="RenewalReminderDays" type="number" class="form-control" />
+                                        <span asp-validation-for="RenewalReminderDays" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="PriorityLevel" class="form-label">سطح اولویت</label>
+                                        <select asp-for="PriorityLevel" class="form-select">
+                                            <option value="1">1 - بسیار بالا</option>
+                                            <option value="2">2 - بالا</option>
+                                            <option value="3" selected>3 - متوسط</option>
+                                            <option value="4">4 - پایین</option>
+                                            <option value="5">5 - بسیار پایین</option>
+                                        </select>
+                                        <span asp-validation-for="PriorityLevel" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Audit Information -->
+                    <div class="card mb-3">
+                        <div class="card-header bg-secondary text-white">
+                            <h6 class="mb-0">اطلاعات ممیزی</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label asp-for="AuditFrequencyMonths" class="form-label">دوره ممیزی (ماه)</label>
+                                        <input asp-for="AuditFrequencyMonths" type="number" class="form-control" />
+                                        <span asp-validation-for="AuditFrequencyMonths" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label asp-for="LastAuditDate" class="form-label">تاریخ آخرین ممیزی</label>
+                                        <input asp-for="LastAuditDate" type="date" class="form-control" />
+                                        <span asp-validation-for="LastAuditDate" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label asp-for="NextAuditDate" class="form-label">تاریخ ممیزی بعدی</label>
+                                        <input asp-for="NextAuditDate" type="date" class="form-control" />
+                                        <span asp-validation-for="NextAuditDate" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="AuditResults" class="form-label">نتیجه ممیزی</label>
+                                        <select asp-for="AuditResults" class="form-select">
+                                            <option value="">-- انتخاب نتیجه --</option>
+                                            <option value="موفق">موفق</option>
+                                            <option value="موفق با نکات">موفق با نکات</option>
+                                            <option value="ناموفق">ناموفق</option>
+                                            <option value="در انتظار نتیجه">در انتظار نتیجه</option>
+                                        </select>
+                                        <span asp-validation-for="AuditResults" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">اقدامات اصلاحی</label>
+                                        <div class="form-check">
+                                            <input name="CorrectiveActionsRequired" type="hidden" value="false" />
+                                            <input name="CorrectiveActionsRequired" class="form-check-input" type="checkbox" value="true" @(Model.CorrectiveActionsRequired == true ? "checked" : "") />
+                                            <label for="CorrectiveActionsRequired" class="form-check-label">نیاز به اقدام اصلاحی</label>
+                                        </div>
+                                        <span asp-validation-for="CorrectiveActionsRequired" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact and Cost -->
+                    <div class="card mb-3">
+                        <div class="card-header bg-success text-white">
+                            <h6 class="mb-0">تماس و هزینه</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label asp-for="ResponsiblePerson" class="form-label">مسئول</label>
+                                        <input asp-for="ResponsiblePerson" class="form-control" />
+                                        <span asp-validation-for="ResponsiblePerson" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label asp-for="ContactEmail" class="form-label">ایمیل تماس</label>
+                                        <input asp-for="ContactEmail" type="email" class="form-control" />
+                                        <span asp-validation-for="ContactEmail" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label asp-for="ContactPhone" class="form-label">تلفن تماس</label>
+                                        <input asp-for="ContactPhone" class="form-control" />
+                                        <span asp-validation-for="ContactPhone" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label asp-for="Cost" class="form-label">هزینه</label>
+                                        <input asp-for="Cost" type="number" step="0.01" class="form-control" />
+                                        <span asp-validation-for="Cost" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label asp-for="Currency" class="form-label">واحد پول</label>
+                                        <select asp-for="Currency" class="form-select">
+                                            <option value="IRR">ریال (IRR)</option>
+                                            <option value="USD">دلار (USD)</option>
+                                            <option value="EUR">یورو (EUR)</option>
+                                        </select>
+                                        <span asp-validation-for="Currency" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label asp-for="RelatedFacility" class="form-label">واحد مرتبط</label>
+                                        <input asp-for="RelatedFacility" class="form-control" />
+                                        <span asp-validation-for="RelatedFacility" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Description and Notes -->
+                    <div class="card mb-3">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">توضیحات و یادداشت‌ها</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="Description" class="form-label">توضیحات</label>
+                                        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                                        <span asp-validation-for="Description" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="Requirements" class="form-label">الزامات</label>
+                                        <textarea asp-for="Requirements" class="form-control" rows="3"></textarea>
+                                        <span asp-validation-for="Requirements" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="ScopeOfCertification" class="form-label">حوزه گواهینامه</label>
+                                        <textarea asp-for="ScopeOfCertification" class="form-control" rows="3"></textarea>
+                                        <span asp-validation-for="ScopeOfCertification" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="Notes" class="form-label">یادداشت‌ها</label>
+                                        <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+                                        <span asp-validation-for="Notes" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="mb-3">
+                                        <label asp-for="DocumentPath" class="form-label">مسیر مدرک</label>
+                                        <input asp-for="DocumentPath" class="form-control" />
+                                        <span asp-validation-for="DocumentPath" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label asp-for="IsActive" class="form-label">وضعیت</label>
+                                        <select asp-for="IsActive" class="form-select">
+                                            <option value="true">فعال</option>
+                                            <option value="false">غیرفعال</option>
+                                        </select>
+                                        <span asp-validation-for="IsActive" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bx bx-save me-1"></i> ذخیره
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

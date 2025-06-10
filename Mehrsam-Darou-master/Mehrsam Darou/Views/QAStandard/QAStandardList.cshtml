@@ -1,0 +1,354 @@
+﻿@using static Mehrsam_Darou.Helper.Helper
+@model PaginatedList<Mehrsam_Darou.Models.QaStandard>
+@using System.Globalization
+
+@{
+    PersianCalendar pc = new PersianCalendar();
+    ViewData["Title"] = "لیست استانداردهای تضمین کیفیت";
+}
+
+<h2 class="mb-4">لیست استانداردهای تضمین کیفیت</h2>
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Success and Error Alerts -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success px-2" role="alert">
+                        <p class="mb-0">با موفقیت انجام شد</p>
+                        <p class="mb-0">@TempData["SuccessMessage"]</p>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger px-2" role="alert">
+                        <p class="mb-0">خطا</p>
+                        <p class="mb-0">@TempData["ErrorMessage"]</p>
+                    </div>
+                }
+
+                <div class="d-flex flex-wrap justify-content-between gap-3">
+                    <form method="get" asp-action="QAStandardList">
+                        <div class="search-bar">
+                            <span><i class="bx bx-search-alt"></i></span>
+                            <input type="search" name="searchKey" value="@Context.Request.Query["searchKey"]" class="form-control" placeholder="جستجو...">
+                        </div>
+                    </form>
+                    <div>
+                        <a href="@Url.Action("AddQAStandard")" class="btn btn-primary">
+                            <i class="bx bx-plus me-1"></i> استاندارد جدید
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0 table-hover table-centered">
+                        <thead class="bg-light-subtle">
+                            <tr>
+                                <th>کد استاندارد</th>
+                                <th>نام استاندارد</th>
+                                <th>نوع</th>
+                                <th>دسته‌بندی</th>
+                                <th>سازمان صادرکننده</th>
+                                <th>وضعیت</th>
+                                <th>سطح انطباق</th>
+                                <th>اولویت</th>
+                                <th>درصد انطباق</th>
+                                <th>تاریخ ایجاد</th>
+                                <th>اقدامات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Any())
+                            {
+                                foreach (var standard in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            <span class="badge bg-primary">@standard.StandardCode</span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm bg-light-subtle rounded me-2">
+                                                    <span class="avatar-title">
+                                                        <iconify-icon icon="solar:document-bold-duotone" class="fs-18"></iconify-icon>
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0 fw-medium">@standard.StandardName</h6>
+                                                    @if (!string.IsNullOrEmpty(standard.Version))
+                                                    {
+                                                        <small class="text-muted">نسخه: @standard.Version</small>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(standard.StandardType))
+                                            {
+                                                <span class="badge bg-info-subtle text-info">@standard.StandardType</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(standard.StandardCategory))
+                                            {
+                                                <span class="badge bg-secondary-subtle text-secondary">@standard.StandardCategory</span>
+                                            }
+                                        </td>
+                                        <td>@standard.IssuingOrganization</td>
+                                        <td>
+                                            @switch (standard.Status)
+                                            {
+                                                case "پیش‌نویس":
+                                                    <span class="badge bg-warning">@standard.Status</span>
+                                                    break;
+                                                case "منتشر شده":
+                                                    <span class="badge bg-info">@standard.Status</span>
+                                                    break;
+                                                case "مؤثر":
+                                                    <span class="badge bg-success">@standard.Status</span>
+                                                    break;
+                                                case "در حال بازنگری":
+                                                    <span class="badge bg-warning">@standard.Status</span>
+                                                    break;
+                                                case "منسوخ شده":
+                                                    <span class="badge bg-danger">@standard.Status</span>
+                                                    break;
+                                                default:
+                                                    <span class="badge bg-secondary">@standard.Status</span>
+                                                    break;
+                                            }
+                                        </td>
+                                        <td>
+                                            @switch (standard.ComplianceLevel)
+                                            {
+                                                case "الزامی":
+                                                    <span class="badge bg-danger">@standard.ComplianceLevel</span>
+                                                    break;
+                                                case "توصیه شده":
+                                                    <span class="badge bg-warning">@standard.ComplianceLevel</span>
+                                                    break;
+                                                case "اختیاری":
+                                                    <span class="badge bg-info">@standard.ComplianceLevel</span>
+                                                    break;
+                                                default:
+                                                    <span class="badge bg-secondary">@standard.ComplianceLevel</span>
+                                                    break;
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (standard.PriorityLevel.HasValue)
+                                            {
+                                                @switch (standard.PriorityLevel.Value)
+                                                {
+                                                    case 1:
+                                                        <span class="badge bg-danger">خیلی بالا</span>
+                                                        break;
+                                                    case 2:
+                                                        <span class="badge bg-warning">بالا</span>
+                                                        break;
+                                                    case 3:
+                                                        <span class="badge bg-primary">متوسط</span>
+                                                        break;
+                                                    case 4:
+                                                        <span class="badge bg-info">پایین</span>
+                                                        break;
+                                                    case 5:
+                                                        <span class="badge bg-success">خیلی پایین</span>
+                                                        break;
+                                                    default:
+                                                        <span class="badge bg-secondary">@standard.PriorityLevel</span>
+                                                        break;
+                                                }
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (standard.CompliancePercentage.HasValue)
+                                            {
+                                                var percentage = standard.CompliancePercentage.Value;
+                                                var badgeClass = percentage >= 90 ? "bg-success" :
+                                                percentage >= 70 ? "bg-warning" : "bg-danger";
+                                                <span class="badge @badgeClass">@percentage.ToString("F1")%</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                @pc.GetYear(standard.CreatedDate)/@pc.GetMonth(standard.CreatedDate).ToString("00")/@pc.GetDayOfMonth(standard.CreatedDate).ToString("00")
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-2 justify-content-center">
+                                                <a href="@Url.Action("EditQAStandard", new { id = standard.StandardId })" class="btn btn-soft-primary btn-sm" title="ویرایش">
+                                                    <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
+                                                </a>
+                                                <button type="button" class="btn btn-soft-info btn-sm"
+                                                        onclick="showStandardDetails('@standard.StandardId')"
+                                                        title="مشاهده جزئیات">
+                                                    <iconify-icon icon="solar:eye-broken" class="align-middle fs-18"></iconify-icon>
+                                                </button>
+                                                <button type="button" class="btn btn-soft-danger btn-sm"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#deleteModal"
+                                                        data-bs-id="@standard.StandardId"
+                                                        data-bs-name="@standard.StandardName"
+                                                        title="حذف">
+                                                    <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="11" class="text-center py-4">
+                                        <i class="bx bx-file text-muted fs-1"></i>
+                                        <p class="mt-2">هیچ استانداردی یافت نشد.</p>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card-footer border-top">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-end mb-0">
+                        @if (Model.HasPreviousPage)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("QAStandardList", new { page = Model.PageIndex - 1, searchKey = Context.Request.Query["searchKey"] })">
+                                    <i class="bx bx-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                    <i class="bx bx-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("QAStandardList", new { page = i, searchKey = Context.Request.Query["searchKey"] })">@i</a>
+                            </li>
+                        }
+
+                        @if (Model.HasNextPage)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("QAStandardList", new { page = Model.PageIndex + 1, searchKey = Context.Request.Query["searchKey"] })">
+                                    <i class="bx bx-chevron-left"></i>
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                    <i class="bx bx-chevron-left"></i>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">حذف استاندارد</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <div class="modal-body">
+                <p>آیا از حذف این استاندارد مطمئن هستید؟</p>
+                <p id="standardNameToDelete" class="fw-bold"></p>
+                <div class="alert alert-warning">
+                    <small><i class="bx bx-info-circle me-1"></i> این عمل قابل بازگشت نیست.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <form id="deleteForm" method="post" asp-action="Delete">
+                    <input type="hidden" id="standardIdToDelete" name="id" />
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">حذف</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Standard Details Modal -->
+<div class="modal fade" id="standardDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">جزئیات استاندارد</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <div class="modal-body" id="standardDetailsContent">
+                <!-- Standard details will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var deleteModal = document.getElementById('deleteModal');
+            deleteModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                var standardId = button.getAttribute('data-bs-id');
+                var standardName = button.getAttribute('data-bs-name');
+
+                document.getElementById('standardNameToDelete').textContent = standardName;
+                document.getElementById('standardIdToDelete').value = standardId;
+            });
+
+            // Auto-dismiss alerts after 5 seconds
+            setTimeout(function () {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function (alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+        });
+
+        function showStandardDetails(standardId) {
+            var modal = new bootstrap.Modal(document.getElementById('standardDetailsModal'));
+            document.getElementById('standardDetailsContent').innerHTML =
+                '<div class="text-center"><div class="spinner-border" role="status"></div><p class="mt-2">در حال بارگذاری...</p></div>';
+            modal.show();
+
+            // Simulate loading details
+            setTimeout(function() {
+                document.getElementById('standardDetailsContent').innerHTML =
+                    '<p>جزئیات کامل استاندارد اینجا نمایش داده خواهد شد.</p>' +
+                    '<p>شامل الزامات، راهنماها، مستندات و ...</p>';
+            }, 1000);
+        }
+    </script>
+}

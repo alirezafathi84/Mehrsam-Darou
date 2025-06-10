@@ -647,13 +647,13 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                                             </button>
                                         </form>
                                     </li>
-                                    <li class="sub-nav-item">
+              @*                       <li class="sub-nav-item">
                                         <form method="post" action="@Url.Action("ProductionOrderStepList", "ProductionOrderStep")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
                                                 <span class="nav-text">پیگیری مراحل سفارش</span>
                                             </button>
                                         </form>
-                                    </li>
+                                    </li> *@
                                     <li class="sub-nav-item">
                                         <form method="post" action="@Url.Action("ProductionSchedule", "Production")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
@@ -681,7 +681,7 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                             <div class="collapse" id="sidebarRandD">
                                 <ul class="nav sub-navbar-nav">
                                     <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("ResearchProjectList", "Research")">
+                                        <form method="post" action="@Url.Action("ResearchProjectList", "ResearchProject")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
                                                 <span class="nav-text">پروژه‌های تحقیق</span>
                                             </button>
@@ -719,7 +719,7 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                             <div class="collapse" id="sidebarQC">
                                 <ul class="nav sub-navbar-nav">
                                     <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("QCTestList", "QualityControl")">
+                                        <form method="post" action="@Url.Action("QCTestList", "QCTest")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
                                                 <span class="nav-text">آزمایشات کیفی</span>
                                             </button>
@@ -757,7 +757,7 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                             <div class="collapse" id="sidebarQA">
                                 <ul class="nav sub-navbar-nav">
                                     <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("QAStandardList", "QualityAssurance")">
+                                        <form method="post" action="@Url.Action("QAStandardList", "QAStandard")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
                                                 <span class="nav-text">استانداردهای کیفیت</span>
                                             </button>

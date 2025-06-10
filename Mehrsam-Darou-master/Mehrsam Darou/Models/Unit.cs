@@ -23,6 +23,12 @@ public partial class Unit
 
     public virtual ICollection<FinishedGoodsBatch> FinishedGoodsBatches { get; set; } = new List<FinishedGoodsBatch>();
 
+    public virtual ICollection<Formula> FormulaBatchSizeUnits { get; set; } = new List<Formula>();
+
+    public virtual ICollection<FormulaIngredient> FormulaIngredients { get; set; } = new List<FormulaIngredient>();
+
+    public virtual ICollection<Formula> FormulaStrengthUnits { get; set; } = new List<Formula>();
+
     public virtual ICollection<MaterialBatch> MaterialBatches { get; set; } = new List<MaterialBatch>();
 
     public virtual ICollection<MedicineBom> MedicineBoms { get; set; } = new List<MedicineBom>();

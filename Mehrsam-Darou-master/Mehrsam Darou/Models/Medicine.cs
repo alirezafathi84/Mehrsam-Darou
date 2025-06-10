@@ -21,13 +21,23 @@ public partial class Medicine
 
     public bool? IsActive { get; set; }
 
+    public virtual ICollection<BatchTest> BatchTests { get; set; } = new List<BatchTest>();
+
     public virtual MedicineCategory Category { get; set; } = null!;
 
+    public virtual ICollection<Certification> Certifications { get; set; } = new List<Certification>();
+
+    public virtual ICollection<DevelopmentProject> DevelopmentProjects { get; set; } = new List<DevelopmentProject>();
+
     public virtual ICollection<FinishedGoodsBatch> FinishedGoodsBatches { get; set; } = new List<FinishedGoodsBatch>();
+
+    public virtual ICollection<Formula> Formulas { get; set; } = new List<Formula>();
 
     public virtual ICollection<MedicineBom> MedicineBoms { get; set; } = new List<MedicineBom>();
 
     public virtual ICollection<ProductionOrder> ProductionOrders { get; set; } = new List<ProductionOrder>();
+
+    public virtual ICollection<QaAudit> QaAudits { get; set; } = new List<QaAudit>();
 
     public virtual ICollection<SalesInvoiceItem> SalesInvoiceItems { get; set; } = new List<SalesInvoiceItem>();
 

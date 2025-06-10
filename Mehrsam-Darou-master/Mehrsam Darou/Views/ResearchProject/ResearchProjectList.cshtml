@@ -1,0 +1,449 @@
+﻿@using static Mehrsam_Darou.Helper.Helper
+@model PaginatedList<Mehrsam_Darou.Models.ResearchProject>
+@using System.Globalization
+@{
+    PersianCalendar pc = new PersianCalendar();
+    ViewData["Title"] = "لیست پروژه‌های تحقیقاتی";
+}
+
+<h2 class="mb-4">لیست پروژه‌های تحقیقاتی</h2>
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Success and Error Alerts -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success px-2" role="alert">
+                        <p class="mb-0">با موفقیت انجام شد</p>
+                        <p class="mb-0">@TempData["SuccessMessage"]</p>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger px-2" role="alert">
+                        <p class="mb-0">خطا</p>
+                        <p class="mb-0">@TempData["ErrorMessage"]</p>
+                    </div>
+                }
+
+                <div class="d-flex flex-wrap justify-content-between gap-3">
+                    <form method="get" asp-action="ResearchProjectList" class="d-flex gap-2">
+                        <div class="search-bar">
+                            <span><i class="bx bx-search-alt"></i></span>
+                            <input type="search" name="searchKey" value="@ViewBag.CurrentSearch" class="form-control" placeholder="جستجو..." style="padding-left: 35px;">
+                        </div>
+                        <input type="hidden" name="status" value="@ViewBag.CurrentStatus" />
+                        <button type="submit" class="btn btn-outline-primary">جستجو</button>
+                    </form>
+                    <div class="d-flex gap-2">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-info dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bx bx-filter me-1"></i> فیلتر وضعیت
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item @(ViewBag.CurrentStatus == "طرح‌ریزی" ? "active" : "")" href="@Url.Action("ResearchProjectList", new { status = "طرح‌ریزی", searchKey = ViewBag.CurrentSearch })">طرح‌ریزی</a></li>
+                                <li><a class="dropdown-item @(ViewBag.CurrentStatus == "تایید شده" ? "active" : "")" href="@Url.Action("ResearchProjectList", new { status = "تایید شده", searchKey = ViewBag.CurrentSearch })">تایید شده</a></li>
+                                <li><a class="dropdown-item @(ViewBag.CurrentStatus == "در حال اجرا" ? "active" : "")" href="@Url.Action("ResearchProjectList", new { status = "در حال اجرا", searchKey = ViewBag.CurrentSearch })">در حال اجرا</a></li>
+                                <li><a class="dropdown-item @(ViewBag.CurrentStatus == "تکمیل شده" ? "active" : "")" href="@Url.Action("ResearchProjectList", new { status = "تکمیل شده", searchKey = ViewBag.CurrentSearch })">تکمیل شده</a></li>
+                                <li><a class="dropdown-item @(ViewBag.CurrentStatus == "متوقف شده" ? "active" : "")" href="@Url.Action("ResearchProjectList", new { status = "متوقف شده", searchKey = ViewBag.CurrentSearch })">متوقف شده</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item @(string.IsNullOrEmpty(ViewBag.CurrentStatus) ? "active" : "")" href="@Url.Action("ResearchProjectList", new { searchKey = ViewBag.CurrentSearch })">همه</a></li>
+                            </ul>
+                        </div>
+                        <a href="@Url.Action("AddResearchProject")" class="btn btn-primary">
+                            <i class="bx bx-plus me-1"></i> پروژه جدید
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add CSRF token for AJAX requests -->
+            @Html.AntiForgeryToken()
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0 table-hover table-centered">
+                        <thead class="bg-light-subtle">
+                            <tr>
+                                <th>کد پروژه</th>
+                                <th>عنوان پروژه</th>
+                                <th>نوع</th>
+                                <th>دسته‌بندی</th>
+                                <th>وضعیت</th>
+                                <th>اولویت</th>
+                                <th>محقق اصلی</th>
+                                <th>پیشرفت</th>
+                                <th>بودجه</th>
+                                <th>تاریخ ایجاد</th>
+                                <th>اقدامات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Any())
+                            {
+                                foreach (var project in Model)
+                                {
+                                    // Calculate progress percentage
+                                    var progressPercentage = 0;
+                                    
+                                    // First try to use the completion percentage from the model
+                                    if (project.CompletionPercentage.HasValue)
+                                    {
+                                        progressPercentage = (int)project.CompletionPercentage.Value;
+                                    }
+                                    // If not available, calculate based on budget
+                                    else if (project.TotalBudget.HasValue && project.TotalBudget > 0 && project.SpentBudget.HasValue)
+                                    {
+                                        progressPercentage = (int)((project.SpentBudget.Value / project.TotalBudget.Value) * 100);
+                                    }
+                                    // If no budget info, calculate based on timeline
+                                    else if (project.StartDate.HasValue && project.PlannedEndDate.HasValue)
+                                    {
+                                        var startDateTime = project.StartDate.Value.ToDateTime(TimeOnly.MinValue);
+                                        var endDateTime = project.PlannedEndDate.Value.ToDateTime(TimeOnly.MinValue);
+                                        var totalDays = (endDateTime - startDateTime).TotalDays;
+                                        var elapsedDays = (DateTime.Now - startDateTime).TotalDays;
+                                        if (totalDays > 0 && elapsedDays >= 0)
+                                        {
+                                            progressPercentage = Math.Min(100, Math.Max(0, (int)((elapsedDays / totalDays) * 100)));
+                                        }
+                                    }
+                                    
+                                    // Ensure progress percentage is within valid range
+                                    progressPercentage = Math.Min(100, Math.Max(0, progressPercentage));
+
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm bg-light-subtle rounded me-2">
+                                                    <span class="avatar-title">
+                                                        <iconify-icon icon="solar:notebook-bold-duotone" class="fs-18"></iconify-icon>
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0 fw-medium">@project.ProjectCode</h6>
+                                                    @if (!string.IsNullOrEmpty(project.ProjectManager))
+                                                    {
+                                                        <small class="text-muted">مدیر: @project.ProjectManager</small>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style="max-width: 200px;">
+                                                <span class="fw-medium">@project.ProjectTitle</span>
+                                                @if (!string.IsNullOrEmpty(project.ProjectDescription))
+                                                {
+                                                    <br><small class="text-muted">@(project.ProjectDescription.Length > 50 ? project.ProjectDescription.Substring(0, 50) + "..." : project.ProjectDescription)</small>
+                                                }
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(project.ProjectType))
+                                            {
+                                                <span class="badge bg-info-subtle text-info">@project.ProjectType</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(project.ProjectCategory))
+                                            {
+                                                <span class="badge bg-primary-subtle text-primary">@project.ProjectCategory</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @switch (project.ProjectStatus)
+                                            {
+                                                case "طرح‌ریزی":
+                                                    <span class="badge bg-secondary">@project.ProjectStatus</span>
+                                                    break;
+                                                case "تایید شده":
+                                                    <span class="badge bg-info">@project.ProjectStatus</span>
+                                                    break;
+                                                case "در حال اجرا":
+                                                    <span class="badge bg-warning">@project.ProjectStatus</span>
+                                                    break;
+                                                case "متوقف شده":
+                                                    <span class="badge bg-danger">@project.ProjectStatus</span>
+                                                    break;
+                                                case "تکمیل شده":
+                                                    <span class="badge bg-success">@project.ProjectStatus</span>
+                                                    break;
+                                                case "لغو شده":
+                                                    <span class="badge bg-dark">@project.ProjectStatus</span>
+                                                    break;
+                                                default:
+                                                    <span class="badge bg-light text-dark">@project.ProjectStatus</span>
+                                                    break;
+                                            }
+                                        </td>
+                                        <td>
+                                            @switch (project.PriorityLevel)
+                                            {
+                                                case 1:
+                                                    <span class="badge bg-danger">بسیار بالا</span>
+                                                    break;
+                                                case 2:
+                                                    <span class="badge bg-warning">بالا</span>
+                                                    break;
+                                                case 3:
+                                                    <span class="badge bg-primary">متوسط</span>
+                                                    break;
+                                                case 4:
+                                                    <span class="badge bg-info">پایین</span>
+                                                    break;
+                                                case 5:
+                                                    <span class="badge bg-secondary">بسیار پایین</span>
+                                                    break;
+                                                default:
+                                                    <span class="badge bg-light text-dark">@project.PriorityLevel</span>
+                                                    break;
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(project.PrincipalInvestigator))
+                                            {
+                                                <span class="text-muted">@project.PrincipalInvestigator</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="progress" style="width: 60px; height: 8px;">
+                                                    <div class="progress-bar" role="progressbar" style="width: @(progressPercentage)%"></div>
+                                                </div>
+                                                <small class="text-muted">@(progressPercentage)%</small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @if (project.TotalBudget.HasValue)
+                                            {
+                                                <div>
+                                                    <span class="fw-medium">@project.TotalBudget.Value.ToString("N0")</span>
+                                                    <small class="text-muted d-block">@project.Currency</small>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                @pc.GetYear(project.CreatedDate)/@pc.GetMonth(project.CreatedDate).ToString("00")/@pc.GetDayOfMonth(project.CreatedDate).ToString("00")
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-2 justify-content-center">
+                                                <a href="@Url.Action("EditResearchProject", new { id = project.ProjectId })" class="btn btn-soft-primary btn-sm" title="ویرایش">
+                                                    <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
+                                                </a>
+                                                <button type="button" class="btn btn-soft-info btn-sm"
+                                                        onclick="showProjectDetails('@project.ProjectId')"
+                                                        title="مشاهده جزئیات">
+                                                    <iconify-icon icon="solar:eye-broken" class="align-middle fs-18"></iconify-icon>
+                                                </button>
+                                                <button type="button" class="btn btn-soft-success btn-sm"
+                                                        onclick="showProjectTimeline('@project.ProjectId')"
+                                                        title="جدول زمانی">
+                                                    <iconify-icon icon="solar:calendar-bold" class="align-middle fs-18"></iconify-icon>
+                                                </button>
+                                                <button type="button" class="btn btn-soft-danger btn-sm"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#deleteModal"
+                                                        data-bs-id="@project.ProjectId"
+                                                        data-bs-code="@project.ProjectCode"
+                                                        title="حذف">
+                                                    <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="11" class="text-center py-4">
+                                        <i class="bx bx-folder text-muted fs-1"></i>
+                                        <p class="mt-2">هیچ پروژه‌ای یافت نشد.</p>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card-footer border-top">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-end mb-0">
+                        @if (Model.HasPreviousPage)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("ResearchProjectList", new { page = Model.PageIndex - 1, searchKey = ViewBag.CurrentSearch, status = ViewBag.CurrentStatus })">
+                                    <i class="bx bx-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                    <i class="bx bx-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("ResearchProjectList", new { page = i, searchKey = ViewBag.CurrentSearch, status = ViewBag.CurrentStatus })">@i</a>
+                            </li>
+                        }
+
+                        @if (Model.HasNextPage)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("ResearchProjectList", new { page = Model.PageIndex + 1, searchKey = ViewBag.CurrentSearch, status = ViewBag.CurrentStatus })">
+                                    <i class="bx bx-chevron-left"></i>
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                    <i class="bx bx-chevron-left"></i>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">حذف پروژه</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <div class="modal-body">
+                <p>آیا از حذف این پروژه تحقیقاتی مطمئن هستید؟</p>
+                <p id="projectCodeToDelete" class="fw-bold"></p>
+                <div class="alert alert-warning">
+                    <small><i class="bx bx-info-circle me-1"></i> این عمل قابل بازگشت نیست و تمام اطلاعات پروژه حذف خواهد شد.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <form id="deleteForm" method="post" asp-action="Delete">
+                    <input type="hidden" id="projectIdToDelete" name="id" />
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">حذف</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Project Details Modal -->
+<div class="modal fade" id="projectDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">جزئیات پروژه</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <div class="modal-body" id="projectDetailsContent">
+                <!-- Project details will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Project Timeline Modal -->
+<div class="modal fade" id="timelineModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">جدول زمانی پروژه</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <div class="modal-body" id="timelineContent">
+                <!-- Timeline will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var deleteModal = document.getElementById('deleteModal');
+            deleteModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                var projectId = button.getAttribute('data-bs-id');
+                var projectCode = button.getAttribute('data-bs-code');
+
+                document.getElementById('projectCodeToDelete').textContent = projectCode;
+                document.getElementById('projectIdToDelete').value = projectId;
+            });
+
+            // Auto-dismiss alerts after 5 seconds
+            setTimeout(function () {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function (alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+        });
+
+        function showProjectDetails(projectId) {
+            var modal = new bootstrap.Modal(document.getElementById('projectDetailsModal'));
+            document.getElementById('projectDetailsContent').innerHTML =
+                '<div class="text-center"><div class="spinner-border" role="status"></div><p class="mt-2">در حال بارگذاری...</p></div>';
+            modal.show();
+
+            // Simulate loading details
+            setTimeout(function() {
+                document.getElementById('projectDetailsContent').innerHTML =
+                    '<div class="row">' +
+                    '<div class="col-md-6"><h6>اهداف پروژه:</h6><p>اهداف و شرح کامل پروژه اینجا نمایش داده می‌شود.</p></div>' +
+                    '<div class="col-md-6"><h6>تیم پروژه:</h6><p>اطلاعات اعضای تیم و نقش‌های آن‌ها.</p></div>' +
+                    '</div>' +
+                    '<div class="row">' +
+                    '<div class="col-12"><h6>پیشرفت پروژه:</h6><p>وضعیت فعلی و مراحل تکمیل شده پروژه.</p></div>' +
+                    '</div>';
+            }, 1000);
+        }
+
+        function showProjectTimeline(projectId) {
+            var modal = new bootstrap.Modal(document.getElementById('timelineModal'));
+            document.getElementById('timelineContent').innerHTML =
+                '<div class="text-center"><div class="spinner-border" role="status"></div><p class="mt-2">در حال بارگذاری جدول زمانی...</p></div>';
+            modal.show();
+
+            // Simulate loading timeline
+            setTimeout(function() {
+                document.getElementById('timelineContent').innerHTML =
+                    '<div class="timeline">' +
+                    '<div class="timeline-item"><h6>شروع پروژه</h6><p>تاریخ شروع و اولین مراحل</p></div>' +
+                    '<div class="timeline-item"><h6>مرحله میانی</h6><p>پیشرفت و دستاوردهای حاصله</p></div>' +
+                    '<div class="timeline-item"><h6>تکمیل پروژه</h6><p>تاریخ برنامه‌ریزی شده و اهداف نهایی</p></div>' +
+                    '</div>';
+            }, 1000);
+        }
+    </script>
+}

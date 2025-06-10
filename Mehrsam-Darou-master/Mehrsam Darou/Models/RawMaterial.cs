@@ -25,6 +25,8 @@ public partial class RawMaterial
 
     public virtual MaterialCategory Category { get; set; } = null!;
 
+    public virtual ICollection<FormulaIngredient> FormulaIngredients { get; set; } = new List<FormulaIngredient>();
+
     public virtual ICollection<MaterialBatch> MaterialBatches { get; set; } = new List<MaterialBatch>();
 
     public virtual ICollection<MedicineBom> MedicineBoms { get; set; } = new List<MedicineBom>();

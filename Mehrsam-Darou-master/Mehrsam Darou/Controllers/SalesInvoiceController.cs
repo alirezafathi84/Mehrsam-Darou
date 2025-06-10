@@ -76,6 +76,10 @@ namespace Mehrsam_Darou.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddSalesInvoice(SalesInvoice invoice)
         {
+            // Remove navigation property keys from ModelState
+            ModelState.Remove("Customer");
+            ModelState.Remove("SalesOrder");
+
             if (ModelState.IsValid)
             {
                 try
@@ -139,6 +143,10 @@ namespace Mehrsam_Darou.Controllers
                 return NotFound();
             }
 
+            // Remove navigation property keys from ModelState
+            ModelState.Remove("Customer");
+            ModelState.Remove("SalesOrder");
+
             if (ModelState.IsValid)
             {
                 try
@@ -167,7 +175,20 @@ namespace Mehrsam_Darou.Controllers
                         invoice.TotalAmount = invoice.Subtotal + (invoice.TaxAmount ?? 0) - (invoice.DiscountAmount ?? 0);
                     }
 
-                    _context.Entry(existingInvoice).CurrentValues.SetValues(invoice);
+                    // Update only scalar properties, avoiding navigation properties
+                    existingInvoice.InvoiceNumber = invoice.InvoiceNumber;
+                    existingInvoice.CustomerId = invoice.CustomerId;
+                    existingInvoice.SalesOrderId = invoice.SalesOrderId;
+                    existingInvoice.InvoiceDate = invoice.InvoiceDate;
+                    existingInvoice.DueDate = invoice.DueDate;
+                    existingInvoice.Subtotal = invoice.Subtotal;
+                    existingInvoice.TaxAmount = invoice.TaxAmount;
+                    existingInvoice.DiscountAmount = invoice.DiscountAmount;
+                    existingInvoice.TotalAmount = invoice.TotalAmount;
+                    existingInvoice.Status = invoice.Status;
+                    existingInvoice.Currency = invoice.Currency;
+                    existingInvoice.Notes = invoice.Notes;
+
                     await _context.SaveChangesAsync();
 
                     TempData["SuccessMessage"] = "فاکتور فروش با موفقیت به‌روزرسانی شد";
@@ -183,6 +204,10 @@ namespace Mehrsam_Darou.Controllers
                     {
                         throw;
                     }
+                }
+                catch (Exception ex)
+                {
+                    TempData["ErrorMessage"] = "خطا در به‌روزرسانی فاکتور: " + ex.Message;
                 }
             }
 

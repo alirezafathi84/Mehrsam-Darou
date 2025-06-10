@@ -1,0 +1,404 @@
+﻿@model Mehrsam_Darou.Models.ResearchProject
+
+@{
+    ViewData["Title"] = "ویرایش پروژه تحقیقاتی";
+}
+
+<div class="row">
+    <div class="col-12">
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="mb-1">ویرایش پروژه تحقیقاتی</h3>
+                <p class="text-muted mb-0">کد پروژه: @Model.ProjectCode</p>
+            </div>
+            <a asp-action="ResearchProjectList" class="btn btn-secondary">
+                <i class="bx bx-arrow-back me-1"></i> بازگشت به لیست
+            </a>
+        </div>
+
+        <!-- Alerts -->
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bx bx-check-circle me-2"></i>
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bx bx-error-circle me-2"></i>
+                @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <!-- Project Status Overview -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="status-card">
+                    <h4 class="mb-1">@(Model.ProjectStatus ?? "نامشخص")</h4>
+                    <small>وضعیت پروژه</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="info-card">
+                    <h5 class="mb-1">@(Model.CompletionPercentage?.ToString("0") ?? "0")%</h5>
+                    <small class="text-muted">میزان پیشرفت</small>
+                    <div class="progress mt-2">
+                        <div class="progress-bar bg-success" style="width: @(Model.CompletionPercentage ?? 0)%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="info-card">
+                    <h5 class="mb-1">@((Model.TotalBudget ?? 0).ToString("N0"))</h5>
+                    <small class="text-muted">بودجه کل (@Model.Currency)</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="info-card">
+                    <h5 class="mb-1">@((Model.SpentBudget ?? 0).ToString("N0"))</h5>
+                    <small class="text-muted">بودجه مصرف شده</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Form -->
+        <form asp-action="EditResearchProject" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <!-- Hidden Fields -->
+            <input type="hidden" asp-for="ProjectId" />
+            <input type="hidden" asp-for="CreatedDate" />
+
+            <!-- Basic Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bx bx-info-circle me-2"></i>
+                        اطلاعات پایه
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="ProjectCode" class="form-label">کد پروژه</label>
+                                <input asp-for="ProjectCode" class="form-control" readonly />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="ProjectTitle" class="form-label">عنوان پروژه <span class="text-danger">*</span></label>
+                                <input asp-for="ProjectTitle" class="form-control" />
+                                <span asp-validation-for="ProjectTitle" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="ProjectType" class="form-label">نوع پروژه</label>
+                                <select asp-for="ProjectType" class="form-select">
+                                    <option value="">انتخاب کنید</option>
+                                    <option value="تحقیق و توسعه">تحقیق و توسعه</option>
+                                    <option value="تحقیق کاربردی">تحقیق کاربردی</option>
+                                    <option value="تحقیق بنیادی">تحقیق بنیادی</option>
+                                    <option value="توسعه فرآیند">توسعه فرآیند</option>
+                                    <option value="توسعه محصول">توسعه محصول</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="ProjectCategory" class="form-label">دسته‌بندی</label>
+                                <select asp-for="ProjectCategory" class="form-select">
+                                    <option value="">انتخاب کنید</option>
+                                    <option value="داروسازی">داروسازی</option>
+                                    <option value="بیوتکنولوژی">بیوتکنولوژی</option>
+                                    <option value="شیمی دارویی">شیمی دارویی</option>
+                                    <option value="فرمولاسیون">فرمولاسیون</option>
+                                    <option value="کیفیت">کیفیت</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="PriorityLevel" class="form-label">سطح اولویت</label>
+                                <select asp-for="PriorityLevel" class="form-select">
+                                    <option value="1">1 - بسیار بالا</option>
+                                    <option value="2">2 - بالا</option>
+                                    <option value="3">3 - متوسط</option>
+                                    <option value="4">4 - پایین</option>
+                                    <option value="5">5 - بسیار پایین</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="ProjectStatus" class="form-label">وضعیت پروژه</label>
+                                <select asp-for="ProjectStatus" class="form-select">
+                                    <option value="طرح‌ریزی">طرح‌ریزی</option>
+                                    <option value="تایید شده">تایید شده</option>
+                                    <option value="در حال اجرا">در حال اجرا</option>
+                                    <option value="متوقف شده">متوقف شده</option>
+                                    <option value="تکمیل شده">تکمیل شده</option>
+                                    <option value="لغو شده">لغو شده</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="CompletionPercentage" class="form-label">درصد پیشرفت</label>
+                                <input asp-for="CompletionPercentage" type="number" min="0" max="100" class="form-control" />
+                                <span asp-validation-for="CompletionPercentage" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ProjectDescription" class="form-label">شرح پروژه</label>
+                        <textarea asp-for="ProjectDescription" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bx bx-group me-2"></i>
+                        اطلاعات تیم
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="PrincipalInvestigator" class="form-label">محقق اصلی</label>
+                                <input asp-for="PrincipalInvestigator" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="ProjectManager" class="form-label">مدیر پروژه</label>
+                                <input asp-for="ProjectManager" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="TeamMembers" class="form-label">اعضای تیم</label>
+                                <textarea asp-for="TeamMembers" class="form-control" rows="3" placeholder="نام اعضای تیم را وارد کنید"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Collaborators" class="form-label">همکاران</label>
+                                <textarea asp-for="Collaborators" class="form-control" rows="3" placeholder="همکاران خارجی یا سازمان‌ها"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bx bx-calendar me-2"></i>
+                        زمان‌بندی پروژه
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="StartDate" class="form-label">تاریخ شروع</label>
+                                <input asp-for="StartDate" type="date" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="PlannedEndDate" class="form-label">تاریخ پایان برنامه‌ریزی شده</label>
+                                <input asp-for="PlannedEndDate" type="date" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="ActualEndDate" class="form-label">تاریخ پایان واقعی</label>
+                                <input asp-for="ActualEndDate" type="date" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="CurrentPhase" class="form-label">مرحله فعلی</label>
+                        <input asp-for="CurrentPhase" class="form-control" placeholder="مرحله فعلی پروژه را وارد کنید" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Budget -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bx bx-dollar me-2"></i>
+                        اطلاعات مالی
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="TotalBudget" class="form-label">بودجه کل</label>
+                                <input asp-for="TotalBudget" type="number" step="0.01" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="SpentBudget" class="form-label">بودجه مصرف شده</label>
+                                <input asp-for="SpentBudget" type="number" step="0.01" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="Currency" class="form-label">واحد پول</label>
+                                <select asp-for="Currency" class="form-select">
+                                    <option value="IRR">ریال ایران</option>
+                                    <option value="USD">دلار آمریکا</option>
+                                    <option value="EUR">یورو</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ResourcesRequired" class="form-label">منابع مورد نیاز</label>
+                        <textarea asp-for="ResourcesRequired" class="form-control" rows="3" placeholder="تجهیزات، مواد و امکانات مورد نیاز"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Research Details -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bx bx-brain me-2"></i>
+                        جزئیات تحقیق
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Objectives" class="form-label">اهداف</label>
+                                <textarea asp-for="Objectives" class="form-control" rows="4"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="ExpectedOutcomes" class="form-label">نتایج مورد انتظار</label>
+                                <textarea asp-for="ExpectedOutcomes" class="form-control" rows="4"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Methodology" class="form-label">روش‌شناسی</label>
+                        <textarea asp-for="Methodology" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="KeyFindings" class="form-label">یافته‌های کلیدی</label>
+                        <textarea asp-for="KeyFindings" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bx bx-cog me-2"></i>
+                        اطلاعات تکمیلی
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Tags" class="form-label">برچسب‌ها</label>
+                                <input asp-for="Tags" class="form-control" placeholder="برچسب‌ها را با کاما جدا کنید" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="IsActive" class="form-label">وضعیت</label>
+                                <select asp-for="IsActive" class="form-select">
+                                    <option value="true">فعال</option>
+                                    <option value="false">غیرفعال</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Notes" class="form-label">یادداشت‌ها</label>
+                        <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-end gap-2">
+                <a asp-action="ResearchProjectList" class="btn btn-secondary btn-action">
+                    <i class="bx bx-x me-1"></i> انصراف
+                </a>
+                <button type="submit" class="btn btn-primary btn-action">
+                    <i class="bx bx-save me-1"></i> ذخیره تغییرات
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // Auto-dismiss alerts
+        setTimeout(function() {
+            var alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                var bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+
+        // Update progress bar when completion percentage changes
+        document.addEventListener('DOMContentLoaded', function() {
+            const completionInput = document.querySelector('[name="CompletionPercentage"]');
+            const progressBar = document.querySelector('.progress-bar');
+
+            if (completionInput && progressBar) {
+                completionInput.addEventListener('input', function() {
+                    const value = this.value || 0;
+                    progressBar.style.width = value + '%';
+                });
+            }
+        });
+    </script>
+}

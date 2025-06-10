@@ -1,0 +1,609 @@
+﻿@model Mehrsam_Darou.Models.QaAudit
+
+@{
+    ViewData["Title"] = "ویرایش ممیزی";
+}
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Success and Error Alerts -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success px-2" role="alert">
+                        <p class="mb-0">با موفقیت انجام شد</p>
+                        <p class="mb-0">@TempData["SuccessMessage"]</p>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger px-2" role="alert">
+                        <p class="mb-0">خطا</p>
+                        <p class="mb-0">@TempData["ErrorMessage"]</p>
+                    </div>
+                }
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4>ویرایش ممیزی</h4>
+                    <a href="@Url.Action("QAAuditList")" class="btn btn-secondary">
+                        <i class="bx bx-arrow-back me-1"></i> بازگشت به لیست
+                    </a>
+                </div>
+
+                <form asp-action="EditQAAudit">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="AuditId" />
+
+                    <!-- Basic Information -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">اطلاعات پایه</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="AuditCode" class="form-label">کد ممیزی <span class="text-danger">*</span></label>
+                                        <input asp-for="AuditCode" class="form-control" readonly />
+                                        <span asp-validation-for="AuditCode" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="AuditTitle" class="form-label">عنوان ممیزی <span class="text-danger">*</span></label>
+                                        <input asp-for="AuditTitle" class="form-control" />
+                                        <span asp-validation-for="AuditTitle" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="AuditType" class="form-label">نوع ممیزی</label>
+                                        <select asp-for="AuditType" class="form-select">
+                                            <option value="">-- انتخاب نوع ممیزی --</option>
+                                            <option value="داخلی">داخلی</option>
+                                            <option value="خارجی">خارجی</option>
+                                            <option value="تامین‌کننده">تامین‌کننده</option>
+                                            <option value="مشتری">مشتری</option>
+                                            <option value="نظارتی">نظارتی</option>
+                                            <option value="خودارزیابی">خودارزیابی</option>
+                                            <option value="سایر">سایر</option>
+                                        </select>
+                                        <span asp-validation-for="AuditType" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="AuditCategory" class="form-label">دسته‌بندی ممیزی</label>
+                                        <select asp-for="AuditCategory" class="form-select">
+                                            <option value="">-- انتخاب دسته‌بندی --</option>
+                                            <option value="سیستم کیفیت">سیستم کیفیت</option>
+                                            <option value="تولید">تولید</option>
+                                            <option value="کنترل کیفیت">کنترل کیفیت</option>
+                                            <option value="تضمین کیفیت">تضمین کیفیت</option>
+                                            <option value="انبارداری">انبارداری</option>
+                                            <option value="توزیع">توزیع</option>
+                                            <option value="R&D">R&D</option>
+                                            <option value="مهندسی">مهندسی</option>
+                                            <option value="HSE">HSE</option>
+                                            <option value="سایر">سایر</option>
+                                        </select>
+                                        <span asp-validation-for="AuditCategory" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label asp-for="AuditScope" class="form-label">دامنه ممیزی</label>
+                                        <textarea asp-for="AuditScope" class="form-control" rows="3"></textarea>
+                                        <span asp-validation-for="AuditScope" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Department and Process Information -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">اطلاعات واحد و فرآیند</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="AuditedDepartment" class="form-label">واحد مورد ممیزی</label>
+                                        <input asp-for="AuditedDepartment" class="form-control" />
+                                        <span asp-validation-for="AuditedDepartment" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="AuditedProcess" class="form-label">فرآیند مورد ممیزی</label>
+                                        <input asp-for="AuditedProcess" class="form-control" />
+                                        <span asp-validation-for="AuditedProcess" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="RelatedProductId" class="form-label">محصول مرتبط</label>
+                                        <select asp-for="RelatedProductId" class="form-select">
+                                            <option value="">-- انتخاب محصول --</option>
+                                            @foreach (var medicine in ViewBag.Medicines)
+                                            {
+                                                <option value="@medicine.MedicineId">@medicine.BrandName</option>
+                                            }
+                                        </select>
+                                        <span asp-validation-for="RelatedProductId" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="RelatedBatchNumber" class="form-label">شماره بچ مرتبط</label>
+                                        <input asp-for="RelatedBatchNumber" class="form-control" />
+                                        <span asp-validation-for="RelatedBatchNumber" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="AuditStandard" class="form-label">استاندارد ممیزی</label>
+                                        <input asp-for="AuditStandard" class="form-control" />
+                                        <span asp-validation-for="AuditStandard" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="ExternalAuditorCompany" class="form-label">شرکت ممیز خارجی</label>
+                                        <input asp-for="ExternalAuditorCompany" class="form-control" />
+                                        <span asp-validation-for="ExternalAuditorCompany" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Planning Information -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">اطلاعات برنامه‌ریزی</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="PlannedStartDate" class="form-label">تاریخ شروع برنامه‌ریزی شده</label>
+                                        <input asp-for="PlannedStartDate" type="date" class="form-control" />
+                                        <span asp-validation-for="PlannedStartDate" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="PlannedEndDate" class="form-label">تاریخ پایان برنامه‌ریزی شده</label>
+                                        <input asp-for="PlannedEndDate" type="date" class="form-control" />
+                                        <span asp-validation-for="PlannedEndDate" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="ActualStartDate" class="form-label">تاریخ شروع واقعی</label>
+                                        <input asp-for="ActualStartDate" type="date" class="form-control" />
+                                        <span asp-validation-for="ActualStartDate" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="ActualEndDate" class="form-label">تاریخ پایان واقعی</label>
+                                        <input asp-for="ActualEndDate" type="date" class="form-control" />
+                                        <span asp-validation-for="ActualEndDate" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="AuditDurationHours" class="form-label">مدت ممیزی (ساعت)</label>
+                                        <input asp-for="AuditDurationHours" type="number" step="0.5" class="form-control" />
+                                        <span asp-validation-for="AuditDurationHours" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="AuditPriority" class="form-label">اولویت</label>
+                                        <select asp-for="AuditPriority" class="form-select">
+                                            <option value="1">خیلی بالا</option>
+                                            <option value="2">بالا</option>
+                                            <option value="3">متوسط</option>
+                                            <option value="4">پایین</option>
+                                            <option value="5">خیلی پایین</option>
+                                        </select>
+                                        <span asp-validation-for="AuditPriority" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="AuditStatus" class="form-label">وضعیت ممیزی</label>
+                                        <select asp-for="AuditStatus" class="form-select">
+                                            <option value="برنامه‌ریزی شده">برنامه‌ریزی شده</option>
+                                            <option value="در حال اجرا">در حال اجرا</option>
+                                            <option value="تکمیل شده">تکمیل شده</option>
+                                            <option value="گزارش در حال تهیه">گزارش در حال تهیه</option>
+                                            <option value="گزارش نهایی">گزارش نهایی</option>
+                                            <option value="بسته شده">بسته شده</option>
+                                            <option value="لغو شده">لغو شده</option>
+                                        </select>
+                                        <span asp-validation-for="AuditStatus" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="OverallRating" class="form-label">امتیاز کلی</label>
+                                        <select asp-for="OverallRating" class="form-select">
+                                            <option value="">-- انتخاب امتیاز --</option>
+                                            <option value="عالی">عالی</option>
+                                            <option value="خوب">خوب</option>
+                                            <option value="قابل قبول">قابل قبول</option>
+                                            <option value="نیاز به بهبود">نیاز به بهبود</option>
+                                            <option value="غیرقابل قبول">غیرقابل قبول</option>
+                                        </select>
+                                        <span asp-validation-for="OverallRating" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Team Information -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">اطلاعات تیم ممیزی</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="LeadAuditor" class="form-label">ممیز ارشد</label>
+                                        <input asp-for="LeadAuditor" class="form-control" />
+                                        <span asp-validation-for="LeadAuditor" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="AuditTeamMembers" class="form-label">اعضای تیم ممیزی</label>
+                                        <input asp-for="AuditTeamMembers" class="form-control" />
+                                        <span asp-validation-for="AuditTeamMembers" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="AuditeeDepartmentHead" class="form-label">مدیر واحد مورد ممیزی</label>
+                                        <input asp-for="AuditeeDepartmentHead" class="form-control" />
+                                        <span asp-validation-for="AuditeeDepartmentHead" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="AuditeeContactPerson" class="form-label">شخص رابط واحد مورد ممیزی</label>
+                                        <input asp-for="AuditeeContactPerson" class="form-control" />
+                                        <span asp-validation-for="AuditeeContactPerson" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Findings and Results -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">یافته‌ها و نتایج</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label asp-for="KeyFindings" class="form-label">یافته‌های کلیدی</label>
+                                        <textarea asp-for="KeyFindings" class="form-control" rows="4"></textarea>
+                                        <span asp-validation-for="KeyFindings" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label asp-for="ObservationsCount" class="form-label">تعداد مشاهدات</label>
+                                        <input asp-for="ObservationsCount" type="number" class="form-control" />
+                                        <span asp-validation-for="ObservationsCount" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label asp-for="MinorNonconformities" class="form-label">عدم انطباق‌های جزئی</label>
+                                        <input asp-for="MinorNonconformities" type="number" class="form-control" />
+                                        <span asp-validation-for="MinorNonconformities" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label asp-for="MajorNonconformities" class="form-label">عدم انطباق‌های اصلی</label>
+                                        <input asp-for="MajorNonconformities" type="number" class="form-control" />
+                                        <span asp-validation-for="MajorNonconformities" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label asp-for="CriticalNonconformities" class="form-label">عدم انطباق‌های بحرانی</label>
+                                        <input asp-for="CriticalNonconformities" type="number" class="form-control" />
+                                        <span asp-validation-for="CriticalNonconformities" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="OpportunitiesForImprovement" class="form-label">فرصت‌های بهبود</label>
+                                        <input asp-for="OpportunitiesForImprovement" type="number" class="form-control" />
+                                        <span asp-validation-for="OpportunitiesForImprovement" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="CompliancePercentage" class="form-label">درصد انطباق</label>
+                                        <input asp-for="CompliancePercentage" type="number" step="0.01" max="100" class="form-control" />
+                                        <span asp-validation-for="CompliancePercentage" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Follow-up and Actions -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">پیگیری و اقدامات</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input name="CorrectiveActionsRequired" type="checkbox" class="form-check-input" value="true" @(Model.CorrectiveActionsRequired == true ? "checked" : "") />
+                                            <input name="CorrectiveActionsRequired" type="hidden" value="false" />
+                                            <label class="form-check-label">
+                                                نیاز به اقدام اصلاحی
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input name="PreventiveActionsRequired" type="checkbox" class="form-check-input" value="true" @(Model.PreventiveActionsRequired == true ? "checked" : "") />
+                                            <input name="PreventiveActionsRequired" type="hidden" value="false" />
+                                            <label class="form-check-label">
+                                                نیاز به اقدام پیشگیرانه
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input name="FollowUpRequired" type="checkbox" class="form-check-input" value="true" @(Model.FollowUpRequired == true ? "checked" : "") />
+                                            <input name="FollowUpRequired" type="hidden" value="false" />
+                                            <label class="form-check-label">
+                                                نیاز به پیگیری
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="FollowUpDate" class="form-label">تاریخ پیگیری</label>
+                                        <input asp-for="FollowUpDate" type="date" class="form-control" />
+                                        <span asp-validation-for="FollowUpDate" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="ClosureDate" class="form-label">تاریخ بسته شدن</label>
+                                        <input asp-for="ClosureDate" type="date" class="form-control" />
+                                        <span asp-validation-for="ClosureDate" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input name="ManagementReviewRequired" type="checkbox" class="form-check-input" value="true" @(Model.ManagementReviewRequired == true ? "checked" : "") />
+                                            <input name="ManagementReviewRequired" type="hidden" value="false" />
+                                            <label class="form-check-label">
+                                                نیاز به بازنگری مدیریت
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="ManagementReviewDate" class="form-label">تاریخ بازنگری مدیریت</label>
+                                        <input asp-for="ManagementReviewDate" type="date" class="form-control" />
+                                        <span asp-validation-for="ManagementReviewDate" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Documentation and Cost -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">مستندات و هزینه</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="AuditReportPath" class="form-label">مسیر گزارش ممیزی</label>
+                                        <input asp-for="AuditReportPath" class="form-control" />
+                                        <span asp-validation-for="AuditReportPath" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="EvidenceDocumentsPath" class="form-label">مسیر مستندات شواهد</label>
+                                        <input asp-for="EvidenceDocumentsPath" class="form-control" />
+                                        <span asp-validation-for="EvidenceDocumentsPath" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="Cost" class="form-label">هزینه</label>
+                                        <input asp-for="Cost" type="number" step="0.01" class="form-control" />
+                                        <span asp-validation-for="Cost" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="Currency" class="form-label">واحد پول</label>
+                                        <select asp-for="Currency" class="form-select">
+                                            <option value="IRR">ریال</option>
+                                            <option value="USD">دلار آمریکا</option>
+                                            <option value="EUR">یورو</option>
+                                        </select>
+                                        <span asp-validation-for="Currency" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="RiskLevel" class="form-label">سطح ریسک</label>
+                                        <select asp-for="RiskLevel" class="form-select">
+                                            <option value="">-- انتخاب سطح ریسک --</option>
+                                            <option value="بحرانی">بحرانی</option>
+                                            <option value="بالا">بالا</option>
+                                            <option value="متوسط">متوسط</option>
+                                            <option value="پایین">پایین</option>
+                                            <option value="ناچیز">ناچیز</option>
+                                        </select>
+                                        <span asp-validation-for="RiskLevel" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="RegulatoryImpact" class="form-label">تأثیر نظارتی</label>
+                                        <select asp-for="RegulatoryImpact" class="form-select">
+                                            <option value="">-- انتخاب تأثیر نظارتی --</option>
+                                            <option value="بالا">بالا</option>
+                                            <option value="متوسط">متوسط</option>
+                                            <option value="پایین">پایین</option>
+                                            <option value="ندارد">ندارد</option>
+                                        </select>
+                                        <span asp-validation-for="RegulatoryImpact" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lessons and Recommendations -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">درس‌ها و توصیه‌ها</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label asp-for="LessonsLearned" class="form-label">درس‌های آموخته شده</label>
+                                        <textarea asp-for="LessonsLearned" class="form-control" rows="3"></textarea>
+                                        <span asp-validation-for="LessonsLearned" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label asp-for="Recommendations" class="form-label">توصیه‌ها</label>
+                                        <textarea asp-for="Recommendations" class="form-control" rows="3"></textarea>
+                                        <span asp-validation-for="Recommendations" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label asp-for="Notes" class="form-label">یادداشت‌ها</label>
+                                        <textarea asp-for="Notes" class="form-control" rows="4"></textarea>
+                                        <span asp-validation-for="Notes" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="IsActive" class="form-label">وضعیت</label>
+                                        <select asp-for="IsActive" class="form-select">
+                                            <option value="true">فعال</option>
+                                            <option value="false">غیرفعال</option>
+                                        </select>
+                                        <span asp-validation-for="IsActive" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bx bx-save me-1"></i> ذخیره تغییرات
+                        </button>
+                        <a href="@Url.Action("QAAuditList")" class="btn btn-secondary ms-2">
+                            <i class="bx bx-x me-1"></i> انصراف
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

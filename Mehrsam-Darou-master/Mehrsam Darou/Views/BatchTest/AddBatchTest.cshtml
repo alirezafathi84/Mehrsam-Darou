@@ -1,0 +1,273 @@
+﻿@model Mehrsam_Darou.Models.BatchTest
+
+@{
+    ViewData["Title"] = "افزودن آزمون جدید";
+}
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Success and Error Alerts -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success px-2" role="alert">
+                        <p class="mb-0">با موفقیت انجام شد</p>
+                        <p class="mb-0">@TempData["SuccessMessage"]</p>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger px-2" role="alert">
+                        <p class="mb-0">خطا</p>
+                        <p class="mb-0">@TempData["ErrorMessage"]</p>
+                    </div>
+                }
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4>افزودن آزمون جدید</h4>
+                    <a href="@Url.Action("BatchTestList")" class="btn btn-secondary">
+                        <i class="bx bx-arrow-back me-1"></i> بازگشت به لیست
+                    </a>
+                </div>
+
+                <form asp-action="AddBatchTest">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <!-- Hidden fields to avoid validation issues -->
+                    <input type="hidden" asp-for="BatchTestId" />
+                    <input type="hidden" asp-for="CreatedDate" />
+                    <input type="hidden" asp-for="IsActive" />
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="TestNumber" class="form-label">شماره آزمون <span class="text-danger">*</span></label>
+                                <input asp-for="TestNumber" class="form-control" />
+                                <span asp-validation-for="TestNumber" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="BatchNumber" class="form-label">شماره بچ <span class="text-danger">*</span></label>
+                                <input asp-for="BatchNumber" class="form-control" />
+                                <span asp-validation-for="BatchNumber" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="ProductId" class="form-label">محصول <span class="text-danger">*</span></label>
+                                <select asp-for="ProductId" class="form-select">
+                                    <option value="">-- انتخاب محصول --</option>
+                                    @foreach (var product in ViewBag.Products)
+                                    {
+                                        <option value="@product.MedicineId">@product.BrandName</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="ProductId" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="TestId" class="form-label">نوع آزمون <span class="text-danger">*</span></label>
+                                <select asp-for="TestId" class="form-select">
+                                    <option value="">-- انتخاب آزمون --</option>
+                                    @foreach (var test in ViewBag.Tests)
+                                    {
+                                        <option value="@test.TestId">@test.TestName</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="TestId" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="TestStage" class="form-label">مرحله آزمون</label>
+                                <select asp-for="TestStage" class="form-select">
+                                    <option value="">-- انتخاب مرحله --</option>
+                                    <option value="مواد اولیه">مواد اولیه</option>
+                                    <option value="تولید">تولید</option>
+                                    <option value="ثبات">ثبات</option>
+                                    <option value="آزادسازی">آزادسازی</option>
+                                    <option value="کنترل خط">کنترل خط</option>
+                                    <option value="تایید نهایی">تایید نهایی</option>
+                                </select>
+                                <span asp-validation-for="TestStage" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="SampleId" class="form-label">شماره نمونه</label>
+                                <input asp-for="SampleId" class="form-control" />
+                                <span asp-validation-for="SampleId" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="SampleSource" class="form-label">منبع نمونه</label>
+                                <input asp-for="SampleSource" class="form-control" />
+                                <span asp-validation-for="SampleSource" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="SampleLocation" class="form-label">محل نمونه‌گیری</label>
+                                <input asp-for="SampleLocation" class="form-control" />
+                                <span asp-validation-for="SampleLocation" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="SampleQuantity" class="form-label">مقدار نمونه</label>
+                                <input asp-for="SampleQuantity" type="number" step="0.001" class="form-control" />
+                                <span asp-validation-for="SampleQuantity" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="SampleUnit" class="form-label">واحد نمونه</label>
+                                <input asp-for="SampleUnit" class="form-control" />
+                                <span asp-validation-for="SampleUnit" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="SamplingDate" class="form-label">تاریخ نمونه‌گیری</label>
+                                <input asp-for="SamplingDate" type="datetime-local" class="form-control" />
+                                <span asp-validation-for="SamplingDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="SamplingPerson" class="form-label">نمونه‌گیرنده</label>
+                                <input asp-for="SamplingPerson" class="form-control" />
+                                <span asp-validation-for="SamplingPerson" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="SampleCondition" class="form-label">شرایط نمونه</label>
+                                <input asp-for="SampleCondition" class="form-control" />
+                                <span asp-validation-for="SampleCondition" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="TestStartDate" class="form-label">تاریخ شروع آزمون</label>
+                                <input asp-for="TestStartDate" type="datetime-local" class="form-control" />
+                                <span asp-validation-for="TestStartDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="TestCompletionDate" class="form-label">تاریخ تکمیل آزمون</label>
+                                <input asp-for="TestCompletionDate" type="datetime-local" class="form-control" />
+                                <span asp-validation-for="TestCompletionDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="TestStatus" class="form-label">وضعیت آزمون</label>
+                                <select asp-for="TestStatus" class="form-select">
+                                    <option value="برنامه‌ریزی شده">برنامه‌ریزی شده</option>
+                                    <option value="در حال انجام">در حال انجام</option>
+                                    <option value="تکمیل شده">تکمیل شده</option>
+                                    <option value="بررسی">بررسی</option>
+                                    <option value="تایید شده">تایید شده</option>
+                                    <option value="لغو شده">لغو شده</option>
+                                </select>
+                                <span asp-validation-for="TestStatus" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="TestPriority" class="form-label">اولویت آزمون</label>
+                                <select asp-for="TestPriority" class="form-select">
+                                    <option value="1">1 - بسیار بالا</option>
+                                    <option value="2">2 - بالا</option>
+                                    <option value="3">3 - متوسط</option>
+                                    <option value="4">4 - پایین</option>
+                                    <option value="5">5 - بسیار پایین</option>
+                                </select>
+                                <span asp-validation-for="TestPriority" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="TestedBy" class="form-label">آزمون‌کننده</label>
+                                <input asp-for="TestedBy" class="form-control" />
+                                <span asp-validation-for="TestedBy" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <!-- Empty for layout -->
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="IsActive" class="form-label">وضعیت</label>
+                                <select asp-for="IsActive" class="form-select">
+                                    <option value="true">فعال</option>
+                                    <option value="false">غیرفعال</option>
+                                </select>
+                                <span asp-validation-for="IsActive" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <!-- Empty column for layout -->
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label asp-for="Comments" class="form-label">توضیحات</label>
+                                <textarea asp-for="Comments" class="form-control" rows="3"></textarea>
+                                <span asp-validation-for="Comments" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bx bx-save me-1"></i> ذخیره
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

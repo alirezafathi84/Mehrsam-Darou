@@ -27,13 +27,49 @@ public partial class User
 
     public virtual ICollection<AttendanceLog> AttendanceLogs { get; set; } = new List<AttendanceLog>();
 
+    public virtual ICollection<BatchTest> BatchTestCreatedByNavigations { get; set; } = new List<BatchTest>();
+
+    public virtual ICollection<BatchTest> BatchTestLastModifiedByNavigations { get; set; } = new List<BatchTest>();
+
+    public virtual ICollection<Certification> CertificationCreatedByNavigations { get; set; } = new List<Certification>();
+
+    public virtual ICollection<Certification> CertificationLastModifiedByNavigations { get; set; } = new List<Certification>();
+
     public virtual ICollection<ChatMessage> ChatMessageReceivers { get; set; } = new List<ChatMessage>();
 
     public virtual ICollection<ChatMessage> ChatMessageSenders { get; set; } = new List<ChatMessage>();
 
     public virtual ICollection<DailyAttendance> DailyAttendances { get; set; } = new List<DailyAttendance>();
 
+    public virtual ICollection<DevelopmentProject> DevelopmentProjectCreatedByNavigations { get; set; } = new List<DevelopmentProject>();
+
+    public virtual ICollection<DevelopmentProject> DevelopmentProjectLastModifiedByNavigations { get; set; } = new List<DevelopmentProject>();
+
+    public virtual ICollection<Formula> FormulaCreatedByNavigations { get; set; } = new List<Formula>();
+
+    public virtual ICollection<Formula> FormulaLastModifiedByNavigations { get; set; } = new List<Formula>();
+
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+
+    public virtual ICollection<QaAudit> QaAuditCreatedByNavigations { get; set; } = new List<QaAudit>();
+
+    public virtual ICollection<QaAudit> QaAuditLastModifiedByNavigations { get; set; } = new List<QaAudit>();
+
+    public virtual ICollection<QaStandard> QaStandardCreatedByNavigations { get; set; } = new List<QaStandard>();
+
+    public virtual ICollection<QaStandard> QaStandardLastModifiedByNavigations { get; set; } = new List<QaStandard>();
+
+    public virtual ICollection<QcReport> QcReportCreatedByNavigations { get; set; } = new List<QcReport>();
+
+    public virtual ICollection<QcReport> QcReportLastModifiedByNavigations { get; set; } = new List<QcReport>();
+
+    public virtual ICollection<QcTest> QcTestCreatedByNavigations { get; set; } = new List<QcTest>();
+
+    public virtual ICollection<QcTest> QcTestLastModifiedByNavigations { get; set; } = new List<QcTest>();
+
+    public virtual ICollection<ResearchProject> ResearchProjectCreatedByNavigations { get; set; } = new List<ResearchProject>();
+
+    public virtual ICollection<ResearchProject> ResearchProjectLastModifiedByNavigations { get; set; } = new List<ResearchProject>();
 
     public virtual ICollection<SalaryInfo> SalaryInfos { get; set; } = new List<SalaryInfo>();
 

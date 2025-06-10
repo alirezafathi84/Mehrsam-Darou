@@ -1,0 +1,386 @@
+﻿@using static Mehrsam_Darou.Helper.Helper
+@model PaginatedList<Mehrsam_Darou.Models.Formula>
+@using System.Globalization
+
+@{
+    PersianCalendar pc = new PersianCalendar();
+    ViewData["Title"] = "لیست فرمول‌ها";
+}
+
+<h2 class="mb-4">لیست فرمول‌ها</h2>
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Success and Error Alerts -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success px-2" role="alert">
+                        <p class="mb-0">با موفقیت انجام شد</p>
+                        <p class="mb-0">@TempData["SuccessMessage"]</p>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger px-2" role="alert">
+                        <p class="mb-0">خطا</p>
+                        <p class="mb-0">@TempData["ErrorMessage"]</p>
+                    </div>
+                }
+
+                <div class="d-flex flex-wrap justify-content-between gap-3">
+                    <form method="get" asp-action="FormulaList">
+                        <div class="search-bar">
+                            <span><i class="bx bx-search-alt"></i></span>
+                            <input type="search" name="searchKey" value="@Context.Request.Query["searchKey"]" class="form-control" placeholder="جستجو...">
+                        </div>
+                    </form>
+                    <div>
+                        <a href="@Url.Action("AddFormula")" class="btn btn-primary">
+                            <i class="bx bx-plus me-1"></i> فرمول جدید
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0 table-hover table-centered">
+                        <thead class="bg-light-subtle">
+                            <tr>
+                                <th>نام فرمول</th>
+                                <th>کد فرمول</th>
+                                <th>نسخه</th>
+                                <th>نوع</th>
+                                <th>شکل دارویی</th>
+                                <th>وضعیت فرمول</th>
+                                <th>وضعیت نظارتی</th>
+                                <th>قدرت</th>
+                                <th>هزینه واحد</th>
+                                <th>تاریخ ایجاد</th>
+                                <th>اقدامات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Any())
+                            {
+                                foreach (var formula in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm bg-light-subtle rounded me-2">
+                                                    <span class="avatar-title">
+                                                        <iconify-icon icon="solar:document-medicine-bold-duotone" class="fs-18"></iconify-icon>
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0 fw-medium">@formula.FormulaName</h6>
+                                                    @if (formula.IsMasterFormula == true)
+                                                    {
+                                                        <small class="text-primary"><i class="bx bx-star"></i> فرمول اصلی</small>
+                                                    }
+                                                    else if (!string.IsNullOrEmpty(formula.PharmacologicalClass))
+                                                    {
+                                                        <small class="text-muted">@formula.PharmacologicalClass</small>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><span class="badge bg-light text-dark">@formula.FormulaCode</span></td>
+                                        <td>
+                                            <span class="badge bg-info-subtle text-info">v@formula.FormulaVersion</span>
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(formula.FormulaType))
+                                            {
+                                                <span class="badge bg-secondary-subtle text-secondary">@formula.FormulaType</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(formula.DosageForm))
+                                            {
+                                                <span class="badge bg-primary-subtle text-primary">@formula.DosageForm</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(formula.FormulaStatus))
+                                            {
+                                                var statusClass = formula.FormulaStatus switch
+                                                {
+                                                    "تایید شده" => "bg-success",
+                                                    "تولید" => "bg-primary",
+                                                    "اعتبارسنجی" => "bg-info",
+                                                    "آزمایش" => "bg-warning",
+                                                    "تعلیق شده" => "bg-secondary",
+                                                    "منسوخ شده" => "bg-danger",
+                                                    _ => "bg-light text-dark"
+                                                };
+                                                <span class="badge @statusClass">@formula.FormulaStatus</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(formula.RegulatoryStatus))
+                                            {
+                                                var regStatusClass = formula.RegulatoryStatus switch
+                                                {
+                                                    "تایید شده" => "bg-success",
+                                                    "در حال بررسی" => "bg-info",
+                                                    "مشروط" => "bg-warning",
+                                                    "رد شده" => "bg-danger",
+                                                    "تعلیق شده" => "bg-secondary",
+                                                    _ => "bg-light text-dark"
+                                                };
+                                                <span class="badge @regStatusClass">@formula.RegulatoryStatus</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (formula.TargetStrength.HasValue)
+                                            {
+                                                <strong>@formula.TargetStrength.Value.ToString("G")</strong>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (formula.UnitCost.HasValue)
+                                            {
+                                                <span class="text-success fw-medium">@formula.UnitCost.Value.ToString("N0") ریال</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                @pc.GetYear(formula.CreatedDate)/@pc.GetMonth(formula.CreatedDate).ToString("00")/@pc.GetDayOfMonth(formula.CreatedDate).ToString("00")
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-2 justify-content-center">
+                                                <a href="@Url.Action("Details", new { id = formula.FormulaId })" class="btn btn-soft-success btn-sm" title="مشاهده جزئیات">
+                                                    <iconify-icon icon="solar:eye-broken" class="align-middle fs-18"></iconify-icon>
+                                                </a>
+                                                <a href="@Url.Action("ManageIngredients", new { id = formula.FormulaId })" class="btn btn-soft-info btn-sm" title="مدیریت مواد اولیه">
+                                                    <iconify-icon icon="solar:pills-broken" class="align-middle fs-18"></iconify-icon>
+                                                </a>
+                                                <a href="@Url.Action("EditFormula", new { id = formula.FormulaId })" class="btn btn-soft-primary btn-sm" title="ویرایش">
+                                                    <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
+                                                </a>
+                                                <button type="button" class="btn btn-soft-danger btn-sm"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#deleteModal"
+                                                        data-bs-id="@formula.FormulaId"
+                                                        data-bs-name="@formula.FormulaName"
+                                                        title="حذف">
+                                                    <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="11" class="text-center py-4">
+                                        <i class="bx bx-test-tube text-muted fs-1"></i>
+                                        <p class="mt-2">هیچ فرمولی یافت نشد.</p>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card-footer border-top">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-end mb-0">
+                        @if (Model.HasPreviousPage)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("FormulaList", new { page = Model.PageIndex - 1, searchKey = Context.Request.Query["searchKey"] })">
+                                    <i class="bx bx-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                    <i class="bx bx-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("FormulaList", new { page = i, searchKey = Context.Request.Query["searchKey"] })">@i</a>
+                            </li>
+                        }
+
+                        @if (Model.HasNextPage)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("FormulaList", new { page = Model.PageIndex + 1, searchKey = Context.Request.Query["searchKey"] })">
+                                    <i class="bx bx-chevron-left"></i>
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                    <i class="bx bx-chevron-left"></i>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">حذف فرمول</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <div class="modal-body">
+                <p>آیا از حذف این فرمول مطمئن هستید؟</p>
+                <p id="formulaNameToDelete" class="fw-bold"></p>
+                <div class="alert alert-warning">
+                    <small><i class="bx bx-info-circle me-1"></i> در صورت وجود سفارش تولید یا بچ محصول، امکان حذف وجود ندارد.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <form id="deleteForm" method="post" asp-action="Delete">
+                    <input type="hidden" id="formulaIdToDelete" name="id" />
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">حذف</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var deleteModal = document.getElementById('deleteModal');
+            deleteModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                var formulaId = button.getAttribute('data-bs-id');
+                var formulaName = button.getAttribute('data-bs-name');
+
+                document.getElementById('formulaNameToDelete').textContent = formulaName;
+                document.getElementById('formulaIdToDelete').value = formulaId;
+            });
+
+            // Auto-dismiss alerts after 5 seconds
+            setTimeout(function () {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function (alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+        });
+    </script>
+}
+
+<!-- Formula Summary Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0 me-3">
+                        <div class="avatar-sm">
+                            <span class="avatar-title bg-primary-subtle text-primary rounded">
+                                <iconify-icon icon="solar:document-medicine-bold-duotone" class="fs-20"></iconify-icon>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <p class="text-muted mb-1">کل فرمول‌ها</p>
+                        <h4 class="mb-0">@(Model?.Count() ?? 0)</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0 me-3">
+                        <div class="avatar-sm">
+                            <span class="avatar-title bg-success-subtle text-success rounded">
+                                <iconify-icon icon="solar:check-circle-bold-duotone" class="fs-20"></iconify-icon>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <p class="text-muted mb-1">تایید شده</p>
+                        <h4 class="mb-0">@(Model?.Count(f => f.FormulaStatus == "تایید شده") ?? 0)</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0 me-3">
+                        <div class="avatar-sm">
+                            <span class="avatar-title bg-info-subtle text-info rounded">
+                                <iconify-icon icon="solar:settings-bold-duotone" class="fs-20"></iconify-icon>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <p class="text-muted mb-1">در تولید</p>
+                        <h4 class="mb-0">@(Model?.Count(f => f.FormulaStatus == "تولید") ?? 0)</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0 me-3">
+                        <div class="avatar-sm">
+                            <span class="avatar-title bg-warning-subtle text-warning rounded">
+                                <iconify-icon icon="solar:flask-bold-duotone" class="fs-20"></iconify-icon>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <p class="text-muted mb-1">در حال توسعه</p>
+                        <h4 class="mb-0">@(Model?.Count(f => f.FormulaStatus == "در حال توسعه" || f.FormulaStatus == "آزمایش") ?? 0)</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
