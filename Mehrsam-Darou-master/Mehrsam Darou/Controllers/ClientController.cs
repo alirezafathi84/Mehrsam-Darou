@@ -38,12 +38,10 @@ namespace Mehrsam_Darou.Controllers
 
             // Retrieve the user from the database based on the username
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
-
             if (user == null || !Helper.Helper.VerifyPassword(user.Password, password))
             {
                 // If user does not exist or password does not match, show an error message
                 ViewBag.ErrorMessage = "نام کاربری و یا کلمه عبور نادرست است";
-
                 // Fetch organizations and pass them to the view again
                 var orgs = await _context.Organizations.OrderBy(e => e.Priority).ToListAsync();
                 return View("Login", orgs); // Passing the org list back to the view
@@ -56,12 +54,37 @@ namespace Mehrsam_Darou.Controllers
             // Set the selected organization ID
             HttpContext.Session.SetString("CompanyGuid", OrgDDL);
 
+            // Get user's team information to determine default page
+            var userTeam = await _context.Teams
+                .Where(t => t.IsActive == true && t.Id == user.TeamId)
+                .FirstOrDefaultAsync();
+
             UserEnterLog eul = new UserEnterLog();
             eul.CreatedDate = DateTime.Now;
             eul.UserId = user.Id;
             eul.Status = "ورود به سیستم";
             AddUserEnterLog(eul);
 
+            // Redirect to team's default page or fallback to Dashboard
+            if (userTeam != null && !string.IsNullOrEmpty(userTeam.DefaultPageForTeam))
+            {
+                // Parse the DefaultPageForTeam to get controller and action
+                // Expected format: "Team/TeamList" -> Controller: "Team", Action: "TeamList"
+                var pageParts = userTeam.DefaultPageForTeam.Split('/');
+                if (pageParts.Length == 2)
+                {
+                    string controller = pageParts[0];
+                    string action = pageParts[1];
+                    return RedirectToAction(action, controller);
+                }
+                else if (pageParts.Length == 1)
+                {
+                    // If format is just "ActionName", assume Dashboard controller
+                    return RedirectToAction(userTeam.DefaultPageForTeam, "Dashboard");
+                }
+            }
+
+            // Fallback to default dashboard if no team or default page specified
             return RedirectToAction("Dashboard", "Dashboard");
         }
 

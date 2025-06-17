@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Mehrsam Darou")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6e549a0189ac301f05e652f9119d2e5f301bd772")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+906773bff4a455cbc8e4db209934413d3146bb47")]
 [assembly: System.Reflection.AssemblyProductAttribute("Mehrsam Darou")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Mehrsam Darou")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

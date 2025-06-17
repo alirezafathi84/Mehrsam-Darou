@@ -1,5 +1,4 @@
-﻿
-    @using System.Globalization
+﻿@using System.Globalization
 
 @{
     PersianCalendar pc1 = new PersianCalendar();
@@ -7,7 +6,7 @@
 <!DOCTYPE html>
 @* <html lang="fa" dir="rtl" data-menu-size="sm-hover" data-bs-theme="dark"> *@
 <html lang="fa" dir="rtl" data-menu-size="sm-hover"
-data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
+      data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
 <head>
     <!-- Title Meta -->
     <meta charset="utf-8" />
@@ -25,22 +24,14 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
     <link rel="stylesheet" href="/assets/css/icons.css">
     <link rel="stylesheet" href="/assets/css/fontiran.min.css">
 
-
-
-
-
     @*     <link rel="stylesheet" href="/assets/libs/flatpickr/flatpickr.min.css"> *@
     <script src="/assets/js/config.js"></script>
-
-
-
-
-
-
-
 </head>
 
 <body>
+    <!-- AntiForgeryToken for AJAX requests -->
+    @Html.AntiForgeryToken()
+
     <div class="wrapper">
         <header class="topbar">
             <div class="container-fluid">
@@ -67,8 +58,6 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                                 <iconify-icon icon="solar:moon-bold-duotone" class="fs-24 align-middle"></iconify-icon>
                             </button>
                         </div>
-
-
 
                         <!-- اعلان‌ها -->
                         <div class="dropdown topbar-item">
@@ -177,11 +166,10 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                             </div>
                         </div>
 
-
                         <!-- تنظیمات تم -->
                         <div class="topbar-item d-none d-md-flex">
                             <button type="button" class="topbar-button" id="theme-settings-btn" data-bs-toggle="offcanvas"
-                            data-bs-target="#theme-settings-offcanvas" aria-controls="theme-settings-offcanvas">
+                                    data-bs-target="#theme-settings-offcanvas" aria-controls="theme-settings-offcanvas">
                                 <iconify-icon icon="solar:settings-bold-duotone" class="fs-24 align-middle"></iconify-icon>
                             </button>
                         </div>
@@ -189,7 +177,7 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                         <!-- فعالیت -->
                         <div class="topbar-item d-none d-md-flex">
                             <button type="button" class="topbar-button" id="theme-settings-btn" data-bs-toggle="offcanvas"
-                            data-bs-target="#theme-activity-offcanvas" aria-controls="theme-settings-offcanvas">
+                                    data-bs-target="#theme-activity-offcanvas" aria-controls="theme-settings-offcanvas">
                                 <iconify-icon icon="solar:clock-circle-bold-duotone" class="fs-24 align-middle"></iconify-icon>
                             </button>
                         </div>
@@ -197,10 +185,10 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                         <!-- کاربر -->
                         <div class="dropdown topbar-item">
                             <a type="button" class="topbar-button" id="page-header-user-dropdown" data-bs-toggle="dropdown"
-                            aria-haspopup="true" aria-expanded="false">
+                               aria-haspopup="true" aria-expanded="false">
                                 <span class="d-flex align-items-center">
                                     <img class="rounded-circle" width="32" height="32" src="@ViewData["Avatar"]"
-                                    alt="/images/users/dummy-avatar.jpg">
+                                         alt="/images/users/dummy-avatar.jpg">
                                 </span>
                             </a>
                             <div class="dropdown-menu dropdown-menu-end">
@@ -208,6 +196,24 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                                 <h6 class="dropdown-header">
                                     @ViewData["Fullname"]! خوش آمدی
                                 </h6>
+
+                                <!-- Quick Attendance Buttons -->
+                                <div class="px-3 py-2">
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <button type="button" class="btn btn-success btn-sm w-100" onclick="quickEntryFromHeader()">
+                                                <i class="bx bx-log-in me-1"></i>ورود
+                                            </button>
+                                        </div>
+                                        <div class="col-6">
+                                            <button type="button" class="btn btn-danger btn-sm w-100" onclick="quickExitFromHeader()">
+                                                <i class="bx bx-log-out me-1"></i>خروج
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="dropdown-divider my-1"></div>
 
                                 <a class="dropdown-item" href="pages-profile.html">
                                     <i class="bx bx-user-circle text-muted fs-18 align-middle me-1"></i><span class="align-middle">پروفایل</span>
@@ -253,11 +259,11 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
         <!-- Activity Timeline -->
         <div>
             <div class="offcanvas offcanvas-end border-0" tabindex="-1" id="theme-activity-offcanvas"
-            style="max-width: 450px; width: 100%;">
+                 style="max-width: 450px; width: 100%;">
                 <div class="d-flex align-items-center bg-primary p-3 offcanvas-header">
                     <h5 class="text-white m-0 fw-semibold">جریان فعالیت</h5>
                     <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="offcanvas"
-                    aria-label="بستن"></button>
+                            aria-label="بستن"></button>
                 </div>
 
                 <div class="offcanvas-body p-0">
@@ -302,16 +308,11 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
 
                                                 }
                                             }
-
-
-
                                         </div>
                                     </div>
 
                                 </div>
                             }
-
-
 
                         </div>
                         <a href="#!" class="btn btn-outline-dark w-100">مشاهده همه</a>
@@ -372,13 +373,7 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                             </a>
                             <div class="collapse" id="sidebarUsers">
                                 <ul class="nav sub-navbar-nav">
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("AddNewUser", "User")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">کاربر جدید</span>
-                                            </button>
-                                        </form>
-                                    </li>
+
                                     <li class="sub-nav-item">
                                         <form method="post" action="@Url.Action("UserList", "User")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
@@ -454,19 +449,13 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                                         </a>
                                     </li>
 
-
                                     <li class="sub-nav-item">
                                         <a class="nav-link" href="@Url.Action("Index", "PersianDateConverter")">
                                             <span class="nav-text">تعریف روز های سال</span>
                                         </a>
                                     </li>
 
-
-
-
-
-
-            @*                         <li class="sub-nav-item">
+                                    @*                         <li class="sub-nav-item">
                                         <form method="post" action="@Url.Action("UserStatusList", "UserStatus")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
                                                 <span class="nav-text">وضعیت کاربران</span>
@@ -607,7 +596,7 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                                             </button>
                                         </form>
                                     </li>
-             @*                        <li class="sub-nav-item">
+                                    @*                        <li class="sub-nav-item">
                                         <form method="post" action="@Url.Action("InventoryReport", "Inventory")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
                                                 <span class="nav-text">گزارش موجودی</span>
@@ -647,7 +636,7 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                                             </button>
                                         </form>
                                     </li>
-              @*                       <li class="sub-nav-item">
+                                    @*                       <li class="sub-nav-item">
                                         <form method="post" action="@Url.Action("ProductionOrderStepList", "ProductionOrderStep")">
                                             <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
                                                 <span class="nav-text">پیگیری مراحل سفارش</span>
@@ -948,34 +937,30 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
 
                 </ul>
 
-
             </div>
         </div>
 
         <div class="page-content">
             <div class="container-fluid">
-             
-                @RenderBody()
-       
-        </div> 
-    </div>
 
-    <!-- ========== Footer Start ========== -->
-    <footer class="footer">
-        <div class="container-fluid">
- 
+                @RenderBody()
+
+            </div>
+        </div>
+
+        <!-- ========== Footer Start ========== -->
+        <footer class="footer">
+            <div class="container-fluid">
+
                 <div class="col-12 text-center">
                     <script>document.write(new Date().getFullYear())</script> &copy; ساخته شده توسط گروه نرم افزاری
                     <iconify-icon icon="iconamoon:heart-duotone" class="fs-18 align-middle text-danger"></iconify-icon>
                     <a href="" class="fw-bold footer-text" target="_blank">گروه هلدینگ هورخش</a>
                 </div>
             </div>
-        </div>
+    </div>
     </footer>
     <!-- ========== Footer End ========== -->
-    
-    
-
 
     <div>
         <div class="offcanvas offcanvas-end border-0" tabindex="-1" id="theme-settings-offcanvas">
@@ -1034,7 +1019,6 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
                             </div>
                         </div>
 
-
                         <div>
                             <h5 class="my-3 font-16 fw-semibold">اندازه سایدبار</h5>
 
@@ -1087,12 +1071,6 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
         </div>
     </div>
 
-
-
-
-
-
-
     <script src="/assets/js/app.js"></script>
     <script src="/assets/js/layout.js"></script>
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
@@ -1104,23 +1082,157 @@ data-bs-theme="@(ViewData["IsDark"] as bool? == true ? "dark" : "light")">
     <script src="/assets/libs/jsvectormap/jsvectormap.min.js"></script>
     <script src="/assets/libs/jsvectormap/maps/world.js"></script>
     <script src='/assets/js/pages/dashboard.js'></script>
+
+    <!-- Attendance Success Modal -->
+    <div class="modal fade" id="attendanceModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <div class="mb-3">
+                        <div class="avatar-lg mx-auto">
+                            <div class="avatar-title rounded-circle bg-success text-white">
+                                <i class="bx bx-check fs-2"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <h5 class="modal-title mb-2" id="attendanceModalTitle">عملیات موفق</h5>
+                    <p class="text-muted mb-0" id="attendanceModalMessage">ورود شما با موفقیت ثبت شد</p>
+                    <div class="mt-3">
+                        <small class="text-muted" id="attendanceModalTime"></small>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 justify-content-center">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">تأیید</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function quickEntryFromHeader() {
+            // Get the current user's ID from ViewData
+            const userId = '@ViewData["UserId"]';
+
+            if (!userId) {
+                showAttendanceModal('خطا', 'شناسه کاربر یافت نشد', 'error');
+                return;
+            }
+
+            // Show loading state
+            const entryBtn = document.querySelector('button[onclick="quickEntryFromHeader()"]');
+            const originalText = entryBtn.innerHTML;
+            entryBtn.disabled = true;
+            entryBtn.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i>در حال ثبت...';
+
+            // Create form data
+            const formData = new FormData();
+            formData.append('userId', userId);
+            formData.append('__RequestVerificationToken', document.querySelector('input[name="__RequestVerificationToken"]').value);
+
+            // Send AJAX request
+            fetch('@Url.Action("QuickEntry", "AttendanceLog")', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    showAttendanceModal('ورود ثبت شد', 'ورود شما با موفقیت ثبت شد', 'success');
+                } else {
+                    throw new Error('خطا در ثبت ورود');
+                }
+            })
+            .catch(error => {
+                showAttendanceModal('خطا', 'خطا در ثبت ورود', 'error');
+            })
+            .finally(() => {
+                // Restore button state
+                entryBtn.disabled = false;
+                entryBtn.innerHTML = originalText;
+            });
+        }
+
+        function quickExitFromHeader() {
+            // Get the current user's ID from ViewData
+            const userId = '@ViewData["UserId"]';
+
+            if (!userId) {
+                showAttendanceModal('خطا', 'شناسه کاربر یافت نشد', 'error');
+                return;
+            }
+
+            // Show loading state
+            const exitBtn = document.querySelector('button[onclick="quickExitFromHeader()"]');
+            const originalText = exitBtn.innerHTML;
+            exitBtn.disabled = true;
+            exitBtn.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i>در حال ثبت...';
+
+            // Create form data
+            const formData = new FormData();
+            formData.append('userId', userId);
+            formData.append('__RequestVerificationToken', document.querySelector('input[name="__RequestVerificationToken"]').value);
+
+            // Send AJAX request
+            fetch('@Url.Action("QuickExit", "AttendanceLog")', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    showAttendanceModal('خروج ثبت شد', 'خروج شما با موفقیت ثبت شد', 'success');
+                } else {
+                    throw new Error('خطا در ثبت خروج');
+                }
+            })
+            .catch(error => {
+                showAttendanceModal('خطا', 'خطا در ثبت خروج', 'error');
+            })
+            .finally(() => {
+                // Restore button state
+                exitBtn.disabled = false;
+                exitBtn.innerHTML = originalText;
+            });
+        }
+
+        function showAttendanceModal(title, message, type) {
+            const modal = document.getElementById('attendanceModal');
+            const modalTitle = document.getElementById('attendanceModalTitle');
+            const modalMessage = document.getElementById('attendanceModalMessage');
+            const modalTime = document.getElementById('attendanceModalTime');
+            const avatarDiv = modal.querySelector('.avatar-title');
+            const icon = modal.querySelector('.avatar-title i');
+
+            // Set content
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            modalTime.textContent = new Date().toLocaleString('fa-IR');
+
+            // Set icon and color based on type
+            if (type === 'error') {
+                avatarDiv.className = 'avatar-title rounded-circle bg-danger text-white';
+                icon.className = 'bx bx-x fs-2';
+            } else {
+                avatarDiv.className = 'avatar-title rounded-circle bg-success text-white';
+                icon.className = 'bx bx-check fs-2';
+            }
+
+            // Show modal
+            const bootstrapModal = new bootstrap.Modal(modal);
+            bootstrapModal.show();
+
+            // Close user dropdown
+            const userDropdown = document.getElementById('page-header-user-dropdown');
+            if (userDropdown) {
+                const dropdown = bootstrap.Dropdown.getInstance(userDropdown);
+                if (dropdown) {
+                    dropdown.hide();
+                }
+            }
+        }
+    </script>
+
     @RenderSection("Scripts", required: false)
-
-
-
-
-
-
-
-
-
-
-
-
 </body>
-
 </html>
-
-
-
-

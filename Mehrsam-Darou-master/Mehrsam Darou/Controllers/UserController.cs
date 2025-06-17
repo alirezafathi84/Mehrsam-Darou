@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using static Mehrsam_Darou.Helper.Helper;
+using System.Globalization;
 
 namespace Mehrsam_Darou.Controllers
 {
@@ -18,10 +19,6 @@ namespace Mehrsam_Darou.Controllers
 
         public async Task<IActionResult> UserList(int? page, string SearchKey)
         {
-
-
-
-
             // Set common view data and get the page size
             var setting = await ReadSettingAsync(_context);
             int pageSize = Convert.ToInt32(setting.NumberPerPage ?? 10); // Default to 10 if setting.NumberPerPage is null
@@ -55,6 +52,35 @@ namespace Mehrsam_Darou.Controllers
             return View(paginatedUsers);
         }
 
+        // New Report Action
+        public async Task<IActionResult> UserReport(string format = "html")
+        {
+            // Get all users with their teams
+            var allUsers = await _context.Users
+                .Include(u => u.Team)
+                .OrderBy(u => u.FirstName)
+                .ThenBy(u => u.LastName)
+                .ToListAsync();
+
+            var reportData = new
+            {
+                Users = allUsers,
+                GeneratedDate = DateTime.Now,
+                TotalUsers = allUsers.Count,
+                TeamsCount = allUsers.Where(u => u.Team != null).Select(u => u.Team.Name).Distinct().Count()
+            };
+
+            ViewBag.ReportData = reportData;
+
+            if (format.ToLower() == "pdf")
+            {
+                // For PDF generation, you might want to use a library like iTextSharp or similar
+                // For now, we'll return the HTML view that can be printed to PDF
+                Response.Headers.Add("Content-Disposition", "attachment; filename=UserReport.html");
+            }
+
+            return View("UserReport", allUsers);
+        }
 
         // Action to display a specific user's details by their ID
         [HttpGet("User/UserDetails/{id}")]
@@ -71,11 +97,8 @@ namespace Mehrsam_Darou.Controllers
             return View(user);  // Pass the user object as the model to the view
         }
 
-
         public async Task<IActionResult> AddNewUser()
         {
-
-
             // Set common view data and get the page size
             //  var setting = await ReadSettingAsync(_context);
 
@@ -87,9 +110,6 @@ namespace Mehrsam_Darou.Controllers
         [HttpPost]
         public async Task<IActionResult> AddUser(User user, string ConfirmPassword, Guid TeamDDL, IFormFile AvatarImg)
         {
-
-
-
             // Check if the password and confirm password match
             if (user.Password != ConfirmPassword)
             {
@@ -139,14 +159,9 @@ namespace Mehrsam_Darou.Controllers
             return RedirectToAction("UserList");
         }
 
-
-
-
-
         [HttpGet]
         public async Task<IActionResult> EditUser(Guid id)
         {            // Validate session and get the user
-
 
             var user = await _context.Users.FindAsync(id);
             if (user == null)
@@ -229,9 +244,6 @@ namespace Mehrsam_Darou.Controllers
             return RedirectToAction("UserList");
         }
 
-
-
-
         [HttpPost]
         public async Task<IActionResult> DeleteUser(Guid id)
         {
@@ -261,13 +273,5 @@ namespace Mehrsam_Darou.Controllers
             TempData["SuccessMessage"] = "کاربر با موفقیت حذف شد.";
             return RedirectToAction("UserList");
         }
-
-
-
-
-
     }
-
-
-
 }

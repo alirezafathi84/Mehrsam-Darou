@@ -52,7 +52,7 @@ app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllerRoute(
         name: "default",
-        pattern: "{controller=User}/{action=UserList}/{id?}");
+        pattern: "{controller=Dashboard}/{action=Dashboard}");
     endpoints.MapHub<ChatHub>("/chatHub");
 });
 

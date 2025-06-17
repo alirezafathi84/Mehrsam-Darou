@@ -268,7 +268,7 @@ namespace Mehrsam_Darou.Controllers
             return RedirectToAction(nameof(AttendanceLogList));
         }
 
-        // Quick Entry/Exit buttons
+        // Add these methods to your AttendanceLogController or modify existing ones
         [HttpPost]
         public async Task<IActionResult> QuickEntry(Guid userId)
         {
@@ -292,14 +292,30 @@ namespace Mehrsam_Darou.Controllers
                 // Calculate daily attendance
                 await _dailyAttendanceService.CalculateAndUpdateDailyAttendanceAsync(userId, DateTime.Now.Date);
 
+                // Check if it's an AJAX request
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" ||
+                    Request.ContentType?.Contains("application/json") == true ||
+                    Request.Headers["Accept"].ToString().Contains("application/json"))
+                {
+                    return Json(new { success = true, message = "ورود با موفقیت ثبت شد" });
+                }
+
                 TempData["SuccessMessage"] = "ورود با موفقیت ثبت شد";
+                return RedirectToAction(nameof(AttendanceLogList));
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "خطا در ثبت ورود: " + ex.Message;
-            }
+                // Check if it's an AJAX request
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" ||
+                    Request.ContentType?.Contains("application/json") == true ||
+                    Request.Headers["Accept"].ToString().Contains("application/json"))
+                {
+                    return Json(new { success = false, message = "خطا در ثبت ورود: " + ex.Message });
+                }
 
-            return RedirectToAction(nameof(AttendanceLogList));
+                TempData["ErrorMessage"] = "خطا در ثبت ورود: " + ex.Message;
+                return RedirectToAction(nameof(AttendanceLogList));
+            }
         }
 
         [HttpPost]
@@ -325,14 +341,30 @@ namespace Mehrsam_Darou.Controllers
                 // Calculate daily attendance
                 await _dailyAttendanceService.CalculateAndUpdateDailyAttendanceAsync(userId, DateTime.Now.Date);
 
+                // Check if it's an AJAX request
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" ||
+                    Request.ContentType?.Contains("application/json") == true ||
+                    Request.Headers["Accept"].ToString().Contains("application/json"))
+                {
+                    return Json(new { success = true, message = "خروج با موفقیت ثبت شد" });
+                }
+
                 TempData["SuccessMessage"] = "خروج با موفقیت ثبت شد";
+                return RedirectToAction(nameof(AttendanceLogList));
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "خطا در ثبت خروج: " + ex.Message;
-            }
+                // Check if it's an AJAX request
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" ||
+                    Request.ContentType?.Contains("application/json") == true ||
+                    Request.Headers["Accept"].ToString().Contains("application/json"))
+                {
+                    return Json(new { success = false, message = "خطا در ثبت خروج: " + ex.Message });
+                }
 
-            return RedirectToAction(nameof(AttendanceLogList));
+                TempData["ErrorMessage"] = "خطا در ثبت خروج: " + ex.Message;
+                return RedirectToAction(nameof(AttendanceLogList));
+            }
         }
 
         // Bulk recalculation method (useful for data migration or corrections)

@@ -1,0 +1,357 @@
+﻿@using static Mehrsam_Darou.Helper.Helper
+@model IEnumerable<Mehrsam_Darou.Models.User>
+@using System.Globalization
+
+@{
+    PersianCalendar pc = new PersianCalendar();
+    var reportData = ViewBag.ReportData;
+    Layout = null; // Remove layout for clean report
+}
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>گزارش کاربران سیستم</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            direction: rtl;
+        }
+
+        .report-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .report-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .report-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .stats-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border: none;
+        }
+
+        .stats-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stats-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .main-table {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .table thead th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            font-weight: 600;
+        }
+
+        .table tbody td {
+            padding: 12px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #dee2e6;
+        }
+
+        .team-badge {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .date-text {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #495057;
+        }
+
+        .report-footer {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .print-controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .no-users {
+            text-align: center;
+            padding: 50px;
+            color: #6c757d;
+        }
+
+        @@media print {
+            .print-controls {
+                display: none !important;
+            }
+
+            body {
+                background: white !important;
+            }
+
+            .report-header,
+            .stats-card,
+            .main-table,
+            .report-footer {
+                box-shadow: none !important;
+                border: 1px solid #dee2e6 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+
+        <!-- Print Controls -->
+        <div class="print-controls">
+            <button onclick="window.print()" class="btn btn-primary btn-lg me-3">
+                <i class="fas fa-print"></i> چاپ گزارش
+            </button>
+            <button onclick="window.close()" class="btn btn-secondary btn-lg">
+                <i class="fas fa-times"></i> بستن
+            </button>
+        </div>
+
+        <!-- Report Header -->
+        <div class="report-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="report-title">گزارش کامل کاربران سیستم</h1>
+                    <p class="report-subtitle">
+                        تاریخ تولید گزارش:
+                        @{
+                            var reportDate = ((DateTime)reportData.GeneratedDate);
+                            var persianReportDate = $"{pc.GetYear(reportDate)}/{pc.GetMonth(reportDate):00}/{pc.GetDayOfMonth(reportDate):00} {reportDate:HH:mm}";
+                        }
+                        <span class="fw-bold">@persianReportDate</span>
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <img src="~/images/logo.png" alt="لوگو" style="max-height: 60px;" class="img-fluid" onerror="this.style.display='none'">
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <div class="stats-number">@reportData.TotalUsers</div>
+                    <div class="stats-label">تعداد کل کاربران</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <div class="stats-number">@reportData.TeamsCount</div>
+                    <div class="stats-label">تعداد تیم‌های فعال</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <div class="stats-number">@Model.Where(u => u.AvatarImg != null).Count()</div>
+                    <div class="stats-label">کاربران دارای تصویر</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Table -->
+        <div class="main-table">
+            @if (Model != null && Model.Any())
+            {
+                <table class="table table-striped mb-0">
+                    <thead>
+                        <tr>
+                            <th width="5%">#</th>
+                            <th width="15%">نام و نام خانوادگی</th>
+                            <th width="12%">نام کاربری</th>
+                            <th width="15%">تاریخ ایجاد</th>
+                            <th width="15%">تاریخ ویرایش</th>
+                            <th width="8%">نسخه</th>
+                            <th width="12%">تیم</th>
+                            <th width="8%">تصویر</th>
+                            <th width="10%">وضعیت</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int counter = 1;
+                        }
+                        @foreach (var user in Model)
+                        {
+                            <tr>
+                                <td class="fw-bold text-primary">@counter</td>
+                                <td>
+                                    <div class="fw-semibold">@user.FirstName @user.LastName</div>
+                                </td>
+                                <td>
+                                    <code class="bg-light px-2 py-1 rounded">@user.Username</code>
+                                </td>
+                                <td>
+                                    <div class="date-text">
+                                        @if (user.DateCreated.HasValue)
+                                        {
+                                            var date = user.DateCreated.Value;
+                                            var persianDate = $"{pc.GetYear(date)}/{pc.GetMonth(date):00}/{pc.GetDayOfMonth(date):00}";
+                                            var timeText = $"{date:HH:mm}";
+                                            <div>@persianDate</div>
+                                            <small class="text-muted">@timeText</small>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">نامشخص</span>
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="date-text">
+                                        @if (user.DateModified.HasValue)
+                                        {
+                                            var date = user.DateModified.Value;
+                                            var persianDate = $"{pc.GetYear(date)}/{pc.GetMonth(date):00}/{pc.GetDayOfMonth(date):00}";
+                                            var timeText = $"{date:HH:mm}";
+                                            <div>@persianDate</div>
+                                            <small class="text-muted">@timeText</small>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">نامشخص</span>
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">نسخه @user.Version</span>
+                                </td>
+                                <td>
+                                    <span class="team-badge">@(user.Team?.Name ?? "نامشخص")</span>
+                                </td>
+                                <td class="text-center">
+                                    @if (user.AvatarImg != null && user.AvatarImg.Length > 0)
+                                    {
+                                        <img class="user-avatar" src="@user.AvatarImg" alt="تصویر کاربر">
+                                    }
+                                    else
+                                    {
+                                        <div class="user-avatar bg-secondary d-flex align-items-center justify-content-center">
+                                            <i class="fas fa-user text-white"></i>
+                                        </div>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="badge bg-success">فعال</span>
+                                </td>
+                            </tr>
+                            counter++;
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="no-users">
+                    <h4>هیچ کاربری یافت نشد</h4>
+                    <p class="text-muted">در حال حاضر هیچ کاربری در سیستم ثبت نشده است.</p>
+                </div>
+            }
+        </div>
+
+        <!-- Report Footer -->
+        <div class="report-footer">
+            <div class="row">
+                <div class="col-md-6 text-start">
+                    <small class="text-muted">
+                       هورخش سیستم 
+                    </small>
+                </div>
+                <div class="col-md-6 text-end">
+                    <small class="text-muted">
+                         تعداد رکوردها: @(Model?.Count() ?? 0)
+                    </small>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <script>
+        // Auto-focus on print button when page loads
+        window.addEventListener('load', function() {
+            const printBtn = document.querySelector('button[onclick="window.print()"]');
+            if (printBtn) {
+                printBtn.focus();
+            }
+        });
+
+        // Handle keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl+P for print
+            if (e.ctrlKey && e.key === 'p') {
+                e.preventDefault();
+                window.print();
+            }
+            // Escape to close
+            if (e.key === 'Escape') {
+                window.close();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -218,6 +218,9 @@ public class BaseController : Controller
             return;
         }
 
+        // Add UserId to ViewData for all views
+        ViewData["UserId"] = user.Id.ToString();
+
         var logEntries = await _context.UserEnterLogs
             .Include(log => log.User)
                 .ThenInclude(u => u.Team)
