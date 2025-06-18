@@ -1,0 +1,391 @@
+﻿@using static Mehrsam_Darou.Helper.Helper
+@model List<Mehrsam_Darou.Models.DailyAttendance>
+@using System.Globalization
+
+@{
+    PersianCalendar pc = new PersianCalendar();
+    ViewData["Title"] = "گزارش حضور روزانه";
+    Layout = null; // No layout for print view
+}
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Tahoma', Arial, sans-serif;
+            font-size: 12px;
+            direction: rtl;
+            text-align: right;
+        }
+
+        .print-header {
+            border-bottom: 2px solid #333;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+        }
+
+        .report-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .report-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .table th {
+            background-color: #e9ecef;
+            font-weight: bold;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 11px;
+        }
+
+        .table td {
+            vertical-align: middle;
+            font-size: 11px;
+        }
+
+        .badge {
+            font-size: 10px;
+        }
+
+        .summary-box {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        @@media print {
+            .no-print {
+                display: none !important;
+            }
+
+            body {
+                font-size: 10px;
+            }
+
+            .table th, .table td {
+                font-size: 9px;
+                padding: 4px;
+            }
+
+            .report-title {
+                font-size: 16px;
+            }
+
+            .page-break {
+                page-break-before: always;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Print Header -->
+        <div class="print-header">
+            <div class="row">
+                <div class="col-6">
+                    <h1 class="report-title">گزارش حضور و غیاب روزانه کارکنان</h1>
+                    <p class="mb-0">سیستم مدیریت حضور و غیاب</p>
+                </div>
+                <div class="col-6 text-start">
+                    <p class="mb-1"><strong>تاریخ تولید گزارش:</strong> @ViewBag.GeneratedAt.ToString("yyyy/MM/dd HH:mm")</p>
+                    <p class="mb-0">
+                        <strong>تاریخ فارسی:</strong> @{
+                            var now = DateTime.Now;
+                            var persianNow = $"{pc.GetYear(now)}/{pc.GetMonth(now):00}/{pc.GetDayOfMonth(now):00}";
+                        } @persianNow
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Information -->
+        <div class="report-info">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6><strong>فیلترهای اعمال شده:</strong></h6>
+                    <ul class="list-unstyled mb-0">
+                        <li><strong>جستجو:</strong> @(string.IsNullOrEmpty(ViewBag.SearchKey) ? "همه" : ViewBag.SearchKey)</li>
+                        <li>
+                            <strong>وضعیت:</strong> @(string.IsNullOrEmpty(ViewBag.Status) ? "همه وضعیت‌ها" :
+                            ViewBag.Status switch
+                            {
+                                "Present" => "حاضر",
+                                "Absent" => "غایب",
+                                "Vacation" => "مرخصی",
+                                "Mission" => "ماموریت",
+                                "Holiday" => "تعطیل",
+                                _ => ViewBag.Status
+                            })
+                        </li>
+                        <li><strong>ماه:</strong> @(string.IsNullOrEmpty(ViewBag.Month) ? "همه ماه‌ها" : ViewBag.Month)</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h6><strong>خلاصه آمار کلی:</strong></h6>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="summary-box text-center">
+                                <h5 class="text-primary mb-1">@ViewBag.TotalRecords</h5>
+                                <small>کل رکوردها</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="summary-box text-center">
+                                <h5 class="text-info mb-1">@ViewBag.UniqueUsers</h5>
+                                <small>تعداد کاربران</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Statistics -->
+        <div class="stats-grid">
+            <div class="summary-box text-center">
+                <h5 class="text-success mb-1">@ViewBag.PresentCount</h5>
+                <small>حاضر</small>
+            </div>
+            <div class="summary-box text-center">
+                <h5 class="text-danger mb-1">@ViewBag.AbsentCount</h5>
+                <small>غایب</small>
+            </div>
+            <div class="summary-box text-center">
+                <h5 class="text-warning mb-1">@ViewBag.VacationCount</h5>
+                <small>مرخصی</small>
+            </div>
+            <div class="summary-box text-center">
+                <h5 class="text-info mb-1">@ViewBag.MissionCount</h5>
+                <small>ماموریت</small>
+            </div>
+            <div class="summary-box text-center">
+                <h5 class="text-secondary mb-1">@ViewBag.HolidayCount</h5>
+                <small>تعطیل</small>
+            </div>
+            <div class="summary-box text-center">
+                <h5 class="text-primary mb-1">@ViewBag.WorkingDaysCount</h5>
+                <small>روزهای کاری</small>
+            </div>
+            <div class="summary-box text-center">
+                <h5 class="text-dark mb-1">@ViewBag.TotalHours.ToString("0.##")</h5>
+                <small>مجموع ساعات</small>
+            </div>
+            <div class="summary-box text-center">
+                <h5 class="text-muted mb-1">@(ViewBag.TotalRecords > 0 ? (ViewBag.TotalHours / ViewBag.TotalRecords).ToString("0.##") : "0")</h5>
+                <small>میانگین ساعات</small>
+            </div>
+        </div>
+
+        <!-- Print Button -->
+        <div class="no-print mb-3">
+            <button onclick="window.print()" class="btn btn-primary">
+                <i class="bx bx-printer me-1"></i>چاپ گزارش
+            </button>
+            <button onclick="window.close()" class="btn btn-secondary ms-2">
+                بستن
+            </button>
+        </div>
+
+        <!-- Report Table -->
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-sm">
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">ردیف</th>
+                        <th style="width: 18%;">نام کاربر</th>
+                        <th style="width: 12%;">تاریخ فارسی</th>
+                        <th style="width: 10%;">تاریخ میلادی</th>
+                        <th style="width: 8%;">ورود</th>
+                        <th style="width: 8%;">خروج</th>
+                        <th style="width: 8%;">مجموع ساعات</th>
+                        <th style="width: 10%;">وضعیت</th>
+                        <th style="width: 8%;">نوع روز</th>
+                        <th style="width: 8%;">روز هفته</th>
+                        <th style="width: 5%;">تاریخ ثبت</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        int counter = 1;
+                        foreach (var attendance in Model)
+                        {
+                            var dateTime = attendance.Date.ToDateTime(TimeOnly.MinValue);
+
+                            <!-- Add page break every 35 rows for better printing -->
+                            @if (counter > 1 && (counter - 1) % 35 == 0)
+                            {
+                                <tr class="page-break">
+                                    <td colspan="11" style="border: none; height: 0;"></td>
+                                </tr>
+                            }
+
+                            <tr>
+                                <td class="text-center">@counter</td>
+                                <td>
+                                    <strong>@(attendance.User?.FirstName + " " + attendance.User?.LastName)</strong>
+                                    <br><small class="text-muted">@attendance.User?.Username</small>
+                                </td>
+                                <td class="text-center">
+                                    <strong>@(attendance.PersianDate ?? $"{pc.GetYear(dateTime)}/{pc.GetMonth(dateTime):00}/{pc.GetDayOfMonth(dateTime):00}")</strong>
+                                </td>
+                                <td class="text-center">@attendance.Date.ToString("yyyy/MM/dd")</td>
+                                <td class="text-center">
+                                    @if (attendance.FirstEntryTime.HasValue)
+                                    {
+                                        <span class="text-success">@attendance.FirstEntryTime.Value.ToString(@"hh\:mm")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @if (attendance.LastExitTime.HasValue)
+                                    {
+                                        <span class="text-danger">@attendance.LastExitTime.Value.ToString(@"hh\:mm")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @if (attendance.TotalHours.HasValue)
+                                    {
+                                        <strong>@attendance.TotalHours.Value.ToString("0.##")</strong>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @switch (attendance.Status)
+                                    {
+                                        case "Present":
+                                            <span class="badge bg-success">حاضر</span>
+                                            break;
+                                        case "Absent":
+                                            <span class="badge bg-danger">غایب</span>
+                                            break;
+                                        case "Vacation":
+                                            <span class="badge bg-warning">مرخصی</span>
+                                            break;
+                                        case "Mission":
+                                            <span class="badge bg-info">ماموریت</span>
+                                            break;
+                                        case "Holiday":
+                                            <span class="badge bg-secondary">تعطیل</span>
+                                            break;
+                                        default:
+                                            <span class="badge bg-secondary">@attendance.Status</span>
+                                            break;
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @if (attendance.IsWorkingDay)
+                                    {
+                                        <span class="badge bg-primary">کاری</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">غیرکاری</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @{
+                                        var dayOfWeek = dateTime.DayOfWeek;
+                                        var persianDayName = dayOfWeek switch
+                                        {
+                                            DayOfWeek.Saturday => "شنبه",
+                                            DayOfWeek.Sunday => "یکشنبه",
+                                            DayOfWeek.Monday => "دوشنبه",
+                                            DayOfWeek.Tuesday => "سه‌شنبه",
+                                            DayOfWeek.Wednesday => "چهارشنبه",
+                                            DayOfWeek.Thursday => "پنج‌شنبه",
+                                            DayOfWeek.Friday => "جمعه",
+                                            _ => ""
+                                        };
+                                    }
+                                    <small>@persianDayName</small>
+                                </td>
+                                <td class="text-center">
+                                    @if (attendance.DateCreated.HasValue)
+                                    {
+                                        <small class="text-muted">
+                                            @pc.GetMonth(attendance.DateCreated.Value).ToString("00")/@pc.GetDayOfMonth(attendance.DateCreated.Value).ToString("00")
+                                        </small>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                            </tr>
+                            counter++;
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="11" class="text-center py-4">
+                                <strong>هیچ رکورد حضور روزانه‌ای یافت نشد.</strong>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Report Footer -->
+        <div class="mt-4 pt-3 border-top">
+            <div class="row">
+                <div class="col-6">
+                    <small class="text-muted">
+                        این گزارش شامل @ViewBag.TotalRecords رکورد حضور روزانه می‌باشد.
+                        <br>مجموع ساعات کار: @ViewBag.TotalHours.ToString("0.##") ساعت
+                    </small>
+                </div>
+                <div class="col-6 text-start">
+                    <small class="text-muted">
+                        تولید شده در تاریخ: @ViewBag.GeneratedAt.ToString("yyyy/MM/dd HH:mm:ss")
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

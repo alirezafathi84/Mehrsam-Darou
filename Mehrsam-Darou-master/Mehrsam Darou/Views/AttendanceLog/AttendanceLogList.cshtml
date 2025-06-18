@@ -68,6 +68,9 @@
                         <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#quickEntryModal">
                             <i class="bx bx-time me-1"></i>ورود/خروج سریع
                         </button>
+                        <button type="button" class="btn btn-primary" onclick="printReport()">
+                            <i class="bx bx-printer me-1"></i>گزارش چاپی
+                        </button>
                     </div>
                 </div>
             </div>
@@ -330,6 +333,28 @@
             form.appendChild(tokenInput);
             document.body.appendChild(form);
             form.submit();
+        }
+
+        function printReport() {
+            // Get current filter values
+            const searchKey = document.querySelector('input[name="searchKey"]').value;
+            const startDate = document.querySelector('input[name="startDate"]').value;
+            const endDate = document.querySelector('input[name="endDate"]').value;
+
+            // Build URL with current filters
+            let url = '@Url.Action("PrintReport")';
+            const params = new URLSearchParams();
+
+            if (searchKey) params.append('searchKey', searchKey);
+            if (startDate) params.append('startDate', startDate);
+            if (endDate) params.append('endDate', endDate);
+
+            if (params.toString()) {
+                url += '?' + params.toString();
+            }
+
+            // Open in new window for printing
+            window.open(url, '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
         }
 
         // Auto-dismiss alerts after 5 seconds

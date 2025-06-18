@@ -60,9 +60,14 @@
                                     </button>
                                 </div>
                                 <div class="col-md-3 text-end">
-                                    <a href="@Url.Action("AddDailyAttendance")" class="btn btn-success">
-                                        <i class="bx bx-plus me-1"></i> ثبت جدید
-                                    </a>
+                                    <div class="d-flex gap-2 justify-content-end">
+                                        <a href="@Url.Action("AddDailyAttendance")" class="btn btn-success">
+                                            <i class="bx bx-plus me-1"></i> ثبت جدید
+                                        </a>
+                                        <button type="button" class="btn btn-primary" onclick="printReport()">
+                                            <i class="bx bx-printer me-1"></i>گزارش چاپی
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </form>
@@ -213,9 +218,9 @@
                                         </td>
                                         <td>
                                             <div class="d-flex gap-2 justify-content-center">
-                                                <a href="@Url.Action("Details", new { id = attendance.Id })" class="btn btn-soft-info btn-sm" title="مشاهده جزئیات">
+                                     @*            <a href="@Url.Action("DailyAttendanceDetails", new { id = attendance.Id })" class="btn btn-soft-info btn-sm" title="مشاهده جزئیات">
                                                     <iconify-icon icon="solar:eye-broken" class="align-middle fs-18"></iconify-icon>
-                                                </a>
+                                                </a> *@
                                                 <a href="@Url.Action("EditDailyAttendance", new { id = attendance.Id })" class="btn btn-soft-primary btn-sm" title="ویرایش">
                                                     <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
                                                 </a>
@@ -396,5 +401,31 @@
                 });
             }, 5000);
         });
+
+        // PRINT REPORT FUNCTION
+        function printReport() {
+            // Get current filter values
+            const searchKey = document.querySelector('input[name="searchKey"]')?.value || '';
+            const status = document.querySelector('select[name="status"]')?.value || '';
+            const month = document.querySelector('input[name="month"]')?.value || '';
+
+            // Build URL with current filters
+            let url = '@Url.Action("PrintReport")';
+            const params = new URLSearchParams();
+
+            if (searchKey) params.append('searchKey', searchKey);
+            if (status) params.append('status', status);
+            if (month) params.append('month', month);
+
+            if (params.toString()) {
+                url += '?' + params.toString();
+            }
+
+            // Debug - you can remove this line after testing
+            console.log('Print URL:', url);
+
+            // Open in new window for printing
+            window.open(url, '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
+        }
     </script>
 }

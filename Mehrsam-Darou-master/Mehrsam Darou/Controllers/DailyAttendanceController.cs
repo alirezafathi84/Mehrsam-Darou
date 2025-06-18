@@ -322,5 +322,69 @@ namespace Mehrsam_Darou.Controllers
         {
             return _context.DailyAttendances.Any(e => e.Id == id);
         }
+
+
+        // Add this method to your DailyAttendanceController class
+
+        // GET: DailyAttendance/PrintReport - Generate print report
+        public async Task<IActionResult> PrintReport(string searchKey, string status, string month)
+        {
+            IQueryable<DailyAttendance> query = _context.DailyAttendances
+                .Include(d => d.User);
+
+            // Apply same filters as the list view
+            if (!string.IsNullOrWhiteSpace(searchKey))
+            {
+                query = query.Where(d => d.User.FirstName.Contains(searchKey) ||
+                                     d.User.LastName.Contains(searchKey) ||
+                                     d.User.Username.Contains(searchKey) ||
+                                     d.PersianDate.Contains(searchKey));
+            }
+
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                query = query.Where(d => d.Status == status);
+            }
+
+            if (!string.IsNullOrWhiteSpace(month))
+            {
+                query = query.Where(d => d.PersianDate.StartsWith(month));
+            }
+
+            // Order by most recent first
+            query = query.OrderByDescending(d => d.Date);
+
+            // Get all records (no pagination for report)
+            var allRecords = await query.ToListAsync();
+
+            // Prepare report data
+            ViewBag.SearchKey = searchKey;
+            ViewBag.Status = status;
+            ViewBag.Month = month;
+            ViewBag.GeneratedAt = DateTime.Now;
+            ViewBag.TotalRecords = allRecords.Count;
+
+            // Calculate summary statistics
+            var presentCount = allRecords.Count(d => d.Status == "Present");
+            var absentCount = allRecords.Count(d => d.Status == "Absent");
+            var vacationCount = allRecords.Count(d => d.Status == "Vacation");
+            var missionCount = allRecords.Count(d => d.Status == "Mission");
+            var holidayCount = allRecords.Count(d => d.Status == "Holiday");
+            var uniqueUsers = allRecords.Select(d => d.UserId).Distinct().Count();
+            var workingDaysCount = allRecords.Count(d => d.IsWorkingDay);
+            var totalHours = allRecords.Where(d => d.TotalHours.HasValue).Sum(d => d.TotalHours.Value);
+
+            ViewBag.PresentCount = presentCount;
+            ViewBag.AbsentCount = absentCount;
+            ViewBag.VacationCount = vacationCount;
+            ViewBag.MissionCount = missionCount;
+            ViewBag.HolidayCount = holidayCount;
+            ViewBag.UniqueUsers = uniqueUsers;
+            ViewBag.WorkingDaysCount = workingDaysCount;
+            ViewBag.TotalHours = totalHours;
+
+            return View(allRecords);
+        }
+
     }
 }

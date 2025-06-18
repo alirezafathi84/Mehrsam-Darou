@@ -479,5 +479,60 @@ namespace Mehrsam_Darou.Controllers
         {
             return _context.AttendanceLogs.Any(e => e.Id == id);
         }
+
+
+     
+
+        // GET: AttendanceLog/PrintReport - Generate print report
+        public async Task<IActionResult> PrintReport(string searchKey, DateTime? startDate, DateTime? endDate)
+        {
+            IQueryable<AttendanceLog> query = _context.AttendanceLogs
+                .Include(a => a.User);
+
+            // Apply same filters as the list view
+            if (!string.IsNullOrWhiteSpace(searchKey))
+            {
+                query = query.Where(a => a.User.FirstName.Contains(searchKey) ||
+                                        a.User.LastName.Contains(searchKey) ||
+                                        a.User.Username.Contains(searchKey) ||
+                                        a.LogType.Contains(searchKey));
+            }
+
+            if (startDate.HasValue)
+            {
+                query = query.Where(a => a.LogTime.Date >= startDate.Value.Date);
+            }
+
+            if (endDate.HasValue)
+            {
+                query = query.Where(a => a.LogTime.Date <= endDate.Value.Date);
+            }
+
+            query = query.OrderByDescending(a => a.LogTime);
+
+            // Get all records (no pagination for report)
+            var allRecords = await query.ToListAsync();
+
+            // Prepare report data
+            ViewBag.SearchKey = searchKey;
+            ViewBag.StartDate = startDate;
+            ViewBag.EndDate = endDate;
+            ViewBag.GeneratedAt = DateTime.Now;
+            ViewBag.TotalRecords = allRecords.Count;
+
+            // Calculate summary statistics
+            var entryCount = allRecords.Count(a => a.LogType == "Entry");
+            var exitCount = allRecords.Count(a => a.LogType == "Exit");
+            var uniqueUsers = allRecords.Select(a => a.UserId).Distinct().Count();
+
+            ViewBag.EntryCount = entryCount;
+            ViewBag.ExitCount = exitCount;
+            ViewBag.UniqueUsers = uniqueUsers;
+
+            return View(allRecords);
+        }
+
+
+
     }
 }

@@ -33,9 +33,12 @@
 
                 <form asp-action="AddBOM">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <!-- Hidden Medicine ID -->
                     <input type="hidden" asp-for="MedicineId" />
 
                     <div class="row">
+                        <!-- Material Selection -->
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label asp-for="MaterialId" class="form-label"></label>
@@ -45,6 +48,8 @@
                                 <span asp-validation-for="MaterialId" class="text-danger"></span>
                             </div>
                         </div>
+
+                        <!-- Quantity -->
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label asp-for="Quantity" class="form-label"></label>
@@ -55,6 +60,7 @@
                     </div>
 
                     <div class="row">
+                        <!-- Unit Selection -->
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label asp-for="UnitId" class="form-label"></label>
@@ -64,6 +70,8 @@
                                 <span asp-validation-for="UnitId" class="text-danger"></span>
                             </div>
                         </div>
+
+                        <!-- Active Status -->
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label asp-for="IsActive" class="form-label"></label>
@@ -76,6 +84,7 @@
                         </div>
                     </div>
 
+                    <!-- Submit Button -->
                     <div class="mt-3">
                         <button type="submit" class="btn btn-primary">
                             <i class="bx bx-save me-1"></i> ذخیره

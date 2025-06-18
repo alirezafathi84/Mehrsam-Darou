@@ -81,10 +81,27 @@ namespace Mehrsam_Darou.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddMedicineBom(MedicineBom medicineBom)
         {
+            // Remove validation for navigation properties
+            ModelState.Remove("Medicine");
+            ModelState.Remove("Material");
+            ModelState.Remove("Unit");
+
+            // Remove any sub-properties of navigation properties
+            var keysToRemove = ModelState.Keys.Where(k =>
+                k.StartsWith("Medicine.") ||
+                k.StartsWith("Material.") ||
+                k.StartsWith("Unit.")).ToList();
+
+            foreach (var key in keysToRemove)
+            {
+                ModelState.Remove(key);
+            }
+
             if (ModelState.IsValid)
             {
                 try
                 {
+                    // Check for duplicate combination
                     if (await _context.MedicineBoms.AnyAsync(m =>
                         m.MedicineId == medicineBom.MedicineId &&
                         m.MaterialId == medicineBom.MaterialId))
@@ -95,6 +112,12 @@ namespace Mehrsam_Darou.Controllers
                     }
 
                     medicineBom.BomId = Guid.NewGuid();
+
+                    // Set navigation properties to null to avoid EF issues
+                    medicineBom.Medicine = null;
+                    medicineBom.Material = null;
+                    medicineBom.Unit = null;
+
                     _context.Add(medicineBom);
                     await _context.SaveChangesAsync();
 
@@ -122,7 +145,8 @@ namespace Mehrsam_Darou.Controllers
 
             if (medicineBom == null)
             {
-                return NotFound();
+                TempData["ErrorMessage"] = "فرمول دارو مورد نظر یافت نشد";
+                return RedirectToAction(nameof(MedicineBomList));
             }
 
             await LoadDropdownData();
@@ -134,26 +158,107 @@ namespace Mehrsam_Darou.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditMedicineBom(Guid id, MedicineBom medicineBom)
         {
+            // If the route id is empty, try to get it from the model
+            if (id == Guid.Empty && medicineBom.BomId != Guid.Empty)
+            {
+                id = medicineBom.BomId;
+            }
+
+            // Check if we have a valid ID
+            if (id == Guid.Empty || medicineBom.BomId == Guid.Empty)
+            {
+                TempData["ErrorMessage"] = "شناسه فرمول دارو معتبر نیست";
+                return RedirectToAction(nameof(MedicineBomList));
+            }
+
             if (id != medicineBom.BomId)
             {
-                return NotFound();
+                TempData["ErrorMessage"] = "عدم تطابق شناسه فرمول دارو";
+                return RedirectToAction(nameof(MedicineBomList));
+            }
+
+            // Remove validation errors for navigation properties that we don't want to validate
+            ModelState.Remove("Medicine");
+            ModelState.Remove("Material");
+            ModelState.Remove("Unit");
+
+            // Also remove any sub-properties of navigation properties
+            var keysToRemove = ModelState.Keys.Where(k =>
+                k.StartsWith("Medicine.") ||
+                k.StartsWith("Material.") ||
+                k.StartsWith("Unit.")).ToList();
+
+            foreach (var key in keysToRemove)
+            {
+                ModelState.Remove(key);
+            }
+
+            // Validate required fields manually
+            if (medicineBom.Quantity <= 0)
+            {
+                ModelState.AddModelError("Quantity", "مقدار باید بیشتر از صفر باشد");
+            }
+
+            if (medicineBom.UnitId == Guid.Empty)
+            {
+                ModelState.AddModelError("UnitId", "انتخاب واحد الزامی است");
+            }
+
+            if (medicineBom.MedicineId == Guid.Empty)
+            {
+                ModelState.AddModelError("MedicineId", "شناسه دارو معتبر نیست");
+            }
+
+            if (medicineBom.MaterialId == Guid.Empty)
+            {
+                ModelState.AddModelError("MaterialId", "شناسه ماده اولیه معتبر نیست");
             }
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    if (await _context.MedicineBoms.AnyAsync(m =>
-                        m.BomId != id &&
-                        m.MedicineId == medicineBom.MedicineId &&
-                        m.MaterialId == medicineBom.MaterialId))
+                    // Get the existing entity from database
+                    var existingBom = await _context.MedicineBoms.FindAsync(medicineBom.BomId);
+
+                    if (existingBom == null)
                     {
-                        TempData["ErrorMessage"] = "این ماده اولیه قبلاً برای این دارو ثبت شده است";
-                        await LoadDropdownData();
-                        return View(medicineBom);
+                        TempData["ErrorMessage"] = "فرمول دارو مورد نظر یافت نشد";
+                        return RedirectToAction(nameof(MedicineBomList));
                     }
 
-                    _context.Update(medicineBom);
+                    // Validate unit exists
+                    if (!await _context.Units.AnyAsync(u => u.UnitId == medicineBom.UnitId && u.IsActive == true))
+                    {
+                        TempData["ErrorMessage"] = "واحد انتخاب شده معتبر نیست";
+                        var reloadBom = await _context.MedicineBoms
+                            .Include(m => m.Medicine)
+                            .Include(m => m.Material)
+                            .Include(m => m.Unit)
+                            .FirstOrDefaultAsync(m => m.BomId == medicineBom.BomId);
+                        await LoadDropdownData();
+                        return View(reloadBom);
+                    }
+
+                    // Ensure that MedicineId and MaterialId haven't been tampered with
+                    if (existingBom.MedicineId != medicineBom.MedicineId || existingBom.MaterialId != medicineBom.MaterialId)
+                    {
+                        TempData["ErrorMessage"] = "امکان تغییر دارو یا ماده اولیه وجود ندارد";
+                        var reloadBom = await _context.MedicineBoms
+                            .Include(m => m.Medicine)
+                            .Include(m => m.Material)
+                            .Include(m => m.Unit)
+                            .FirstOrDefaultAsync(m => m.BomId == medicineBom.BomId);
+                        await LoadDropdownData();
+                        return View(reloadBom);
+                    }
+
+                    // Update only the allowed fields
+                    existingBom.Quantity = medicineBom.Quantity;
+                    existingBom.UnitId = medicineBom.UnitId;
+                    existingBom.IsActive = medicineBom.IsActive;
+
+                    // Save changes
                     await _context.SaveChangesAsync();
 
                     TempData["SuccessMessage"] = "فرمول دارو با موفقیت به‌روزرسانی شد";
@@ -163,17 +268,35 @@ namespace Mehrsam_Darou.Controllers
                 {
                     if (!MedicineBomExists(medicineBom.BomId))
                     {
-                        return NotFound();
+                        TempData["ErrorMessage"] = "فرمول دارو مورد نظر یافت نشد";
+                        return RedirectToAction(nameof(MedicineBomList));
                     }
                     else
                     {
-                        throw;
+                        TempData["ErrorMessage"] = "خطا در به‌روزرسانی: فرمول توسط کاربر دیگری تغییر یافته است";
                     }
+                }
+                catch (Exception ex)
+                {
+                    TempData["ErrorMessage"] = "خطا در به‌روزرسانی فرمول دارو: " + ex.Message;
                 }
             }
 
+            // If we get here, something went wrong, reload the form
+            var bomToReload = await _context.MedicineBoms
+                .Include(m => m.Medicine)
+                .Include(m => m.Material)
+                .Include(m => m.Unit)
+                .FirstOrDefaultAsync(m => m.BomId == medicineBom.BomId);
+
+            if (bomToReload == null)
+            {
+                TempData["ErrorMessage"] = "فرمول دارو مورد نظر یافت نشد";
+                return RedirectToAction(nameof(MedicineBomList));
+            }
+
             await LoadDropdownData();
-            return View(medicineBom);
+            return View(bomToReload);
         }
 
         // POST: MedicineBom/Delete/5
@@ -205,22 +328,31 @@ namespace Mehrsam_Darou.Controllers
         // GET: MedicineBom/GetMedicineFormula/5
         public async Task<IActionResult> GetMedicineFormula(Guid medicineId)
         {
-            var formula = await _context.MedicineBoms
-                .Include(m => m.Medicine)
-                .Include(m => m.Material)
-                .Include(m => m.Unit)
-                .Where(m => m.MedicineId == medicineId && m.IsActive == true)
-                .OrderBy(m => m.Material.MaterialName)
-                .ToListAsync();
-
-            return Json(formula.Select(f => new
+            try
             {
-                materialName = f.Material.MaterialName,
-                materialCode = f.Material.MaterialCode,
-                quantity = f.Quantity,
-                unitSymbol = f.Unit.UnitSymbol,
-                unitName = f.Unit.UnitName
-            }));
+                var formula = await _context.MedicineBoms
+                    .Include(m => m.Medicine)
+                    .Include(m => m.Material)
+                    .Include(m => m.Unit)
+                    .Where(m => m.MedicineId == medicineId && m.IsActive == true)
+                    .OrderBy(m => m.Material.MaterialName)
+                    .ToListAsync();
+
+                var result = formula.Select(f => new
+                {
+                    materialName = f.Material?.MaterialName ?? "نامشخص",
+                    materialCode = f.Material?.MaterialCode ?? "نامشخص",
+                    quantity = f.Quantity,
+                    unitSymbol = f.Unit?.UnitSymbol ?? "",
+                    unitName = f.Unit?.UnitName ?? "نامشخص"
+                });
+
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = "خطا در بارگذاری اطلاعات: " + ex.Message });
+            }
         }
 
         private async Task LoadDropdownData()

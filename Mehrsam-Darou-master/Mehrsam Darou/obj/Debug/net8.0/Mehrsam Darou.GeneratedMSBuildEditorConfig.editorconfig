@@ -56,6 +56,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXR0ZW5kYW5jZUxvZ1xFZGl0QXR0ZW5kYW5jZUxvZy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/AttendanceLog/PrintReport.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXR0ZW5kYW5jZUxvZ1xQcmludFJlcG9ydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/BatchTest/AddBatchTest.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQmF0Y2hUZXN0XEFkZEJhdGNoVGVzdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -130,6 +134,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/DailyAttendance/EditDailyAttendance.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFpbHlBdHRlbmRhbmNlXEVkaXREYWlseUF0dGVuZGFuY2UuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/DailyAttendance/PrintReport.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFpbHlBdHRlbmRhbmNlXFByaW50UmVwb3J0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Dashboard/Dashboard.cshtml]
