@@ -52,7 +52,8 @@
                     </div>
                 </div>
 
-                <form asp-action="EditSupplier">
+                <!-- FIXED: Added asp-route-id to properly pass the ID -->
+                <form asp-action="EditSupplier" asp-route-id="@Model.SupplierId" method="post">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <input type="hidden" asp-for="SupplierId" />
 
@@ -60,7 +61,7 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label asp-for="SupplierName" class="form-label">نام تأمین‌کننده <span class="text-danger">*</span></label>
-                                <input asp-for="SupplierName" class="form-control" />
+                                <input asp-for="SupplierName" class="form-control" required />
                                 <span asp-validation-for="SupplierName" class="text-danger"></span>
                             </div>
                         </div>
@@ -190,6 +191,12 @@
                         </div>
                     </div>
 
+                    <!-- Debug Info (Remove in production) -->
+                    <div class="alert alert-secondary" style="font-size: 12px;">
+                        <strong>Debug Info:</strong> 
+                        SupplierId: @Model.SupplierId
+                    </div>
+
                     <div class="mt-3">
                         <button type="submit" class="btn btn-primary">
                             <i class="bx bx-save me-1"></i> ذخیره تغییرات
@@ -226,15 +233,54 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Enhanced form validation
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(e) {
+                const supplierName = document.querySelector('[name="SupplierName"]').value.trim();
+                const supplierCode = document.querySelector('[name="SupplierCode"]').value.trim();
+                const leadTime = document.querySelector('[name="LeadTimeDays"]').value;
+                const email = document.querySelector('[name="Email"]').value.trim();
+
+                let hasError = false;
+
+                // Validate required fields
+                if (!supplierName) {
+                    showFieldError('SupplierName', 'نام تأمین‌کننده الزامی است');
+                    hasError = true;
+                }
+
+                if (!supplierCode) {
+                    showFieldError('SupplierCode', 'کد تأمین‌کننده الزامی است');
+                    hasError = true;
+                }
+
+                // Validate lead time
+                if (leadTime && (parseInt(leadTime) < 0 || parseInt(leadTime) > 365)) {
+                    showFieldError('LeadTimeDays', 'مدت تحویل باید بین 0 تا 365 روز باشد');
+                    hasError = true;
+                }
+
+                // Validate email
+                if (email && !isValidEmail(email)) {
+                    showFieldError('Email', 'فرمت ایمیل صحیح نیست');
+                    hasError = true;
+                }
+
+                if (hasError) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+
             // Store original values for comparison
             window.originalValues = {
-                supplierName: '@Model.SupplierName',
-                contactPerson: '@Model.ContactPerson',
-                phone: '@Model.Phone',
-                email: '@Model.Email',
-                address: '@Model.Address',
-                taxNumber: '@Model.TaxNumber',
-                paymentTerms: '@Model.PaymentTerms',
+                supplierName: '@Html.Raw(Model.SupplierName?.Replace("'", "\\'"))',
+                contactPerson: '@Html.Raw(Model.ContactPerson?.Replace("'", "\\'"))',
+                phone: '@Html.Raw(Model.Phone?.Replace("'", "\\'"))',
+                email: '@Html.Raw(Model.Email?.Replace("'", "\\'"))',
+                address: '@Html.Raw(Model.Address?.Replace("'", "\\'"))',
+                taxNumber: '@Html.Raw(Model.TaxNumber?.Replace("'", "\\'"))',
+                paymentTerms: '@Html.Raw(Model.PaymentTerms?.Replace("'", "\\'"))',
                 leadTimeDays: @(Model.LeadTimeDays?.ToString() ?? "null"),
                 isActive: @Model.IsActive.ToString().ToLower()
             };
@@ -249,6 +295,27 @@
                 }
             });
         });
+
+        function showFieldError(fieldName, message) {
+            const field = document.querySelector(`[name="${fieldName}"]`);
+            const errorSpan = document.querySelector(`[data-valmsg-for="${fieldName}"]`);
+            
+            if (field) {
+                field.classList.add('is-invalid');
+            }
+            
+            if (errorSpan) {
+                errorSpan.textContent = message;
+                errorSpan.classList.add('text-danger');
+            }
+        }
+
+        function isValidEmail(email) {
+            // Use a simple email validation to avoid Razor parsing issues
+            var atSymbol = String.fromCharCode(64); //
+            var dotSymbol = '.';
+            return email.indexOf(atSymbol) > 0 && email.indexOf(dotSymbol) > 0 && email.length > 5;
+        }
 
         function checkChanges() {
             const changes = [];
@@ -364,16 +431,6 @@
                         '<div class="text-center py-4 text-danger"><i class="bx bx-error fs-1"></i><p class="mt-2">خطا در بارگذاری اطلاعات</p></div>';
                 });
         }
-
-        // Enhanced form validation
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const leadTime = document.querySelector('[name="LeadTimeDays"]').value;
-            if (leadTime && (parseInt(leadTime) < 0 || parseInt(leadTime) > 365)) {
-                e.preventDefault();
-                alert('مدت تحویل باید بین 0 تا 365 روز باشد');
-                return false;
-            }
-        });
 
         // Format phone number on input
         document.querySelector('[name="Phone"]').addEventListener('input', function(e) {

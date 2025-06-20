@@ -27,9 +27,14 @@
 
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h4>افزودن فاکتور خرید جدید</h4>
-                    <a href="@Url.Action("PurchaseInvoiceList")" class="btn btn-secondary">
-                        <i class="bx bx-arrow-back me-1"></i> بازگشت به لیست
-                    </a>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#loadFromOrderModal">
+                            <i class="bx bx-import me-1"></i> ایجاد از سفارش خرید
+                        </button>
+                        <a href="@Url.Action("PurchaseInvoiceList")" class="btn btn-secondary">
+                            <i class="bx bx-arrow-back me-1"></i> بازگشت به لیست
+                        </a>
+                    </div>
                 </div>
 
                 <form asp-action="AddPurchaseInvoice">
@@ -56,12 +61,8 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label asp-for="SupplierId" class="form-label">تامین‌کننده <span class="text-danger">*</span></label>
-                                <select asp-for="SupplierId" class="form-select">
+                                <select asp-for="SupplierId" asp-items="ViewBag.Suppliers" class="form-select">
                                     <option value="">-- انتخاب تامین‌کننده --</option>
-                                    @foreach (var supplier in ViewBag.Suppliers as List<Mehrsam_Darou.Models.Supplier>)
-                                    {
-                                        <option value="@supplier.SupplierId">@supplier.SupplierName</option>
-                                    }
                                 </select>
                                 <span asp-validation-for="SupplierId" class="text-danger"></span>
                             </div>
@@ -69,12 +70,8 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label asp-for="PurchaseOrderId" class="form-label">سفارش خرید مرتبط</label>
-                                <select asp-for="PurchaseOrderId" class="form-select">
+                                <select asp-for="PurchaseOrderId" asp-items="ViewBag.PurchaseOrders" class="form-select">
                                     <option value="">-- انتخاب سفارش خرید --</option>
-                                    @foreach (var po in ViewBag.PurchaseOrders as List<Mehrsam_Darou.Models.PurchaseOrder>)
-                                    {
-                                        <option value="@po.PurchaseOrderId">@po.PoNumber - @po.Supplier?.SupplierName</option>
-                                    }
                                 </select>
                                 <span asp-validation-for="PurchaseOrderId" class="text-danger"></span>
                             </div>
@@ -205,24 +202,293 @@
     </div>
 </div>
 
+<!-- مودال ایجاد از سفارش خرید -->
+<div class="modal fade" id="loadFromOrderModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">ایجاد فاکتور از سفارش خرید</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">انتخاب سفارش خرید <span class="text-danger">*</span></label>
+                    <select id="selectPurchaseOrder" class="form-select">
+                        <option value="">-- انتخاب سفارش خرید --</option>
+                    </select>
+                </div>
+                <div id="orderDetailsSection" class="mt-3" style="display: none;">
+                    <h6>جزئیات سفارش خرید:</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>تامین‌کننده:</strong> <span id="orderSupplier"></span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>مبلغ کل:</strong> <span id="orderTotal"></span></p>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>ماده اولیه</th>
+                                    <th>مقدار</th>
+                                    <th>واحد</th>
+                                    <th>قیمت واحد</th>
+                                    <th>قیمت کل</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orderItemsTable">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="loadOrderBtn" class="btn btn-info" disabled>
+                    <i class="bx bx-download me-1"></i> بارگذاری در فرم
+                </button>
+                <button type="button" id="createInvoiceBtn" class="btn btn-primary" disabled>
+                    <i class="bx bx-check me-1"></i> ایجاد فاکتور مستقیم
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- مودال ایجاد مستقیم فاکتور -->
+<div class="modal fade" id="createInvoiceModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">ایجاد فاکتور خرید</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <form id="createInvoiceForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="selectedPurchaseOrderId" name="purchaseOrderId" />
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">شماره فاکتور <span class="text-danger">*</span></label>
+                        <input type="text" name="InvoiceNumber" class="form-control" required />
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">تاریخ فاکتور <span class="text-danger">*</span></label>
+                                <input type="date" name="InvoiceDate" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" required />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">تاریخ سررسید</label>
+                                <input type="date" name="DueDate" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">مبلغ مالیات</label>
+                                <input type="number" name="TaxAmount" class="form-control" step="0.01" value="0" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">مبلغ تخفیف</label>
+                                <input type="number" name="DiscountAmount" class="form-control" step="0.01" value="0" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">شماره فاکتور تامین‌کننده</label>
+                        <input type="text" name="SupplierInvoiceNumber" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">وضعیت</label>
+                        <select name="Status" class="form-select">
+                            <option value="پیش‌نویس" selected>پیش‌نویس</option>
+                            <option value="در انتظار">در انتظار</option>
+                            <option value="تایید شده">تایید شده</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">توضیحات</label>
+                        <textarea name="Notes" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bx bx-save me-1"></i> ایجاد فاکتور با آیتم‌ها
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 
     <script>
-        // Auto-calculate total amount
-        function calculateTotal() {
-            var subtotal = parseFloat(document.getElementById('Subtotal').value) || 0;
-            var taxAmount = parseFloat(document.getElementById('TaxAmount').value) || 0;
-            var discountAmount = parseFloat(document.getElementById('DiscountAmount').value) || 0;
+        document.addEventListener('DOMContentLoaded', function () {
+            let purchaseOrders = [];
+            let selectedOrderData = null;
 
-            var total = subtotal + taxAmount - discountAmount;
-            document.getElementById('TotalAmount').value = total.toFixed(2);
+            // Load purchase orders when modal opens
+            document.getElementById('loadFromOrderModal').addEventListener('show.bs.modal', function () {
+                console.log('Modal opened, loading purchase orders'); // Debug log
+                loadPurchaseOrders();
+
+                // Reset modal state
+                hideOrderDetails();
+                document.getElementById('selectPurchaseOrder').value = '';
+            });
+
+            function loadPurchaseOrders() {
+                const purchaseOrderSelect = document.getElementById('selectPurchaseOrder');
+                purchaseOrderSelect.innerHTML = '<option value="">-- انتخاب سفارش خرید --</option>';
+
+                let optionCount = 0;
+        @foreach (var po in ViewBag.PurchaseOrders as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>)
+        {
+            <text>
+                        purchaseOrderSelect.innerHTML += `<option value="@po.Value">@po.Text</option>`;
+                        optionCount++;
+            </text>
         }
 
-        document.getElementById('Subtotal').addEventListener('input', calculateTotal);
-        document.getElementById('TaxAmount').addEventListener('input', calculateTotal);
-        document.getElementById('DiscountAmount').addEventListener('input', calculateTotal);
+                console.log(`Loaded ${optionCount} purchase orders`); // Debug log
+
+                if (optionCount === 0) {
+                    purchaseOrderSelect.innerHTML += '<option value="" disabled>هیچ سفارش خریدی یافت نشد</option>';
+                }
+            }
+
+            // Handle purchase order selection
+            document.getElementById('selectPurchaseOrder').addEventListener('change', function () {
+                const selectedId = this.value;
+                console.log('Selected purchase order ID:', selectedId); // Debug log
+
+                if (selectedId) {
+                    loadOrderDetails(selectedId);
+                } else {
+                    hideOrderDetails();
+                }
+            });
+
+            function loadOrderDetails(purchaseOrderId) {
+                console.log('Loading order details for:', purchaseOrderId); // Debug log
+
+                fetch(`@Url.Action("GetPurchaseOrderDetails")?purchaseOrderId=${purchaseOrderId}`)
+                    .then(response => {
+                        console.log('Response status:', response.status); // Debug log
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Order details received:', data); // Debug log
+
+                        if (data.success) {
+                            selectedOrderData = data;
+                            displayOrderDetails(data);
+                        } else {
+                            alert('خطا در بارگذاری جزئیات سفارش خرید: ' + (data.message || 'خطای نامشخص'));
+                            hideOrderDetails();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading order details:', error);
+                        alert('خطا در ارتباط با سرور');
+                        hideOrderDetails();
+                    });
+            }
+
+            function displayOrderDetails(data) {
+                document.getElementById('orderSupplier').textContent = data.supplierName || '-';
+                document.getElementById('orderTotal').textContent = data.totalAmount ?
+                    `${data.totalAmount.toLocaleString()} ${data.currency || 'IRR'}` : '-';
+
+                const itemsTable = document.getElementById('orderItemsTable');
+                itemsTable.innerHTML = '';
+
+                if (data.items && data.items.length > 0) {
+                    data.items.forEach(item => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${item.materialName}</td>
+                            <td>${item.quantity}</td>
+                            <td>${item.unitName}</td>
+                            <td>${item.unitPrice.toLocaleString()}</td>
+                            <td>${item.totalPrice.toLocaleString()}</td>
+                        `;
+                        itemsTable.appendChild(row);
+                    });
+                } else {
+                    itemsTable.innerHTML = '<tr><td colspan="5" class="text-center">هیچ آیتمی یافت نشد</td></tr>';
+                }
+
+                document.getElementById('orderDetailsSection').style.display = 'block';
+                document.getElementById('loadOrderBtn').disabled = false;
+            }
+
+            function hideOrderDetails() {
+                document.getElementById('orderDetailsSection').style.display = 'none';
+                document.getElementById('loadOrderBtn').disabled = true;
+                selectedOrderData = null;
+            }
+
+            // Load order data into form
+            document.getElementById('loadOrderBtn').addEventListener('click', function () {
+                if (selectedOrderData) {
+                    // Populate form fields
+                    document.getElementById('SupplierId').value = selectedOrderData.supplierId;
+                    document.getElementById('PurchaseOrderId').value = document.getElementById('selectPurchaseOrder').value;
+                    document.getElementById('Currency').value = selectedOrderData.currency || 'IRR';
+
+                    // Calculate totals
+                    const subtotal = selectedOrderData.totalAmount || 0;
+                    document.getElementById('Subtotal').value = subtotal;
+                    document.getElementById('TotalAmount').value = subtotal;
+
+                    // Close modal
+                    bootstrap.Modal.getInstance(document.getElementById('loadFromOrderModal')).hide();
+
+                    // Show success message
+                    showAlert('سفارش خرید با موفقیت بارگذاری شد. می‌توانید جزئیات را ویرایش کنید.', 'success');
+                }
+            });
+
+            function showAlert(message, type) {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+                alertDiv.innerHTML = `
+                    <p class="mb-0">${message}</p>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.querySelector('.card-body').insertBefore(alertDiv, document.querySelector('.card-body').firstChild);
+
+                setTimeout(() => {
+                    alertDiv.remove();
+                }, 5000);
+            }
+
+            // Auto-calculate total amount
+            function calculateTotal() {
+                var subtotal = parseFloat(document.getElementById('Subtotal').value) || 0;
+                var taxAmount = parseFloat(document.getElementById('TaxAmount').value) || 0;
+                var discountAmount = parseFloat(document.getElementById('DiscountAmount').value) || 0;
+
+                var total = subtotal + taxAmount - discountAmount;
+                document.getElementById('TotalAmount').value = total.toFixed(2);
+            }
+
+            document.getElementById('Subtotal').addEventListener('input', calculateTotal);
+            document.getElementById('TaxAmount').addEventListener('input', calculateTotal);
+            document.getElementById('DiscountAmount').addEventListener('input', calculateTotal);
+        });
     </script>
 }

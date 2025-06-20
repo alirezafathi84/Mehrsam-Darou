@@ -50,10 +50,7 @@ namespace Mehrsam_Darou.Controllers
         // GET: PurchaseOrder/AddPurchaseOrder
         public async Task<IActionResult> AddPurchaseOrder()
         {
-            ViewBag.Suppliers = await _context.Suppliers
-                .Where(s => s.IsActive == true)
-                .OrderBy(s => s.SupplierName)
-                .ToListAsync();
+            await LoadSuppliers();
 
             return View(new PurchaseOrder
             {
@@ -115,6 +112,17 @@ namespace Mehrsam_Darou.Controllers
             }
 
             await LoadSuppliers();
+
+            // Load purchase order items for display
+            var items = await _context.PurchaseOrderItems
+                .Include(poi => poi.Material)
+                .Include(poi => poi.Unit)
+                .Where(poi => poi.PurchaseOrderId == id)
+                .OrderBy(poi => poi.Material.MaterialName)
+                .ToListAsync();
+
+            ViewBag.PurchaseOrderItems = items;
+
             return View(purchaseOrder);
         }
 
@@ -212,6 +220,185 @@ namespace Mehrsam_Darou.Controllers
             return RedirectToAction(nameof(PurchaseOrderList));
         }
 
+        #region Purchase Order Items Methods
+
+        // GET: PurchaseOrder/GetItem/{id} - For Edit Modal
+        [HttpGet]
+        public async Task<IActionResult> GetItem(Guid id)
+        {
+            var item = await _context.PurchaseOrderItems
+                .Include(poi => poi.Material)
+                .Include(poi => poi.Unit)
+                .FirstOrDefaultAsync(poi => poi.PoItemId == id);
+
+            if (item == null)
+            {
+                return NotFound();
+            }
+
+            return Json(new
+            {
+                poItemId = item.PoItemId,
+                materialId = item.MaterialId,
+                materialName = item.Material.MaterialName,
+                quantity = item.Quantity,
+                unitId = item.UnitId,
+                unitName = item.Unit.UnitName,
+                unitPrice = item.UnitPrice,
+                totalPrice = item.TotalPrice,
+                receivedQuantity = item.ReceivedQuantity,
+                notes = item.Notes
+            });
+        }
+
+        // GET: PurchaseOrder/GetMaterials - For Add/Edit Modal
+        [HttpGet]
+        public async Task<IActionResult> GetMaterials()
+        {
+            var materials = await _context.RawMaterials
+                .Where(m => m.IsActive == true)
+                .OrderBy(m => m.MaterialName)
+                .Select(m => new { value = m.MaterialId, text = m.MaterialName })
+                .ToListAsync();
+
+            return Json(materials);
+        }
+
+        // GET: PurchaseOrder/GetUnits - For Add/Edit Modal
+        [HttpGet]
+        public async Task<IActionResult> GetUnits()
+        {
+            var units = await _context.Units
+                .Where(u => u.IsActive == true)
+                .OrderBy(u => u.UnitName)
+                .Select(u => new { value = u.UnitId, text = u.UnitName })
+                .ToListAsync();
+
+            return Json(units);
+        }
+
+        // POST: PurchaseOrder/AddItem
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddItem(PurchaseOrderItem item)
+        {
+            try
+            {
+                // Check if purchase order exists
+                var purchaseOrderExists = await _context.PurchaseOrders
+                    .AnyAsync(po => po.PurchaseOrderId == item.PurchaseOrderId);
+
+                if (!purchaseOrderExists)
+                {
+                    return Json(new { success = false, message = "سفارش خرید مورد نظر یافت نشد" });
+                }
+
+                // Check if material already exists in this purchase order
+                var existingItem = await _context.PurchaseOrderItems
+                    .AnyAsync(poi => poi.PurchaseOrderId == item.PurchaseOrderId &&
+                                   poi.MaterialId == item.MaterialId);
+
+                if (existingItem)
+                {
+                    return Json(new { success = false, message = "این ماده اولیه قبلاً به سفارش خرید اضافه شده است" });
+                }
+
+                item.PoItemId = Guid.NewGuid();
+                item.TotalPrice = item.Quantity * item.UnitPrice;
+                item.ReceivedQuantity = 0;
+
+                _context.PurchaseOrderItems.Add(item);
+                await _context.SaveChangesAsync();
+
+                // Update purchase order total amount
+                await UpdatePurchaseOrderTotalAsync(item.PurchaseOrderId);
+
+                return Json(new { success = true, message = "آیتم جدید با موفقیت اضافه شد" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "خطا در افزودن آیتم: " + ex.Message });
+            }
+        }
+
+        // POST: PurchaseOrder/EditItem
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditItem(PurchaseOrderItem item)
+        {
+            try
+            {
+                var existingItem = await _context.PurchaseOrderItems
+                    .FirstOrDefaultAsync(poi => poi.PoItemId == item.PoItemId);
+
+                if (existingItem == null)
+                {
+                    return Json(new { success = false, message = "آیتم مورد نظر یافت نشد" });
+                }
+
+                // Check if material already exists in this purchase order (excluding current item)
+                var duplicateItem = await _context.PurchaseOrderItems
+                    .AnyAsync(poi => poi.PurchaseOrderId == existingItem.PurchaseOrderId &&
+                                   poi.MaterialId == item.MaterialId &&
+                                   poi.PoItemId != item.PoItemId);
+
+                if (duplicateItem)
+                {
+                    return Json(new { success = false, message = "این ماده اولیه قبلاً به سفارش خرید اضافه شده است" });
+                }
+
+                existingItem.MaterialId = item.MaterialId;
+                existingItem.Quantity = item.Quantity;
+                existingItem.UnitId = item.UnitId;
+                existingItem.UnitPrice = item.UnitPrice;
+                existingItem.TotalPrice = item.Quantity * item.UnitPrice;
+                existingItem.Notes = item.Notes;
+
+                await _context.SaveChangesAsync();
+
+                // Update purchase order total amount
+                await UpdatePurchaseOrderTotalAsync(existingItem.PurchaseOrderId);
+
+                return Json(new { success = true, message = "آیتم با موفقیت ویرایش شد" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "خطا در ویرایش آیتم: " + ex.Message });
+            }
+        }
+
+        // POST: PurchaseOrder/DeleteItem
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteItem(Guid id)
+        {
+            try
+            {
+                var item = await _context.PurchaseOrderItems.FindAsync(id);
+                if (item == null)
+                {
+                    return Json(new { success = false, message = "آیتم مورد نظر یافت نشد" });
+                }
+
+                var purchaseOrderId = item.PurchaseOrderId;
+                _context.PurchaseOrderItems.Remove(item);
+                await _context.SaveChangesAsync();
+
+                // Update purchase order total amount
+                await UpdatePurchaseOrderTotalAsync(purchaseOrderId);
+
+                return Json(new { success = true, message = "آیتم با موفقیت حذف شد" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "خطا در حذف آیتم: " + ex.Message });
+            }
+        }
+
+        #endregion
+
+        #region Private Methods
+
         private bool PurchaseOrderExists(Guid id)
         {
             return _context.PurchaseOrders.Any(e => e.PurchaseOrderId == id);
@@ -219,10 +406,32 @@ namespace Mehrsam_Darou.Controllers
 
         private async Task LoadSuppliers()
         {
-            ViewBag.Suppliers = await _context.Suppliers
+            var suppliers = await _context.Suppliers
                 .Where(s => s.IsActive == true)
                 .OrderBy(s => s.SupplierName)
                 .ToListAsync();
+
+            ViewBag.Suppliers = suppliers.Select(s => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+            {
+                Value = s.SupplierId.ToString(),
+                Text = s.SupplierName
+            }).ToList();
         }
+
+        private async Task UpdatePurchaseOrderTotalAsync(Guid purchaseOrderId)
+        {
+            var totalAmount = await _context.PurchaseOrderItems
+                .Where(poi => poi.PurchaseOrderId == purchaseOrderId)
+                .SumAsync(poi => poi.TotalPrice);
+
+            var purchaseOrder = await _context.PurchaseOrders.FindAsync(purchaseOrderId);
+            if (purchaseOrder != null)
+            {
+                purchaseOrder.TotalAmount = totalAmount;
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        #endregion
     }
 }

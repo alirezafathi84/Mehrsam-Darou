@@ -58,13 +58,44 @@ namespace Mehrsam_Darou.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddSupplier(Supplier supplier)
         {
+            // Enhanced validation
+            if (string.IsNullOrWhiteSpace(supplier.SupplierName))
+            {
+                ModelState.AddModelError(nameof(supplier.SupplierName), "نام تأمین‌کننده الزامی است");
+            }
+
+            if (string.IsNullOrWhiteSpace(supplier.SupplierCode))
+            {
+                ModelState.AddModelError(nameof(supplier.SupplierCode), "کد تأمین‌کننده الزامی است");
+            }
+
+            // Validate email format if provided
+            if (!string.IsNullOrWhiteSpace(supplier.Email) && !IsValidEmail(supplier.Email))
+            {
+                ModelState.AddModelError(nameof(supplier.Email), "فرمت ایمیل صحیح نیست");
+            }
+
+            // Validate lead time range
+            if (supplier.LeadTimeDays.HasValue && (supplier.LeadTimeDays < 0 || supplier.LeadTimeDays > 365))
+            {
+                ModelState.AddModelError(nameof(supplier.LeadTimeDays), "مدت تحویل باید بین 0 تا 365 روز باشد");
+            }
+
             if (ModelState.IsValid)
             {
                 try
                 {
+                    // Check for duplicate supplier code
                     if (await _context.Suppliers.AnyAsync(s => s.SupplierCode == supplier.SupplierCode))
                     {
-                        TempData["ErrorMessage"] = "تأمین‌کننده با این کد قبلاً ثبت شده است";
+                        ModelState.AddModelError(nameof(supplier.SupplierCode), "تأمین‌کننده با این کد قبلاً ثبت شده است");
+                        return View(supplier);
+                    }
+
+                    // Check for duplicate supplier name
+                    if (await _context.Suppliers.AnyAsync(s => s.SupplierName.ToLower() == supplier.SupplierName.ToLower()))
+                    {
+                        ModelState.AddModelError(nameof(supplier.SupplierName), "تأمین‌کننده با این نام قبلاً ثبت شده است");
                         return View(supplier);
                     }
 
@@ -79,20 +110,30 @@ namespace Mehrsam_Darou.Controllers
                 }
                 catch (Exception ex)
                 {
+                    ModelState.AddModelError("", "خطا در ایجاد تأمین‌کننده: " + ex.Message);
                     TempData["ErrorMessage"] = "خطا در ایجاد تأمین‌کننده: " + ex.Message;
                 }
             }
 
+            // Log ModelState errors for debugging
+            LogModelStateErrors();
             return View(supplier);
         }
 
         // GET: Supplier/EditSupplier/5
         public async Task<IActionResult> EditSupplier(Guid id)
         {
+            if (id == Guid.Empty)
+            {
+                TempData["ErrorMessage"] = "معرف تأمین‌کننده نامعتبر است";
+                return RedirectToAction(nameof(SupplierList));
+            }
+
             var supplier = await _context.Suppliers.FindAsync(id);
             if (supplier == null)
             {
-                return NotFound();
+                TempData["ErrorMessage"] = "تأمین‌کننده مورد نظر یافت نشد";
+                return RedirectToAction(nameof(SupplierList));
             }
 
             return View(supplier);
@@ -103,27 +144,68 @@ namespace Mehrsam_Darou.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditSupplier(Guid id, Supplier supplier)
         {
+            if (id == Guid.Empty)
+            {
+                TempData["ErrorMessage"] = "معرف تأمین‌کننده نامعتبر است";
+                return RedirectToAction(nameof(SupplierList));
+            }
+
             if (id != supplier.SupplierId)
             {
-                return NotFound();
+                ModelState.AddModelError("", "عدم تطابق شناسه تأمین‌کننده");
+                return View(supplier);
+            }
+
+            // Enhanced validation
+            if (string.IsNullOrWhiteSpace(supplier.SupplierName))
+            {
+                ModelState.AddModelError(nameof(supplier.SupplierName), "نام تأمین‌کننده الزامی است");
+            }
+
+            if (string.IsNullOrWhiteSpace(supplier.SupplierCode))
+            {
+                ModelState.AddModelError(nameof(supplier.SupplierCode), "کد تأمین‌کننده الزامی است");
+            }
+
+            // Validate email format if provided
+            if (!string.IsNullOrWhiteSpace(supplier.Email) && !IsValidEmail(supplier.Email))
+            {
+                ModelState.AddModelError(nameof(supplier.Email), "فرمت ایمیل صحیح نیست");
+            }
+
+            // Validate lead time range
+            if (supplier.LeadTimeDays.HasValue && (supplier.LeadTimeDays < 0 || supplier.LeadTimeDays > 365))
+            {
+                ModelState.AddModelError(nameof(supplier.LeadTimeDays), "مدت تحویل باید بین 0 تا 365 روز باشد");
             }
 
             if (ModelState.IsValid)
             {
                 try
                 {
+                    // Check for duplicate supplier code (excluding current supplier)
                     if (await _context.Suppliers.AnyAsync(s =>
                         s.SupplierId != id &&
                         s.SupplierCode == supplier.SupplierCode))
                     {
-                        TempData["ErrorMessage"] = "تأمین‌کننده با این کد قبلاً ثبت شده است";
+                        ModelState.AddModelError(nameof(supplier.SupplierCode), "تأمین‌کننده با این کد قبلاً ثبت شده است");
+                        return View(supplier);
+                    }
+
+                    // Check for duplicate supplier name (excluding current supplier)
+                    if (await _context.Suppliers.AnyAsync(s =>
+                        s.SupplierId != id &&
+                        s.SupplierName.ToLower() == supplier.SupplierName.ToLower()))
+                    {
+                        ModelState.AddModelError(nameof(supplier.SupplierName), "تأمین‌کننده با این نام قبلاً ثبت شده است");
                         return View(supplier);
                     }
 
                     var existingSupplier = await _context.Suppliers.FindAsync(id);
                     if (existingSupplier == null)
                     {
-                        return NotFound();
+                        TempData["ErrorMessage"] = "تأمین‌کننده مورد نظر یافت نشد";
+                        return RedirectToAction(nameof(SupplierList));
                     }
 
                     // Keep the original creation date
@@ -139,15 +221,24 @@ namespace Mehrsam_Darou.Controllers
                 {
                     if (!SupplierExists(supplier.SupplierId))
                     {
-                        return NotFound();
+                        TempData["ErrorMessage"] = "تأمین‌کننده مورد نظر یافت نشد";
+                        return RedirectToAction(nameof(SupplierList));
                     }
                     else
                     {
+                        ModelState.AddModelError("", "خطای همزمانی در به‌روزرسانی اطلاعات");
                         throw;
                     }
                 }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", "خطا در به‌روزرسانی تأمین‌کننده: " + ex.Message);
+                    TempData["ErrorMessage"] = "خطا در به‌روزرسانی تأمین‌کننده: " + ex.Message;
+                }
             }
 
+            // Log ModelState errors for debugging
+            LogModelStateErrors();
             return View(supplier);
         }
 
@@ -156,6 +247,12 @@ namespace Mehrsam_Darou.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(Guid id)
         {
+            if (id == Guid.Empty)
+            {
+                TempData["ErrorMessage"] = "معرف تأمین‌کننده نامعتبر است";
+                return RedirectToAction(nameof(SupplierList));
+            }
+
             var supplier = await _context.Suppliers.FindAsync(id);
             if (supplier == null)
             {
@@ -190,10 +287,15 @@ namespace Mehrsam_Darou.Controllers
         // GET: Supplier/GetSupplierDetails/5
         public async Task<IActionResult> GetSupplierDetails(Guid id)
         {
+            if (id == Guid.Empty)
+            {
+                return BadRequest("معرف تأمین‌کننده نامعتبر است");
+            }
+
             var supplier = await _context.Suppliers.FindAsync(id);
             if (supplier == null)
             {
-                return NotFound();
+                return NotFound("تأمین‌کننده مورد نظر یافت نشد");
             }
 
             // Get supplier statistics
@@ -218,6 +320,30 @@ namespace Mehrsam_Darou.Controllers
         private bool SupplierExists(Guid id)
         {
             return _context.Suppliers.Any(e => e.SupplierId == id);
+        }
+
+        private bool IsValidEmail(string email)
+        {
+            try
+            {
+                var addr = new System.Net.Mail.MailAddress(email);
+                return addr.Address == email;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private void LogModelStateErrors()
+        {
+            foreach (var modelState in ModelState.Values)
+            {
+                foreach (var error in modelState.Errors)
+                {
+                    System.Diagnostics.Debug.WriteLine($"ModelState Error: {error.ErrorMessage}");
+                }
+            }
         }
     }
 }

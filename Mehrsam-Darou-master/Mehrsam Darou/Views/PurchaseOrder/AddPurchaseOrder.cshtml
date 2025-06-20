@@ -46,12 +46,8 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label asp-for="SupplierId" class="form-label">تامین‌کننده <span class="text-danger">*</span></label>
-                                <select asp-for="SupplierId" class="form-select">
+                                <select asp-for="SupplierId" asp-items="ViewBag.Suppliers" class="form-select">
                                     <option value="">-- انتخاب تامین‌کننده --</option>
-                                    @foreach (var supplier in ViewBag.Suppliers as List<Mehrsam_Darou.Models.Supplier>)
-                                    {
-                                        <option value="@supplier.SupplierId">@supplier.SupplierName</option>
-                                    }
                                 </select>
                                 <span asp-validation-for="SupplierId" class="text-danger"></span>
                             </div>
