@@ -56,7 +56,7 @@ public class BaseController : Controller
         ViewData["Company"] = company?.Name ?? "Unknown Company";
     }
 
-    private async Task<Setting> ReadSettingAsync(DarouAppContext context)
+    protected async Task<Setting> ReadSettingAsync(DarouAppContext context)
     {
         return await context.Settings.FirstOrDefaultAsync();
     }
@@ -196,45 +196,8 @@ public class BaseController : Controller
         }
     }
 
-    public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+    protected async Task SetUserPermissions(User user)
     {
-        var actionName = context.ActionDescriptor.RouteValues["action"];
-        var controllerName = context.ActionDescriptor.RouteValues["controller"];
-
-        if (controllerName == "Client" && actionName == "Login" ||
-            (controllerName == "Base" && (actionName == "SaveMenuState" ||
-                                        actionName == "GetMenuState" ||
-                                        actionName == "SaveThemeSettings")))
-        {
-            await next();
-            return;
-        }
-
-        var user = await ValidateSessionAndGetUser();
-
-        if (user == null)
-        {
-            context.Result = new RedirectToActionResult("Login", "Client", null);
-            return;
-        }
-
-        // Add UserId to ViewData for all views
-        ViewData["UserId"] = user.Id.ToString();
-
-        var logEntries = await _context.UserEnterLogs
-            .Include(log => log.User)
-                .ThenInclude(u => u.Team)
-            .OrderByDescending(log => log.CreatedDate)
-            .Take(50)
-            .ToListAsync();
-
-        ViewData["LogEntries"] = logEntries;
-
-        var setting = await ReadSettingAsync(_context);
-        ViewData["IsDark"] = setting?.DefaultColor ?? false;
-        ViewData["IsNavDark"] = setting?.IsNavDark ?? false;
-        ViewData["IsMenuDark"] = setting?.IsMenuDark ?? false;
-
         Team t = _context.Teams.SingleOrDefault(t => t.Id.Equals(user.TeamId));
         if (t != null)
         {
@@ -266,8 +229,62 @@ public class BaseController : Controller
             ViewData["QaMenu"] = false;
             ViewData["PmoMenu"] = false;
         }
+    }
 
-        // Updated notification logic to include both user-specific and global notifications
+    public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+    {
+        var actionName = context.ActionDescriptor.RouteValues["action"];
+        var controllerName = context.ActionDescriptor.RouteValues["controller"];
+
+        // Skip authentication for login and utility actions
+        if (controllerName == "Client" && actionName == "Login" ||
+            (controllerName == "Base" && (actionName == "SaveMenuState" ||
+                                        actionName == "GetMenuState" ||
+                                        actionName == "SaveThemeSettings")))
+        {
+            await next();
+            return;
+        }
+
+        var user = await ValidateSessionAndGetUser();
+
+        if (user == null)
+        {
+            // For AJAX requests, return JSON error
+            if (context.HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest" ||
+                context.HttpContext.Request.ContentType?.Contains("application/json") == true)
+            {
+                context.Result = Json(new { success = false, message = "Session expired", redirect = "/Client/Login" });
+                return;
+            }
+
+            context.Result = new RedirectToActionResult("Login", "Client", null);
+            return;
+        }
+
+        // Add UserId to ViewData for all views
+        ViewData["UserId"] = user.Id.ToString();
+
+        // Set user permissions
+        await SetUserPermissions(user);
+
+        // Load activity logs
+        var logEntries = await _context.UserEnterLogs
+            .Include(log => log.User)
+                .ThenInclude(u => u.Team)
+            .OrderByDescending(log => log.CreatedDate)
+            .Take(50)
+            .ToListAsync();
+
+        ViewData["LogEntries"] = logEntries;
+
+        // Load settings
+        var setting = await ReadSettingAsync(_context);
+        ViewData["IsDark"] = setting?.DefaultColor ?? false;
+        ViewData["IsNavDark"] = setting?.IsNavDark ?? false;
+        ViewData["IsMenuDark"] = setting?.IsMenuDark ?? false;
+
+        // Load notifications
         var unreadCount = await _context.Notifications
             .Where(n => !n.Seen && (n.UserId == user.Id || n.UserId == null))
             .CountAsync();

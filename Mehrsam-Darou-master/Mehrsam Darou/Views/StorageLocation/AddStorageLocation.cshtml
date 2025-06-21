@@ -32,8 +32,11 @@
                     </a>
                 </div>
 
-                <form asp-action="AddStorageLocation">
+                <form asp-action="AddStorageLocation" method="post">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <!-- Include the LocationId as hidden field -->
+                    <input type="hidden" asp-for="LocationId" />
 
                     <div class="row">
                         <div class="col-md-6">
@@ -75,7 +78,7 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label asp-for="Capacity" class="form-label">ظرفیت</label>
-                                <input asp-for="Capacity" class="form-control" />
+                                <input asp-for="Capacity" class="form-control" type="number" step="0.01" />
                                 <span asp-validation-for="Capacity" class="text-danger"></span>
                             </div>
                         </div>
@@ -103,6 +106,7 @@
                         <button type="submit" class="btn btn-primary">
                             <i class="bx bx-save me-1"></i> ذخیره
                         </button>
+                        @Html.AntiForgeryToken()
                     </div>
                 </form>
             </div>

@@ -33,7 +33,8 @@
                     </a>
                 </div>
 
-                <form asp-action="EditPurchaseOrder">
+                <form asp-action="EditPurchaseOrder" asp-route-id="@Model.PurchaseOrderId" method="post">
+                    @Html.AntiForgeryToken()
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <input type="hidden" asp-for="PurchaseOrderId" />
 
@@ -355,6 +356,9 @@
                 materials = materialsData;
                 units = unitsData;
                 populateSelects();
+            }).catch(error => {
+                console.error('Error loading data:', error);
+                showAlert('خطا در بارگذاری اطلاعات', 'danger');
             });
 
             function populateSelects() {
@@ -385,16 +389,31 @@
             }
 
             // Add event listeners for price calculation
-            document.querySelectorAll('input[name="Quantity"], input[name="UnitPrice"]').forEach(input => {
-                input.addEventListener('input', function() {
-                    calculateTotalPrice(this.closest('form'));
-                });
+            document.addEventListener('input', function(e) {
+                if (e.target.matches('input[name="Quantity"], input[name="UnitPrice"]')) {
+                    calculateTotalPrice(e.target.closest('form'));
+                }
+            });
+
+            // Reset form when modal is hidden
+            document.getElementById('addItemModal').addEventListener('hidden.bs.modal', function () {
+                document.getElementById('addItemForm').reset();
+            });
+
+            document.getElementById('editItemModal').addEventListener('hidden.bs.modal', function () {
+                document.getElementById('editItemForm').reset();
             });
 
             // Add item form submission
             document.getElementById('addItemForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 const formData = new FormData(this);
+
+                // Show loading state
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i> در حال ذخیره...';
+                submitBtn.disabled = true;
 
                 fetch('@Url.Action("AddItem")', {
                     method: 'POST',
@@ -405,13 +424,19 @@
                     if (data.success) {
                         bootstrap.Modal.getInstance(document.getElementById('addItemModal')).hide();
                         showAlert(data.message, 'success');
-                        location.reload(); // Reload to show updated items and total
+                        setTimeout(() => location.reload(), 1000); // Reload to show updated items and total
                     } else {
                         showAlert(data.message, 'danger');
                     }
                 })
                 .catch(error => {
+                    console.error('Error:', error);
                     showAlert('خطا در ارسال درخواست', 'danger');
+                })
+                .finally(() => {
+                    // Reset button state
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
                 });
             });
 
@@ -421,7 +446,12 @@
                     const itemId = e.target.closest('.edit-item-btn').getAttribute('data-item-id');
 
                     fetch(`@Url.Action("GetItem")?id=${itemId}`)
-                    .then(response => response.json())
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
                     .then(data => {
                         const form = document.getElementById('editItemForm');
                         form.querySelector('input[name="PoItemId"]').value = data.poItemId;
@@ -433,6 +463,10 @@
                         form.querySelector('textarea[name="Notes"]').value = data.notes || '';
 
                         new bootstrap.Modal(document.getElementById('editItemModal')).show();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showAlert('خطا در بارگذاری اطلاعات آیتم', 'danger');
                     });
                 }
             });
@@ -441,6 +475,12 @@
             document.getElementById('editItemForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 const formData = new FormData(this);
+
+                // Show loading state
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i> در حال ذخیره...';
+                submitBtn.disabled = true;
 
                 fetch('@Url.Action("EditItem")', {
                     method: 'POST',
@@ -451,13 +491,19 @@
                     if (data.success) {
                         bootstrap.Modal.getInstance(document.getElementById('editItemModal')).hide();
                         showAlert(data.message, 'success');
-                        location.reload(); // Reload to show updated items and total
+                        setTimeout(() => location.reload(), 1000); // Reload to show updated items and total
                     } else {
                         showAlert(data.message, 'danger');
                     }
                 })
                 .catch(error => {
+                    console.error('Error:', error);
                     showAlert('خطا در ارسال درخواست', 'danger');
+                })
+                .finally(() => {
+                    // Reset button state
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
                 });
             });
 
@@ -479,12 +525,13 @@
                         .then(data => {
                             if (data.success) {
                                 showAlert(data.message, 'success');
-                                location.reload(); // Reload to show updated items and total
+                                setTimeout(() => location.reload(), 1000); // Reload to show updated items and total
                             } else {
                                 showAlert(data.message, 'danger');
                             }
                         })
                         .catch(error => {
+                            console.error('Error:', error);
                             showAlert('خطا در ارسال درخواست', 'danger');
                         });
                     }
@@ -492,25 +539,44 @@
             });
 
             function showAlert(message, type) {
+                // Remove existing alerts first
+                const existingAlerts = document.querySelectorAll('.alert:not([data-temp])');
+                existingAlerts.forEach(alert => {
+                    if (alert.textContent.includes('با موفقیت انجام شد') || alert.textContent.includes('خطا')) {
+                        return; // Keep TempData alerts
+                    }
+                    alert.remove();
+                });
+
                 const alertDiv = document.createElement('div');
                 alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+                alertDiv.setAttribute('data-temp', 'true');
                 alertDiv.innerHTML = `
                     <p class="mb-0">${message}</p>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 `;
-                document.querySelector('.card-body').insertBefore(alertDiv, document.querySelector('.card-body').firstChild);
 
+                const cardBody = document.querySelector('.card-body');
+                cardBody.insertBefore(alertDiv, cardBody.firstChild);
+
+                // Auto-remove after 5 seconds
                 setTimeout(() => {
-                    alertDiv.remove();
+                    if (alertDiv.parentNode) {
+                        alertDiv.remove();
+                    }
                 }, 5000);
             }
 
-            // Auto-close alerts after 5 seconds
+            // Auto-close TempData alerts after 5 seconds
             setTimeout(function () {
-                var alerts = document.querySelectorAll('.alert');
+                const alerts = document.querySelectorAll('.alert:not([data-temp])');
                 alerts.forEach(function (alert) {
-                    var bsAlert = new bootstrap.Alert(alert);
-                    bsAlert.close();
+                    if (bootstrap.Alert.getOrCreateInstance) {
+                        const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
+                        bsAlert.close();
+                    } else {
+                        alert.style.display = 'none';
+                    }
                 });
             }, 5000);
         });

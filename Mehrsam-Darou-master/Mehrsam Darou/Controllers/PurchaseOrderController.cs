@@ -131,6 +131,12 @@ namespace Mehrsam_Darou.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditPurchaseOrder(Guid id, PurchaseOrder purchaseOrder)
         {
+            // IMPORTANT: Ensure the purchaseOrder object has the correct ID
+            if (purchaseOrder.PurchaseOrderId == Guid.Empty)
+            {
+                purchaseOrder.PurchaseOrderId = id;
+            }
+
             if (id != purchaseOrder.PurchaseOrderId)
             {
                 return NotFound();
@@ -149,6 +155,16 @@ namespace Mehrsam_Darou.Controllers
                     {
                         TempData["ErrorMessage"] = "سفارش خرید با این شماره قبلاً ثبت شده است";
                         await LoadSuppliers();
+
+                        // Reload items for display
+                        var items = await _context.PurchaseOrderItems
+                            .Include(poi => poi.Material)
+                            .Include(poi => poi.Unit)
+                            .Where(poi => poi.PurchaseOrderId == id)
+                            .OrderBy(poi => poi.Material.MaterialName)
+                            .ToListAsync();
+                        ViewBag.PurchaseOrderItems = items;
+
                         return View(purchaseOrder);
                     }
 
@@ -178,9 +194,23 @@ namespace Mehrsam_Darou.Controllers
                         throw;
                     }
                 }
+                catch (Exception ex)
+                {
+                    TempData["ErrorMessage"] = "خطا در به‌روزرسانی سفارش خرید: " + ex.Message;
+                }
             }
 
             await LoadSuppliers();
+
+            // Reload items for display in case of validation errors
+            var itemsForDisplay = await _context.PurchaseOrderItems
+                .Include(poi => poi.Material)
+                .Include(poi => poi.Unit)
+                .Where(poi => poi.PurchaseOrderId == id)
+                .OrderBy(poi => poi.Material.MaterialName)
+                .ToListAsync();
+            ViewBag.PurchaseOrderItems = itemsForDisplay;
+
             return View(purchaseOrder);
         }
 

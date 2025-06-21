@@ -243,13 +243,361 @@
                             </div>
                         </div>
 
+
                         <!-- جستجوی اپ -->
-                        <form class="app-search d-none d-md-block ms-2">
+                        <form class="app-search d-none d-md-block ms-2" id="globalSearchForm">
                             <div class="position-relative">
-                                <input type="search" class="form-control" placeholder="جستجو..." autocomplete="off" value="">
+                                <input type="search" class="form-control" placeholder="جستجو..." autocomplete="off" value="" id="globalSearchInput">
                                 <iconify-icon icon="solar:magnifer-linear" class="search-widget-icon"></iconify-icon>
+
+                                <!-- Search Dropdown Results -->
+                                <div class="search-dropdown" id="searchDropdown" style="display: none;">
+                                    <div class="search-loading" id="searchLoading" style="display: none;">
+                                        <div class="d-flex align-items-center justify-content-center py-3">
+                                            <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                                            <span>در حال جستجو...</span>
+                                        </div>
+                                    </div>
+                                    <div class="search-results" id="searchResults"></div>
+                                    <div class="search-footer" id="searchFooter" style="display: none;">
+                                        <a href="#" class="btn btn-sm btn-outline-primary w-100" id="viewAllResults">
+                                            مشاهده همه نتایج
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                         </form>
+
+                        <style>
+                            /* Search Widget Styles */
+                            .app-search {
+                                position: relative;
+                                min-width: 250px;
+                            }
+
+                            .search-widget-icon {
+                                position: absolute;
+                                right: 12px;
+                                top: 50%;
+                                transform: translateY(-50%);
+                                color: #8c9aa6;
+                                pointer-events: none;
+                                z-index: 10;
+                            }
+
+                            .search-dropdown {
+                                position: absolute;
+                                top: 100%;
+                                left: 0;
+                                right: 0;
+                                background: white;
+                                border: 1px solid #e9ecef;
+                                border-radius: 8px;
+                                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                                z-index: 1050;
+                                max-height: 400px;
+                                overflow-y: auto;
+                                margin-top: 4px;
+                            }
+
+                            .search-result-item {
+                                padding: 12px 16px;
+                                border-bottom: 1px solid #f1f3f4;
+                                transition: background-color 0.2s;
+                                cursor: pointer;
+                                text-decoration: none;
+                                color: inherit;
+                                display: block;
+                            }
+
+                                .search-result-item:hover {
+                                    background-color: #f8f9fa;
+                                    text-decoration: none;
+                                    color: inherit;
+                                }
+
+                                .search-result-item:last-child {
+                                    border-bottom: none;
+                                }
+
+                            .search-result-title {
+                                font-weight: 600;
+                                color: #495057;
+                                margin-bottom: 2px;
+                                font-size: 0.875rem;
+                            }
+
+                            .search-result-subtitle {
+                                font-size: 0.75rem;
+                                color: #6c757d;
+                                margin-bottom: 4px;
+                            }
+
+                            .search-result-category {
+                                font-size: 0.65rem;
+                                color: #adb5bd;
+                                text-transform: uppercase;
+                                letter-spacing: 0.5px;
+                            }
+
+                            .search-no-results {
+                                padding: 20px;
+                                text-align: center;
+                                color: #6c757d;
+                            }
+
+                            .search-footer {
+                                padding: 12px 16px;
+                                border-top: 1px solid #f1f3f4;
+                                background-color: #f8f9fa;
+                                border-radius: 0 0 8px 8px;
+                            }
+
+                            /* Dark theme support */
+                            [data-bs-theme="dark"] .search-dropdown {
+                                background: #2a3042;
+                                border-color: #404553;
+                            }
+
+                            [data-bs-theme="dark"] .search-result-item {
+                                border-bottom-color: #404553;
+                                color: #e9ecef;
+                            }
+
+                                [data-bs-theme="dark"] .search-result-item:hover {
+                                    background-color: #374050;
+                                }
+
+                            [data-bs-theme="dark"] .search-result-title {
+                                color: #e9ecef;
+                            }
+
+                            [data-bs-theme="dark"] .search-result-subtitle {
+                                color: #adb5bd;
+                            }
+
+                            [data-bs-theme="dark"] .search-result-category {
+                                color: #6c757d;
+                            }
+
+                            [data-bs-theme="dark"] .search-footer {
+                                background-color: #374050;
+                                border-top-color: #404553;
+                            }
+
+                            [data-bs-theme="dark"] .search-no-results {
+                                color: #adb5bd;
+                            }
+                        </style>
+
+                        <script>
+                            // Global Search Widget JavaScript
+                            document.addEventListener('DOMContentLoaded', function() {
+                                console.log('🔍 Search: Initializing...');
+
+                                const searchInput = document.getElementById('globalSearchInput');
+                                const searchForm = document.getElementById('globalSearchForm');
+                                const searchDropdown = document.getElementById('searchDropdown');
+                                const searchLoading = document.getElementById('searchLoading');
+                                const searchResults = document.getElementById('searchResults');
+                                const searchFooter = document.getElementById('searchFooter');
+                                const viewAllResults = document.getElementById('viewAllResults');
+
+                                // Check if all elements exist
+                                if (!searchInput || !searchForm) {
+                                    console.error('🔍 Search: Required elements not found');
+                                    return;
+                                }
+
+                                console.log('🔍 Search: All elements found, setting up events...');
+
+                                let searchTimeout;
+                                let currentSearchTerm = '';
+
+                                // Handle form submission
+                                searchForm.addEventListener('submit', function(e) {
+                                    e.preventDefault();
+                                    const searchTerm = searchInput.value.trim();
+                                    console.log('🔍 Search: Form submitted with term:', searchTerm);
+
+                                    if (searchTerm) {
+                                        const url = '/Search/GlobalSearch?q=' + encodeURIComponent(searchTerm);
+                                        console.log('🔍 Search: Redirecting to:', url);
+                                        window.location.href = url;
+                                    }
+                                });
+
+                                // Handle input changes for live search
+                                searchInput.addEventListener('input', function() {
+                                    const searchTerm = this.value.trim();
+                                    console.log('🔍 Search: Input changed:', searchTerm);
+
+                                    if (searchTerm.length === 0) {
+                                        hideSearchDropdown();
+                                        return;
+                                    }
+
+                                    if (searchTerm.length < 2) {
+                                        console.log('🔍 Search: Term too short, waiting...');
+                                        return;
+                                    }
+
+                                    // Clear previous timeout
+                                    clearTimeout(searchTimeout);
+
+                                    // Set new timeout for live search
+                                    searchTimeout = setTimeout(() => {
+                                        performQuickSearch(searchTerm);
+                                    }, 300);
+                                });
+
+                                // Handle focus
+                                searchInput.addEventListener('focus', function() {
+                                    console.log('🔍 Search: Input focused');
+                                    if (this.value.trim().length >= 2) {
+                                        showSearchDropdown();
+                                    }
+                                });
+
+                                // Handle blur with delay to allow clicking on results
+                                searchInput.addEventListener('blur', function() {
+                                    setTimeout(() => {
+                                        hideSearchDropdown();
+                                    }, 200);
+                                });
+
+                                // Handle escape key
+                                searchInput.addEventListener('keydown', function(e) {
+                                    if (e.key === 'Escape') {
+                                        hideSearchDropdown();
+                                        this.blur();
+                                    }
+                                });
+
+                                function performQuickSearch(searchTerm) {
+                                    if (searchTerm === currentSearchTerm) {
+                                        return;
+                                    }
+
+                                    currentSearchTerm = searchTerm;
+                                    console.log('🔍 Search: Performing quick search for:', searchTerm);
+                                    showSearchLoading();
+
+                                    const url = `/Search/QuickSearch?q=${encodeURIComponent(searchTerm)}`;
+                                    console.log('🔍 Search: Fetching URL:', url);
+
+                                    fetch(url)
+                                        .then(response => {
+                                            console.log('🔍 Search: Response status:', response.status);
+                                            if (!response.ok) {
+                                                throw new Error(`HTTP Error: ${response.status}`);
+                                            }
+                                            return response.json();
+                                        })
+                                        .then(data => {
+                                            console.log('🔍 Search: Received data:', data);
+                                            hideSearchLoading();
+                                            displaySearchResults(data.results || [], searchTerm);
+                                        })
+                                        .catch(error => {
+                                            console.error('🔍 Search: Error:', error);
+                                            hideSearchLoading();
+                                            displayNoResults('خطا در جستجو. لطفاً دوباره تلاش کنید.');
+                                        });
+                                }
+
+                                function displaySearchResults(results, searchTerm) {
+                                    console.log('🔍 Search: Displaying', results.length, 'results');
+
+                                    if (!results || results.length === 0) {
+                                        displayNoResults();
+                                        return;
+                                    }
+
+                                    try {
+                                        searchResults.innerHTML = results.map(result => `
+                                            <a href="${result.url || '#'}" class="search-result-item">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-shrink-0 me-3">
+                                                        <iconify-icon icon="${result.icon || 'solar:document-bold-duotone'}" class="fs-18 text-primary"></iconify-icon>
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <div class="search-result-title">${result.title || ''}</div>
+                                                        <div class="search-result-subtitle">${result.subtitle || ''}</div>
+                                                        <div class="search-result-category">${result.category || ''}</div>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        `).join('');
+
+                                        // Update "View All Results" link
+                                        if (viewAllResults) {
+                                            viewAllResults.href = `/Search/GlobalSearch?q=${encodeURIComponent(searchTerm)}`;
+                                            searchFooter.style.display = 'block';
+                                        }
+                                    } catch (error) {
+                                        console.error('🔍 Search: Error displaying results:', error);
+                                        displayNoResults('خطا در نمایش نتایج');
+                                    }
+
+                                    showSearchDropdown();
+                                }
+
+                                function displayNoResults(message = 'نتیجه‌ای یافت نشد') {
+                                    console.log('🔍 Search: No results -', message);
+                                    searchResults.innerHTML = `
+                                        <div class="search-no-results">
+                                            <i class="bx bx-search-alt fs-3 text-muted mb-2"></i>
+                                            <p class="mb-0">${message}</p>
+                                        </div>
+                                    `;
+                                    if (searchFooter) {
+                                        searchFooter.style.display = 'none';
+                                    }
+                                    showSearchDropdown();
+                                }
+
+                                function showSearchDropdown() {
+                                    if (searchDropdown) {
+                                        searchDropdown.style.display = 'block';
+                                    }
+                                }
+
+                                function hideSearchDropdown() {
+                                    if (searchDropdown) {
+                                        searchDropdown.style.display = 'none';
+                                    }
+                                }
+
+                                function showSearchLoading() {
+                                    if (searchLoading) {
+                                        searchLoading.style.display = 'block';
+                                    }
+                                    if (searchResults) {
+                                        searchResults.innerHTML = '';
+                                    }
+                                    if (searchFooter) {
+                                        searchFooter.style.display = 'none';
+                                    }
+                                    showSearchDropdown();
+                                }
+
+                                function hideSearchLoading() {
+                                    if (searchLoading) {
+                                        searchLoading.style.display = 'none';
+                                    }
+                                }
+
+                                // Close dropdown when clicking outside
+                                document.addEventListener('click', function(e) {
+                                    if (searchForm && !searchForm.contains(e.target)) {
+                                        hideSearchDropdown();
+                                    }
+                                });
+
+                                console.log('🔍 Search: Setup complete!');
+                            });
+                        </script>
                     </div>
                 </div>
 

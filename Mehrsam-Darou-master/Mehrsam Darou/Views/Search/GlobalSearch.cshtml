@@ -1,0 +1,295 @@
+﻿@model Mehrsam_Darou.Models.GlobalSearchResult
+@using System.Globalization
+@using Mehrsam_Darou.Models
+
+@{
+    PersianCalendar pc = new PersianCalendar();
+    ViewData["Title"] = "نتایج جستجو";
+}
+
+<style>
+    .search-result-card {
+        transition: all 0.2s ease;
+        border: 1px solid #e9ecef !important;
+    }
+
+        .search-result-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-color: #dee2e6 !important;
+        }
+
+        .search-result-card a:hover {
+            color: var(--bs-primary) !important;
+        }
+
+        .search-result-card .card-footer {
+            background-color: #f8f9fa;
+            border-top: 1px dashed #dee2e6;
+        }
+
+        .search-result-card .avatar-title {
+            background-color: #f8f9fa !important;
+        }
+
+    /* Dark theme styles */
+    [data-bs-theme="dark"] .search-result-card {
+        background-color: #2a3042;
+        border-color: #404553 !important;
+    }
+
+        [data-bs-theme="dark"] .search-result-card:hover {
+            border-color: #495057 !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        [data-bs-theme="dark"] .search-result-card .card-footer {
+            background-color: #374050;
+            border-top-color: #404553;
+        }
+
+        [data-bs-theme="dark"] .search-result-card .avatar-title {
+            background-color: #374050 !important;
+        }
+
+        [data-bs-theme="dark"] .search-result-card a {
+            color: #e9ecef !important;
+        }
+
+            [data-bs-theme="dark"] .search-result-card a:hover {
+                color: #007bff !important;
+            }
+
+    /* Search highlight styles */
+    mark {
+        background-color: #fff3cd;
+        padding: 1px 2px;
+        border-radius: 2px;
+        font-weight: 500;
+    }
+
+    [data-bs-theme="dark"] mark {
+        background-color: #664d03;
+        color: #ffecb5;
+    }
+
+    /* Badge styles */
+    .badge.fs-10 {
+        font-size: 0.75rem;
+    }
+
+    /* Input group styles */
+    .input-group .form-control {
+        border-radius: 0.375rem 0 0 0.375rem;
+    }
+
+    .input-group .btn {
+        border-radius: 0 0.375rem 0.375rem 0;
+    }
+
+    /* Responsive adjustments */
+    @@media (max-width: 768px) {
+        .search-result-card {
+            margin-bottom: 1rem;
+        }
+
+            .search-result-card .card-body {
+                padding: 1rem;
+            }
+
+            .search-result-card .avatar-sm {
+                width: 2rem;
+                height: 2rem;
+            }
+
+            .search-result-card .avatar-title {
+                font-size: 0.875rem;
+            }
+    }
+</style>
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="card-title mb-0">
+                        <i class="bx bx-search me-2"></i>
+                        نتایج جستجو برای: <span class="text-primary">"@Model.SearchQuery"</span>
+                    </h4>
+                    <span class="badge bg-info">@Model.TotalResults نتیجه یافت شد</span>
+                </div>
+            </div>
+
+            <div class="card-body">
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger">
+                        <strong>خطا:</strong> @TempData["ErrorMessage"]
+                    </div>
+                }
+
+                @if (Model.TotalResults == 0)
+                {
+                    <div class="text-center py-5">
+                        <div class="avatar-lg mx-auto mb-4">
+                            <div class="avatar-title rounded-circle bg-light">
+                                <i class="bx bx-search-alt-2 fs-1 text-muted"></i>
+                            </div>
+                        </div>
+                        <h5 class="text-muted">نتیجه‌ای یافت نشد</h5>
+                        <p class="text-muted">لطفاً کلمات کلیدی دیگری امتحان کنید یا جستجوی خود را تغییر دهید.</p>
+                        <div class="mt-4">
+                            <a href="javascript:history.back()" class="btn btn-outline-primary">
+                                <i class="bx bx-arrow-back me-1"></i>
+                                بازگشت
+                            </a>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <!-- Search Results -->
+                    @foreach (var categoryGroup in Model.GroupedResults)
+                    {
+                        <div class="mb-4">
+                            <h5 class="text-uppercase text-muted fs-13 mb-3">
+                                @categoryGroup.Key
+                                <span class="badge bg-light text-dark ms-1">@categoryGroup.Value.Count</span>
+                            </h5>
+
+                            <div class="row g-3">
+                                @foreach (var item in categoryGroup.Value)
+                                {
+                                    <div class="col-lg-6 col-xl-4">
+                                        <div class="card border h-100 search-result-card">
+                                            <div class="card-body">
+                                                <div class="d-flex align-items-start">
+                                                    <div class="flex-shrink-0">
+                                                        <div class="avatar-sm">
+                                                            <div class="avatar-title rounded-circle bg-light">
+                                                                <iconify-icon icon="@item.Icon" class="fs-18 text-primary"></iconify-icon>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex-grow-1 ms-3">
+                                                        <h6 class="mb-1">
+                                                            <a href="@item.Url" class="text-dark text-decoration-none">
+                                                                @item.Title
+                                                            </a>
+                                                        </h6>
+                                                        @if (!string.IsNullOrEmpty(item.Subtitle))
+                                                        {
+                                                            <p class="text-muted fs-13 mb-1">@item.Subtitle</p>
+                                                        }
+                                                        @if (!string.IsNullOrEmpty(item.Description))
+                                                        {
+                                                            <p class="text-muted fs-12 mb-2">@item.Description</p>
+                                                        }
+                                                        @if (!string.IsNullOrEmpty(item.Badge))
+                                                        {
+                                                            <span class="badge @item.BadgeClass fs-10">@item.Badge</span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="card-footer bg-light-subtle border-top-dashed">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <small class="text-muted">@item.Category</small>
+                                                    <a href="@item.Url" class="btn btn-sm btn-outline-primary">
+                                                        <i class="bx bx-right-arrow-alt"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Search Again -->
+                    <div class="text-center mt-4 pt-4 border-top">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-6">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="جستجوی جدید..." id="newSearchInput" value="@Model.SearchQuery">
+                                    <button class="btn btn-primary" type="button" onclick="performNewSearch()">
+                                        <i class="bx bx-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function performNewSearch() {
+        const searchTerm = document.getElementById('newSearchInput').value.trim();
+        if (searchTerm) {
+            window.location.href = '@Url.Action("GlobalSearch", "Search")?q=' + encodeURIComponent(searchTerm);
+        }
+    }
+
+    // Enable Enter key for new search
+    document.getElementById('newSearchInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            performNewSearch();
+        }
+    });
+
+    // Highlight search terms in results
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchTerm = '@Html.Raw(Model.SearchQuery)'.toLowerCase();
+        if (searchTerm && searchTerm.length > 0) {
+            highlightSearchTerms(searchTerm);
+        }
+    });
+
+    function highlightSearchTerms(searchTerm) {
+        const elements = document.querySelectorAll('.search-result-card h6 a, .search-result-card p');
+        elements.forEach(element => {
+            const text = element.textContent || element.innerText;
+            if (text && text.toLowerCase().includes(searchTerm)) {
+                const regex = new RegExp(`(${escapeRegExp(searchTerm)})`, 'gi');
+                element.innerHTML = text.replace(regex, '<mark>$1</mark>');
+            }
+        });
+    }
+
+    function escapeRegExp(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    // Add loading animation for search buttons
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchButtons = document.querySelectorAll('.search-result-card .btn-outline-primary');
+        searchButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const icon = this.querySelector('i');
+                if (icon) {
+                    icon.className = 'bx bx-loader-alt bx-spin';
+                }
+            });
+        });
+    });
+
+    // Add smooth scroll animation for search results
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.search-result-card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+
+            setTimeout(() => {
+                card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+    });
+</script>

@@ -51,7 +51,11 @@ namespace Mehrsam_Darou.Controllers
         public async Task<IActionResult> AddStorageLocation()
         {
             await PopulateStorageLocationDropdowns();
-            return View(new StorageLocation { IsActive = true });
+            return View(new StorageLocation
+            {
+                LocationId = Guid.NewGuid(),
+                IsActive = true
+            });
         }
 
         // POST: StorageLocation/AddStorageLocation
@@ -63,11 +67,31 @@ namespace Mehrsam_Darou.Controllers
             {
                 try
                 {
-                    if (await _context.StorageLocations.AnyAsync(s => s.LocationCode == storageLocation.LocationCode))
+                    // Check for duplicate location code
+                    if (await _context.StorageLocations.AnyAsync(s =>
+                        s.LocationCode == storageLocation.LocationCode))
                     {
                         TempData["ErrorMessage"] = "مکان انبار با این کد قبلاً ثبت شده است";
                         await PopulateStorageLocationDropdowns();
                         return View(storageLocation);
+                    }
+
+                    // Ensure we have a valid GUID
+                    if (storageLocation.LocationId == Guid.Empty)
+                    {
+                        storageLocation.LocationId = Guid.NewGuid();
+                    }
+
+                    // Handle nullable CapacityUnitId
+                    if (storageLocation.CapacityUnitId.HasValue && storageLocation.CapacityUnitId.Value == Guid.Empty)
+                    {
+                        storageLocation.CapacityUnitId = null;
+                    }
+
+                    // Set default values
+                    if (storageLocation.IsActive == null)
+                    {
+                        storageLocation.IsActive = true;
                     }
 
                     _context.Add(storageLocation);
@@ -78,8 +102,17 @@ namespace Mehrsam_Darou.Controllers
                 }
                 catch (Exception ex)
                 {
-                    TempData["ErrorMessage"] = "خطا در ایجاد مکان انبار: " + ex.Message;
+                    var innerMessage = ex.InnerException?.Message ?? "No inner exception";
+                    TempData["ErrorMessage"] = $"خطا در ایجاد مکان انبار: {ex.Message}. جزئیات: {innerMessage}";
                 }
+            }
+            else
+            {
+                // Show validation errors
+                var errors = string.Join(", ", ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage));
+                TempData["ErrorMessage"] = $"خطاهای اعتبارسنجی: {errors}";
             }
 
             await PopulateStorageLocationDropdowns();
@@ -89,10 +122,17 @@ namespace Mehrsam_Darou.Controllers
         // GET: StorageLocation/EditStorageLocation/5
         public async Task<IActionResult> EditStorageLocation(Guid id)
         {
+            if (id == Guid.Empty)
+            {
+                TempData["ErrorMessage"] = "شناسه مکان انبار نامعتبر است";
+                return RedirectToAction(nameof(StorageLocationList));
+            }
+
             var storageLocation = await _context.StorageLocations.FindAsync(id);
             if (storageLocation == null)
             {
-                return NotFound();
+                TempData["ErrorMessage"] = "مکان انبار مورد نظر یافت نشد";
+                return RedirectToAction(nameof(StorageLocationList));
             }
 
             await PopulateStorageLocationDropdowns();
@@ -104,15 +144,23 @@ namespace Mehrsam_Darou.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditStorageLocation(Guid id, StorageLocation storageLocation)
         {
+            if (id == Guid.Empty)
+            {
+                TempData["ErrorMessage"] = "شناسه مکان انبار نامعتبر است";
+                return RedirectToAction(nameof(StorageLocationList));
+            }
+
             if (id != storageLocation.LocationId)
             {
-                return NotFound();
+                TempData["ErrorMessage"] = "خطا در شناسایی مکان انبار";
+                return RedirectToAction(nameof(StorageLocationList));
             }
 
             if (ModelState.IsValid)
             {
                 try
                 {
+                    // Check for duplicate location code (excluding current record)
                     if (await _context.StorageLocations.AnyAsync(s =>
                         s.LocationId != id &&
                         s.LocationCode == storageLocation.LocationCode))
@@ -120,6 +168,12 @@ namespace Mehrsam_Darou.Controllers
                         TempData["ErrorMessage"] = "مکان انبار با این کد قبلاً ثبت شده است";
                         await PopulateStorageLocationDropdowns();
                         return View(storageLocation);
+                    }
+
+                    // Handle nullable CapacityUnitId
+                    if (storageLocation.CapacityUnitId.HasValue && storageLocation.CapacityUnitId.Value == Guid.Empty)
+                    {
+                        storageLocation.CapacityUnitId = null;
                     }
 
                     _context.Update(storageLocation);
@@ -132,13 +186,27 @@ namespace Mehrsam_Darou.Controllers
                 {
                     if (!StorageLocationExists(storageLocation.LocationId))
                     {
-                        return NotFound();
+                        TempData["ErrorMessage"] = "مکان انبار مورد نظر یافت نشد";
+                        return RedirectToAction(nameof(StorageLocationList));
                     }
                     else
                     {
                         throw;
                     }
                 }
+                catch (Exception ex)
+                {
+                    var innerMessage = ex.InnerException?.Message ?? "No inner exception";
+                    TempData["ErrorMessage"] = $"خطا در به‌روزرسانی مکان انبار: {ex.Message}. جزئیات: {innerMessage}";
+                }
+            }
+            else
+            {
+                // Show validation errors
+                var errors = string.Join(", ", ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage));
+                TempData["ErrorMessage"] = $"خطاهای اعتبارسنجی: {errors}";
             }
 
             await PopulateStorageLocationDropdowns();
@@ -196,13 +264,13 @@ namespace Mehrsam_Darou.Controllers
 
             ViewBag.CapacityUnits = new SelectList(units, "UnitId", "UnitName");
 
-            // Location types
+            // Location types - based on your database constraints
             var locationTypes = new List<SelectListItem>
             {
-                new SelectListItem { Value = "Warehouse", Text = "انبار" },
-                new SelectListItem { Value = "Cold Room", Text = "اتاق سرد" },
-                new SelectListItem { Value = "Quarantine", Text = "قرنطینه" },
-                new SelectListItem { Value = "Hazardous", Text = "مواد خطرناک" }
+                new SelectListItem { Value = "انبار", Text = "انبار" },
+                new SelectListItem { Value = "سردخانه", Text = "سردخانه" },
+                new SelectListItem { Value = "قرنطینه", Text = "قرنطینه" },
+                new SelectListItem { Value = "خطرناک", Text = "مواد خطرناک" }
             };
 
             ViewBag.LocationTypes = new SelectList(locationTypes, "Value", "Text");

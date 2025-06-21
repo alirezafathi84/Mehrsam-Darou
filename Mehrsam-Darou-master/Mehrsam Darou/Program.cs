@@ -7,13 +7,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor();
+
 // Register DbContext
 builder.Services.AddDbContext<DarouAppContext>(options =>
     options.UseSqlServer("Server=DESKTOP-PL06GAP;Database=DarouApp;Trusted_Connection=True;TrustServerCertificate=True;"));
-
-
-//builder.Services.AddDbContext<DarouAppContext>(options =>
-//    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add SignalR
 builder.Services.AddSignalR();
@@ -42,17 +39,22 @@ else
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
-
 app.UseSession();
 app.UseRouting();
 app.UseAuthorization();
 
 app.UseEndpoints(endpoints =>
 {
+    // Add specific route for actions that need ID parameter
+    endpoints.MapControllerRoute(
+        name: "withId",
+        pattern: "{controller}/{action}/{id?}");
+
+    // Default route
     endpoints.MapControllerRoute(
         name: "default",
         pattern: "{controller=Dashboard}/{action=Dashboard}");
+
     endpoints.MapHub<ChatHub>("/chatHub");
 });
 
