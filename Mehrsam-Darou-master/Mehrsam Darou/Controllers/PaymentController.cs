@@ -1,5 +1,5 @@
 ﻿// =============================================
-// Fixed Payment Controller
+// Updated Payment Controller with Print Action
 // =============================================
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +21,7 @@ namespace Mehrsam_Darou.Controllers
         }
 
         // GET: Payment/PaymentList
-        public async Task<IActionResult> PaymentList(int? page, string searchKey, string transactionType, string status)
+        public async Task<IActionResult> PaymentList(int? page, string searchKey, string transactionType, string status, DateOnly? fromDate, DateOnly? toDate)
         {
             var setting = await ReadSettingAsync(_context);
             int pageSize = Convert.ToInt32(setting.NumberPerPage ?? 10);
@@ -37,8 +37,7 @@ namespace Mehrsam_Darou.Controllers
                 query = query.Where(p => p.TransactionNumber.Contains(searchKey) ||
                                      p.ReferenceNumber.Contains(searchKey) ||
                                      (p.Customer != null && p.Customer.CustomerName.Contains(searchKey)) ||
-                                     (p.Supplier != null && p.Supplier.SupplierName.Contains(searchKey)))
-                            .OrderByDescending(p => p.CreatedDate);
+                                     (p.Supplier != null && p.Supplier.SupplierName.Contains(searchKey)));
             }
 
             if (!string.IsNullOrWhiteSpace(transactionType))
@@ -51,9 +50,20 @@ namespace Mehrsam_Darou.Controllers
                 query = query.Where(p => p.Status == status);
             }
 
+            if (fromDate.HasValue)
+            {
+                query = query.Where(p => p.TransactionDate >= fromDate.Value);
+            }
+
+            if (toDate.HasValue)
+            {
+                query = query.Where(p => p.TransactionDate <= toDate.Value);
+            }
+
+            query = query.OrderByDescending(p => p.CreatedDate);
+
             int total = await query.CountAsync();
             var items = await query
-                .OrderByDescending(p => p.CreatedDate)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -64,6 +74,63 @@ namespace Mehrsam_Darou.Controllers
             ViewBag.StatusList = new List<string> { "در انتظار", "تایید شده", "برگشت خورده", "لغو شده" };
 
             return View(paginatedList);
+        }
+
+        // GET: Payment/Print
+        public async Task<IActionResult> Print(string searchKey, string transactionType, string status, DateOnly? fromDate, DateOnly? toDate)
+        {
+            IQueryable<PaymentTransaction> query = _context.PaymentTransactions
+                .Include(p => p.PaymentMethod)
+                .Include(p => p.Customer)
+                .Include(p => p.Supplier);
+
+            if (!string.IsNullOrWhiteSpace(searchKey))
+            {
+                query = query.Where(p => p.TransactionNumber.Contains(searchKey) ||
+                                     p.ReferenceNumber.Contains(searchKey) ||
+                                     (p.Customer != null && p.Customer.CustomerName.Contains(searchKey)) ||
+                                     (p.Supplier != null && p.Supplier.SupplierName.Contains(searchKey)));
+            }
+
+            if (!string.IsNullOrWhiteSpace(transactionType))
+            {
+                query = query.Where(p => p.TransactionType == transactionType);
+            }
+
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                query = query.Where(p => p.Status == status);
+            }
+
+            if (fromDate.HasValue)
+            {
+                query = query.Where(p => p.TransactionDate >= fromDate.Value);
+            }
+
+            if (toDate.HasValue)
+            {
+                query = query.Where(p => p.TransactionDate <= toDate.Value);
+            }
+
+            var payments = await query
+                .OrderByDescending(p => p.CreatedDate)
+                .ToListAsync();
+
+            // Pass filter parameters to view for display
+            ViewBag.SearchKey = searchKey;
+            ViewBag.TransactionType = transactionType;
+            ViewBag.Status = status;
+            ViewBag.FromDate = fromDate;
+            ViewBag.ToDate = toDate;
+            ViewBag.PrintDate = DateTime.Now;
+
+            // Calculate summary statistics
+            ViewBag.TotalTransactions = payments.Count;
+            ViewBag.TotalReceipts = payments.Where(p => p.TransactionType == "دریافت").Sum(p => p.Amount);
+            ViewBag.TotalPayments = payments.Where(p => p.TransactionType == "پرداخت").Sum(p => p.Amount);
+            ViewBag.NetAmount = ViewBag.TotalReceipts - ViewBag.TotalPayments;
+
+            return View(payments);
         }
 
         // GET: Payment/AddPayment

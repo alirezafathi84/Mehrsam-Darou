@@ -80,22 +80,80 @@ namespace Mehrsam_Darou.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddResearchProject(ResearchProject researchProject)
         {
-            // Remove navigation property validation errors
-            ModelState.Remove("CreatedByNavigation");
-            ModelState.Remove("LastModifiedByNavigation");
-
-            if (ModelState.IsValid)
+            try
             {
-                try
+                // Remove navigation property validation errors
+                ModelState.Remove("CreatedByNavigation");
+                ModelState.Remove("LastModifiedByNavigation");
+
+                // Validate required fields manually
+                if (string.IsNullOrWhiteSpace(researchProject.ProjectCode))
                 {
+                    TempData["ErrorMessage"] = "کد پروژه الزامی است";
+                    return View(researchProject);
+                }
+
+                if (string.IsNullOrWhiteSpace(researchProject.ProjectTitle))
+                {
+                    TempData["ErrorMessage"] = "عنوان پروژه الزامی است";
+                    return View(researchProject);
+                }
+
+                if (ModelState.IsValid)
+                {
+                    // Check for duplicate project code
                     if (await _context.ResearchProjects.AnyAsync(rp => rp.ProjectCode == researchProject.ProjectCode))
                     {
                         TempData["ErrorMessage"] = "پروژه با این کد قبلاً ثبت شده است";
                         return View(researchProject);
                     }
 
+                    // Set required fields
                     researchProject.ProjectId = Guid.NewGuid();
                     researchProject.CreatedDate = DateTime.Now;
+
+                    // Set default values if not provided
+                    if (string.IsNullOrEmpty(researchProject.ProjectStatus))
+                        researchProject.ProjectStatus = "طرح‌ریزی";
+
+                    if (researchProject.PriorityLevel == 0)
+                        researchProject.PriorityLevel = 3;
+
+                    // Validate date constraints
+                    if (researchProject.StartDate.HasValue && researchProject.PlannedEndDate.HasValue)
+                    {
+                        if (researchProject.PlannedEndDate < researchProject.StartDate)
+                        {
+                            TempData["ErrorMessage"] = "تاریخ پایان برنامه‌ریزی شده نمی‌تواند قبل از تاریخ شروع باشد";
+                            return View(researchProject);
+                        }
+                    }
+
+                    if (researchProject.StartDate.HasValue && researchProject.ActualEndDate.HasValue)
+                    {
+                        if (researchProject.ActualEndDate < researchProject.StartDate)
+                        {
+                            TempData["ErrorMessage"] = "تاریخ پایان واقعی نمی‌تواند قبل از تاریخ شروع باشد";
+                            return View(researchProject);
+                        }
+                    }
+
+                    // Clear problematic dates if they violate constraints
+                    if (researchProject.StartDate.HasValue && researchProject.PlannedEndDate.HasValue)
+                    {
+                        if (researchProject.PlannedEndDate < researchProject.StartDate)
+                            researchProject.PlannedEndDate = null;
+                    }
+
+                    if (researchProject.StartDate.HasValue && researchProject.ActualEndDate.HasValue)
+                    {
+                        if (researchProject.ActualEndDate < researchProject.StartDate)
+                            researchProject.ActualEndDate = null;
+                    }
+
+                    // Clear navigation properties to avoid tracking issues
+                    researchProject.CreatedByNavigation = null;
+                    researchProject.LastModifiedByNavigation = null;
 
                     _context.Add(researchProject);
                     await _context.SaveChangesAsync();
@@ -103,10 +161,30 @@ namespace Mehrsam_Darou.Controllers
                     TempData["SuccessMessage"] = "پروژه تحقیقاتی جدید با موفقیت ایجاد شد";
                     return RedirectToAction(nameof(ResearchProjectList));
                 }
-                catch (Exception ex)
+                else
                 {
-                    TempData["ErrorMessage"] = "خطا در ایجاد پروژه: " + ex.Message;
+                    // Show validation errors
+                    var errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .Where(e => !string.IsNullOrEmpty(e))
+                        .ToList();
+
+                    if (errors.Any())
+                    {
+                        TempData["ErrorMessage"] = "خطاهای اعتبارسنجی: " + string.Join(", ", errors);
+                    }
                 }
+            }
+            catch (DbUpdateException dbEx)
+            {
+                var innerException = dbEx.InnerException?.Message ?? "No inner exception";
+                TempData["ErrorMessage"] = $"خطا در پایگاه داده: {dbEx.Message} | جزئیات: {innerException}";
+            }
+            catch (Exception ex)
+            {
+                var innerException = ex.InnerException?.Message ?? "No inner exception";
+                TempData["ErrorMessage"] = $"خطا در ایجاد پروژه: {ex.Message} | جزئیات: {innerException}";
             }
 
             return View(researchProject);
@@ -134,13 +212,13 @@ namespace Mehrsam_Darou.Controllers
                 return NotFound();
             }
 
-            // Remove navigation property validation errors
-            ModelState.Remove("CreatedByNavigation");
-            ModelState.Remove("LastModifiedByNavigation");
-
-            if (ModelState.IsValid)
+            try
             {
-                try
+                // Remove navigation property validation errors
+                ModelState.Remove("CreatedByNavigation");
+                ModelState.Remove("LastModifiedByNavigation");
+
+                if (ModelState.IsValid)
                 {
                     if (await _context.ResearchProjects.AnyAsync(rp =>
                         rp.ProjectId != id &&
@@ -160,23 +238,51 @@ namespace Mehrsam_Darou.Controllers
                     researchProject.CreatedDate = existingProject.CreatedDate;
                     researchProject.LastModifiedDate = DateTime.Now;
 
+                    // Validate date constraints for edit
+                    if (researchProject.StartDate.HasValue && researchProject.PlannedEndDate.HasValue)
+                    {
+                        if (researchProject.PlannedEndDate < researchProject.StartDate)
+                        {
+                            TempData["ErrorMessage"] = "تاریخ پایان برنامه‌ریزی شده نمی‌تواند قبل از تاریخ شروع باشد";
+                            return View(researchProject);
+                        }
+                    }
+
+                    if (researchProject.StartDate.HasValue && researchProject.ActualEndDate.HasValue)
+                    {
+                        if (researchProject.ActualEndDate < researchProject.StartDate)
+                        {
+                            TempData["ErrorMessage"] = "تاریخ پایان واقعی نمی‌تواند قبل از تاریخ شروع باشد";
+                            return View(researchProject);
+                        }
+                    }
+
+                    // Clear navigation properties
+                    researchProject.CreatedByNavigation = null;
+                    researchProject.LastModifiedByNavigation = null;
+
                     _context.Entry(existingProject).CurrentValues.SetValues(researchProject);
                     await _context.SaveChangesAsync();
 
                     TempData["SuccessMessage"] = "اطلاعات پروژه با موفقیت به‌روزرسانی شد";
                     return RedirectToAction(nameof(ResearchProjectList));
                 }
-                catch (DbUpdateConcurrencyException)
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!ResearchProjectExists(researchProject.ProjectId))
                 {
-                    if (!ResearchProjectExists(researchProject.ProjectId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    return NotFound();
                 }
+                else
+                {
+                    throw;
+                }
+            }
+            catch (Exception ex)
+            {
+                var innerException = ex.InnerException?.Message ?? "No inner exception";
+                TempData["ErrorMessage"] = $"خطا در به‌روزرسانی پروژه: {ex.Message} | جزئیات: {innerException}";
             }
 
             return View(researchProject);
@@ -202,7 +308,8 @@ namespace Mehrsam_Darou.Controllers
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "خطا در حذف پروژه: " + ex.Message;
+                var innerException = ex.InnerException?.Message ?? "No inner exception";
+                TempData["ErrorMessage"] = $"خطا در حذف پروژه: {ex.Message} | جزئیات: {innerException}";
             }
 
             return RedirectToAction(nameof(ResearchProjectList));

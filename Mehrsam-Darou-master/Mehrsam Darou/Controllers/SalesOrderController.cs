@@ -80,6 +80,10 @@ namespace Mehrsam_Darou.Controllers
                 Status = "پیش‌نویس",
                 Priority = 3,
                 Currency = "IRR",
+                TaxAmount = 0,
+                DiscountAmount = 0,
+                TotalAmount = 0,
+                NetAmount = 0,
                 CreatedDate = DateTime.Now
             };
 
@@ -125,6 +129,12 @@ namespace Mehrsam_Darou.Controllers
 
                     salesOrder.SalesOrderId = Guid.NewGuid();
                     salesOrder.CreatedDate = DateTime.Now;
+
+                    // Initialize amounts
+                    salesOrder.TotalAmount = 0;
+                    salesOrder.TaxAmount = salesOrder.TaxAmount ?? 0;
+                    salesOrder.DiscountAmount = salesOrder.DiscountAmount ?? 0;
+                    salesOrder.NetAmount = 0;
 
                     _context.Add(salesOrder);
                     await _context.SaveChangesAsync();
@@ -185,7 +195,10 @@ namespace Mehrsam_Darou.Controllers
                         return View(salesOrder);
                     }
 
-                    var existingSalesOrder = await _context.SalesOrders.FindAsync(id);
+                    var existingSalesOrder = await _context.SalesOrders
+                        .Include(s => s.SalesOrderItems)
+                        .FirstOrDefaultAsync(s => s.SalesOrderId == id);
+
                     if (existingSalesOrder == null)
                     {
                         return NotFound();
@@ -194,11 +207,16 @@ namespace Mehrsam_Darou.Controllers
                     // Keep the original creation date
                     salesOrder.CreatedDate = existingSalesOrder.CreatedDate;
 
+                    // Update values
                     _context.Entry(existingSalesOrder).CurrentValues.SetValues(salesOrder);
+
+                    // Recalculate totals based on existing items and new tax/discount
+                    await RecalculateOrderTotals(existingSalesOrder);
+
                     await _context.SaveChangesAsync();
 
                     TempData["SuccessMessage"] = "اطلاعات سفارش فروش با موفقیت به‌روزرسانی شد";
-                    return RedirectToAction(nameof(SalesOrderList));
+                    return RedirectToAction(nameof(EditSalesOrder), new { id = id });
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -262,6 +280,25 @@ namespace Mehrsam_Darou.Controllers
 
         // GET: SalesOrder/Details/5
         public async Task<IActionResult> Details(Guid id)
+        {
+            var salesOrder = await _context.SalesOrders
+                .Include(s => s.Customer)
+                .Include(s => s.SalesOrderItems)
+                .ThenInclude(i => i.Medicine)
+                .Include(s => s.SalesOrderItems)
+                .ThenInclude(i => i.Unit)
+                .FirstOrDefaultAsync(s => s.SalesOrderId == id);
+
+            if (salesOrder == null)
+            {
+                return NotFound();
+            }
+
+            return View(salesOrder);
+        }
+
+        // GET: SalesOrder/Print/5
+        public async Task<IActionResult> Print(Guid id)
         {
             var salesOrder = await _context.SalesOrders
                 .Include(s => s.Customer)
@@ -355,6 +392,43 @@ namespace Mehrsam_Darou.Controllers
             }
         }
 
+        // AJAX: Update Tax and Discount
+        [HttpPost]
+        public async Task<IActionResult> UpdateTaxDiscount(Guid salesOrderId, decimal taxAmount, decimal discountAmount)
+        {
+            try
+            {
+                var salesOrder = await _context.SalesOrders
+                    .Include(s => s.SalesOrderItems)
+                    .FirstOrDefaultAsync(s => s.SalesOrderId == salesOrderId);
+
+                if (salesOrder == null)
+                {
+                    return Json(new { success = false, message = "سفارش فروش یافت نشد" });
+                }
+
+                salesOrder.TaxAmount = taxAmount;
+                salesOrder.DiscountAmount = discountAmount;
+
+                await RecalculateOrderTotals(salesOrder);
+                await _context.SaveChangesAsync();
+
+                return Json(new
+                {
+                    success = true,
+                    message = "مالیات و تخفیف به‌روزرسانی شد",
+                    totalAmount = salesOrder.TotalAmount?.ToString("N2"),
+                    taxAmount = salesOrder.TaxAmount?.ToString("N2"),
+                    discountAmount = salesOrder.DiscountAmount?.ToString("N2"),
+                    netAmount = salesOrder.NetAmount?.ToString("N2")
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "خطا در به‌روزرسانی: " + ex.Message });
+            }
+        }
+
         private async Task UpdateOrderTotals(Guid salesOrderId)
         {
             var salesOrder = await _context.SalesOrders
@@ -363,14 +437,30 @@ namespace Mehrsam_Darou.Controllers
 
             if (salesOrder != null)
             {
-                var subtotal = salesOrder.SalesOrderItems.Sum(i => i.TotalPrice);
-                var taxAmount = salesOrder.TaxAmount ?? 0;
-                var discountAmount = salesOrder.DiscountAmount ?? 0;
-
-                salesOrder.TotalAmount = subtotal;
-                salesOrder.NetAmount = subtotal + taxAmount - discountAmount;
-
+                await RecalculateOrderTotals(salesOrder);
                 await _context.SaveChangesAsync();
+            }
+        }
+
+        private async Task RecalculateOrderTotals(SalesOrder salesOrder)
+        {
+            // Calculate subtotal from items
+            var subtotal = salesOrder.SalesOrderItems?.Sum(i => i.TotalPrice) ?? 0;
+
+            // Set total amount (subtotal)
+            salesOrder.TotalAmount = subtotal;
+
+            // Get tax and discount amounts (preserve existing values if not null)
+            var taxAmount = salesOrder.TaxAmount ?? 0;
+            var discountAmount = salesOrder.DiscountAmount ?? 0;
+
+            // Calculate net amount: subtotal + tax - discount
+            salesOrder.NetAmount = subtotal + taxAmount - discountAmount;
+
+            // Ensure NetAmount is not negative
+            if (salesOrder.NetAmount < 0)
+            {
+                salesOrder.NetAmount = 0;
             }
         }
 

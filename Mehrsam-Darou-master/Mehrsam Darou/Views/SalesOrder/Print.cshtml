@@ -1,0 +1,410 @@
+﻿@model Mehrsam_Darou.Models.SalesOrder
+@using System.Globalization
+
+@{
+    Layout = null;
+    PersianCalendar pc = new PersianCalendar();
+}
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>چاپ سفارش فروش - @Model.SoNumber</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        @@media print {
+            .no-print {
+                display: none !important;
+            }
+
+            .print-page {
+                page-break-after: always;
+            }
+
+            body {
+                font-size: 12px;
+            }
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: white;
+        }
+
+        .company-header {
+            border-bottom: 3px solid #007bff;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+        }
+
+        .company-logo {
+            max-height: 80px;
+            margin-bottom: 10px;
+        }
+
+        .order-header {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .order-info {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+        }
+
+        .customer-info {
+            background: #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+        }
+
+        .items-table {
+            border: 2px solid #007bff;
+        }
+
+            .items-table th {
+                background: #007bff;
+                color: white;
+                font-weight: 600;
+            }
+
+        .summary-box {
+            background: #f8f9fa;
+            border: 2px solid #28a745;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .total-amount {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .print-footer {
+            margin-top: 40px;
+            border-top: 1px solid #dee2e6;
+            padding-top: 15px;
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.5em 1em;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .status-draft {
+            background: #6c757d;
+            color: white;
+        }
+
+        .status-confirmed {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .status-production {
+            background: #ffc107;
+            color: black;
+        }
+
+        .status-ready {
+            background: #007bff;
+            color: white;
+        }
+
+        .status-shipped {
+            background: #28a745;
+            color: white;
+        }
+
+        .status-delivered {
+            background: #20c997;
+            color: white;
+        }
+
+        .status-cancelled {
+            background: #dc3545;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Print Button -->
+        <div class="no-print text-center mb-4">
+            <button onclick="window.print()" class="btn btn-primary btn-lg">
+                <i class="fas fa-print"></i> چاپ سفارش
+            </button>
+            <button onclick="window.close()" class="btn btn-secondary btn-lg ms-2">
+                بستن
+            </button>
+        </div>
+
+        <!-- Company Header -->
+        <div class="company-header text-center">
+@*             <h1 class="text-primary mb-3">شرکت مهرسام داروی کاسپین</h1>
+            <p class="mb-1">آدرس: خیابان اصلی، پلاک 123، تهران</p>
+            <p class="mb-1">تلفن: 021-12345678 | فکس: 021-87654321</p>
+            <p class="mb-0">ایمیل: info@mehrsamdarou.com</p> *@
+        </div>
+
+        <!-- Order Header -->
+        <div class="order-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2 class="text-primary mb-0">سفارش فروش</h2>
+                    <h3 class="h4 text-muted">شماره: @Model.SoNumber</h3>
+                </div>
+                <div class="col-md-4 text-end">
+                    @{
+                        var statusClass = Model.Status switch
+                        {
+                            "پیش‌نویس" => "status-draft",
+                            "تایید شده" => "status-confirmed",
+                            "در حال تولید" => "status-production",
+                            "آماده ارسال" => "status-ready",
+                            "ارسال شده" => "status-shipped",
+                            "تحویل داده شده" => "status-delivered",
+                            "لغو شده" => "status-cancelled",
+                            _ => "status-draft"
+                        };
+                    }
+                    <span class="status-badge @statusClass">@Model.Status</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Details -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="order-info">
+                    <h5 class="text-primary border-bottom pb-2 mb-3">اطلاعات سفارش</h5>
+                    <div class="row mb-2">
+                        <div class="col-sm-5"><strong>تاریخ سفارش:</strong></div>
+                        <div class="col-sm-7">
+                            @{
+                                var orderDateTime = Model.OrderDate.ToDateTime(TimeOnly.MinValue);
+                            }
+                            @($"{pc.GetYear(orderDateTime)}/{pc.GetMonth(orderDateTime):00}/{pc.GetDayOfMonth(orderDateTime):00}")
+                        </div>
+                    </div>
+                    @if (Model.RequestedDeliveryDate.HasValue)
+                    {
+                        <div class="row mb-2">
+                            <div class="col-sm-5"><strong>تحویل درخواستی:</strong></div>
+                            <div class="col-sm-7">
+                                @{
+                                    var requestedDateTime = Model.RequestedDeliveryDate.Value.ToDateTime(TimeOnly.MinValue);
+                                }
+                                @($"{pc.GetYear(requestedDateTime)}/{pc.GetMonth(requestedDateTime):00}/{pc.GetDayOfMonth(requestedDateTime):00}")
+                            </div>
+                        </div>
+                    }
+                    @if (Model.PromisedDeliveryDate.HasValue)
+                    {
+                        <div class="row mb-2">
+                            <div class="col-sm-5"><strong>تحویل متعهد شده:</strong></div>
+                            <div class="col-sm-7">
+                                @{
+                                    var promisedDateTime = Model.PromisedDeliveryDate.Value.ToDateTime(TimeOnly.MinValue);
+                                }
+                                @($"{pc.GetYear(promisedDateTime)}/{pc.GetMonth(promisedDateTime):00}/{pc.GetDayOfMonth(promisedDateTime):00}")
+                            </div>
+                        </div>
+                    }
+                    <div class="row mb-2">
+                        <div class="col-sm-5"><strong>اولویت:</strong></div>
+                        <div class="col-sm-7">
+                            @{
+                                var priorityText = Model.Priority switch
+                                {
+                                    1 => "بالا",
+                                    2 => "متوسط",
+                                    3 => "عادی",
+                                    4 => "پایین",
+                                    _ => "نامشخص"
+                                };
+                            }
+                            @priorityText
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-sm-5"><strong>واحد پول:</strong></div>
+                        <div class="col-sm-7">@Model.Currency</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="customer-info">
+                    <h5 class="text-primary border-bottom pb-2 mb-3">اطلاعات مشتری</h5>
+                    <div class="row mb-2">
+                        <div class="col-sm-4"><strong>نام مشتری:</strong></div>
+                        <div class="col-sm-8">@Model.Customer?.CustomerName</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-sm-4"><strong>کد مشتری:</strong></div>
+                        <div class="col-sm-8">@Model.Customer?.CustomerCode</div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.Customer?.ContactPerson))
+                    {
+                        <div class="row mb-2">
+                            <div class="col-sm-4"><strong>شخص تماس:</strong></div>
+                            <div class="col-sm-8">@Model.Customer.ContactPerson</div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.Customer?.Phone))
+                    {
+                        <div class="row mb-2">
+                            <div class="col-sm-4"><strong>تلفن:</strong></div>
+                            <div class="col-sm-8">@Model.Customer.Phone</div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.Customer?.Email))
+                    {
+                        <div class="row mb-2">
+                            <div class="col-sm-4"><strong>ایمیل:</strong></div>
+                            <div class="col-sm-8">@Model.Customer.Email</div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Items -->
+        <div class="mb-4">
+            <h5 class="text-primary mb-3">آیتم‌های سفارش</h5>
+            @if (Model.SalesOrderItems != null && Model.SalesOrderItems.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-bordered items-table">
+                        <thead>
+                            <tr>
+                                <th class="text-center" style="width: 5%;">ردیف</th>
+                                <th style="width: 25%;">نام دارو</th>
+                                <th class="text-center" style="width: 10%;">مقدار</th>
+                                <th class="text-center" style="width: 10%;">واحد</th>
+                                <th class="text-center" style="width: 15%;">قیمت واحد</th>
+                                <th class="text-center" style="width: 10%;">تخفیف</th>
+                                <th class="text-center" style="width: 15%;">قیمت کل</th>
+                                <th class="text-center" style="width: 10%;">ارسال شده</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                int rowIndex = 1;
+                            }
+                            @foreach (var item in Model.SalesOrderItems)
+                            {
+                                <tr>
+                                    <td class="text-center">@rowIndex</td>
+                                    <td>@item.Medicine?.BrandName</td>
+                                    <td class="text-center">@item.Quantity.ToString("N3")</td>
+                                    <td class="text-center">@item.Unit?.UnitName</td>
+                                    <td class="text-end">@item.UnitPrice.ToString("N2")</td>
+                                    <td class="text-center">@((item.DiscountPercent ?? 0).ToString("N1"))%</td>
+                                    <td class="text-end fw-bold">@item.TotalPrice.ToString("N2")</td>
+                                    <td class="text-center">@((item.ShippedQuantity ?? 0).ToString("N3"))</td>
+                                </tr>
+                                rowIndex++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info text-center">
+                    <h6>هیچ آیتمی برای این سفارش ثبت نشده است.</h6>
+                </div>
+            }
+        </div>
+
+        <!-- Order Summary -->
+        <div class="row">
+            <div class="col-md-8">
+                @if (!string.IsNullOrEmpty(Model.Notes))
+                {
+                    <div class="order-info">
+                        <h6 class="text-primary">یادداشت‌ها:</h6>
+                        <p class="mb-0">@Model.Notes</p>
+                    </div>
+                }
+            </div>
+            <div class="col-md-4">
+                <div class="summary-box">
+                    <h6 class="text-primary mb-3">خلاصه مالی</h6>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>جمع آیتم‌ها:</span>
+                        <strong>@((Model.TotalAmount ?? 0).ToString("N2")) ریال</strong>
+                    </div>
+                    @if ((Model.TaxAmount ?? 0) > 0)
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>مالیات:</span>
+                            <strong class="text-info">@((Model.TaxAmount ?? 0).ToString("N2")) ریال</strong>
+                        </div>
+                    }
+                    @if ((Model.DiscountAmount ?? 0) > 0)
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>تخفیف:</span>
+                            <strong class="text-danger">-@((Model.DiscountAmount ?? 0).ToString("N2")) ریال</strong>
+                        </div>
+                    }
+                    <hr>
+                    <div class="d-flex justify-content-between total-amount">
+                        <span>مبلغ نهایی:</span>
+                        <span>@((Model.NetAmount ?? 0).ToString("N2")) ریال</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Print Footer -->
+        <div class="print-footer">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-1"><strong>تاریخ چاپ:</strong> @DateTime.Now.ToString("yyyy/MM/dd HH:mm")</p>
+                    <p class="mb-0">
+                        <strong>تاریخ ایجاد سفارش:</strong>
+                        @{
+                            var createdDateTime = Model.CreatedDate;
+                        }
+                        @($"{pc.GetYear(createdDateTime)}/{pc.GetMonth(createdDateTime):00}/{pc.GetDayOfMonth(createdDateTime):00}")
+                    </p>
+                </div>
+                <div class="col-md-6 text-end">
+              @*       <p class="mb-1">این سند با استفاده از سیستم مدیریت شرکت مهرسام داروی کاسپین تولید شده است.</p> *@
+                    <p class="mb-0">شماره سفارش: @Model.SoNumber</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto print when page loads (optional)
+        // window.onload = function() { window.print(); }
+
+        // Close window after printing
+        window.onafterprint = function() {
+            setTimeout(function() {
+                if (confirm('آیا می‌خواهید پنجره چاپ بسته شود؟')) {
+                    window.close();
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

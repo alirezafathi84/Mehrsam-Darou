@@ -39,36 +39,44 @@
         <!-- Project Status Overview -->
         <div class="row mb-4">
             <div class="col-md-3">
-                <div class="status-card">
-                    <h4 class="mb-1">@(Model.ProjectStatus ?? "نامشخص")</h4>
-                    <small>وضعیت پروژه</small>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="info-card">
-                    <h5 class="mb-1">@(Model.CompletionPercentage?.ToString("0") ?? "0")%</h5>
-                    <small class="text-muted">میزان پیشرفت</small>
-                    <div class="progress mt-2">
-                        <div class="progress-bar bg-success" style="width: @(Model.CompletionPercentage ?? 0)%"></div>
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h4 class="mb-1">@(Model.ProjectStatus ?? "نامشخص")</h4>
+                        <small class="text-muted">وضعیت پروژه</small>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="info-card">
-                    <h5 class="mb-1">@((Model.TotalBudget ?? 0).ToString("N0"))</h5>
-                    <small class="text-muted">بودجه کل (@Model.Currency)</small>
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="mb-1">@(Model.CompletionPercentage?.ToString("0") ?? "0")%</h5>
+                        <small class="text-muted">میزان پیشرفت</small>
+                        <div class="progress mt-2">
+                            <div class="progress-bar bg-success" style="width: @(Model.CompletionPercentage ?? 0)%"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="info-card">
-                    <h5 class="mb-1">@((Model.SpentBudget ?? 0).ToString("N0"))</h5>
-                    <small class="text-muted">بودجه مصرف شده</small>
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="mb-1">@((Model.TotalBudget ?? 0).ToString("N0"))</h5>
+                        <small class="text-muted">بودجه کل (@Model.Currency)</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="mb-1">@((Model.SpentBudget ?? 0).ToString("N0"))</h5>
+                        <small class="text-muted">بودجه مصرف شده</small>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Edit Form -->
-        <form asp-action="EditResearchProject" method="post">
+        <form asp-action="EditResearchProject" method="post" id="editResearchProjectForm">
             <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
             <!-- Hidden Fields -->
@@ -94,7 +102,7 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label asp-for="ProjectTitle" class="form-label">عنوان پروژه <span class="text-danger">*</span></label>
-                                <input asp-for="ProjectTitle" class="form-control" />
+                                <input asp-for="ProjectTitle" class="form-control" required />
                                 <span asp-validation-for="ProjectTitle" class="text-danger"></span>
                             </div>
                         </div>
@@ -158,7 +166,7 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label asp-for="CompletionPercentage" class="form-label">درصد پیشرفت</label>
-                                <input asp-for="CompletionPercentage" type="number" min="0" max="100" class="form-control" />
+                                <input asp-for="CompletionPercentage" type="number" min="0" max="100" class="form-control" id="completionPercentage" />
                                 <span asp-validation-for="CompletionPercentage" class="text-danger"></span>
                             </div>
                         </div>
@@ -225,19 +233,22 @@
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label asp-for="StartDate" class="form-label">تاریخ شروع</label>
-                                <input asp-for="StartDate" type="date" class="form-control" />
+                                <input asp-for="StartDate" type="date" class="form-control" id="startDate" />
+                                <span asp-validation-for="StartDate" class="text-danger"></span>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label asp-for="PlannedEndDate" class="form-label">تاریخ پایان برنامه‌ریزی شده</label>
-                                <input asp-for="PlannedEndDate" type="date" class="form-control" />
+                                <input asp-for="PlannedEndDate" type="date" class="form-control" id="plannedEndDate" />
+                                <span asp-validation-for="PlannedEndDate" class="text-danger"></span>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label asp-for="ActualEndDate" class="form-label">تاریخ پایان واقعی</label>
-                                <input asp-for="ActualEndDate" type="date" class="form-control" />
+                                <input asp-for="ActualEndDate" type="date" class="form-control" id="actualEndDate" />
+                                <span asp-validation-for="ActualEndDate" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
@@ -245,6 +256,7 @@
                     <div class="mb-3">
                         <label asp-for="CurrentPhase" class="form-label">مرحله فعلی</label>
                         <input asp-for="CurrentPhase" class="form-control" placeholder="مرحله فعلی پروژه را وارد کنید" />
+                        <span asp-validation-for="CurrentPhase" class="text-danger"></span>
                     </div>
                 </div>
             </div>
@@ -262,13 +274,15 @@
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label asp-for="TotalBudget" class="form-label">بودجه کل</label>
-                                <input asp-for="TotalBudget" type="number" step="0.01" class="form-control" />
+                                <input asp-for="TotalBudget" type="number" step="0.01" class="form-control" id="totalBudget" />
+                                <span asp-validation-for="TotalBudget" class="text-danger"></span>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label asp-for="SpentBudget" class="form-label">بودجه مصرف شده</label>
-                                <input asp-for="SpentBudget" type="number" step="0.01" class="form-control" />
+                                <input asp-for="SpentBudget" type="number" step="0.01" class="form-control" id="spentBudget" />
+                                <span asp-validation-for="SpentBudget" class="text-danger"></span>
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -322,6 +336,7 @@
                     <div class="mb-3">
                         <label asp-for="KeyFindings" class="form-label">یافته‌های کلیدی</label>
                         <textarea asp-for="KeyFindings" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="KeyFindings" class="text-danger"></span>
                     </div>
                 </div>
             </div>
@@ -362,10 +377,10 @@
 
             <!-- Action Buttons -->
             <div class="d-flex justify-content-end gap-2">
-                <a asp-action="ResearchProjectList" class="btn btn-secondary btn-action">
+                <a asp-action="ResearchProjectList" class="btn btn-secondary">
                     <i class="bx bx-x me-1"></i> انصراف
                 </a>
-                <button type="submit" class="btn btn-primary btn-action">
+                <button type="submit" class="btn btn-primary">
                     <i class="bx bx-save me-1"></i> ذخیره تغییرات
                 </button>
             </div>
@@ -379,26 +394,93 @@
     }
 
     <script>
-        // Auto-dismiss alerts
-        setTimeout(function() {
-            var alerts = document.querySelectorAll('.alert');
-            alerts.forEach(function(alert) {
-                var bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
-            });
-        }, 5000);
-
-        // Update progress bar when completion percentage changes
         document.addEventListener('DOMContentLoaded', function() {
-            const completionInput = document.querySelector('[name="CompletionPercentage"]');
-            const progressBar = document.querySelector('.progress-bar');
+            // Auto-dismiss alerts
+            setTimeout(function() {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function(alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
 
+            // Elements
+            const startDate = document.getElementById('startDate');
+            const plannedEndDate = document.getElementById('plannedEndDate');
+            const actualEndDate = document.getElementById('actualEndDate');
+            const completionInput = document.getElementById('completionPercentage');
+            const progressBar = document.querySelector('.progress-bar');
+            const totalBudget = document.getElementById('totalBudget');
+            const spentBudget = document.getElementById('spentBudget');
+
+            // Update progress bar when completion percentage changes
             if (completionInput && progressBar) {
                 completionInput.addEventListener('input', function() {
                     const value = this.value || 0;
                     progressBar.style.width = value + '%';
+
+                    // Update the display text
+                    const displayElement = progressBar.parentElement.parentElement.querySelector('h5');
+                    if (displayElement) {
+                        displayElement.textContent = value + '%';
+                    }
                 });
             }
+
+            // Date validation
+            function validateDates() {
+                const start = new Date(startDate.value);
+                const plannedEnd = new Date(plannedEndDate.value);
+                const actualEnd = new Date(actualEndDate.value);
+
+                // Validate planned end date
+                if (startDate.value && plannedEndDate.value) {
+                    if (plannedEnd < start) {
+                        alert('تاریخ پایان برنامه‌ریزی شده نمی‌تواند قبل از تاریخ شروع باشد');
+                        plannedEndDate.value = '';
+                        return false;
+                    }
+                }
+
+                // Validate actual end date
+                if (startDate.value && actualEndDate.value) {
+                    if (actualEnd < start) {
+                        alert('تاریخ پایان واقعی نمی‌تواند قبل از تاریخ شروع باشد');
+                        actualEndDate.value = '';
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            // Budget validation
+            function validateBudget() {
+                const total = parseFloat(totalBudget.value) || 0;
+                const spent = parseFloat(spentBudget.value) || 0;
+
+                if (total > 0 && spent > total) {
+                    alert('بودجه مصرف شده نمی‌تواند بیشتر از بودجه کل باشد');
+                    spentBudget.value = '';
+                    return false;
+                }
+
+                return true;
+            }
+
+            // Event listeners
+            if (startDate) startDate.addEventListener('change', validateDates);
+            if (plannedEndDate) plannedEndDate.addEventListener('change', validateDates);
+            if (actualEndDate) actualEndDate.addEventListener('change', validateDates);
+            if (totalBudget) totalBudget.addEventListener('blur', validateBudget);
+            if (spentBudget) spentBudget.addEventListener('blur', validateBudget);
+
+            // Form submission validation
+            document.getElementById('editResearchProjectForm').addEventListener('submit', function(e) {
+                if (!validateDates() || !validateBudget()) {
+                    e.preventDefault();
+                }
+            });
         });
     </script>
 }

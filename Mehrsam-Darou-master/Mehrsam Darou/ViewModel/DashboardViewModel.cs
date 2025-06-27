@@ -56,7 +56,7 @@ namespace Mehrsam_Darou.ViewModel
 
         // Conversion Chart Data (for quality/production efficiency)
         public int ConversionRate { get; set; }
-        public string ConversionLabel { get; set; } = "کیفیت تولید";
+        public string ConversionLabel { get; set; } ="QC";
         public string[] ConversionColors { get; set; } = new[] { "#ff6c2f", "#22c55e" };
 
         // Weekly comparisons

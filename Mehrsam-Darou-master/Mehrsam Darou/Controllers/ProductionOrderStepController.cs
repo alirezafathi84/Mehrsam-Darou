@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using static Mehrsam_Darou.Helper.Helper;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Collections.Generic;
 
 namespace Mehrsam_Darou.Controllers
 {
@@ -59,7 +60,7 @@ namespace Mehrsam_Darou.Controllers
             return View(new ProductionOrderStep
             {
                 OrderId = orderId,
-                Status = "Pending"
+                Status = "در انتظار" // Changed to Persian to match database constraint
             });
         }
 
@@ -68,6 +69,10 @@ namespace Mehrsam_Darou.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddProductionOrderStep(Guid orderId, ProductionOrderStep productionOrderStep)
         {
+            // Remove ModelState errors for navigation properties
+            ModelState.Remove("Order");
+            ModelState.Remove("Step");
+
             if (ModelState.IsValid)
             {
                 try
@@ -81,6 +86,16 @@ namespace Mehrsam_Darou.Controllers
                         return View(productionOrderStep);
                     }
 
+                    // Clear navigation properties to avoid conflicts
+                    productionOrderStep.Order = null;
+                    productionOrderStep.Step = null;
+
+                    // Set OrderStepId if it's empty (for new records)
+                    if (productionOrderStep.OrderStepId == Guid.Empty)
+                    {
+                        productionOrderStep.OrderStepId = Guid.NewGuid();
+                    }
+
                     _context.Add(productionOrderStep);
                     await _context.SaveChangesAsync();
 
@@ -89,8 +104,25 @@ namespace Mehrsam_Darou.Controllers
                 }
                 catch (Exception ex)
                 {
-                    TempData["ErrorMessage"] = "خطا در اضافه کردن مرحله تولید: " + ex.Message;
+                    // Get detailed error information
+                    var innerException = ex.InnerException?.Message ?? ex.Message;
+                    var detailedError = $"خطا در اضافه کردن مرحله تولید: {ex.Message}";
+
+                    if (ex.InnerException != null)
+                    {
+                        detailedError += $" - جزئیات: {ex.InnerException.Message}";
+                    }
+
+                    TempData["ErrorMessage"] = detailedError;
                 }
+            }
+            else
+            {
+                // Add ModelState errors to TempData for debugging
+                var errors = string.Join("; ", ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage));
+                TempData["ErrorMessage"] = $"خطاهای اعتبارسنجی: {errors}";
             }
 
             await PopulateProductionOrderStepDropdowns(orderId);
@@ -125,10 +157,18 @@ namespace Mehrsam_Darou.Controllers
                 return NotFound();
             }
 
+            // Remove ModelState errors for navigation properties
+            ModelState.Remove("Order");
+            ModelState.Remove("Step");
+
             if (ModelState.IsValid)
             {
                 try
                 {
+                    // Clear navigation properties to avoid conflicts
+                    productionOrderStep.Order = null;
+                    productionOrderStep.Step = null;
+
                     _context.Update(productionOrderStep);
                     await _context.SaveChangesAsync();
 
@@ -146,6 +186,27 @@ namespace Mehrsam_Darou.Controllers
                         throw;
                     }
                 }
+                catch (Exception ex)
+                {
+                    // Get detailed error information
+                    var innerException = ex.InnerException?.Message ?? ex.Message;
+                    var detailedError = $"خطا در به‌روزرسانی مرحله تولید: {ex.Message}";
+
+                    if (ex.InnerException != null)
+                    {
+                        detailedError += $" - جزئیات: {ex.InnerException.Message}";
+                    }
+
+                    TempData["ErrorMessage"] = detailedError;
+                }
+            }
+            else
+            {
+                // Add ModelState errors to TempData for debugging
+                var errors = string.Join("; ", ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage));
+                TempData["ErrorMessage"] = $"خطاهای اعتبارسنجی: {errors}";
             }
 
             await PopulateProductionOrderStepDropdowns(productionOrderStep.OrderId, productionOrderStep.StepId);
@@ -164,8 +225,10 @@ namespace Mehrsam_Darou.Controllers
             if (productionOrderStep == null)
             {
                 TempData["ErrorMessage"] = "مرحله تولید مورد نظر یافت نشد";
-                return RedirectToAction(nameof(ProductionOrderStepList), new { orderId = productionOrderStep.OrderId });
+                return RedirectToAction("ProductionOrderList", "ProductionOrder");
             }
+
+            var orderId = productionOrderStep.OrderId;
 
             try
             {
@@ -175,10 +238,18 @@ namespace Mehrsam_Darou.Controllers
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "خطا در حذف مرحله تولید: " + ex.Message;
+                var innerException = ex.InnerException?.Message ?? ex.Message;
+                var detailedError = $"خطا در حذف مرحله تولید: {ex.Message}";
+
+                if (ex.InnerException != null)
+                {
+                    detailedError += $" - جزئیات: {ex.InnerException.Message}";
+                }
+
+                TempData["ErrorMessage"] = detailedError;
             }
 
-            return RedirectToAction(nameof(ProductionOrderStepList), new { orderId = productionOrderStep.OrderId });
+            return RedirectToAction(nameof(ProductionOrderStepList), new { orderId });
         }
 
         private bool ProductionOrderStepExists(Guid id)
@@ -188,35 +259,45 @@ namespace Mehrsam_Darou.Controllers
 
         private async Task PopulateProductionOrderStepDropdowns(Guid orderId, Guid? currentStepId = null)
         {
-            // Get order
-            var order = await _context.ProductionOrders.FindAsync(orderId);
+            try
+            {
+                // Get order
+                var order = await _context.ProductionOrders.FindAsync(orderId);
 
-            // Get all active steps
-            var allSteps = await _context.ProductionSteps
-                .Where(s => s.IsActive == true)
-                .OrderBy(s => s.Sequence)
-                .ToListAsync();
+                // Get all active steps
+                var allSteps = await _context.ProductionSteps
+                    .Where(s => s.IsActive == true)
+                    .OrderBy(s => s.Sequence)
+                    .ToListAsync();
 
-            // Get steps already assigned to this order
-            var assignedSteps = await _context.ProductionOrderSteps
-                .Where(s => s.OrderId == orderId && s.StepId != currentStepId)
-                .Select(s => s.StepId)
-                .ToListAsync();
+                // Get steps already assigned to this order
+                var assignedSteps = await _context.ProductionOrderSteps
+                    .Where(s => s.OrderId == orderId && s.StepId != currentStepId)
+                    .Select(s => s.StepId)
+                    .ToListAsync();
 
-            // Filter out already assigned steps
-            var availableSteps = allSteps
-                .Where(s => !assignedSteps.Contains(s.StepId))
-                .ToList();
+                // Filter out already assigned steps
+                var availableSteps = allSteps
+                    .Where(s => !assignedSteps.Contains(s.StepId))
+                    .ToList();
 
-            ViewBag.Steps = new SelectList(availableSteps, "StepId", "StepName");
+                ViewBag.Steps = availableSteps != null && availableSteps.Any()
+                    ? new SelectList(availableSteps, "StepId", "StepName")
+                    : new SelectList(new List<object>(), "Value", "Text");
+            }
+            catch (Exception)
+            {
+                // Fallback to empty list if database queries fail
+                ViewBag.Steps = new SelectList(new List<object>(), "Value", "Text");
+            }
 
-            // Statuses
+            // Statuses - Fixed to match database CHECK constraint (Persian values)
             var statuses = new List<SelectListItem>
             {
-                new SelectListItem { Value = "Pending", Text = "در انتظار" },
-                new SelectListItem { Value = "In Progress", Text = "در حال انجام" },
-                new SelectListItem { Value = "Completed", Text = "تکمیل شده" },
-                new SelectListItem { Value = "Failed", Text = "ناموفق" }
+                new SelectListItem { Value = "در انتظار", Text = "در انتظار" },
+                new SelectListItem { Value = "در حال اجرا", Text = "در حال اجرا" },
+                new SelectListItem { Value = "تکمیل شده", Text = "تکمیل شده" },
+                new SelectListItem { Value = "ناموفق", Text = "ناموفق" }
             };
 
             ViewBag.Statuses = new SelectList(statuses, "Value", "Text");

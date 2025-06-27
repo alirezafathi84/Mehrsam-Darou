@@ -312,6 +312,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGF5bWVudFxQYXltZW50TGlzdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Payment/Print.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGF5bWVudFxQcmludC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/PersianDateConverter/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGVyc2lhbkRhdGVDb252ZXJ0ZXJcQ3JlYXRlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
@@ -514,6 +518,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/SalesOrder/EditSalesOrder.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2FsZXNPcmRlclxFZGl0U2FsZXNPcmRlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/SalesOrder/Print.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2FsZXNPcmRlclxQcmludC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/SalesOrder/SalesOrderList.cshtml]

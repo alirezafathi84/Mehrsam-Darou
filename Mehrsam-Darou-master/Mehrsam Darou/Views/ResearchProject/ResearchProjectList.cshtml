@@ -88,7 +88,7 @@
                                 {
                                     // Calculate progress percentage
                                     var progressPercentage = 0;
-                                    
+
                                     // First try to use the completion percentage from the model
                                     if (project.CompletionPercentage.HasValue)
                                     {
@@ -111,11 +111,24 @@
                                             progressPercentage = Math.Min(100, Math.Max(0, (int)((elapsedDays / totalDays) * 100)));
                                         }
                                     }
-                                    
+
                                     // Ensure progress percentage is within valid range
                                     progressPercentage = Math.Min(100, Math.Max(0, progressPercentage));
 
-                                    <tr>
+                                    <tr data-project-id="@project.ProjectId"
+                                        data-project-code="@project.ProjectCode"
+                                        data-project-title="@project.ProjectTitle"
+                                        data-project-status="@project.ProjectStatus"
+                                        data-project-progress="@progressPercentage"
+                                        data-project-start="@(project.StartDate?.ToString("yyyy-MM-dd") ?? "")"
+                                        data-project-planned-end="@(project.PlannedEndDate?.ToString("yyyy-MM-dd") ?? "")"
+                                        data-project-actual-end="@(project.ActualEndDate?.ToString("yyyy-MM-dd") ?? "")"
+                                        data-project-manager="@(project.ProjectManager ?? "")"
+                                        data-project-investigator="@(project.PrincipalInvestigator ?? "")"
+                                        data-project-phase="@(project.CurrentPhase ?? "")"
+                                        data-project-budget="@(project.TotalBudget?.ToString("N0") ?? "")"
+                                        data-project-spent="@(project.SpentBudget?.ToString("N0") ?? "")"
+                                        data-project-currency="@(project.Currency ?? "")">
                                         <td>
                                             <div class="d-flex align-items-center">
                                                 <div class="avatar-sm bg-light-subtle rounded me-2">
@@ -137,7 +150,9 @@
                                                 <span class="fw-medium">@project.ProjectTitle</span>
                                                 @if (!string.IsNullOrEmpty(project.ProjectDescription))
                                                 {
-                                                    <br><small class="text-muted">@(project.ProjectDescription.Length > 50 ? project.ProjectDescription.Substring(0, 50) + "..." : project.ProjectDescription)</small>
+                                                    <br>
+
+                                                    <small class="text-muted">@(project.ProjectDescription.Length > 50 ? project.ProjectDescription.Substring(0, 50) + "..." : project.ProjectDescription)</small>
                                                 }
                                             </div>
                                         </td>
@@ -388,6 +403,157 @@
 </div>
 
 @section Scripts {
+    <style>
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+            .timeline::before {
+                content: '';
+                position: absolute;
+                left: 30px;
+                top: 0;
+                bottom: 0;
+                width: 2px;
+                background: #e3e6f0;
+            }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 60px;
+            margin-bottom: 30px;
+        }
+
+            .timeline-item:last-child {
+                margin-bottom: 0;
+            }
+
+        .timeline-icon {
+            position: absolute;
+            left: 20px;
+            top: 0;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border: 3px solid #007bff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .timeline-icon.completed {
+                background: #28a745;
+                border-color: #28a745;
+            }
+
+            .timeline-icon.current {
+                background: #ffc107;
+                border-color: #ffc107;
+            }
+
+            .timeline-icon.future {
+                background: #6c757d;
+                border-color: #6c757d;
+            }
+
+        .timeline-content {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+
+            .timeline-content.completed {
+                border-left-color: #28a745;
+            }
+
+            .timeline-content.current {
+                border-left-color: #ffc107;
+            }
+
+            .timeline-content.future {
+                border-left-color: #6c757d;
+            }
+
+        .timeline-date {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #495057;
+        }
+
+        .timeline-description {
+            margin-bottom: 10px;
+            color: #6c757d;
+        }
+
+        .timeline-status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+            .timeline-status.completed {
+                background: #d4edda;
+                color: #155724;
+            }
+
+            .timeline-status.current {
+                background: #fff3cd;
+                color: #856404;
+            }
+
+            .timeline-status.future {
+                background: #e2e3e5;
+                color: #495057;
+            }
+
+        .progress-overview {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .progress-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: conic-gradient(#007bff 0deg, #007bff var(--progress-angle, 0deg), #e9ecef var(--progress-angle, 0deg));
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            position: relative;
+        }
+
+            .progress-circle::before {
+                content: '';
+                position: absolute;
+                width: 60px;
+                height: 60px;
+                background: white;
+                border-radius: 50%;
+            }
+
+        .progress-text {
+            position: relative;
+            z-index: 1;
+            font-weight: bold;
+            color: #007bff;
+        }
+    </style>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var deleteModal = document.getElementById('deleteModal');
@@ -411,39 +577,234 @@
         });
 
         function showProjectDetails(projectId) {
+            // Find project data from table row
+            var projectRow = document.querySelector(`tr[data-project-id="${projectId}"]`);
+            var projectData = getProjectDataFromRow(projectRow);
+
             var modal = new bootstrap.Modal(document.getElementById('projectDetailsModal'));
             document.getElementById('projectDetailsContent').innerHTML =
                 '<div class="text-center"><div class="spinner-border" role="status"></div><p class="mt-2">در حال بارگذاری...</p></div>';
             modal.show();
 
-            // Simulate loading details
             setTimeout(function() {
-                document.getElementById('projectDetailsContent').innerHTML =
-                    '<div class="row">' +
-                    '<div class="col-md-6"><h6>اهداف پروژه:</h6><p>اهداف و شرح کامل پروژه اینجا نمایش داده می‌شود.</p></div>' +
-                    '<div class="col-md-6"><h6>تیم پروژه:</h6><p>اطلاعات اعضای تیم و نقش‌های آن‌ها.</p></div>' +
-                    '</div>' +
-                    '<div class="row">' +
-                    '<div class="col-12"><h6>پیشرفت پروژه:</h6><p>وضعیت فعلی و مراحل تکمیل شده پروژه.</p></div>' +
-                    '</div>';
-            }, 1000);
+                var detailsHtml = generateProjectDetailsHTML(projectData);
+                document.getElementById('projectDetailsContent').innerHTML = detailsHtml;
+            }, 800);
         }
 
         function showProjectTimeline(projectId) {
+            // Find project data from table row
+            var projectRow = document.querySelector(`tr[data-project-id="${projectId}"]`);
+            var projectData = getProjectDataFromRow(projectRow);
+
             var modal = new bootstrap.Modal(document.getElementById('timelineModal'));
             document.getElementById('timelineContent').innerHTML =
                 '<div class="text-center"><div class="spinner-border" role="status"></div><p class="mt-2">در حال بارگذاری جدول زمانی...</p></div>';
             modal.show();
 
-            // Simulate loading timeline
             setTimeout(function() {
-                document.getElementById('timelineContent').innerHTML =
-                    '<div class="timeline">' +
-                    '<div class="timeline-item"><h6>شروع پروژه</h6><p>تاریخ شروع و اولین مراحل</p></div>' +
-                    '<div class="timeline-item"><h6>مرحله میانی</h6><p>پیشرفت و دستاوردهای حاصله</p></div>' +
-                    '<div class="timeline-item"><h6>تکمیل پروژه</h6><p>تاریخ برنامه‌ریزی شده و اهداف نهایی</p></div>' +
-                    '</div>';
-            }, 1000);
+                var timelineHtml = generateTimelineHTML(projectData);
+                document.getElementById('timelineContent').innerHTML = timelineHtml;
+            }, 800);
+        }
+
+        function getProjectDataFromRow(row) {
+            if (!row) return {};
+
+            return {
+                id: row.getAttribute('data-project-id'),
+                code: row.getAttribute('data-project-code'),
+                title: row.getAttribute('data-project-title'),
+                status: row.getAttribute('data-project-status'),
+                progress: parseInt(row.getAttribute('data-project-progress')) || 0,
+                startDate: row.getAttribute('data-project-start'),
+                plannedEndDate: row.getAttribute('data-project-planned-end'),
+                actualEndDate: row.getAttribute('data-project-actual-end'),
+                manager: row.getAttribute('data-project-manager'),
+                investigator: row.getAttribute('data-project-investigator'),
+                phase: row.getAttribute('data-project-phase'),
+                budget: row.getAttribute('data-project-budget'),
+                spent: row.getAttribute('data-project-spent'),
+                currency: row.getAttribute('data-project-currency')
+            };
+        }
+
+        function generateProjectDetailsHTML(data) {
+            return `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>کد پروژه:</h6>
+                        <p>${data.code || '-'}</p>
+                        <h6>عنوان پروژه:</h6>
+                        <p>${data.title || '-'}</p>
+                        <h6>وضعیت:</h6>
+                        <p><span class="badge ${getStatusBadgeClass(data.status)}">${data.status || '-'}</span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>مدیر پروژه:</h6>
+                        <p>${data.manager || '-'}</p>
+                        <h6>محقق اصلی:</h6>
+                        <p>${data.investigator || '-'}</p>
+                        <h6>مرحله فعلی:</h6>
+                        <p>${data.phase || '-'}</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>بودجه کل:</h6>
+                        <p>${data.budget ? data.budget + ' ' + data.currency : '-'}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>بودجه مصرف شده:</h6>
+                        <p>${data.spent ? data.spent + ' ' + data.currency : '-'}</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <h6>درصد پیشرفت:</h6>
+                        <div class="progress mb-2">
+                            <div class="progress-bar" style="width: ${data.progress}%"></div>
+                        </div>
+                        <p>${data.progress}% تکمیل شده</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateTimelineHTML(data) {
+            var progressAngle = (data.progress / 100) * 360;
+            var timelineItems = generateTimelineItems(data);
+
+            return `
+                <div class="progress-overview">
+                    <h5 class="mb-3">${data.title}</h5>
+                    <div class="progress-circle" style="--progress-angle: ${progressAngle}deg">
+                        <span class="progress-text">${data.progress}%</span>
+                    </div>
+                    <p class="mb-0">پیشرفت کلی پروژه</p>
+                </div>
+
+                <div class="timeline">
+                    ${timelineItems}
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">وضعیت فعلی</h6>
+                                <span class="badge ${getStatusBadgeClass(data.status)}">${data.status}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">درصد تکمیل</h6>
+                                <h4 class="text-primary">${data.progress}%</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateTimelineItems(data) {
+            var items = [];
+            var today = new Date();
+
+            // Project Planning Phase
+            items.push({
+                title: 'طرح‌ریزی پروژه',
+                description: 'تعریف اهداف، منابع و برنامه‌ریزی اولیه',
+                date: '',
+                status: 'completed',
+                statusText: 'تکمیل شده'
+            });
+
+            // Project Start
+            if (data.startDate) {
+                var startDate = new Date(data.startDate);
+                items.push({
+                    title: 'شروع پروژه',
+                    description: 'آغاز رسمی فعالیت‌های پروژه',
+                    date: formatPersianDate(startDate),
+                    status: startDate <= today ? 'completed' : 'future',
+                    statusText: startDate <= today ? 'انجام شده' : 'برنامه‌ریزی شده'
+                });
+            }
+
+            // Current Phase
+            if (data.phase) {
+                items.push({
+                    title: data.phase,
+                    description: 'مرحله فعلی پروژه در حال اجرا',
+                    date: '',
+                    status: 'current',
+                    statusText: 'در حال اجرا'
+                });
+            }
+
+            // Planned End
+            if (data.plannedEndDate) {
+                var plannedEnd = new Date(data.plannedEndDate);
+                items.push({
+                    title: 'تکمیل برنامه‌ریزی شده',
+                    description: 'تاریخ برنامه‌ریزی شده برای اتمام پروژه',
+                    date: formatPersianDate(plannedEnd),
+                    status: data.status === 'تکمیل شده' ? 'completed' : (plannedEnd <= today ? 'current' : 'future'),
+                    statusText: data.status === 'تکمیل شده' ? 'تکمیل شده' : (plannedEnd <= today ? 'سررسید گذشته' : 'برنامه‌ریزی شده')
+                });
+            }
+
+            // Actual End
+            if (data.actualEndDate) {
+                var actualEnd = new Date(data.actualEndDate);
+                items.push({
+                    title: 'اتمام واقعی پروژه',
+                    description: 'تاریخ واقعی تکمیل پروژه',
+                    date: formatPersianDate(actualEnd),
+                    status: 'completed',
+                    statusText: 'تکمیل شده'
+                });
+            }
+
+            return items.map(item => `
+                <div class="timeline-item">
+                    <div class="timeline-icon ${item.status}">
+                        ${item.status === 'completed' ? '<i class="bx bx-check" style="color: white; font-size: 12px;"></i>' : ''}
+                    </div>
+                    <div class="timeline-content ${item.status}">
+                        ${item.date ? `<div class="timeline-date">${item.date}</div>` : ''}
+                        <div class="timeline-title">${item.title}</div>
+                        <div class="timeline-description">${item.description}</div>
+                        <span class="timeline-status ${item.status}">${item.statusText}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getStatusBadgeClass(status) {
+            switch (status) {
+                case 'طرح‌ریزی': return 'bg-secondary';
+                case 'تایید شده': return 'bg-info';
+                case 'در حال اجرا': return 'bg-warning';
+                case 'متوقف شده': return 'bg-danger';
+                case 'تکمیل شده': return 'bg-success';
+                case 'لغو شده': return 'bg-dark';
+                default: return 'bg-light text-dark';
+            }
+        }
+
+        function formatPersianDate(date) {
+            // Simple Persian date formatting - you can enhance this
+            var persianMonths = [
+                'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
+                'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'
+            ];
+
+            // This is a simplified version - in reality you'd use a proper Persian calendar library
+            return date.getDate() + ' ' + persianMonths[date.getMonth()] + ' ' + (date.getFullYear() - 621);
         }
     </script>
 }

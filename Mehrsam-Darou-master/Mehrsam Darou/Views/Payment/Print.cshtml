@@ -1,0 +1,489 @@
+﻿@model List<Mehrsam_Darou.Models.PaymentTransaction>
+@using System.Globalization
+
+@{
+    PersianCalendar pc = new PersianCalendar();
+    ViewData["Title"] = "گزارش لیست پرداخت‌ها";
+    Layout = null; // No layout for print view
+}
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Tahoma', 'Arial', sans-serif;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #000;
+            background: #fff;
+            direction: rtl;
+            text-align: right;
+        }
+
+        /* Print Styles */
+        @@media print {
+            @@page {
+                size: A4 landscape;
+                margin: 1cm;
+            }
+
+            body {
+                font-size: 10px;
+                line-height: 1.2;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+        }
+
+        /* Container and Layout */
+        .print-container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header Styles */
+        .print-header {
+            text-align: center;
+            border-bottom: 3px solid #333;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+            .print-header h1 {
+                font-size: 24px;
+                font-weight: bold;
+                margin-bottom: 10px;
+                color: #2c3e50;
+            }
+
+            .print-header .company-info {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 10px;
+            }
+
+            .print-header .company-logo {
+                width: 60px;
+                height: 60px;
+                border: 1px solid #ddd;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                color: #666;
+            }
+
+            .print-header .company-details h2 {
+                font-size: 18px;
+                margin-bottom: 5px;
+            }
+
+            .print-header .company-details p {
+                font-size: 11px;
+                color: #666;
+                margin-bottom: 2px;
+            }
+
+        /* Filter Info */
+        .filter-info {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 15px;
+            font-size: 11px;
+        }
+
+            .filter-info h3 {
+                font-size: 12px;
+                margin-bottom: 8px;
+                color: #495057;
+            }
+
+            .filter-info .row {
+                display: flex;
+                flex-wrap: wrap;
+                margin-bottom: 5px;
+            }
+
+            .filter-info .col {
+                flex: 1;
+                min-width: 200px;
+                padding: 2px 5px;
+            }
+
+            .filter-info strong {
+                color: #2c3e50;
+            }
+
+        /* Table Styles */
+        .print-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 10px;
+        }
+
+            .print-table th,
+            .print-table td {
+                border: 1px solid #333;
+                padding: 6px 4px;
+                text-align: center;
+                vertical-align: middle;
+            }
+
+            .print-table th {
+                background-color: #f1f3f4;
+                font-weight: bold;
+                font-size: 9px;
+            }
+
+            .print-table tbody tr:nth-child(even) {
+                background-color: #fafafa;
+            }
+
+        /* Badge Styles for Print */
+        .badge {
+            display: inline-block;
+            padding: 2px 4px;
+            font-size: 8px;
+            font-weight: bold;
+            border: 1px solid #333;
+            border-radius: 2px;
+            background: #fff;
+        }
+
+            .badge.success {
+                background: #d4edda;
+            }
+
+            .badge.danger {
+                background: #f8d7da;
+            }
+
+            .badge.warning {
+                background: #fff3cd;
+            }
+
+            .badge.secondary {
+                background: #e2e3e5;
+            }
+
+        /* Summary Section */
+        .summary-section {
+            border-top: 2px solid #333;
+            padding-top: 15px;
+            margin-top: 20px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .summary-box {
+            border: 1px solid #333;
+            padding: 10px;
+            text-align: center;
+        }
+
+            .summary-box h4 {
+                font-size: 12px;
+                margin-bottom: 5px;
+                color: #2c3e50;
+            }
+
+            .summary-box .amount {
+                font-size: 14px;
+                font-weight: bold;
+                color: #2c3e50;
+            }
+
+            .summary-box.receipts .amount {
+                color: #28a745;
+            }
+
+            .summary-box.payments .amount {
+                color: #dc3545;
+            }
+
+            .summary-box.net .amount {
+                color: #2c3e50;
+                font-size: 16px;
+            }
+
+        /* Footer */
+        .print-footer {
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 10px;
+            color: #666;
+        }
+
+        /* No Data Message */
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+            .no-data i {
+                font-size: 48px;
+                margin-bottom: 10px;
+            }
+
+        /* Print Button */
+        .print-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+            .print-button:hover {
+                background: #0056b3;
+            }
+
+        /* Responsive adjustments */
+        @@media screen and (max-width: 768px) {
+            .print-container {
+                padding: 10px;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .print-table {
+                font-size: 9px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Print Button (visible only on screen) -->
+    <button class="print-button no-print" onclick="window.print()">
+        🖨️ چاپ گزارش
+    </button>
+
+    <div class="print-container">
+        <!-- Header Section -->
+        <div class="print-header">
+            <div class="company-info">
+  @*               <div class="company-logo">
+                    لوگو
+                </div> *@
+                <div class="company-details">
+         @*            <h2>شرکت مهرسام داروسازی</h2>
+                    <p>سامانه مدیریت جامع داروخانه</p>
+                    <p>تلفن: 021-12345678 | آدرس: تهران، ایران</p> *@
+                </div>
+                <div style="text-align: left; font-size: 10px; color: #666;">
+                    <div>تاریخ چاپ: @ViewBag.PrintDate.ToString("yyyy/MM/dd")</div>
+                    <div>ساعت چاپ: @ViewBag.PrintDate.ToString("HH:mm")</div>
+                </div>
+            </div>
+            <h1>گزارش تراکنش‌های پرداخت</h1>
+        </div>
+
+        <!-- Filter Information -->
+        <div class="filter-info">
+            <h3>🔍 فیلترهای اعمال شده:</h3>
+            <div class="row">
+                <div class="col">
+                    <strong>متن جستجو:</strong> @(string.IsNullOrEmpty(ViewBag.SearchKey) ? "همه" : ViewBag.SearchKey)
+                </div>
+                <div class="col">
+                    <strong>نوع تراکنش:</strong> @(string.IsNullOrEmpty(ViewBag.TransactionType) ? "همه انواع" : ViewBag.TransactionType)
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <strong>وضعیت:</strong> @(string.IsNullOrEmpty(ViewBag.Status) ? "همه وضعیت‌ها" : ViewBag.Status)
+                </div>
+                <div class="col">
+                    <strong>محدوده تاریخ:</strong>
+                    @if (ViewBag.FromDate != null || ViewBag.ToDate != null)
+                    {
+                        <span>از @(ViewBag.FromDate?.ToString("yyyy/MM/dd") ?? "---") تا @(ViewBag.ToDate?.ToString("yyyy/MM/dd") ?? "---")</span>
+                    }
+                    else
+                    {
+                        <span>همه تاریخ‌ها</span>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        @if (Model != null && Model.Any())
+        {
+            <table class="print-table">
+                <thead>
+                    <tr>
+                        <th style="width: 8%">ردیف</th>
+                        <th style="width: 12%">شماره تراکنش</th>
+                        <th style="width: 8%">نوع</th>
+                        <th style="width: 12%">مبلغ (ریال)</th>
+                        <th style="width: 12%">روش پرداخت</th>
+                        <th style="width: 18%">مشتری/تامین‌کننده</th>
+                        <th style="width: 10%">تاریخ تراکنش</th>
+                        <th style="width: 8%">وضعیت</th>
+                        <th style="width: 12%">شماره مرجع</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int rowNumber = 1;
+                    }
+                    @foreach (var payment in Model)
+                    {
+                        <tr>
+                            <td>@rowNumber</td>
+                            <td>@payment.TransactionNumber</td>
+                            <td>
+                                @if (payment.TransactionType == "دریافت")
+                                {
+                                    <span class="badge success">@payment.TransactionType</span>
+                                }
+                                else
+                                {
+                                    <span class="badge danger">@payment.TransactionType</span>
+                                }
+                            </td>
+                            <td style="text-align: left; font-weight: bold;">
+                                @payment.Amount.ToString("N0")
+                            </td>
+                            <td>@(payment.PaymentMethod?.MethodName ?? "-")</td>
+                            <td>
+                                @if (payment.Customer != null)
+                                {
+                                    <span>👤 @payment.Customer.CustomerName</span>
+                                }
+                                else if (payment.Supplier != null)
+                                {
+                                    <span>🏢 @payment.Supplier.SupplierName</span>
+                                }
+                                else
+                                {
+                                    <span>-</span>
+                                }
+                            </td>
+                            <td>@pc.GetYear(payment.TransactionDate.ToDateTime(TimeOnly.MinValue)).ToString()/@pc.GetMonth(payment.TransactionDate.ToDateTime(TimeOnly.MinValue)).ToString("00")/@pc.GetDayOfMonth(payment.TransactionDate.ToDateTime(TimeOnly.MinValue)).ToString("00")</td>
+                            <td>
+                                @if (payment.Status == "تایید شده")
+                                {
+                                    <span class="badge success">@payment.Status</span>
+                                }
+                                else if (payment.Status == "برگشت خورده")
+                                {
+                                    <span class="badge danger">@payment.Status</span>
+                                }
+                                else if (payment.Status == "لغو شده")
+                                {
+                                    <span class="badge secondary">@payment.Status</span>
+                                }
+                                else
+                                {
+                                    <span class="badge warning">@payment.Status</span>
+                                }
+                            </td>
+                            <td>@(payment.ReferenceNumber ?? "-")</td>
+                        </tr>
+                        rowNumber++;
+                    }
+                </tbody>
+            </table>
+
+            <!-- Summary Section -->
+            <div class="summary-section">
+                <div class="summary-grid">
+                    <div class="summary-box receipts">
+                        <h4>💰 مجموع دریافت‌ها</h4>
+                        <div class="amount">@ViewBag.TotalReceipts.ToString("N0") ریال</div>
+                    </div>
+                    <div class="summary-box payments">
+                        <h4>💸 مجموع پرداخت‌ها</h4>
+                        <div class="amount">@ViewBag.TotalPayments.ToString("N0") ریال</div>
+                    </div>
+                </div>
+
+                <div class="summary-grid">
+                    <div class="summary-box">
+                        <h4>📊 تعداد کل تراکنش‌ها</h4>
+                        <div class="amount">@ViewBag.TotalTransactions عدد</div>
+                    </div>
+                    <div class="summary-box net">
+                        <h4>⚖️ خالص (دریافت - پرداخت)</h4>
+                        <div class="amount">@ViewBag.NetAmount.ToString("N0") ریال</div>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="no-data">
+                <div style="font-size: 48px; margin-bottom: 15px;">💳</div>
+                <h3>هیچ تراکنش پرداختی یافت نشد</h3>
+                <p>با فیلترهای انتخابی، هیچ داده‌ای برای نمایش وجود ندارد.</p>
+            </div>
+        }
+
+        <!-- Footer -->
+        <div class="print-footer">
+            <div>
+                <strong>تولید شده توسط:</strong> سامانه مدیریت جامع
+            </div>
+            <div>
+              @*   <strong>صفحه:</strong> 1 *@
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto-print when page loads (optional)
+        // window.onload = function() {
+        //     window.print();
+        // };
+
+        // Print function for the button
+        function printReport() {
+            window.print();
+        }
+
+        // Close window after printing (optional)
+        window.onafterprint = function() {
+            // window.close();
+        };
+    </script>
+</body>
+</html>

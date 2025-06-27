@@ -32,7 +32,7 @@
                     </a>
                 </div>
 
-                <form asp-action="AddResearchProject">
+                <form asp-action="AddResearchProject" id="researchProjectForm">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                     <!-- Hidden fields to avoid validation issues -->
@@ -50,14 +50,14 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label asp-for="ProjectCode" class="form-label">کد پروژه <span class="text-danger">*</span></label>
-                                        <input asp-for="ProjectCode" class="form-control" />
+                                        <input asp-for="ProjectCode" class="form-control" required />
                                         <span asp-validation-for="ProjectCode" class="text-danger"></span>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label asp-for="ProjectTitle" class="form-label">عنوان پروژه <span class="text-danger">*</span></label>
-                                        <input asp-for="ProjectTitle" class="form-control" />
+                                        <input asp-for="ProjectTitle" class="form-control" required />
                                         <span asp-validation-for="ProjectTitle" class="text-danger"></span>
                                     </div>
                                 </div>
@@ -121,7 +121,7 @@
                                         <select asp-for="PriorityLevel" class="form-select">
                                             <option value="1">1 - بسیار بالا</option>
                                             <option value="2">2 - بالا</option>
-                                            <option value="3">3 - متوسط</option>
+                                            <option value="3" selected>3 - متوسط</option>
                                             <option value="4">4 - پایین</option>
                                             <option value="5">5 - بسیار پایین</option>
                                         </select>
@@ -228,21 +228,21 @@
                                 <div class="col-md-4">
                                     <div class="mb-3">
                                         <label asp-for="StartDate" class="form-label">تاریخ شروع</label>
-                                        <input asp-for="StartDate" type="date" class="form-control" />
+                                        <input asp-for="StartDate" type="date" class="form-control" id="startDate" />
                                         <span asp-validation-for="StartDate" class="text-danger"></span>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="mb-3">
                                         <label asp-for="PlannedEndDate" class="form-label">تاریخ برنامه‌ریزی شده پایان</label>
-                                        <input asp-for="PlannedEndDate" type="date" class="form-control" />
+                                        <input asp-for="PlannedEndDate" type="date" class="form-control" id="plannedEndDate" />
                                         <span asp-validation-for="PlannedEndDate" class="text-danger"></span>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="mb-3">
                                         <label asp-for="ActualEndDate" class="form-label">تاریخ واقعی پایان</label>
-                                        <input asp-for="ActualEndDate" type="date" class="form-control" />
+                                        <input asp-for="ActualEndDate" type="date" class="form-control" id="actualEndDate" />
                                         <span asp-validation-for="ActualEndDate" class="text-danger"></span>
                                     </div>
                                 </div>
@@ -275,7 +275,7 @@
                                     <div class="mb-3">
                                         <label asp-for="Currency" class="form-label">واحد پول</label>
                                         <select asp-for="Currency" class="form-select">
-                                            <option value="IRR">ریال ایران</option>
+                                            <option value="IRR" selected>ریال ایران</option>
                                             <option value="USD">دلار آمریکا</option>
                                             <option value="EUR">یورو</option>
                                         </select>
@@ -302,7 +302,7 @@
                             <div class="mb-3">
                                 <label asp-for="IsActive" class="form-label">وضعیت</label>
                                 <select asp-for="IsActive" class="form-select">
-                                    <option value="true">فعال</option>
+                                    <option value="true" selected>فعال</option>
                                     <option value="false">غیرفعال</option>
                                 </select>
                                 <span asp-validation-for="IsActive" class="text-danger"></span>
@@ -343,4 +343,50 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+        // Date validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const startDate = document.getElementById('startDate');
+            const plannedEndDate = document.getElementById('plannedEndDate');
+            const actualEndDate = document.getElementById('actualEndDate');
+
+            function validateDates() {
+                const start = new Date(startDate.value);
+                const plannedEnd = new Date(plannedEndDate.value);
+                const actualEnd = new Date(actualEndDate.value);
+
+                // Validate planned end date
+                if (startDate.value && plannedEndDate.value) {
+                    if (plannedEnd < start) {
+                        alert('تاریخ پایان برنامه‌ریزی شده نمی‌تواند قبل از تاریخ شروع باشد');
+                        plannedEndDate.value = '';
+                        return false;
+                    }
+                }
+
+                // Validate actual end date
+                if (startDate.value && actualEndDate.value) {
+                    if (actualEnd < start) {
+                        alert('تاریخ پایان واقعی نمی‌تواند قبل از تاریخ شروع باشد');
+                        actualEndDate.value = '';
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            startDate.addEventListener('change', validateDates);
+            plannedEndDate.addEventListener('change', validateDates);
+            actualEndDate.addEventListener('change', validateDates);
+
+            // Form submission validation
+            document.getElementById('researchProjectForm').addEventListener('submit', function(e) {
+                if (!validateDates()) {
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
 }

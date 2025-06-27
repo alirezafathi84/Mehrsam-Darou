@@ -6,6 +6,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using static Mehrsam_Darou.Helper.Helper;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace Mehrsam_Darou.Controllers
 {
@@ -55,7 +57,7 @@ namespace Mehrsam_Darou.Controllers
             return View(new ProductionOrder
             {
                 TargetDate = DateOnly.FromDateTime(DateTime.Now.AddDays(7)),
-                Status = "Planned",
+                Status = "برنامه‌ریزی شده", // Changed to Persian to match database constraint
                 Priority = 3
             });
         }
@@ -65,6 +67,10 @@ namespace Mehrsam_Darou.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddProductionOrder(ProductionOrder productionOrder)
         {
+            // Remove ModelState errors for navigation properties
+            ModelState.Remove("Unit");
+            ModelState.Remove("Medicine");
+
             if (ModelState.IsValid)
             {
                 try
@@ -76,6 +82,16 @@ namespace Mehrsam_Darou.Controllers
                         return View(productionOrder);
                     }
 
+                    // Clear navigation properties to avoid conflicts
+                    productionOrder.Medicine = null;
+                    productionOrder.Unit = null;
+
+                    // Set OrderId if it's empty (for new records)
+                    if (productionOrder.OrderId == Guid.Empty)
+                    {
+                        productionOrder.OrderId = Guid.NewGuid();
+                    }
+
                     _context.Add(productionOrder);
                     await _context.SaveChangesAsync();
 
@@ -84,8 +100,25 @@ namespace Mehrsam_Darou.Controllers
                 }
                 catch (Exception ex)
                 {
-                    TempData["ErrorMessage"] = "خطا در ایجاد سفارش تولید: " + ex.Message;
+                    // Get detailed error information
+                    var innerException = ex.InnerException?.Message ?? ex.Message;
+                    var detailedError = $"خطا در ایجاد سفارش تولید: {ex.Message}";
+
+                    if (ex.InnerException != null)
+                    {
+                        detailedError += $" - جزئیات: {ex.InnerException.Message}";
+                    }
+
+                    TempData["ErrorMessage"] = detailedError;
                 }
+            }
+            else
+            {
+                // Add ModelState errors to TempData for debugging
+                var errors = string.Join("; ", ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage));
+                TempData["ErrorMessage"] = $"خطاهای اعتبارسنجی: {errors}";
             }
 
             await PopulateProductionOrderDropdowns();
@@ -115,6 +148,10 @@ namespace Mehrsam_Darou.Controllers
                 return NotFound();
             }
 
+            // Remove ModelState errors for navigation properties
+            ModelState.Remove("Unit");
+            ModelState.Remove("Medicine");
+
             if (ModelState.IsValid)
             {
                 try
@@ -127,6 +164,10 @@ namespace Mehrsam_Darou.Controllers
                         await PopulateProductionOrderDropdowns();
                         return View(productionOrder);
                     }
+
+                    // Clear navigation properties to avoid conflicts
+                    productionOrder.Medicine = null;
+                    productionOrder.Unit = null;
 
                     _context.Update(productionOrder);
                     await _context.SaveChangesAsync();
@@ -145,6 +186,27 @@ namespace Mehrsam_Darou.Controllers
                         throw;
                     }
                 }
+                catch (Exception ex)
+                {
+                    // Get detailed error information
+                    var innerException = ex.InnerException?.Message ?? ex.Message;
+                    var detailedError = $"خطا در به‌روزرسانی سفارش تولید: {ex.Message}";
+
+                    if (ex.InnerException != null)
+                    {
+                        detailedError += $" - جزئیات: {ex.InnerException.Message}";
+                    }
+
+                    TempData["ErrorMessage"] = detailedError;
+                }
+            }
+            else
+            {
+                // Add ModelState errors to TempData for debugging
+                var errors = string.Join("; ", ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage));
+                TempData["ErrorMessage"] = $"خطاهای اعتبارسنجی: {errors}";
             }
 
             await PopulateProductionOrderDropdowns();
@@ -192,29 +254,72 @@ namespace Mehrsam_Darou.Controllers
 
         private async Task PopulateProductionOrderDropdowns()
         {
-            // Active medicines
-            var medicines = await _context.Medicines
-                .Where(m => m.IsActive == true)
-                .OrderBy(m => m.BrandName)
-                .ToListAsync();
+            try
+            {
+                // Active medicines - Create SelectListItem manually to avoid property name issues
+                var medicines = await _context.Medicines
+                    .Where(m => m.IsActive == true)
+                    .OrderBy(m => m.BrandName)
+                    .ToListAsync();
 
-            ViewBag.Medicines = new SelectList(medicines, "MedicineId", "BrandName");
+                var medicineItems = new List<SelectListItem>();
+                if (medicines != null && medicines.Any())
+                {
+                    foreach (var medicine in medicines)
+                    {
+                        // Try different possible ID property names
+                        var idValue = GetEntityId(medicine);
+                        if (idValue != null)
+                        {
+                            medicineItems.Add(new SelectListItem
+                            {
+                                Value = idValue.ToString(),
+                                Text = medicine.BrandName
+                            });
+                        }
+                    }
+                }
+                ViewBag.Medicines = new SelectList(medicineItems, "Value", "Text");
 
-            // Active units
-            var units = await _context.Units
-                .Where(u => u.IsActive == true)
-                .OrderBy(u => u.UnitName)
-                .ToListAsync();
+                // Active units - Create SelectListItem manually to avoid property name issues
+                var units = await _context.Units
+                    .Where(u => u.IsActive == true)
+                    .OrderBy(u => u.UnitName)
+                    .ToListAsync();
 
-            ViewBag.Units = new SelectList(units, "UnitId", "UnitName");
+                var unitItems = new List<SelectListItem>();
+                if (units != null && units.Any())
+                {
+                    foreach (var unit in units)
+                    {
+                        // Try different possible ID property names
+                        var idValue = GetEntityId(unit);
+                        if (idValue != null)
+                        {
+                            unitItems.Add(new SelectListItem
+                            {
+                                Value = idValue.ToString(),
+                                Text = unit.UnitName
+                            });
+                        }
+                    }
+                }
+                ViewBag.Units = new SelectList(unitItems, "Value", "Text");
+            }
+            catch (Exception)
+            {
+                // Fallback to empty lists if database queries fail
+                ViewBag.Medicines = new SelectList(new List<SelectListItem>(), "Value", "Text");
+                ViewBag.Units = new SelectList(new List<SelectListItem>(), "Value", "Text");
+            }
 
-            // Statuses
+            // Statuses - Fixed to match database CHECK constraint (Persian values)
             var statuses = new List<SelectListItem>
             {
-                new SelectListItem { Value = "Planned", Text = "برنامه‌ریزی شده" },
-                new SelectListItem { Value = "In Progress", Text = "در حال انجام" },
-                new SelectListItem { Value = "Completed", Text = "تکمیل شده" },
-                new SelectListItem { Value = "Cancelled", Text = "لغو شده" }
+                new SelectListItem { Value = "برنامه‌ریزی شده", Text = "برنامه‌ریزی شده" },
+                new SelectListItem { Value = "در حال اجرا", Text = "در حال اجرا" },
+                new SelectListItem { Value = "تکمیل شده", Text = "تکمیل شده" },
+                new SelectListItem { Value = "لغو شده", Text = "لغو شده" }
             };
 
             ViewBag.Statuses = new SelectList(statuses, "Value", "Text");
@@ -229,6 +334,26 @@ namespace Mehrsam_Darou.Controllers
             };
 
             ViewBag.Priorities = new SelectList(priorities, "Value", "Text");
+        }
+
+        private object GetEntityId(object entity)
+        {
+            // Try to get ID using reflection to handle different property names
+            var type = entity.GetType();
+
+            // Common ID property names to try
+            string[] possibleIdNames = { "Id", "MedicineId", "UnitId", type.Name + "Id" };
+
+            foreach (var propName in possibleIdNames)
+            {
+                var property = type.GetProperty(propName);
+                if (property != null)
+                {
+                    return property.GetValue(entity);
+                }
+            }
+
+            return null;
         }
     }
 }

@@ -31,7 +31,7 @@
                 }
 
                 <div class="d-flex flex-wrap justify-content-between gap-3 mb-3">
-                    <form method="get" asp-action="PaymentList" class="d-flex gap-2">
+                    <form method="get" asp-action="PaymentList" class="d-flex gap-2 flex-wrap">
                         <div class="search-bar">
                             <span><i class="bx bx-search-alt"></i></span>
                             <input type="search" name="searchKey" value="@Context.Request.Query["searchKey"]" class="form-control" placeholder="جستجو...">
@@ -50,9 +50,14 @@
                                 <option value="@status" selected="@(Context.Request.Query["status"] == status ? "selected" : null)">@status</option>
                             }
                         </select>
+                        <input type="date" name="fromDate" value="@Context.Request.Query["fromDate"]" class="form-control" style="width: auto;" placeholder="از تاریخ">
+                        <input type="date" name="toDate" value="@Context.Request.Query["toDate"]" class="form-control" style="width: auto;" placeholder="تا تاریخ">
                         <button type="submit" class="btn btn-primary">جستجو</button>
                     </form>
-                    <div>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#printModal">
+                            <i class="bx bx-printer me-1"></i> چاپ
+                        </button>
                         <a href="@Url.Action("AddPayment")" class="btn btn-primary">
                             <i class="bx bx-plus me-1"></i> پرداخت جدید
                         </a>
@@ -177,7 +182,7 @@
                         @if (Model.HasPreviousPage)
                         {
                             <li class="page-item">
-                                <a class="page-link" href="@Url.Action("PaymentList", new { page = Model.PageIndex - 1, searchKey = Context.Request.Query["searchKey"], transactionType = Context.Request.Query["transactionType"], status = Context.Request.Query["status"] })">
+                                <a class="page-link" href="@Url.Action("PaymentList", new { page = Model.PageIndex - 1, searchKey = Context.Request.Query["searchKey"], transactionType = Context.Request.Query["transactionType"], status = Context.Request.Query["status"], fromDate = Context.Request.Query["fromDate"], toDate = Context.Request.Query["toDate"] })">
                                     <i class="bx bx-chevron-right"></i>
                                 </a>
                             </li>
@@ -186,14 +191,14 @@
                         @for (int i = 1; i <= Model.TotalPages; i++)
                         {
                             <li class="page-item @(i == Model.PageIndex ? "active" : "")">
-                                <a class="page-link" href="@Url.Action("PaymentList", new { page = i, searchKey = Context.Request.Query["searchKey"], transactionType = Context.Request.Query["transactionType"], status = Context.Request.Query["status"] })">@i</a>
+                                <a class="page-link" href="@Url.Action("PaymentList", new { page = i, searchKey = Context.Request.Query["searchKey"], transactionType = Context.Request.Query["transactionType"], status = Context.Request.Query["status"], fromDate = Context.Request.Query["fromDate"], toDate = Context.Request.Query["toDate"] })">@i</a>
                             </li>
                         }
 
                         @if (Model.HasNextPage)
                         {
                             <li class="page-item">
-                                <a class="page-link" href="@Url.Action("PaymentList", new { page = Model.PageIndex + 1, searchKey = Context.Request.Query["searchKey"], transactionType = Context.Request.Query["transactionType"], status = Context.Request.Query["status"] })">
+                                <a class="page-link" href="@Url.Action("PaymentList", new { page = Model.PageIndex + 1, searchKey = Context.Request.Query["searchKey"], transactionType = Context.Request.Query["transactionType"], status = Context.Request.Query["status"], fromDate = Context.Request.Query["fromDate"], toDate = Context.Request.Query["toDate"] })">
                                     <i class="bx bx-chevron-left"></i>
                                 </a>
                             </li>
@@ -201,6 +206,102 @@
                     </ul>
                 </nav>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Print Options Modal -->
+<div class="modal fade" id="printModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bx bx-printer me-2"></i>تنظیمات چاپ گزارش
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <form id="printForm" asp-action="Print" target="_blank">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">جستجو در متن</label>
+                                <input type="text" name="searchKey" class="form-control" value="@Context.Request.Query["searchKey"]" placeholder="جستجو...">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">نوع تراکنش</label>
+                                <select name="transactionType" class="form-select">
+                                    <option value="">-- همه انواع --</option>
+                                    @foreach (var type in ViewBag.TransactionTypes as List<string>)
+                                    {
+                                        <option value="@type" selected="@(Context.Request.Query["transactionType"] == type ? "selected" : null)">@type</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">وضعیت</label>
+                                <select name="status" class="form-select">
+                                    <option value="">-- همه وضعیت‌ها --</option>
+                                    @foreach (var status in ViewBag.StatusList as List<string>)
+                                    {
+                                        <option value="@status" selected="@(Context.Request.Query["status"] == status ? "selected" : null)">@status</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">محدوده تاریخ</label>
+                                <div class="d-flex gap-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="dateOption" id="allDates" value="all" checked>
+                                        <label class="form-check-label" for="allDates">همه تاریخ‌ها</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="dateOption" id="customDates" value="custom">
+                                        <label class="form-check-label" for="customDates">محدوده دلخواه</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row" id="dateRangeInputs" style="display: none;">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">از تاریخ</label>
+                                <input type="date" name="fromDate" class="form-control" value="@Context.Request.Query["fromDate"]">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">تا تاریخ</label>
+                                <input type="date" name="toDate" class="form-control" value="@Context.Request.Query["toDate"]">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="bx bx-info-circle me-2"></i>
+                        گزارش در پنجره جدیدی باز خواهد شد و شامل تمام تراکنش‌هایی که با فیلترهای انتخابی مطابقت دارند خواهد بود.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bx bx-x me-1"></i>انصراف
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bx bx-printer me-1"></i>مشاهده و چاپ گزارش
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -232,6 +333,7 @@
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Delete modal functionality
             var deleteModal = document.getElementById('deleteModal');
             deleteModal.addEventListener('show.bs.modal', function (event) {
                 var button = event.relatedTarget;
@@ -241,6 +343,28 @@
                 document.getElementById('paymentNameToDelete').textContent = paymentName;
                 document.getElementById('paymentIdToDelete').value = paymentId;
             });
+
+            // Print modal date range toggle
+            document.querySelectorAll('input[name="dateOption"]').forEach(function(radio) {
+                radio.addEventListener('change', function() {
+                    var dateRangeInputs = document.getElementById('dateRangeInputs');
+                    if (this.value === 'custom') {
+                        dateRangeInputs.style.display = 'block';
+                    } else {
+                        dateRangeInputs.style.display = 'none';
+                        // Clear date inputs when "all dates" is selected
+                        document.querySelector('input[name="fromDate"]').value = '';
+                        document.querySelector('input[name="toDate"]').value = '';
+                    }
+                });
+            });
+
+            // Set initial state based on current date filters
+            var hasDateFilters = '@Context.Request.Query["fromDate"]' !== '' || '@Context.Request.Query["toDate"]' !== '';
+            if (hasDateFilters) {
+                document.getElementById('customDates').checked = true;
+                document.getElementById('dateRangeInputs').style.display = 'block';
+            }
 
             // Auto-dismiss alerts after 5 seconds
             setTimeout(function () {
