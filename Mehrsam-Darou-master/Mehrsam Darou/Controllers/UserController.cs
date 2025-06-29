@@ -245,33 +245,80 @@ namespace Mehrsam_Darou.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteUser(Guid id)
         {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
+            try
             {
-                TempData["ErrorMessage"] = "کاربر مورد نظر یافت نشد.";
-                return RedirectToAction("UserList");
-            }
-
-            // Delete the user's image if it exists
-            if (!string.IsNullOrEmpty(user.AvatarImg))
-            {
-                // Construct the full path to the image file
-                var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", user.AvatarImg.TrimStart('\\'));
-
-                // Check if the file exists and delete it
-                if (System.IO.File.Exists(imagePath))
+                var user = await _context.Users.FindAsync(id);
+                if (user == null)
                 {
-                    System.IO.File.Delete(imagePath);
+                    TempData["ErrorMessage"] = "کاربر مورد نظر یافت نشد.";
+                    return RedirectToAction("UserList");
                 }
+
+                // Check if user has any related records that prevent deletion
+                bool hasRelatedRecords = await CheckUserRelatedRecords(id);
+                
+                if (hasRelatedRecords)
+                {
+                    TempData["ErrorMessage"] = "این کاربر دارای رکوردهای مرتبط است و قابل حذف نیست.";
+                    return RedirectToAction("UserList");
+                }
+
+                // Delete the user's image if it exists
+                if (!string.IsNullOrEmpty(user.AvatarImg))
+                {
+                    // Construct the full path to the image file
+                    var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", user.AvatarImg.TrimStart('\\'));
+
+                    // Check if the file exists and delete it
+                    if (System.IO.File.Exists(imagePath))
+                    {
+                        System.IO.File.Delete(imagePath);
+                    }
+                }
+
+                _context.Users.Remove(user);  // Remove the user from the database
+                await _context.SaveChangesAsync();  // Save the changes to the database
+
+                TempData["SuccessMessage"] = "کاربر با موفقیت حذف شد.";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "خطا در حذف کاربر: " + ex.Message;
             }
 
-            _context.Users.Remove(user);  // Remove the user from the database
-            await _context.SaveChangesAsync();  // Save the changes to the database
-
-            TempData["SuccessMessage"] = "کاربر با موفقیت حذف شد.";
             return RedirectToAction("UserList");
+        }
+
+        private async Task<bool> CheckUserRelatedRecords(Guid userId)
+        {
+            // Check for related records that might prevent deletion
+            try
+            {
+                // Check AttendanceLogs
+                if (await _context.AttendanceLogs.AnyAsync(a => a.UserId == userId))
+                    return true;
+
+                // Check Notifications
+                if (await _context.Notifications.AnyAsync(n => n.UserId == userId))
+                    return true;
+
+                // Check ChatMessages (both sender and receiver)
+                if (await _context.ChatMessages.AnyAsync(c => c.SenderId == userId || c.ReceiverId == userId))
+                    return true;
+
+                // Check other related tables as needed
+                // Add more checks based on your foreign key relationships
+
+                return false;
+            }
+            catch
+            {
+                // If there's an error checking, assume there are related records
+                return true;
+            }
         }
     }
 }
