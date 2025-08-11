@@ -62,24 +62,60 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label asp-for="UserId" class="form-label">کاربر</label>
-                                <select asp-for="UserId" class="form-select">
-                                    <option value="">-- همه کاربران --</option>
+                                <label class="form-label">نوع گیرنده <span class="text-danger">*</span></label>
+                                <select id="recipientType" name="recipientType" class="form-select" onchange="handleRecipientTypeChange()">
+                                    <option value="user">کاربر خاص</option>
+                                    <option value="team">تیم</option>
+                                    <option value="all">همه کاربران</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3" id="userSelection">
+                                <label asp-for="UserId" class="form-label">کاربر <span class="text-danger">*</span></label>
+                                <select asp-for="UserId" class="form-select" id="userSelect">
+                                    <option value="">-- انتخاب کاربر --</option>
                                     @foreach (var user in ViewBag.Users)
                                     {
                                         <option value="@user.Id">@user.DisplayName</option>
                                     }
                                 </select>
                                 <span asp-validation-for="UserId" class="text-danger"></span>
-                                <small class="form-text text-muted">اگر کاربری انتخاب نشود، اعلان برای همه کاربران نمایش داده می‌شود</small>
+                            </div>
+                            <div class="mb-3" id="teamSelection" style="display: none;">
+                                <label class="form-label">تیم <span class="text-danger">*</span></label>
+                                <select id="teamSelect" name="teamId" class="form-select">
+                                    <option value="">-- انتخاب تیم --</option>
+                                    @foreach (var team in ViewBag.Teams)
+                                    {
+                                        <option value="@team.Id">@team.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="mb-3" id="allUsersInfo" style="display: none;">
+                                <div class="alert alert-info">
+                                    <i class="bx bx-info-circle me-1"></i>
+                                    اعلان برای تمامی کاربران فعال سیستم ارسال خواهد شد
+                                </div>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label asp-for="RelatedId" class="form-label">شناسه مرتبط</label>
                                 <input asp-for="RelatedId" class="form-control" />
                                 <span asp-validation-for="RelatedId" class="text-danger"></span>
                                 <small class="form-text text-muted">شناسه رکورد مرتبط با این اعلان (اختیاری)</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Img" class="form-label">تصویر اعلان</label>
+                                <input asp-for="Img" class="form-control" maxlength="150" />
+                                <span asp-validation-for="Img" class="text-danger"></span>
+                                <small class="form-text text-muted">آدرس تصویر یا نام فایل (اختیاری)</small>
                             </div>
                         </div>
                     </div>
@@ -96,15 +132,7 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label asp-for="Img" class="form-label">تصویر اعلان</label>
-                                <input asp-for="Img" class="form-control" maxlength="150" />
-                                <span asp-validation-for="Img" class="text-danger"></span>
-                                <small class="form-text text-muted">آدرس تصویر یا نام فایل (اختیاری)</small>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
+                        <div class="col-12">
                             <div class="mb-3">
                                 <label class="form-label">پیش‌نمایش اعلان</label>
                                 <div class="card">
@@ -118,7 +146,11 @@
                                             <div class="flex-grow-1">
                                                 <h6 class="mb-0 fw-medium" id="preview-title">عنوان اعلان</h6>
                                                 <p class="mb-0 text-muted small" id="preview-message">پیام اعلان اینجا نمایش داده می‌شود</p>
-                                                <small class="text-muted" id="preview-type">نوع: اطلاعات</small>
+                                                <small class="text-muted">
+                                                    <span id="preview-type">نوع: اطلاعات</span>
+                                                    <span class="mx-2">•</span>
+                                                    <span id="preview-recipient">گیرنده: کاربر خاص</span>
+                                                </small>
                                             </div>
                                         </div>
                                     </div>
@@ -148,18 +180,61 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Update preview when form fields change
             updatePreview();
 
             document.getElementById('Title').addEventListener('input', updatePreview);
             document.getElementById('Message').addEventListener('input', updatePreview);
             document.getElementById('Type').addEventListener('change', updatePreview);
+            document.getElementById('recipientType').addEventListener('change', updatePreview);
+            document.getElementById('userSelect').addEventListener('change', updatePreview);
+            document.getElementById('teamSelect').addEventListener('change', updatePreview);
         });
+
+        function handleRecipientTypeChange() {
+            const recipientType = document.getElementById('recipientType').value;
+            const userSelection = document.getElementById('userSelection');
+            const teamSelection = document.getElementById('teamSelection');
+            const allUsersInfo = document.getElementById('allUsersInfo');
+            const userSelect = document.getElementById('userSelect');
+            const teamSelect = document.getElementById('teamSelect');
+
+            // Hide all sections first
+            userSelection.style.display = 'none';
+            teamSelection.style.display = 'none';
+            allUsersInfo.style.display = 'none';
+
+            // Clear previous selections
+            userSelect.value = '';
+            teamSelect.value = '';
+
+            // Show appropriate section and set required fields
+            switch (recipientType) {
+                case 'user':
+                    userSelection.style.display = 'block';
+                    userSelect.required = true;
+                    teamSelect.required = false;
+                    break;
+                case 'team':
+                    teamSelection.style.display = 'block';
+                    userSelect.required = false;
+                    teamSelect.required = true;
+                    break;
+                case 'all':
+                    allUsersInfo.style.display = 'block';
+                    userSelect.required = false;
+                    teamSelect.required = false;
+                    userSelect.value = ''; // Clear UserId for all users
+                    break;
+            }
+
+            updatePreview();
+        }
 
         function updatePreview() {
             const title = document.getElementById('Title').value || 'عنوان اعلان';
             const message = document.getElementById('Message').value || 'پیام اعلان اینجا نمایش داده می‌شود';
             const type = document.getElementById('Type').value;
+            const recipientType = document.getElementById('recipientType').value;
 
             document.getElementById('preview-title').textContent = title;
             document.getElementById('preview-message').textContent = message;
@@ -173,12 +248,23 @@
                 'chat': 'چت'
             };
 
+            const recipientNames = {
+                'user': 'کاربر خاص',
+                'team': 'تیم',
+                'all': 'همه کاربران'
+            };
+
             document.getElementById('preview-type').textContent = 'نوع: ' + (typeNames[type] || type);
+            document.getElementById('preview-recipient').textContent = 'گیرنده: ' + recipientNames[recipientType];
         }
 
         function resetForm() {
             document.querySelector('form').reset();
+            handleRecipientTypeChange();
             updatePreview();
         }
+
+        // Initialize on page load
+        handleRecipientTypeChange();
     </script>
 }

@@ -1468,6 +1468,7 @@
     </div>
 
     <script>
+        // ATTENDANCE FUNCTIONS - EXISTING CODE
         function quickEntryFromHeader() {
             // Get the current user's ID from ViewData
             const userId = '@ViewData["UserId"]';
@@ -1586,6 +1587,274 @@
                     dropdown.hide();
                 }
             }
+        }
+
+        // MENU STATE MANAGEMENT - NEW CODE
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎯 Menu State: Initializing...');
+
+            // Wait a bit to ensure Bootstrap is fully loaded
+            setTimeout(function() {
+                initializeMenuState();
+            }, 200);
+        });
+
+        function initializeMenuState() {
+            console.log('📋 Menu State: Setting up menu state management...');
+
+            // Get all collapsible menu items
+            const menuItems = document.querySelectorAll('[data-bs-toggle="collapse"]');
+            const collapseElements = document.querySelectorAll('.collapse');
+
+            console.log(`📋 Found ${menuItems.length} menu items and ${collapseElements.length} collapsible elements`);
+
+            // First, load and restore the menu state
+            loadMenuState();
+
+            // Add event listeners to track menu changes
+            menuItems.forEach(menuItem => {
+                const targetId = menuItem.getAttribute('data-bs-target');
+                const targetElement = document.querySelector(targetId);
+
+                if (targetElement) {
+                    // Listen for Bootstrap collapse events
+                    targetElement.addEventListener('show.bs.collapse', function() {
+                        console.log(`📋 Menu opening: ${targetId}`);
+                        setTimeout(() => saveMenuState(), 100);
+                    });
+
+                    targetElement.addEventListener('hide.bs.collapse', function() {
+                        console.log(`📋 Menu closing: ${targetId}`);
+                        setTimeout(() => saveMenuState(), 100);
+                    });
+
+                    // Also listen for shown/hidden events for more reliable state tracking
+                    targetElement.addEventListener('shown.bs.collapse', function() {
+                        console.log(`📋 Menu fully opened: ${targetId}`);
+                        saveMenuState();
+                    });
+
+                    targetElement.addEventListener('hidden.bs.collapse', function() {
+                        console.log(`📋 Menu fully closed: ${targetId}`);
+                        saveMenuState();
+                    });
+                }
+            });
+
+            console.log('📋 Menu State: Event listeners attached');
+        }
+
+        function saveMenuState() {
+            try {
+                const expandedMenus = [];
+                const collapseElements = document.querySelectorAll('.collapse');
+
+                collapseElements.forEach(element => {
+                    // Check if element has 'show' class (Bootstrap's way of indicating expanded state)
+                    if (element.classList.contains('show')) {
+                        expandedMenus.push('#' + element.id);
+                    }
+                });
+
+                console.log('💾 Saving menu state:', expandedMenus);
+
+                const menuStateData = {
+                    expandedMenus: expandedMenus
+                };
+
+                // Get CSRF token
+                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+                // Save to server
+                fetch('/Base/SaveMenuState', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        ...menuStateData,
+                        __RequestVerificationToken: token
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        console.log('✅ Menu state saved successfully');
+                    } else {
+                        console.error('❌ Failed to save menu state:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Error saving menu state:', error);
+                });
+
+            } catch (error) {
+                console.error('❌ Error in saveMenuState:', error);
+            }
+        }
+
+        function loadMenuState() {
+            console.log('📂 Loading menu state...');
+
+            fetch('/Base/GetMenuState', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success && data.expandedMenus && data.expandedMenus.length > 0) {
+                    console.log('📂 Restoring menu state:', data.expandedMenus);
+                    restoreMenuState(data.expandedMenus);
+                } else {
+                    console.log('📂 No saved menu state found or empty state');
+                }
+            })
+            .catch(error => {
+                console.error('❌ Error loading menu state:', error);
+            });
+        }
+
+        function restoreMenuState(expandedMenus) {
+            try {
+                console.log('🔄 Starting menu state restoration...');
+
+                expandedMenus.forEach(menuId => {
+                    const menuElement = document.querySelector(menuId);
+
+                    if (menuElement) {
+                        console.log(`🔄 Restoring menu: ${menuId}`);
+
+                        // Remove any existing Bootstrap collapse instance to prevent conflicts
+                        const existingCollapse = bootstrap.Collapse.getInstance(menuElement);
+                        if (existingCollapse) {
+                            existingCollapse.dispose();
+                        }
+
+                        // Add 'show' class immediately for instant display
+                        menuElement.classList.add('show');
+
+                        // Find the corresponding menu button and update its attributes
+                        const menuButton = document.querySelector(`[data-bs-target="${menuId}"]`);
+                        if (menuButton) {
+                            menuButton.setAttribute('aria-expanded', 'true');
+                            menuButton.classList.remove('collapsed');
+                        }
+
+                        // Initialize new Bootstrap collapse instance after a short delay
+                        setTimeout(() => {
+                            try {
+                                const newCollapse = new bootstrap.Collapse(menuElement, {
+                                    show: false, // Don't trigger show event since it's already shown
+                                    toggle: false
+                                });
+
+                                // Store reference for future use
+                                menuElement._bsCollapse = newCollapse;
+
+                            } catch (e) {
+                                console.warn(`⚠️ Could not initialize collapse for ${menuId}:`, e);
+                            }
+                        }, 100);
+
+                    } else {
+                        console.warn(`⚠️ Menu element not found: ${menuId}`);
+                    }
+                });
+
+                console.log('✅ Menu state restoration completed');
+
+            } catch (error) {
+                console.error('❌ Error restoring menu state:', error);
+            }
+        }
+
+        // Expose functions globally for debugging and manual use
+        window.saveMenuState = saveMenuState;
+        window.loadMenuState = loadMenuState;
+        window.restoreMenuState = restoreMenuState;
+
+        // Debug function to check current menu state
+        window.debugMenuState = function() {
+            const expandedMenus = [];
+            const collapseElements = document.querySelectorAll('.collapse.show');
+
+            collapseElements.forEach(element => {
+                expandedMenus.push('#' + element.id);
+            });
+
+            console.log('🔍 Current expanded menus:', expandedMenus);
+            return expandedMenus;
+        };
+
+        // Function to manually refresh menu state (useful for dynamic content)
+        window.refreshMenuState = function() {
+            console.log('🔄 Manually refreshing menu state...');
+            setTimeout(() => {
+                initializeMenuState();
+            }, 100);
+        };
+
+        // Debug function to clear menu state
+        window.clearMenuState = function() {
+            fetch('/Base/ClearMenuState', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    __RequestVerificationToken: document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Clear menu state result:', data);
+                if (data.success) {
+                    console.log('✅ Menu state cleared, reloading page...');
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('❌ Error clearing menu state:', error);
+            });
+        };
+
+        // Handle page visibility change to save state when user switches tabs
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                console.log('📱 Page hidden, saving menu state...');
+                saveMenuState();
+            }
+        });
+
+        // Save state before page unload
+        window.addEventListener('beforeunload', function() {
+            console.log('🚪 Page unloading, saving menu state...');
+            saveMenuState();
+        });
+
+        // Initialize when DOM is ready (backup initialization)
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(initializeMenuState, 300);
+            });
+        } else {
+            // DOM already loaded
+            setTimeout(initializeMenuState, 300);
         }
     </script>
 

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using static Mehrsam_Darou.Helper.Helper;
 using System.Text.Json;
+using System.Globalization;
 
 public class BaseController : Controller
 {
@@ -44,9 +45,9 @@ public class BaseController : Controller
     protected async Task SetCommonViewData(User user, Guid companyGuid)
     {
         var setting = await ReadSettingAsync(_context);
-        ViewData["IsDark"] = setting?.DefaultColor ?? false;
-        ViewData["IsNavDark"] = setting?.IsNavDark ?? false;
-        ViewData["IsMenuDark"] = setting?.IsMenuDark ?? false;
+        ViewData["IsDark"] = setting?.DefaultColor == true;
+        ViewData["IsNavDark"] = setting?.IsNavDark == true;
+        ViewData["IsMenuDark"] = setting?.IsMenuDark == true;
 
         ViewData["Fullname"] = " " + user.FirstName + " " + user.LastName;
         ViewData["Avatar"] = user.AvatarImg == null ? "\\images\\users\\dummy-avatar.jpg" : user.AvatarImg;
@@ -77,6 +78,8 @@ public class BaseController : Controller
         return null;
     }
 
+    #region Menu State Management
+
     [HttpPost]
     public async Task<IActionResult> SaveMenuState([FromBody] MenuStateModel model)
     {
@@ -88,14 +91,39 @@ public class BaseController : Controller
                 return Json(new { success = false, message = "کاربر یافت نشد" });
             }
 
-            var menuStateJson = JsonSerializer.Serialize(model.ExpandedMenus ?? new string[] { });
+            // Validate input
+            if (model?.ExpandedMenus == null)
+            {
+                return Json(new { success = false, message = "داده‌های ورودی نامعتبر" });
+            }
+
+            // Create a unique session key for menu state
+            var sessionKey = $"MenuState_{userId}";
+
+            // Serialize the expanded menus to JSON
+            var menuStateJson = JsonSerializer.Serialize(model.ExpandedMenus);
+
+            // Save to session with user-specific key
+            HttpContext.Session.SetString(sessionKey, menuStateJson);
+
+            // Also save a general key for backward compatibility
             HttpContext.Session.SetString("MenuState", menuStateJson);
 
-            return Json(new { success = true });
+            return Json(new
+            {
+                success = true,
+                message = "وضعیت منو با موفقیت ذخیره شد",
+                savedMenus = model.ExpandedMenus,
+                timestamp = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")
+            });
+        }
+        catch (JsonException ex)
+        {
+            return Json(new { success = false, message = $"خطا در سریال‌سازی داده‌ها: {ex.Message}" });
         }
         catch (Exception ex)
         {
-            return Json(new { success = false, message = ex.Message });
+            return Json(new { success = false, message = $"خطا در ذخیره وضعیت منو: {ex.Message}" });
         }
     }
 
@@ -107,10 +135,24 @@ public class BaseController : Controller
             var userId = GetCurrentUserId();
             if (userId == null)
             {
-                return Json(new { success = false, expandedMenus = new string[] { } });
+                return Json(new
+                {
+                    success = false,
+                    expandedMenus = new string[] { },
+                    message = "کاربر یافت نشد"
+                });
             }
 
-            var menuStateJson = HttpContext.Session.GetString("MenuState");
+            // Try to get user-specific menu state first
+            var sessionKey = $"MenuState_{userId}";
+            var menuStateJson = HttpContext.Session.GetString(sessionKey);
+
+            // Fall back to general menu state if user-specific doesn't exist
+            if (string.IsNullOrEmpty(menuStateJson))
+            {
+                menuStateJson = HttpContext.Session.GetString("MenuState");
+            }
+
             var expandedMenus = new string[] { };
 
             if (!string.IsNullOrEmpty(menuStateJson))
@@ -119,19 +161,69 @@ public class BaseController : Controller
                 {
                     expandedMenus = JsonSerializer.Deserialize<string[]>(menuStateJson) ?? new string[] { };
                 }
-                catch
+                catch (JsonException ex)
                 {
+                    // If deserialization fails, return empty array but log the error
                     expandedMenus = new string[] { };
+                    // You might want to log this error: Logger.LogWarning($"Failed to deserialize menu state: {ex.Message}");
                 }
             }
 
-            return Json(new { success = true, expandedMenus = expandedMenus });
+            return Json(new
+            {
+                success = true,
+                expandedMenus = expandedMenus,
+                timestamp = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"),
+                userId = userId.ToString()
+            });
         }
         catch (Exception ex)
         {
-            return Json(new { success = false, expandedMenus = new string[] { } });
+            return Json(new
+            {
+                success = false,
+                expandedMenus = new string[] { },
+                message = $"خطا در بازیابی وضعیت منو: {ex.Message}"
+            });
         }
     }
+
+    [HttpPost]
+    public async Task<IActionResult> ClearMenuState()
+    {
+        try
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null)
+            {
+                return Json(new { success = false, message = "کاربر یافت نشد" });
+            }
+
+            // Clear user-specific menu state
+            var sessionKey = $"MenuState_{userId}";
+            HttpContext.Session.Remove(sessionKey);
+            HttpContext.Session.Remove("MenuState");
+
+            return Json(new
+            {
+                success = true,
+                message = "وضعیت منو با موفقیت پاک شد",
+                timestamp = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")
+            });
+        }
+        catch (Exception ex)
+        {
+            return Json(new
+            {
+                success = false,
+                message = $"خطا در پاک کردن وضعیت منو: {ex.Message}"
+            });
+        }
+    }
+
+    #endregion
+
+    #region Theme Settings Management
 
     [HttpPost]
     public async Task<IActionResult> SaveThemeSettings([FromBody] ThemeSettingsModel model)
@@ -151,11 +243,15 @@ public class BaseController : Controller
                 settings = new Setting
                 {
                     Id = userId.Value,
-                    NumberPerPage = 10
+                    NumberPerPage = 10,
+                    DefaultColor = false,
+                    IsNavDark = false,
+                    IsMenuDark = false
                 };
                 _context.Settings.Add(settings);
             }
 
+            // Apply theme settings
             switch (model.ThemeMode?.ToLower())
             {
                 case "dark":
@@ -188,31 +284,99 @@ public class BaseController : Controller
 
             await _context.SaveChangesAsync();
 
-            return Json(new { success = true, message = "تنظیمات با موفقیت ذخیره شد" });
+            return Json(new
+            {
+                success = true,
+                message = "تنظیمات تم با موفقیت ذخیره شد",
+                appliedSettings = new
+                {
+                    themeMode = settings.DefaultColor == true ? "dark" : "light",
+                    topbarColor = settings.IsNavDark == true ? "dark" : "light",
+                    menuColor = settings.IsMenuDark == true ? "dark" : "light"
+                }
+            });
         }
         catch (Exception ex)
         {
-            return Json(new { success = false, message = "خطا در ذخیره تنظیمات: " + ex.Message });
+            return Json(new
+            {
+                success = false,
+                message = $"خطا در ذخیره تنظیمات تم: {ex.Message}"
+            });
         }
     }
+
+    [HttpGet]
+    public async Task<IActionResult> GetThemeSettings()
+    {
+        try
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "کاربر یافت نشد"
+                });
+            }
+
+            var settings = await _context.Settings.FirstOrDefaultAsync(s => s.Id == userId);
+
+            if (settings == null)
+            {
+                return Json(new
+                {
+                    success = true,
+                    settings = new
+                    {
+                        themeMode = "light",
+                        topbarColor = "light",
+                        menuColor = "light"
+                    }
+                });
+            }
+
+            return Json(new
+            {
+                success = true,
+                settings = new
+                {
+                    themeMode = settings.DefaultColor == true ? "dark" : "light",
+                    topbarColor = settings.IsNavDark == true ? "dark" : "light",
+                    menuColor = settings.IsMenuDark == true ? "dark" : "light"
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            return Json(new
+            {
+                success = false,
+                message = $"خطا در بازیابی تنظیمات تم: {ex.Message}"
+            });
+        }
+    }
+
+    #endregion
 
     protected async Task SetUserPermissions(User user)
     {
         Team t = _context.Teams.SingleOrDefault(t => t.Id.Equals(user.TeamId));
         if (t != null)
         {
-            ViewData["ManagmentMenu"] = t.ManagmentDashboard;
-            ViewData["SettingMenu"] = t.Setting;
-            ViewData["SystemUsersMenu"] = t.SystemUsers;
-            ViewData["FinancialMenu"] = t.Financial;
-            ViewData["InventoryMenu"] = t.Inventory;
-            ViewData["ProductMenu"] = t.Product;
-            ViewData["SellCommercialMenu"] = t.SellCommercial;
-            ViewData["BuyCommercialMenu"] = t.BuyCommercial;
-            ViewData["RandDMenu"] = t.RandD;
-            ViewData["QcMenu"] = t.Qc;
-            ViewData["QaMenu"] = t.Qa;
-            ViewData["PmoMenu"] = t.Pmo;
+            ViewData["ManagmentMenu"] = t.ManagmentDashboard == true;
+            ViewData["SettingMenu"] = t.Setting == true;
+            ViewData["SystemUsersMenu"] = t.SystemUsers == true;
+            ViewData["FinancialMenu"] = t.Financial == true;
+            ViewData["InventoryMenu"] = t.Inventory == true;
+            ViewData["ProductMenu"] = t.Product == true;
+            ViewData["SellCommercialMenu"] = t.SellCommercial == true;
+            ViewData["BuyCommercialMenu"] = t.BuyCommercial == true;
+            ViewData["RandDMenu"] = t.RandD == true;
+            ViewData["QcMenu"] = t.Qc == true;
+            ViewData["QaMenu"] = t.Qa == true;
+            ViewData["PmoMenu"] = t.Pmo == true;
         }
         else
         {
@@ -240,7 +404,9 @@ public class BaseController : Controller
         if (controllerName == "Client" && actionName == "Login" ||
             (controllerName == "Base" && (actionName == "SaveMenuState" ||
                                         actionName == "GetMenuState" ||
-                                        actionName == "SaveThemeSettings")))
+                                        actionName == "ClearMenuState" ||
+                                        actionName == "SaveThemeSettings" ||
+                                        actionName == "GetThemeSettings")))
         {
             await next();
             return;
@@ -254,7 +420,12 @@ public class BaseController : Controller
             if (context.HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest" ||
                 context.HttpContext.Request.ContentType?.Contains("application/json") == true)
             {
-                context.Result = Json(new { success = false, message = "Session expired", redirect = "/Client/Login" });
+                context.Result = Json(new
+                {
+                    success = false,
+                    message = "جلسه کاری منقضی شده است",
+                    redirect = "/Client/Login"
+                });
                 return;
             }
 
@@ -278,11 +449,11 @@ public class BaseController : Controller
 
         ViewData["LogEntries"] = logEntries;
 
-        // Load settings
+        // Load settings with proper null handling
         var setting = await ReadSettingAsync(_context);
-        ViewData["IsDark"] = setting?.DefaultColor ?? false;
-        ViewData["IsNavDark"] = setting?.IsNavDark ?? false;
-        ViewData["IsMenuDark"] = setting?.IsMenuDark ?? false;
+        ViewData["IsDark"] = setting?.DefaultColor == true;
+        ViewData["IsNavDark"] = setting?.IsNavDark == true;
+        ViewData["IsMenuDark"] = setting?.IsMenuDark == true;
 
         // Load notifications
         var unreadCount = await _context.Notifications
@@ -329,6 +500,8 @@ public class BaseController : Controller
     }
 }
 
+#region Data Models
+
 public class MenuStateModel
 {
     public string[] ExpandedMenus { get; set; } = new string[] { };
@@ -341,3 +514,5 @@ public class ThemeSettingsModel
     public string MenuColor { get; set; } = "light";
     public string MenuSize { get; set; } = "default";
 }
+
+#endregion

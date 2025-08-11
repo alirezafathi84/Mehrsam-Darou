@@ -71,7 +71,6 @@ namespace Mehrsam_Darou.Controllers
             return Ok("Notification marked as seen.");
         }
 
-        // New management methods
         // GET: Notification/NotificationList
         public async Task<IActionResult> NotificationList(int? page, string searchKey, string type, bool? seen)
         {
@@ -132,20 +131,97 @@ namespace Mehrsam_Darou.Controllers
         // POST: Notification/AddNotification
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddNotification(Notification notification)
+        public async Task<IActionResult> AddNotification(Notification notification, string recipientType = "user", Guid? teamId = null)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
-                    notification.Id = Guid.NewGuid();
-                    notification.CreatedDate = DateTime.Now;
-                    notification.Seen = false;
+                    var createdDate = DateTime.Now;
+                    var createdNotifications = new List<Notification>();
 
-                    _context.Add(notification);
+                    // Determine recipients based on recipientType
+                    List<User> recipients = new List<User>();
+
+                    switch (recipientType.ToLower())
+                    {
+                        case "all":
+                            // Send to all active users
+                            recipients = await _context.Users
+                                .Where(u => u.TeamId != null)
+                                .ToListAsync();
+                            break;
+
+                        case "team":
+                            // Send to all users in a specific team
+                            var selectedTeamId = teamId ?? notification.UserId;
+                            if (selectedTeamId.HasValue)
+                            {
+                                recipients = await _context.Users
+                                    .Where(u => u.TeamId == selectedTeamId)
+                                    .ToListAsync();
+
+                                // Debug: Log team selection
+                                System.Diagnostics.Debug.WriteLine($"Team ID: {selectedTeamId}, Found users: {recipients.Count}");
+                            }
+                            break;
+
+                        case "user":
+                        default:
+                            // Send to specific user
+                            if (notification.UserId.HasValue)
+                            {
+                                var user = await _context.Users.FindAsync(notification.UserId);
+                                if (user != null)
+                                    recipients.Add(user);
+                            }
+                            break;
+                    }
+
+                    if (!recipients.Any())
+                    {
+                        string errorMessage = recipientType.ToLower() switch
+                        {
+                            "all" => "هیچ کاربر فعالی در سیستم یافت نشد",
+                            "team" => "هیچ کاربری در تیم انتخاب شده یافت نشد",
+                            _ => "کاربر مورد نظر یافت نشد"
+                        };
+
+                        TempData["ErrorMessage"] = errorMessage;
+                        await PopulateDropdowns();
+                        return View(notification);
+                    }
+
+                    // Create notifications for all recipients
+                    foreach (var user in recipients)
+                    {
+                        var userNotification = new Notification
+                        {
+                            Id = Guid.NewGuid(),
+                            RelatedId = notification.RelatedId,
+                            Type = notification.Type,
+                            Title = notification.Title,
+                            Message = notification.Message,
+                            UserId = user.Id,
+                            Img = notification.Img,
+                            CreatedDate = createdDate,
+                            Seen = false
+                        };
+
+                        createdNotifications.Add(userNotification);
+                    }
+
+                    _context.Notifications.AddRange(createdNotifications);
                     await _context.SaveChangesAsync();
 
-                    TempData["SuccessMessage"] = "اعلان جدید با موفقیت ایجاد شد";
+                    string successMessage = recipientType.ToLower() switch
+                    {
+                        "all" => $"اعلان جدید برای {createdNotifications.Count} کاربر با موفقیت ایجاد شد",
+                        "team" => $"اعلان جدید برای {createdNotifications.Count} عضو تیم با موفقیت ایجاد شد",
+                        _ => "اعلان جدید با موفقیت ایجاد شد"
+                    };
+
+                    TempData["SuccessMessage"] = successMessage;
                     return RedirectToAction(nameof(NotificationList));
                 }
                 catch (Exception ex)
@@ -194,8 +270,9 @@ namespace Mehrsam_Darou.Controllers
                         return NotFound();
                     }
 
-                    // Keep the original creation date
+                    // Keep the original creation date and user
                     notification.CreatedDate = existingNotification.CreatedDate;
+                    notification.UserId = existingNotification.UserId;
 
                     _context.Entry(existingNotification).CurrentValues.SetValues(notification);
                     await _context.SaveChangesAsync();
@@ -273,14 +350,22 @@ namespace Mehrsam_Darou.Controllers
         {
             try
             {
-                IQueryable<Notification> query = _context.Notifications.Where(n => !n.Seen);
-
-                if (userId.HasValue)
+                // If userId is not provided, get current user ID
+                if (userId == null)
                 {
-                    query = query.Where(n => n.UserId == userId.Value);
+                    userId = GetCurrentUserId();
                 }
 
-                var notifications = await query.ToListAsync();
+                if (userId == null)
+                {
+                    TempData["ErrorMessage"] = "کاربر یافت نشد";
+                    return RedirectToAction(nameof(NotificationList));
+                }
+
+                var notifications = await _context.Notifications
+                    .Where(n => n.UserId == userId && !n.Seen)
+                    .ToListAsync();
+
                 foreach (var notification in notifications)
                 {
                     notification.Seen = true;
@@ -356,15 +441,29 @@ namespace Mehrsam_Darou.Controllers
         [HttpGet]
         public async Task<IActionResult> GetUnreadCount(Guid? userId = null)
         {
-            IQueryable<Notification> query = _context.Notifications.Where(n => !n.Seen);
-
-            if (userId.HasValue)
+            try
             {
-                query = query.Where(n => n.UserId == userId.Value);
-            }
+                // If userId is not provided, get current user ID
+                if (userId == null)
+                {
+                    userId = GetCurrentUserId();
+                }
 
-            int count = await query.CountAsync();
-            return Json(new { count });
+                if (userId == null)
+                {
+                    return Json(new { count = 0, message = "کاربر یافت نشد" });
+                }
+
+                int count = await _context.Notifications
+                    .Where(n => n.UserId == userId && !n.Seen)
+                    .CountAsync();
+
+                return Json(new { count });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { count = 0, message = "خطا در دریافت تعداد اعلانات: " + ex.Message });
+            }
         }
 
         // Helper method to create system notifications
@@ -372,22 +471,57 @@ namespace Mehrsam_Darou.Controllers
         {
             try
             {
-                var notification = new Notification
+                var createdDate = DateTime.Now;
+                var createdNotifications = new List<Notification>();
+
+                if (userId == null)
                 {
-                    Id = Guid.NewGuid(),
-                    Title = title,
-                    Message = message,
-                    Type = type,
-                    UserId = userId, // null means it's for all users
-                    RelatedId = relatedId,
-                    CreatedDate = DateTime.Now,
-                    Seen = false
-                };
+                    // Create notification for all active users
+                    var activeUsers = await _context.Users
+                        .Where(u => u.TeamId != null)
+                        .ToListAsync();
 
-                _context.Notifications.Add(notification);
-                await _context.SaveChangesAsync();
+                    foreach (var user in activeUsers)
+                    {
+                        var userNotification = new Notification
+                        {
+                            Id = Guid.NewGuid(),
+                            Title = title,
+                            Message = message,
+                            Type = type,
+                            UserId = user.Id,
+                            RelatedId = relatedId,
+                            CreatedDate = createdDate,
+                            Seen = false
+                        };
 
-                return Json(new { success = true, message = "اعلان سیستمی ایجاد شد", notificationId = notification.Id });
+                        createdNotifications.Add(userNotification);
+                    }
+
+                    _context.Notifications.AddRange(createdNotifications);
+                    await _context.SaveChangesAsync();
+
+                    return Json(new { success = true, message = $"اعلان سیستمی برای {createdNotifications.Count} کاربر ایجاد شد", notificationIds = createdNotifications.Select(n => n.Id).ToList() });
+                }
+                else
+                {
+                    var notification = new Notification
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = title,
+                        Message = message,
+                        Type = type,
+                        UserId = userId,
+                        RelatedId = relatedId,
+                        CreatedDate = createdDate,
+                        Seen = false
+                    };
+
+                    _context.Notifications.Add(notification);
+                    await _context.SaveChangesAsync();
+
+                    return Json(new { success = true, message = "اعلان سیستمی ایجاد شد", notificationId = notification.Id });
+                }
             }
             catch (Exception ex)
             {
@@ -406,23 +540,140 @@ namespace Mehrsam_Darou.Controllers
                     return Json(new { success = false, message = "عنوان و پیام اعلان الزامی است" });
                 }
 
-                var notification = new Notification
-                {
-                    Id = Guid.NewGuid(),
-                    Title = model.Title,
-                    Message = model.Message,
-                    Type = model.Type ?? "Info",
-                    UserId = model.UserId,
-                    RelatedId = model.RelatedId,
-                    CreatedDate = DateTime.Now,
-                    Seen = false,
-                    Img = model.Img
-                };
+                var createdDate = DateTime.Now;
+                var createdNotifications = new List<Guid>();
 
-                _context.Notifications.Add(notification);
+                if (model.UserId == null)
+                {
+                    // Create notification for all active users
+                    var activeUsers = await _context.Users
+                        .Where(u => u.TeamId != null)
+                        .ToListAsync();
+
+                    var notifications = new List<Notification>();
+
+                    foreach (var user in activeUsers)
+                    {
+                        var userNotificationId = Guid.NewGuid();
+                        var userNotification = new Notification
+                        {
+                            Id = userNotificationId,
+                            Title = model.Title,
+                            Message = model.Message,
+                            Type = model.Type ?? "Info",
+                            UserId = user.Id,
+                            RelatedId = model.RelatedId,
+                            CreatedDate = createdDate,
+                            Seen = false,
+                            Img = model.Img
+                        };
+
+                        notifications.Add(userNotification);
+                        createdNotifications.Add(userNotificationId);
+                    }
+
+                    _context.Notifications.AddRange(notifications);
+                    await _context.SaveChangesAsync();
+
+                    return Json(new
+                    {
+                        success = true,
+                        message = $"اعلان برای {notifications.Count} کاربر ایجاد شد",
+                        notificationIds = createdNotifications
+                    });
+                }
+                else
+                {
+                    // Create notification for specific user
+                    var notificationId = Guid.NewGuid();
+                    var notification = new Notification
+                    {
+                        Id = notificationId,
+                        Title = model.Title,
+                        Message = model.Message,
+                        Type = model.Type ?? "Info",
+                        UserId = model.UserId,
+                        RelatedId = model.RelatedId,
+                        CreatedDate = createdDate,
+                        Seen = false,
+                        Img = model.Img
+                    };
+
+                    _context.Notifications.Add(notification);
+                    await _context.SaveChangesAsync();
+
+                    return Json(new
+                    {
+                        success = true,
+                        message = "اعلان ایجاد شد",
+                        notificationId = notificationId
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "خطا در ایجاد اعلان: " + ex.Message });
+            }
+        }
+
+        // API method to create notification for team
+        [HttpPost]
+        public async Task<IActionResult> CreateTeamNotificationApi([FromBody] CreateTeamNotificationModel model)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(model.Title) || string.IsNullOrWhiteSpace(model.Message))
+                {
+                    return Json(new { success = false, message = "عنوان و پیام اعلان الزامی است" });
+                }
+
+                if (model.TeamId == null)
+                {
+                    return Json(new { success = false, message = "شناسه تیم الزامی است" });
+                }
+
+                var createdDate = DateTime.Now;
+                var teamUsers = await _context.Users
+                    .Where(u => u.TeamId == model.TeamId)
+                    .ToListAsync();
+
+                if (!teamUsers.Any())
+                {
+                    return Json(new { success = false, message = "کاربری در این تیم یافت نشد" });
+                }
+
+                var notifications = new List<Notification>();
+                var createdNotifications = new List<Guid>();
+
+                foreach (var user in teamUsers)
+                {
+                    var userNotificationId = Guid.NewGuid();
+                    var userNotification = new Notification
+                    {
+                        Id = userNotificationId,
+                        Title = model.Title,
+                        Message = model.Message,
+                        Type = model.Type ?? "Info",
+                        UserId = user.Id,
+                        RelatedId = model.RelatedId,
+                        CreatedDate = createdDate,
+                        Seen = false,
+                        Img = model.Img
+                    };
+
+                    notifications.Add(userNotification);
+                    createdNotifications.Add(userNotificationId);
+                }
+
+                _context.Notifications.AddRange(notifications);
                 await _context.SaveChangesAsync();
 
-                return Json(new { success = true, message = "اعلان ایجاد شد", notificationId = notification.Id });
+                return Json(new
+                {
+                    success = true,
+                    message = $"اعلان برای {notifications.Count} عضو تیم ایجاد شد",
+                    notificationIds = createdNotifications
+                });
             }
             catch (Exception ex)
             {
@@ -443,7 +694,7 @@ namespace Mehrsam_Darou.Controllers
                 }
 
                 var query = _context.Notifications
-                    .Where(n => n.UserId == userId || n.UserId == null);
+                    .Where(n => n.UserId == userId);
 
                 if (unseenOnly)
                 {
@@ -485,10 +736,47 @@ namespace Mehrsam_Darou.Controllers
                 .OrderBy(u => u.FirstName)
                 .ToListAsync();
 
+            var teams = await _context.Teams
+                .Where(t => t.IsActive == true)
+                .OrderBy(t => t.Name)
+                .ToListAsync();
+
             ViewBag.Users = users.Select(u => new {
                 Id = u.Id,
                 DisplayName = (u.FirstName ?? "") + " " + (u.LastName ?? "")
             }).ToList();
+
+            ViewBag.Teams = teams.Select(t => new {
+                Id = t.Id,
+                Name = t.Name
+            }).ToList();
+        }
+
+        // Helper method to get current user ID
+        private Guid? GetCurrentUserId()
+        {
+            try
+            {
+                // Assuming you store user ID in session
+                var userIdString = HttpContext.Session.GetString("UserId");
+                if (Guid.TryParse(userIdString, out Guid userId))
+                {
+                    return userId;
+                }
+
+                // Alternative: if using claims
+                // var userIdClaim = User.FindFirst("UserId")?.Value;
+                // if (Guid.TryParse(userIdClaim, out Guid userId))
+                // {
+                //     return userId;
+                // }
+
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 
@@ -499,6 +787,17 @@ namespace Mehrsam_Darou.Controllers
         public string Message { get; set; }
         public string? Type { get; set; }
         public Guid? UserId { get; set; }
+        public Guid? RelatedId { get; set; }
+        public string? Img { get; set; }
+    }
+
+    // Model for team notification creation
+    public class CreateTeamNotificationModel
+    {
+        public string Title { get; set; }
+        public string Message { get; set; }
+        public string? Type { get; set; }
+        public Guid TeamId { get; set; }
         public Guid? RelatedId { get; set; }
         public string? Img { get; set; }
     }
