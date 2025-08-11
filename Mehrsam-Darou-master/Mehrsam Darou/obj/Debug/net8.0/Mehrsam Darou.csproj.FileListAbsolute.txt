@@ -688,15 +688,6 @@ C:\TFS Project\MD\Mehrsam-Darou\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net
 C:\TFS Project\MD\Mehrsam-Darou\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\Mehrsam Darou.pdb
 C:\TFS Project\MD\Mehrsam-Darou\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\Mehrsam Darou.genruntimeconfig.cache
 C:\TFS Project\MD\Mehrsam-Darou\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\ref\Mehrsam Darou.dll
-D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\Mehrsam Darou.csproj.AssemblyReference.cache
-D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\Mehrsam Darou.GeneratedMSBuildEditorConfig.editorconfig
-D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\Mehrsam Darou.AssemblyInfoInputs.cache
-D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\Mehrsam Darou.AssemblyInfo.cs
-D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\Mehrsam Darou.csproj.CoreCompileInputs.cache
-D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\Mehrsam Darou.MvcApplicationPartsAssemblyInfo.cache
-D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\Mehrsam Darou.RazorAssemblyInfo.cache
-D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\Mehrsam Darou.RazorAssemblyInfo.cs
-D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\Mehrsam Darou.sourcelink.json
 D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\bin\Debug\net8.0\appsettings.Development.json
 D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\bin\Debug\net8.0\appsettings.json
 D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\bin\Debug\net8.0\Mehrsam Darou.staticwebassets.runtime.json
@@ -844,6 +835,15 @@ D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\bin\Debug\net8.0\runtimes\win\
 D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Security.Cryptography.ProtectedData.dll
 D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\bin\Debug\net8.0\runtimes\browser\lib\net8.0\System.Text.Encodings.Web.dll
 D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
+D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\Mehrsam Darou.csproj.AssemblyReference.cache
+D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\Mehrsam Darou.GeneratedMSBuildEditorConfig.editorconfig
+D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\Mehrsam Darou.AssemblyInfoInputs.cache
+D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\Mehrsam Darou.AssemblyInfo.cs
+D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\Mehrsam Darou.csproj.CoreCompileInputs.cache
+D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\Mehrsam Darou.MvcApplicationPartsAssemblyInfo.cache
+D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\Mehrsam Darou.RazorAssemblyInfo.cache
+D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\Mehrsam Darou.RazorAssemblyInfo.cs
+D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\Mehrsam Darou.sourcelink.json
 D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
 D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\scopedcss\bundle\Mehrsam Darou.styles.css
 D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\scopedcss\projectbundle\Mehrsam Darou.bundle.scp.css
@@ -856,10 +856,10 @@ D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\staticwebasse
 D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.Mehrsam Darou.props
 D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.Mehrsam Darou.props
 D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\staticwebassets.pack.json
+D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\Mehrsam .4AF159D3.Up2Date
 D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\Mehrsam Darou.dll
 D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\refint\Mehrsam Darou.dll
 D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\Mehrsam Darou.pdb
 D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\Mehrsam Darou.genruntimeconfig.cache
 D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\ref\Mehrsam Darou.dll
-D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
