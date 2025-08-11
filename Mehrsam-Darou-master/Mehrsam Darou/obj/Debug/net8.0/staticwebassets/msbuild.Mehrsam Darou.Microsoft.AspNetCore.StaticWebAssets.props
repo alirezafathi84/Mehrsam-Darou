@@ -36558,24 +36558,6 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\users\691e6c82-545f-430b-812b-7f40284b22e1.jpg'))</OriginalItemSpec>
     </StaticWebAsset>
-    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\users\a76bd40f-1b53-4890-a5dd-9c2d29f1f713.jpg'))">
-      <SourceType>Package</SourceType>
-      <SourceId>Mehrsam Darou</SourceId>
-      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/Mehrsam Darou</BasePath>
-      <RelativePath>images/users/a76bd40f-1b53-4890-a5dd-9c2d29f1f713.jpg</RelativePath>
-      <AssetKind>All</AssetKind>
-      <AssetMode>All</AssetMode>
-      <AssetRole>Primary</AssetRole>
-      <RelatedAsset></RelatedAsset>
-      <AssetTraitName></AssetTraitName>
-      <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>d72qbvno2g</Fingerprint>
-      <Integrity>Vzs3hVu4mI+Yf6G89IlHabhjZaOf75lkMFba2q9JWF8=</Integrity>
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\users\a76bd40f-1b53-4890-a5dd-9c2d29f1f713.jpg'))</OriginalItemSpec>
-    </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\users\avatar-1.jpg'))">
       <SourceType>Package</SourceType>
       <SourceId>Mehrsam Darou</SourceId>
@@ -36792,24 +36774,6 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\users\avatar-9.jpg'))</OriginalItemSpec>
     </StaticWebAsset>
-    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\users\b6888116-9657-4d37-8900-0d9ad047e661.jpg'))">
-      <SourceType>Package</SourceType>
-      <SourceId>Mehrsam Darou</SourceId>
-      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/Mehrsam Darou</BasePath>
-      <RelativePath>images/users/b6888116-9657-4d37-8900-0d9ad047e661.jpg</RelativePath>
-      <AssetKind>All</AssetKind>
-      <AssetMode>All</AssetMode>
-      <AssetRole>Primary</AssetRole>
-      <RelatedAsset></RelatedAsset>
-      <AssetTraitName></AssetTraitName>
-      <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>go6m9fxfdw</Fingerprint>
-      <Integrity>sB+WVBU+HCuGuLsCg9zorobfCyLrxmgKkJKGP+1XiCI=</Integrity>
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\users\b6888116-9657-4d37-8900-0d9ad047e661.jpg'))</OriginalItemSpec>
-    </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\users\c04cd78e-3aea-4dff-8891-2387945062c0.jpg'))">
       <SourceType>Package</SourceType>
       <SourceId>Mehrsam Darou</SourceId>
@@ -36917,24 +36881,6 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\users\dummy-avatar.jpg'))</OriginalItemSpec>
-    </StaticWebAsset>
-    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\users\e91c676b-4039-4f4c-8ea6-46bf7a2ee88b.jpg'))">
-      <SourceType>Package</SourceType>
-      <SourceId>Mehrsam Darou</SourceId>
-      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/Mehrsam Darou</BasePath>
-      <RelativePath>images/users/e91c676b-4039-4f4c-8ea6-46bf7a2ee88b.jpg</RelativePath>
-      <AssetKind>All</AssetKind>
-      <AssetMode>All</AssetMode>
-      <AssetRole>Primary</AssetRole>
-      <RelatedAsset></RelatedAsset>
-      <AssetTraitName></AssetTraitName>
-      <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>go6m9fxfdw</Fingerprint>
-      <Integrity>sB+WVBU+HCuGuLsCg9zorobfCyLrxmgKkJKGP+1XiCI=</Integrity>
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\users\e91c676b-4039-4f4c-8ea6-46bf7a2ee88b.jpg'))</OriginalItemSpec>
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\users\f5292c97-1586-4e35-9624-92c13f881fb8.jpg'))">
       <SourceType>Package</SourceType>

@@ -42,7 +42,7 @@
                         <a href="@Url.Action("UserReport", "User")" class="btn btn-success" target="_blank">
                             <i class="bx bx-file-blank me-1"></i>گزارش HTML
                         </a>
-               
+
                         <a href="@Url.Action("AddNewUser", "User")" class="btn btn-primary">
                             <i class="bx bx-plus me-1"></i>جدید
                         </a>
@@ -116,18 +116,28 @@
 
                                         <td>
                                             <div class="d-flex gap-2">
-                                        @*         <a href="@Url.Action("UserDetails", "User", new { id = user.Id })" class="btn btn-light btn-sm">
+                                                @*         <a href="@Url.Action("UserDetails", "User", new { id = user.Id })" class="btn btn-light btn-sm">
                                                     <iconify-icon icon="solar:eye-broken" class="align-middle fs-18"></iconify-icon>
                                                 </a> *@
-                                                <a href="@Url.Action("EditUser", "User", new { id = user.Id })" class="btn btn-soft-primary btn-sm">
+                                                <a href="@Url.Action("EditUser", "User", new { id = user.Id })" class="btn btn-soft-primary btn-sm" title="ویرایش">
                                                     <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
                                                 </a>
-                                                <button type="button" class="btn btn-soft-danger btn-sm" 
-                                                        data-bs-toggle="modal" 
+                                                <button type="button" class="btn btn-soft-danger btn-sm"
+                                                        data-bs-toggle="modal"
                                                         data-bs-target="#deleteModal"
                                                         data-user-id="@user.Id"
-                                                        data-user-name="@user.Username">
+                                                        data-user-name="@user.Username"
+                                                        title="حذف معمولی">
                                                     <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
+                                                </button>
+                                                <button type="button" class="btn btn-soft-warning btn-sm"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#cascadeDeleteModal"
+                                                        data-user-id="@user.Id"
+                                                        data-user-name="@user.Username"
+                                                        title="حذف همراه با تمام اطلاعات مرتبط"
+                                                        onclick="loadUserRelatedRecords('@user.Id')">
+                                                    <iconify-icon icon="solar:trash-bin-2-broken" class="align-middle fs-18"></iconify-icon>
                                                 </button>
                                             </div>
                                         </td>
@@ -187,7 +197,7 @@
     </div>
 </div>
 
-<!-- Delete Confirmation Modal -->
+<!-- Regular Delete Confirmation Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -214,11 +224,73 @@
     </div>
 </div>
 
+<!-- Cascade Delete Confirmation Modal -->
+<div class="modal fade" id="cascadeDeleteModal" tabindex="-1" aria-labelledby="cascadeDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="cascadeDeleteModalLabel">
+                    <i class="bx bx-error-circle me-2"></i>حذف کاربر همراه با تمام اطلاعات مرتبط
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <h6><i class="bx bx-error-circle me-1"></i> هشدار مهم!</h6>
+                    <p class="mb-0">این عملیات غیرقابل برگشت است و تمامی اطلاعات زیر حذف خواهد شد:</p>
+                </div>
+
+                <p><strong>کاربر: </strong><span id="cascadeUserNameToDelete"></span></p>
+
+                <div id="relatedRecordsLoading" class="text-center my-3">
+                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                        <span class="visually-hidden">در حال بارگذاری...</span>
+                    </div>
+                    <span class="ms-2">در حال بررسی اطلاعات مرتبط...</span>
+                </div>
+
+                <div id="relatedRecordsList" class="d-none">
+                    <h6>اطلاعات مرتبط که حذف خواهد شد:</h6>
+                    <div class="row g-2" id="recordCounts">
+                        <!-- Dynamic content will be loaded here -->
+                    </div>
+                    <div class="mt-3">
+                        <strong>مجموع رکوردها: <span id="totalRecords" class="text-danger">0</span></strong>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="confirmCascadeDelete" required>
+                        <label class="form-check-label text-danger" for="confirmCascadeDelete">
+                            <strong>من از حذف کامل این کاربر و تمامی اطلاعات مرتبط اطمینان دارم</strong>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <form id="cascadeDeleteForm" method="post" asp-action="DeleteUserCascade">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="cascadeUserIdToDelete" name="id" />
+                    <button type="submit" class="btn btn-danger" id="cascadeDeleteBtn" disabled>
+                        <i class="bx bx-trash me-1"></i>حذف کامل
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var deleteModal = document.getElementById('deleteModal');
-            
+            var cascadeDeleteModal = document.getElementById('cascadeDeleteModal');
+            var confirmCheckbox = document.getElementById('confirmCascadeDelete');
+            var cascadeDeleteBtn = document.getElementById('cascadeDeleteBtn');
+
+            // Regular delete modal
             deleteModal.addEventListener('show.bs.modal', function (event) {
                 var button = event.relatedTarget;
                 var userId = button.getAttribute('data-user-id');
@@ -226,6 +298,25 @@
 
                 document.getElementById('userNameToDelete').textContent = userName;
                 document.getElementById('userIdToDelete').value = userId;
+            });
+
+            // Cascade delete modal
+            cascadeDeleteModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                var userId = button.getAttribute('data-user-id');
+                var userName = button.getAttribute('data-user-name');
+
+                document.getElementById('cascadeUserNameToDelete').textContent = userName;
+                document.getElementById('cascadeUserIdToDelete').value = userId;
+
+                // Reset checkbox and button state
+                confirmCheckbox.checked = false;
+                cascadeDeleteBtn.disabled = true;
+            });
+
+            // Enable/disable delete button based on checkbox
+            confirmCheckbox.addEventListener('change', function () {
+                cascadeDeleteBtn.disabled = !this.checked;
             });
 
             // Auto-dismiss alerts after 5 seconds
@@ -239,6 +330,72 @@
                 });
             }, 5000);
         });
+
+        // Load related records count
+        function loadUserRelatedRecords(userId) {
+            const loadingDiv = document.getElementById('relatedRecordsLoading');
+            const recordsList = document.getElementById('relatedRecordsList');
+
+            loadingDiv.classList.remove('d-none');
+            recordsList.classList.add('d-none');
+
+            fetch(`/User/GetUserRelatedRecordsCount?id=${userId}`)
+                .then(response => response.json())
+                .then(data => {
+                    loadingDiv.classList.add('d-none');
+
+                    if (data.success) {
+                        displayRelatedRecords(data.counts, data.totalRecords);
+                        recordsList.classList.remove('d-none');
+                    } else {
+                        alert('خطا در بارگذاری اطلاعات: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    loadingDiv.classList.add('d-none');
+                    console.error('Error:', error);
+                    alert('خطا در بارگذاری اطلاعات');
+                });
+        }
+
+        function displayRelatedRecords(counts, totalRecords) {
+            const recordCountsDiv = document.getElementById('recordCounts');
+            const totalRecordsSpan = document.getElementById('totalRecords');
+
+            recordCountsDiv.innerHTML = '';
+
+            const recordTypes = {
+                'AttendanceLogs': 'سوابق حضور و غیاب',
+                'Notifications': 'اعلانات',
+                'ChatMessagesSent': 'پیام‌های ارسالی',
+                'ChatMessagesReceived': 'پیام‌های دریافتی',
+                'DailyAttendance': 'حضور روزانه',
+                'UserEnterLogs': 'سوابق ورود',
+                'SalaryInfos': 'اطلاعات حقوق',
+                'VacationsRequested': 'درخواست‌های مرخصی',
+                'VacationsApproved': 'تایید مرخصی‌ها'
+            };
+
+            Object.keys(counts).forEach(key => {
+                if (counts[key] > 0) {
+                    const col = document.createElement('div');
+                    col.className = 'col-md-6';
+                    col.innerHTML = `
+                        <div class="border rounded p-2">
+                            <small class="text-muted">${recordTypes[key] || key}:</small>
+                            <strong class="text-danger d-block">${counts[key]} رکورد</strong>
+                        </div>
+                    `;
+                    recordCountsDiv.appendChild(col);
+                }
+            });
+
+            if (totalRecords === 0) {
+                recordCountsDiv.innerHTML = '<div class="col-12"><p class="text-muted text-center">هیچ رکورد مرتبطی یافت نشد</p></div>';
+            }
+
+            totalRecordsSpan.textContent = totalRecords;
+        }
     </script>
 }
 
@@ -246,9 +403,29 @@
     .alert {
         margin-bottom: 1rem;
     }
-    
+
     .modal-footer form {
         display: inline-flex;
         gap: 0.5rem;
+    }
+
+    .btn-soft-warning {
+        background-color: #fff3cd;
+        border-color: #ffeaa7;
+        color: #856404;
+    }
+
+        .btn-soft-warning:hover {
+            background-color: #ffecb5;
+            border-color: #ffd93d;
+            color: #533f01;
+        }
+
+    #relatedRecordsList .border {
+        background-color: #f8f9fa;
+    }
+
+    .modal-header.bg-danger {
+        border-bottom: 1px solid rgba(255,255,255,0.2);
     }
 </style>

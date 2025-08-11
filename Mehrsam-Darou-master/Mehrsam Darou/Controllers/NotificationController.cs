@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using static Mehrsam_Darou.Helper.Helper;
 
 namespace Mehrsam_Darou.Controllers
@@ -26,8 +27,36 @@ namespace Mehrsam_Darou.Controllers
             {
                 if (notification.Type == "chat")
                 {
-                    await MarkNotificationSeen(notificationId, "chat");
+                    // Mark this specific notification as seen
+                    notification.Seen = true;
+                    await _context.SaveChangesAsync();
+
+                    // Mark all other chat notifications from the same contact as seen
+                    if (notification.RelatedId.HasValue)
+                    {
+                        var otherChatNotifications = await _context.Notifications
+                            .Where(n => n.Type == "chat"
+                                       && n.UserId == notification.UserId
+                                       && n.RelatedId == notification.RelatedId
+                                       && !n.Seen
+                                       && n.Id != notificationId)
+                            .ToListAsync();
+
+                        if (otherChatNotifications.Any())
+                        {
+                            foreach (var n in otherChatNotifications)
+                                n.Seen = true;
+                            await _context.SaveChangesAsync();
+                        }
+                    }
+
                     return RedirectToAction("Chat", "Chat", new { contactId = notification.RelatedId });
+                }
+                else
+                {
+                    // For non-chat notifications, just mark as seen
+                    notification.Seen = true;
+                    await _context.SaveChangesAsync();
                 }
             }
             return View(notification);
@@ -38,12 +67,45 @@ namespace Mehrsam_Darou.Controllers
         {
             if (model == null)
                 return BadRequest("Invalid notification data.");
-            model.Id = Guid.NewGuid();
-            model.CreatedDate = DateTime.Now;
-            model.Seen = false;
-            _context.Notifications.Add(model);
-            await _context.SaveChangesAsync();
-            return Ok(model);
+
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    // Create the notification
+                    model.Id = Guid.NewGuid();
+                    model.CreatedDate = DateTime.Now;
+                    model.Seen = false;
+                    _context.Notifications.Add(model);
+
+                    // If it's a chat notification, also create a chat message
+                    if (model.Type == "chat" && model.UserId.HasValue && model.RelatedId.HasValue)
+                    {
+                        var chatMessage = new ChatMessage
+                        {
+                            Id = Guid.NewGuid(),
+                            SenderId = model.RelatedId.Value, // RelatedId is the sender
+                            ReceiverId = model.UserId.Value,   // UserId is the receiver
+                            Content = model.Message,
+                            SentAt = DateTime.Now,
+                            IsRead = false,
+                            Attachments = null
+                        };
+
+                        _context.ChatMessages.Add(chatMessage);
+                    }
+
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+
+                    return Ok(model);
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return StatusCode(500, $"Internal server error: {ex.Message}");
+                }
+            }
         }
 
         [HttpPost]
@@ -52,20 +114,32 @@ namespace Mehrsam_Darou.Controllers
             var notification = await _context.Notifications.FindAsync(notificationId);
             if (notification == null)
                 return NotFound();
+
             switch (type)
             {
                 case "chat":
-                    var notifications = await _context.Notifications
-                        .Where(m => m.RelatedId.Equals(notification.RelatedId) && m.Type == "chat" && !m.Seen)
-                        .ToListAsync();
-                    if (notifications.Any())
+                    // Mark all chat notifications from the same contact as seen
+                    if (notification.RelatedId.HasValue && notification.UserId.HasValue)
                     {
-                        foreach (var n in notifications)
-                            n.Seen = true;
-                        await _context.SaveChangesAsync();
+                        var chatNotifications = await _context.Notifications
+                            .Where(n => n.Type == "chat"
+                                       && n.UserId == notification.UserId
+                                       && n.RelatedId == notification.RelatedId
+                                       && !n.Seen)
+                            .ToListAsync();
+
+                        if (chatNotifications.Any())
+                        {
+                            foreach (var n in chatNotifications)
+                                n.Seen = true;
+                            await _context.SaveChangesAsync();
+                        }
                     }
                     break;
                 default:
+                    // For other types, just mark the specific notification as seen
+                    notification.Seen = true;
+                    await _context.SaveChangesAsync();
                     break;
             }
             return Ok("Notification marked as seen.");
@@ -192,13 +266,22 @@ namespace Mehrsam_Darou.Controllers
                         return View(notification);
                     }
 
+                    // Get current logged-in user ID for RelatedId
+                    var currentUserId = GetCurrentUserId();
+                    if (currentUserId == null)
+                    {
+                        TempData["ErrorMessage"] = "خطا: کاربر وارد شده شناسایی نشد";
+                        await PopulateDropdowns();
+                        return View(notification);
+                    }
+
                     // Create notifications for all recipients
                     foreach (var user in recipients)
                     {
                         var userNotification = new Notification
                         {
                             Id = Guid.NewGuid(),
-                            RelatedId = notification.RelatedId,
+                            RelatedId = currentUserId, // Set to current user's ID
                             Type = notification.Type,
                             Title = notification.Title,
                             Message = notification.Message,
@@ -474,53 +557,106 @@ namespace Mehrsam_Darou.Controllers
                 var createdDate = DateTime.Now;
                 var createdNotifications = new List<Notification>();
 
-                if (userId == null)
-                {
-                    // Create notification for all active users
-                    var activeUsers = await _context.Users
-                        .Where(u => u.TeamId != null)
-                        .ToListAsync();
+                // If relatedId is not provided, use current user ID
+                var currentUserId = relatedId ?? GetCurrentUserId();
 
-                    foreach (var user in activeUsers)
+                using (var transaction = await _context.Database.BeginTransactionAsync())
+                {
+                    try
                     {
-                        var userNotification = new Notification
+                        if (userId == null)
                         {
-                            Id = Guid.NewGuid(),
-                            Title = title,
-                            Message = message,
-                            Type = type,
-                            UserId = user.Id,
-                            RelatedId = relatedId,
-                            CreatedDate = createdDate,
-                            Seen = false
-                        };
+                            // Create notification for all active users
+                            var activeUsers = await _context.Users
+                                .Where(u => u.TeamId != null)
+                                .ToListAsync();
 
-                        createdNotifications.Add(userNotification);
+                            if (type.ToLower() == "chat" && currentUserId.HasValue)
+                            {
+                                // For chat type, use chat message creation
+                                foreach (var user in activeUsers)
+                                {
+                                    await CreateChatMessage(currentUserId.Value, user.Id, message);
+                                }
+                            }
+                            else
+                            {
+                                // For non-chat type, create regular notifications
+                                foreach (var user in activeUsers)
+                                {
+                                    var userNotification = new Notification
+                                    {
+                                        Id = Guid.NewGuid(),
+                                        Title = title,
+                                        Message = message,
+                                        Type = type,
+                                        UserId = user.Id,
+                                        RelatedId = currentUserId,
+                                        CreatedDate = createdDate,
+                                        Seen = false
+                                    };
+
+                                    createdNotifications.Add(userNotification);
+                                }
+
+                                _context.Notifications.AddRange(createdNotifications);
+                            }
+
+                            await _context.SaveChangesAsync();
+                            await transaction.CommitAsync();
+
+                            return Json(new
+                            {
+                                success = true,
+                                message = type.ToLower() == "chat"
+                                    ? $"پیام چت سیستمی برای {activeUsers.Count} کاربر ارسال شد"
+                                    : $"اعلان سیستمی برای {activeUsers.Count} کاربر ایجاد شد",
+                                notificationIds = createdNotifications.Select(n => n.Id).ToList()
+                            });
+                        }
+                        else
+                        {
+                            if (type.ToLower() == "chat" && currentUserId.HasValue)
+                            {
+                                // For chat type, use chat message creation
+                                await CreateChatMessage(currentUserId.Value, userId.Value, message);
+                            }
+                            else
+                            {
+                                var notification = new Notification
+                                {
+                                    Id = Guid.NewGuid(),
+                                    Title = title,
+                                    Message = message,
+                                    Type = type,
+                                    UserId = userId,
+                                    RelatedId = currentUserId,
+                                    CreatedDate = createdDate,
+                                    Seen = false
+                                };
+
+                                _context.Notifications.Add(notification);
+                                createdNotifications.Add(notification);
+                            }
+
+                            await _context.SaveChangesAsync();
+                            await transaction.CommitAsync();
+
+                            return Json(new
+                            {
+                                success = true,
+                                message = type.ToLower() == "chat"
+                                    ? "پیام چت سیستمی ارسال شد"
+                                    : "اعلان سیستمی ایجاد شد",
+                                notificationId = createdNotifications.FirstOrDefault()?.Id
+                            });
+                        }
                     }
-
-                    _context.Notifications.AddRange(createdNotifications);
-                    await _context.SaveChangesAsync();
-
-                    return Json(new { success = true, message = $"اعلان سیستمی برای {createdNotifications.Count} کاربر ایجاد شد", notificationIds = createdNotifications.Select(n => n.Id).ToList() });
-                }
-                else
-                {
-                    var notification = new Notification
+                    catch (Exception)
                     {
-                        Id = Guid.NewGuid(),
-                        Title = title,
-                        Message = message,
-                        Type = type,
-                        UserId = userId,
-                        RelatedId = relatedId,
-                        CreatedDate = createdDate,
-                        Seen = false
-                    };
-
-                    _context.Notifications.Add(notification);
-                    await _context.SaveChangesAsync();
-
-                    return Json(new { success = true, message = "اعلان سیستمی ایجاد شد", notificationId = notification.Id });
+                        await transaction.RollbackAsync();
+                        throw;
+                    }
                 }
             }
             catch (Exception ex)
@@ -540,75 +676,82 @@ namespace Mehrsam_Darou.Controllers
                     return Json(new { success = false, message = "عنوان و پیام اعلان الزامی است" });
                 }
 
+                var currentUserId = GetCurrentUserId();
+                if (currentUserId == null)
+                {
+                    return Json(new { success = false, message = "خطا: کاربر وارد شده شناسایی نشد" });
+                }
+
                 var createdDate = DateTime.Now;
-                var createdNotifications = new List<Guid>();
+                var recipients = new List<User>();
 
                 if (model.UserId == null)
                 {
-                    // Create notification for all active users
-                    var activeUsers = await _context.Users
+                    // Get all active users
+                    recipients = await _context.Users
                         .Where(u => u.TeamId != null)
                         .ToListAsync();
-
-                    var notifications = new List<Notification>();
-
-                    foreach (var user in activeUsers)
-                    {
-                        var userNotificationId = Guid.NewGuid();
-                        var userNotification = new Notification
-                        {
-                            Id = userNotificationId,
-                            Title = model.Title,
-                            Message = model.Message,
-                            Type = model.Type ?? "Info",
-                            UserId = user.Id,
-                            RelatedId = model.RelatedId,
-                            CreatedDate = createdDate,
-                            Seen = false,
-                            Img = model.Img
-                        };
-
-                        notifications.Add(userNotification);
-                        createdNotifications.Add(userNotificationId);
-                    }
-
-                    _context.Notifications.AddRange(notifications);
-                    await _context.SaveChangesAsync();
-
-                    return Json(new
-                    {
-                        success = true,
-                        message = $"اعلان برای {notifications.Count} کاربر ایجاد شد",
-                        notificationIds = createdNotifications
-                    });
                 }
                 else
                 {
-                    // Create notification for specific user
-                    var notificationId = Guid.NewGuid();
+                    // Get specific user
+                    var user = await _context.Users.FindAsync(model.UserId);
+                    if (user != null)
+                        recipients.Add(user);
+                }
+
+                var chatMessagesCreated = 0;
+                var notificationsCreated = 0;
+
+                foreach (var user in recipients)
+                {
+                    // Always create notification
                     var notification = new Notification
                     {
-                        Id = notificationId,
+                        Id = Guid.NewGuid(),
                         Title = model.Title,
                         Message = model.Message,
                         Type = model.Type ?? "Info",
-                        UserId = model.UserId,
-                        RelatedId = model.RelatedId,
+                        UserId = user.Id,
+                        RelatedId = currentUserId,
                         CreatedDate = createdDate,
                         Seen = false,
                         Img = model.Img
                     };
 
                     _context.Notifications.Add(notification);
-                    await _context.SaveChangesAsync();
+                    notificationsCreated++;
 
-                    return Json(new
+                    // If type is "chat", ALSO create ChatMessage
+                    if ((model.Type ?? "Info").ToLower() == "chat")
                     {
-                        success = true,
-                        message = "اعلان ایجاد شد",
-                        notificationId = notificationId
-                    });
+                        var chatMessage = new ChatMessage
+                        {
+                            Id = Guid.NewGuid(),
+                            SenderId = currentUserId.Value,
+                            ReceiverId = user.Id,
+                            Content = model.Message,
+                            SentAt = createdDate,
+                            IsRead = false,
+                            Attachments = null
+                        };
+
+                        _context.ChatMessages.Add(chatMessage);
+                        chatMessagesCreated++;
+                    }
                 }
+
+                await _context.SaveChangesAsync();
+
+                return Json(new
+                {
+                    success = true,
+                    message = (model.Type ?? "Info").ToLower() == "chat"
+                        ? $"پیام چت برای {recipients.Count} کاربر ارسال شد"
+                        : $"اعلان برای {recipients.Count} کاربر ایجاد شد",
+                    chatMessages = chatMessagesCreated,
+                    notifications = notificationsCreated
+                });
             }
             catch (Exception ex)
             {
@@ -632,6 +775,12 @@ namespace Mehrsam_Darou.Controllers
                     return Json(new { success = false, message = "شناسه تیم الزامی است" });
                 }
 
+                var currentUserId = GetCurrentUserId();
+                if (currentUserId == null)
+                {
+                    return Json(new { success = false, message = "خطا: کاربر وارد شده شناسایی نشد" });
+                }
+
                 var createdDate = DateTime.Now;
                 var teamUsers = await _context.Users
                     .Where(u => u.TeamId == model.TeamId)
@@ -642,37 +791,57 @@ namespace Mehrsam_Darou.Controllers
                     return Json(new { success = false, message = "کاربری در این تیم یافت نشد" });
                 }
 
-                var notifications = new List<Notification>();
-                var createdNotifications = new List<Guid>();
+                var chatMessagesCreated = 0;
+                var notificationsCreated = 0;
 
                 foreach (var user in teamUsers)
                 {
-                    var userNotificationId = Guid.NewGuid();
-                    var userNotification = new Notification
+                    // Always create notification
+                    var notification = new Notification
                     {
-                        Id = userNotificationId,
+                        Id = Guid.NewGuid(),
                         Title = model.Title,
                         Message = model.Message,
                         Type = model.Type ?? "Info",
                         UserId = user.Id,
-                        RelatedId = model.RelatedId,
+                        RelatedId = currentUserId,
                         CreatedDate = createdDate,
                         Seen = false,
                         Img = model.Img
                     };
 
-                    notifications.Add(userNotification);
-                    createdNotifications.Add(userNotificationId);
+                    _context.Notifications.Add(notification);
+                    notificationsCreated++;
+
+                    // If type is "chat", ALSO create ChatMessage
+                    if ((model.Type ?? "Info").ToLower() == "chat")
+                    {
+                        var chatMessage = new ChatMessage
+                        {
+                            Id = Guid.NewGuid(),
+                            SenderId = currentUserId.Value,
+                            ReceiverId = user.Id,
+                            Content = model.Message,
+                            SentAt = createdDate,
+                            IsRead = false,
+                            Attachments = null
+                        };
+
+                        _context.ChatMessages.Add(chatMessage);
+                        chatMessagesCreated++;
+                    }
                 }
 
-                _context.Notifications.AddRange(notifications);
                 await _context.SaveChangesAsync();
 
                 return Json(new
                 {
                     success = true,
-                    message = $"اعلان برای {notifications.Count} عضو تیم ایجاد شد",
-                    notificationIds = createdNotifications
+                    message = (model.Type ?? "Info").ToLower() == "chat"
+                        ? $"پیام چت برای {teamUsers.Count} عضو تیم ارسال شد"
+                        : $"اعلان برای {teamUsers.Count} عضو تیم ایجاد شد",
+                    chatMessages = chatMessagesCreated,
+                    notifications = notificationsCreated
                 });
             }
             catch (Exception ex)
@@ -752,7 +921,72 @@ namespace Mehrsam_Darou.Controllers
             }).ToList();
         }
 
-        // Helper method to get current user ID
+        // TEST METHOD - Create a simple chat message to verify the model works
+        [HttpPost]
+        public async Task<IActionResult> TestSimpleChatMessage()
+        {
+            try
+            {
+                var currentUserId = GetCurrentUserId();
+                if (currentUserId == null)
+                {
+                    return Json(new { success = false, message = "Current user not found" });
+                }
+
+                // Get first other user
+                var otherUser = await _context.Users
+                    .Where(u => u.Id != currentUserId)
+                    .FirstOrDefaultAsync();
+
+                if (otherUser == null)
+                {
+                    return Json(new { success = false, message = "No other user found for testing" });
+                }
+
+                System.Diagnostics.Debug.WriteLine($"TEST: Creating chat message from {currentUserId} to {otherUser.Id}");
+
+                var testMessage = new ChatMessage
+                {
+                    Id = Guid.NewGuid(),
+                    SenderId = currentUserId.Value,
+                    ReceiverId = otherUser.Id,
+                    Content = "TEST MESSAGE - This is a test chat message",
+                    SentAt = DateTime.Now,
+                    IsRead = false,
+                    Attachments = null
+                };
+
+                System.Diagnostics.Debug.WriteLine($"TEST: Adding ChatMessage to context");
+                _context.ChatMessages.Add(testMessage);
+
+                System.Diagnostics.Debug.WriteLine($"TEST: Calling SaveChangesAsync");
+                var result = await _context.SaveChangesAsync();
+
+                System.Diagnostics.Debug.WriteLine($"TEST: SaveChangesAsync returned: {result}");
+
+                return Json(new
+                {
+                    success = true,
+                    message = $"Test chat message created successfully. Records saved: {result}",
+                    messageId = testMessage.Id,
+                    senderId = testMessage.SenderId,
+                    receiverId = testMessage.ReceiverId
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"TEST ERROR: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"TEST STACK: {ex.StackTrace}");
+
+                return Json(new
+                {
+                    success = false,
+                    message = $"Test failed: {ex.Message}",
+                    innerException = ex.InnerException?.Message,
+                    stackTrace = ex.StackTrace
+                });
+            }
+        }
         private Guid? GetCurrentUserId()
         {
             try
@@ -778,6 +1012,106 @@ namespace Mehrsam_Darou.Controllers
                 return null;
             }
         }
+
+        // Helper method to create chat message - modified to not save immediately
+        private async Task<ChatMessage> CreateChatMessageInternal(Guid senderId, Guid receiverId, string content)
+        {
+            var message = new ChatMessage
+            {
+                Id = Guid.NewGuid(),
+                SenderId = senderId,
+                ReceiverId = receiverId,
+                Content = content,
+                Attachments = null,
+                SentAt = DateTime.Now,
+                IsRead = false
+            };
+
+            return message;
+        }
+
+        // Helper method to create chat notification - modified to not save immediately  
+        private async Task<Notification> CreateChatNotificationInternal(Guid senderId, Guid receiverId, string messageContent)
+        {
+            // Get sender info
+            var sender = await _context.Users.FindAsync(senderId);
+            if (sender == null) return null;
+
+            // Create notification
+            var notification = new Notification
+            {
+                Id = Guid.NewGuid(),
+                Title = $"پیام جدید از {sender.FirstName} {sender.LastName}",
+                Message = messageContent.Length > 100 ? messageContent.Substring(0, 100) + "..." : messageContent,
+                Type = "chat",
+                UserId = receiverId,
+                RelatedId = senderId, // The sender's ID for reference
+                CreatedDate = DateTime.Now,
+                Seen = false
+            };
+
+            return notification;
+        }
+
+        // Helper method to create chat message - uses the same logic as ChatController
+        private async Task CreateChatMessage(Guid senderId, Guid receiverId, string content)
+        {
+            try
+            {
+                var message = new ChatMessage
+                {
+                    Id = Guid.NewGuid(),
+                    SenderId = senderId,
+                    ReceiverId = receiverId,
+                    Content = content,
+                    Attachments = null,
+                    SentAt = DateTime.Now,
+                    IsRead = false
+                };
+
+                _context.ChatMessages.Add(message);
+                await _context.SaveChangesAsync();
+
+                // Create the notification as well (same as ChatController does)
+                await CreateChatNotification(senderId, receiverId, content);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error creating chat message: {ex.Message}");
+                throw;
+            }
+        }
+
+        // Helper method to create chat notification (same as ChatController)
+        private async Task CreateChatNotification(Guid senderId, Guid receiverId, string messageContent)
+        {
+            try
+            {
+                // Get sender info
+                var sender = await _context.Users.FindAsync(senderId);
+                if (sender == null) return;
+
+                // Create notification
+                var notification = new Notification
+                {
+                    Id = Guid.NewGuid(),
+                    Title = $"پیام جدید از {sender.FirstName} {sender.LastName}",
+                    Message = messageContent.Length > 100 ? messageContent.Substring(0, 100) + "..." : messageContent,
+                    Type = "chat",
+                    UserId = receiverId,
+                    RelatedId = senderId, // The sender's ID for reference
+                    CreatedDate = DateTime.Now,
+                    Seen = false
+                };
+
+                _context.Notifications.Add(notification);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error creating chat notification: {ex.Message}");
+            }
+        }
     }
 
     // Model for API notification creation
@@ -787,7 +1121,6 @@ namespace Mehrsam_Darou.Controllers
         public string Message { get; set; }
         public string? Type { get; set; }
         public Guid? UserId { get; set; }
-        public Guid? RelatedId { get; set; }
         public string? Img { get; set; }
     }
 
@@ -798,7 +1131,6 @@ namespace Mehrsam_Darou.Controllers
         public string Message { get; set; }
         public string? Type { get; set; }
         public Guid TeamId { get; set; }
-        public Guid? RelatedId { get; set; }
         public string? Img { get; set; }
     }
 }

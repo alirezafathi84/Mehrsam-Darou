@@ -11,18 +11,18 @@
                 <!-- Success and Error Alerts -->
                 @if (TempData["SuccessMessage"] != null)
                 {
-                    <div class="alert alert-success px-2" role="alert">
-                        <p class="mb-0">با موفقیت انجام شد</p>
-                        <p class="mb-0">@TempData["SuccessMessage"]</p>
-                    </div>
+                        <div class="alert alert-success px-2" role="alert">
+                            <p class="mb-0">با موفقیت انجام شد</p>
+                            <p class="mb-0">@TempData["SuccessMessage"]</p>
+                        </div>
                 }
 
                 @if (TempData["ErrorMessage"] != null)
                 {
-                    <div class="alert alert-danger px-2" role="alert">
-                        <p class="mb-0">خطا</p>
-                        <p class="mb-0">@TempData["ErrorMessage"]</p>
-                    </div>
+                        <div class="alert alert-danger px-2" role="alert">
+                            <p class="mb-0">خطا</p>
+                            <p class="mb-0">@TempData["ErrorMessage"]</p>
+                        </div>
                 }
 
                 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -77,7 +77,7 @@
                                     <option value="">-- انتخاب کاربر --</option>
                                     @foreach (var user in ViewBag.Users)
                                     {
-                                        <option value="@user.Id">@user.DisplayName</option>
+                                            <option value="@user.Id">@user.DisplayName</option>
                                     }
                                 </select>
                                 <span asp-validation-for="UserId" class="text-danger"></span>
@@ -88,7 +88,7 @@
                                     <option value="">-- انتخاب تیم --</option>
                                     @foreach (var team in ViewBag.Teams)
                                     {
-                                        <option value="@team.Id">@team.Name</option>
+                                            <option value="@team.Id">@team.Name</option>
                                     }
                                 </select>
                             </div>
@@ -104,18 +104,19 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label asp-for="RelatedId" class="form-label">شناسه مرتبط</label>
-                                <input asp-for="RelatedId" class="form-control" />
-                                <span asp-validation-for="RelatedId" class="text-danger"></span>
-                                <small class="form-text text-muted">شناسه رکورد مرتبط با این اعلان (اختیاری)</small>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
                                 <label asp-for="Img" class="form-label">تصویر اعلان</label>
                                 <input asp-for="Img" class="form-control" maxlength="150" />
                                 <span asp-validation-for="Img" class="text-danger"></span>
                                 <small class="form-text text-muted">آدرس تصویر یا نام فایل (اختیاری)</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">فرستنده</label>
+                                <div class="alert alert-info">
+                                    <i class="bx bx-user me-1"></i>
+                                    این اعلان با شناسه کاربر فعلی ارسال خواهد شد
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -178,93 +179,93 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            updatePreview();
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                updatePreview();
 
-            document.getElementById('Title').addEventListener('input', updatePreview);
-            document.getElementById('Message').addEventListener('input', updatePreview);
-            document.getElementById('Type').addEventListener('change', updatePreview);
-            document.getElementById('recipientType').addEventListener('change', updatePreview);
-            document.getElementById('userSelect').addEventListener('change', updatePreview);
-            document.getElementById('teamSelect').addEventListener('change', updatePreview);
-        });
+                document.getElementById('Title').addEventListener('input', updatePreview);
+                document.getElementById('Message').addEventListener('input', updatePreview);
+                document.getElementById('Type').addEventListener('change', updatePreview);
+                document.getElementById('recipientType').addEventListener('change', updatePreview);
+                document.getElementById('userSelect').addEventListener('change', updatePreview);
+                document.getElementById('teamSelect').addEventListener('change', updatePreview);
+            });
 
-        function handleRecipientTypeChange() {
-            const recipientType = document.getElementById('recipientType').value;
-            const userSelection = document.getElementById('userSelection');
-            const teamSelection = document.getElementById('teamSelection');
-            const allUsersInfo = document.getElementById('allUsersInfo');
-            const userSelect = document.getElementById('userSelect');
-            const teamSelect = document.getElementById('teamSelect');
+            function handleRecipientTypeChange() {
+                const recipientType = document.getElementById('recipientType').value;
+                const userSelection = document.getElementById('userSelection');
+                const teamSelection = document.getElementById('teamSelection');
+                const allUsersInfo = document.getElementById('allUsersInfo');
+                const userSelect = document.getElementById('userSelect');
+                const teamSelect = document.getElementById('teamSelect');
 
-            // Hide all sections first
-            userSelection.style.display = 'none';
-            teamSelection.style.display = 'none';
-            allUsersInfo.style.display = 'none';
+                // Hide all sections first
+                userSelection.style.display = 'none';
+                teamSelection.style.display = 'none';
+                allUsersInfo.style.display = 'none';
 
-            // Clear previous selections
-            userSelect.value = '';
-            teamSelect.value = '';
+                // Clear previous selections
+                userSelect.value = '';
+                teamSelect.value = '';
 
-            // Show appropriate section and set required fields
-            switch (recipientType) {
-                case 'user':
-                    userSelection.style.display = 'block';
-                    userSelect.required = true;
-                    teamSelect.required = false;
-                    break;
-                case 'team':
-                    teamSelection.style.display = 'block';
-                    userSelect.required = false;
-                    teamSelect.required = true;
-                    break;
-                case 'all':
-                    allUsersInfo.style.display = 'block';
-                    userSelect.required = false;
-                    teamSelect.required = false;
-                    userSelect.value = ''; // Clear UserId for all users
-                    break;
+                // Show appropriate section and set required fields
+                switch (recipientType) {
+                    case 'user':
+                        userSelection.style.display = 'block';
+                        userSelect.required = true;
+                        teamSelect.required = false;
+                        break;
+                    case 'team':
+                        teamSelection.style.display = 'block';
+                        userSelect.required = false;
+                        teamSelect.required = true;
+                        break;
+                    case 'all':
+                        allUsersInfo.style.display = 'block';
+                        userSelect.required = false;
+                        teamSelect.required = false;
+                        userSelect.value = ''; // Clear UserId for all users
+                        break;
+                }
+
+                updatePreview();
             }
 
-            updatePreview();
-        }
+            function updatePreview() {
+                const title = document.getElementById('Title').value || 'عنوان اعلان';
+                const message = document.getElementById('Message').value || 'پیام اعلان اینجا نمایش داده می‌شود';
+                const type = document.getElementById('Type').value;
+                const recipientType = document.getElementById('recipientType').value;
 
-        function updatePreview() {
-            const title = document.getElementById('Title').value || 'عنوان اعلان';
-            const message = document.getElementById('Message').value || 'پیام اعلان اینجا نمایش داده می‌شود';
-            const type = document.getElementById('Type').value;
-            const recipientType = document.getElementById('recipientType').value;
+                document.getElementById('preview-title').textContent = title;
+                document.getElementById('preview-message').textContent = message;
 
-            document.getElementById('preview-title').textContent = title;
-            document.getElementById('preview-message').textContent = message;
+                const typeNames = {
+                    'Info': 'اطلاعات',
+                    'Warning': 'هشدار',
+                    'Error': 'خطا',
+                    'Success': 'موفقیت',
+                    'System': 'سیستم',
+                    'chat': 'چت'
+                };
 
-            const typeNames = {
-                'Info': 'اطلاعات',
-                'Warning': 'هشدار',
-                'Error': 'خطا',
-                'Success': 'موفقیت',
-                'System': 'سیستم',
-                'chat': 'چت'
-            };
+                const recipientNames = {
+                    'user': 'کاربر خاص',
+                    'team': 'تیم',
+                    'all': 'همه کاربران'
+                };
 
-            const recipientNames = {
-                'user': 'کاربر خاص',
-                'team': 'تیم',
-                'all': 'همه کاربران'
-            };
+                document.getElementById('preview-type').textContent = 'نوع: ' + (typeNames[type] || type);
+                document.getElementById('preview-recipient').textContent = 'گیرنده: ' + recipientNames[recipientType];
+            }
 
-            document.getElementById('preview-type').textContent = 'نوع: ' + (typeNames[type] || type);
-            document.getElementById('preview-recipient').textContent = 'گیرنده: ' + recipientNames[recipientType];
-        }
+            function resetForm() {
+                document.querySelector('form').reset();
+                handleRecipientTypeChange();
+                updatePreview();
+            }
 
-        function resetForm() {
-            document.querySelector('form').reset();
+            // Initialize on page load
             handleRecipientTypeChange();
-            updatePreview();
-        }
-
-        // Initialize on page load
-        handleRecipientTypeChange();
-    </script>
+        </script>
 }

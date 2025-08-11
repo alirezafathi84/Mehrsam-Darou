@@ -2029,7 +2029,6 @@ wwwroot\images\users\3a5d6f03-39d0-4b97-af10-dacf881a0737.jpg
 wwwroot\images\users\4a5d7284-f6d3-41e3-842b-4fab7f29a0f7.jpg
 wwwroot\images\users\5c77f3bf-a95f-4a85-b819-f0c4483be9f5.jpg
 wwwroot\images\users\691e6c82-545f-430b-812b-7f40284b22e1.jpg
-wwwroot\images\users\a76bd40f-1b53-4890-a5dd-9c2d29f1f713.jpg
 wwwroot\images\users\avatar-1.jpg
 wwwroot\images\users\avatar-10.jpg
 wwwroot\images\users\avatar-11.jpg
@@ -2042,12 +2041,10 @@ wwwroot\images\users\avatar-6.jpg
 wwwroot\images\users\avatar-7.jpg
 wwwroot\images\users\avatar-8.jpg
 wwwroot\images\users\avatar-9.jpg
-wwwroot\images\users\b6888116-9657-4d37-8900-0d9ad047e661.jpg
 wwwroot\images\users\c04cd78e-3aea-4dff-8891-2387945062c0.jpg
 wwwroot\images\users\c70bf920-3f93-4eea-9570-5dcf753b0a51.jpg
 wwwroot\images\users\cabd73cd-1798-4cb0-bdea-d82bf1b8f821.jpg
 wwwroot\images\users\cf3f638b-1bd4-4613-af46-cafdd1b1ae71.jpg
 wwwroot\images\users\chat.jpg
 wwwroot\images\users\dummy-avatar.jpg
-wwwroot\images\users\e91c676b-4039-4f4c-8ea6-46bf7a2ee88b.jpg
 wwwroot\images\users\f5292c97-1586-4e35-9624-92c13f881fb8.jpg

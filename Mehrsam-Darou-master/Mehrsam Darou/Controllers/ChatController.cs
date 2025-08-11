@@ -120,8 +120,10 @@ namespace Mehrsam_Darou.Controllers
                     foreach (var m in unreadMessages)
                         m.IsRead = true;
                     await _context.SaveChangesAsync();
-
                 }
+
+                // --- Mark chat notifications as seen for this contact ---
+                await MarkChatNotificationsAsSeen(currentUserId, contactId.Value);
 
                 // --- Now load all chat messages for this conversation ---
                 var chatMessages = await _context.ChatMessages
@@ -151,12 +153,7 @@ namespace Mehrsam_Darou.Controllers
                         Messages = chatMessages
                     };
                 }
-
-
-
             }
-
-     
 
             return new ChatViewModel
             {
@@ -168,7 +165,34 @@ namespace Mehrsam_Darou.Controllers
             };
         }
 
+        // Helper method to mark chat notifications as seen
+        private async Task MarkChatNotificationsAsSeen(Guid currentUserId, Guid contactId)
+        {
+            try
+            {
+                // Mark all chat notifications from the contact to current user as seen
+                var chatNotifications = await _context.Notifications
+                    .Where(n => n.Type == "chat"
+                               && n.UserId == currentUserId
+                               && n.RelatedId == contactId
+                               && !n.Seen)
+                    .ToListAsync();
 
+                if (chatNotifications.Any())
+                {
+                    foreach (var notification in chatNotifications)
+                    {
+                        notification.Seen = true;
+                    }
+                    await _context.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the error but don't break the chat functionality
+                System.Diagnostics.Debug.WriteLine($"Error marking chat notifications as seen: {ex.Message}");
+            }
+        }
 
         // -- FULL PAGE --
         public async Task<IActionResult> Chat(Guid? contactId)
@@ -187,7 +211,7 @@ namespace Mehrsam_Darou.Controllers
             });
             await _context.SaveChangesAsync();
 
-            // Mark unread as read if viewing contact
+            // Mark unread messages as read if viewing contact
             if (contactId != null)
             {
                 var messages = await _context.ChatMessages
@@ -196,6 +220,9 @@ namespace Mehrsam_Darou.Controllers
                 foreach (var message in messages)
                     message.IsRead = true;
                 await _context.SaveChangesAsync();
+
+                // Also mark chat notifications as seen
+                await MarkChatNotificationsAsSeen(user.Id, contactId.Value);
             }
 
             var model = await BuildChatViewModel(user.Id, contactId);
@@ -216,7 +243,7 @@ namespace Mehrsam_Darou.Controllers
         {
             var user = await ValidateSessionAndGetUser();
 
-            // Mark unread as read
+            // Mark unread messages as read
             if (contactId != null)
             {
                 var messages = await _context.ChatMessages
@@ -225,6 +252,9 @@ namespace Mehrsam_Darou.Controllers
                 foreach (var message in messages)
                     message.IsRead = true;
                 await _context.SaveChangesAsync();
+
+                // Also mark chat notifications as seen
+                await MarkChatNotificationsAsSeen(user.Id, contactId.Value);
             }
             var model = await BuildChatViewModel(user.Id, contactId);
             return PartialView("_CurrentChatPartial", model);
@@ -237,49 +267,65 @@ namespace Mehrsam_Darou.Controllers
             try
             {
                 var user = await ValidateSessionAndGetUser();
-       
+                if (user == null)
+                    return RedirectToAction("Login", "Client");
 
-            var message = new ChatMessage
-            {
-                Id = Guid.NewGuid(),
-                SenderId = user.Id,
-                ReceiverId = dto.ReceiverId,
-                Content = dto.Content,
-                Attachments = dto.Attachments,
-                SentAt = DateTime.Now,
-                IsRead = false
-            };
+                var message = new ChatMessage
+                {
+                    Id = Guid.NewGuid(),
+                    SenderId = user.Id,
+                    ReceiverId = dto.ReceiverId,
+                    Content = dto.Content,
+                    Attachments = dto.Attachments,
+                    SentAt = DateTime.Now,
+                    IsRead = false
+                };
 
-            _context.ChatMessages.Add(message);
-            await _context.SaveChangesAsync();
+                _context.ChatMessages.Add(message);
+                await _context.SaveChangesAsync();
 
-            //// SignalR (optional, for real-time)
-            //await _hubContext.Clients.User(dto.ReceiverId.ToString()).SendAsync("ReceiveMessage", new
-            //{
-            //    message.Id,
-            //    message.Content,
-            //    SenderId = message.SenderId,
-            //    SenderName = user.FirstName + " " + user.LastName,
-            //    SenderAvatar = user.AvatarImg,
-            //    message.SentAt,
-            //    message.Attachments,
-            //    IsMine = false
-            //});
-            // Call SetForNoti, ignore all errors
-       
-                await Helper.Helper.SetForNoti(_context, dto.ReceiverId);
+
+                await CreateChatNotification(user.Id, dto.ReceiverId, dto.Content);
 
                 return RedirectToAction("Chat", "Chat", new { contactId = dto.ReceiverId });
             }
-         
-                        catch (Exception ex)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Error sending message: {ex.Message}");
                 return RedirectToAction("Chat", "Chat", new { contactId = new Guid("00000000-0000-0000-0000-000000000000") });
-
             }
         }
-        
-        
+
+        // Helper method to create chat notification
+        private async Task CreateChatNotification(Guid senderId, Guid receiverId, string messageContent)
+        {
+            try
+            {
+                // Get sender info
+                var sender = await _context.Users.FindAsync(senderId);
+                if (sender == null) return;
+
+                // Create notification
+                var notification = new Notification
+                {
+                    Id = Guid.NewGuid(),
+                    Title = $"پیام جدید از {sender.FirstName} {sender.LastName}",
+                    Message = messageContent.Length > 100 ? messageContent.Substring(0, 100) + "..." : messageContent,
+                    Type = "chat",
+                    UserId = receiverId,
+                    RelatedId = senderId, // The sender's ID for reference
+                    CreatedDate = DateTime.Now,
+                    Seen = false
+                };
+
+                _context.Notifications.Add(notification);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error creating chat notification: {ex.Message}");
+            }
+        }
 
         // DELETE MESSAGE (by POST)
         [HttpPost("DeleteMessage")]
@@ -297,7 +343,25 @@ namespace Mehrsam_Darou.Controllers
 
             return Ok();
         }
-    }
-    // DTO for Sending Messages
 
+        // API method to mark all chat notifications from a specific contact as seen
+        [HttpPost("MarkChatNotificationsSeen")]
+        public async Task<IActionResult> MarkChatNotificationsSeen(Guid contactId)
+        {
+            try
+            {
+                var user = await ValidateSessionAndGetUser();
+                if (user == null)
+                    return Json(new { success = false, message = "کاربر یافت نشد" });
+
+                await MarkChatNotificationsAsSeen(user.Id, contactId);
+
+                return Json(new { success = true, message = "اعلانات چت به عنوان خوانده شده علامت‌گذاری شدند" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "خطا در به‌روزرسانی اعلانات: " + ex.Message });
+            }
+        }
+    }
 }

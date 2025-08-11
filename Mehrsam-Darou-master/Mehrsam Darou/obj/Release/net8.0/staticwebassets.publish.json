@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "vaIYaVVmrEPahKFziMI0rWbBJuzqrAS6LHrRUR9jBqk=",
+  "Hash": "R6YzvNXkEDRoKNpGQdWRTCxvSW26fLymtmexgddwMmo=",
   "Source": "Mehrsam Darou",
   "BasePath": "_content/Mehrsam Darou",
   "Mode": "Default",
@@ -42710,27 +42710,6 @@
       "OriginalItemSpec": "wwwroot\\images\\users\\691e6c82-545f-430b-812b-7f40284b22e1.jpg"
     },
     {
-      "Identity": "D:\\git Proj\\MD\\Mehrsam-Darou-master\\Mehrsam Darou\\wwwroot\\images\\users\\a76bd40f-1b53-4890-a5dd-9c2d29f1f713.jpg",
-      "SourceId": "Mehrsam Darou",
-      "SourceType": "Discovered",
-      "ContentRoot": "D:\\git Proj\\MD\\Mehrsam-Darou-master\\Mehrsam Darou\\wwwroot\\",
-      "BasePath": "_content/Mehrsam Darou",
-      "RelativePath": "images/users/a76bd40f-1b53-4890-a5dd-9c2d29f1f713#[.{fingerprint}]?.jpg",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "Fingerprint": "d72qbvno2g",
-      "Integrity": "Vzs3hVu4mI+Yf6G89IlHabhjZaOf75lkMFba2q9JWF8=",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\images\\users\\a76bd40f-1b53-4890-a5dd-9c2d29f1f713.jpg"
-    },
-    {
       "Identity": "D:\\git Proj\\MD\\Mehrsam-Darou-master\\Mehrsam Darou\\wwwroot\\images\\users\\avatar-1.jpg",
       "SourceId": "Mehrsam Darou",
       "SourceType": "Discovered",
@@ -42983,27 +42962,6 @@
       "OriginalItemSpec": "wwwroot\\images\\users\\avatar-9.jpg"
     },
     {
-      "Identity": "D:\\git Proj\\MD\\Mehrsam-Darou-master\\Mehrsam Darou\\wwwroot\\images\\users\\b6888116-9657-4d37-8900-0d9ad047e661.jpg",
-      "SourceId": "Mehrsam Darou",
-      "SourceType": "Discovered",
-      "ContentRoot": "D:\\git Proj\\MD\\Mehrsam-Darou-master\\Mehrsam Darou\\wwwroot\\",
-      "BasePath": "_content/Mehrsam Darou",
-      "RelativePath": "images/users/b6888116-9657-4d37-8900-0d9ad047e661#[.{fingerprint}]?.jpg",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "Fingerprint": "go6m9fxfdw",
-      "Integrity": "sB+WVBU+HCuGuLsCg9zorobfCyLrxmgKkJKGP+1XiCI=",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\images\\users\\b6888116-9657-4d37-8900-0d9ad047e661.jpg"
-    },
-    {
       "Identity": "D:\\git Proj\\MD\\Mehrsam-Darou-master\\Mehrsam Darou\\wwwroot\\images\\users\\c04cd78e-3aea-4dff-8891-2387945062c0.jpg",
       "SourceId": "Mehrsam Darou",
       "SourceType": "Discovered",
@@ -43128,27 +43086,6 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\images\\users\\dummy-avatar.jpg"
-    },
-    {
-      "Identity": "D:\\git Proj\\MD\\Mehrsam-Darou-master\\Mehrsam Darou\\wwwroot\\images\\users\\e91c676b-4039-4f4c-8ea6-46bf7a2ee88b.jpg",
-      "SourceId": "Mehrsam Darou",
-      "SourceType": "Discovered",
-      "ContentRoot": "D:\\git Proj\\MD\\Mehrsam-Darou-master\\Mehrsam Darou\\wwwroot\\",
-      "BasePath": "_content/Mehrsam Darou",
-      "RelativePath": "images/users/e91c676b-4039-4f4c-8ea6-46bf7a2ee88b#[.{fingerprint}]?.jpg",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "Fingerprint": "go6m9fxfdw",
-      "Integrity": "sB+WVBU+HCuGuLsCg9zorobfCyLrxmgKkJKGP+1XiCI=",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\images\\users\\e91c676b-4039-4f4c-8ea6-46bf7a2ee88b.jpg"
     },
     {
       "Identity": "D:\\git Proj\\MD\\Mehrsam-Darou-master\\Mehrsam Darou\\wwwroot\\images\\users\\f5292c97-1586-4e35-9624-92c13f881fb8.jpg",
@@ -209716,88 +209653,6 @@
       ]
     },
     {
-      "Route": "images/users/a76bd40f-1b53-4890-a5dd-9c2d29f1f713.d72qbvno2g.jpg",
-      "AssetFile": "D:\\git Proj\\MD\\Mehrsam-Darou-master\\Mehrsam Darou\\wwwroot\\images\\users\\a76bd40f-1b53-4890-a5dd-9c2d29f1f713.jpg",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "20567"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "image/jpeg"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"Vzs3hVu4mI+Yf6G89IlHabhjZaOf75lkMFba2q9JWF8=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Thu, 13 Mar 2025 18:03:59 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "d72qbvno2g"
-        },
-        {
-          "Name": "label",
-          "Value": "images/users/a76bd40f-1b53-4890-a5dd-9c2d29f1f713.jpg"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-Vzs3hVu4mI+Yf6G89IlHabhjZaOf75lkMFba2q9JWF8="
-        }
-      ]
-    },
-    {
-      "Route": "images/users/a76bd40f-1b53-4890-a5dd-9c2d29f1f713.jpg",
-      "AssetFile": "D:\\git Proj\\MD\\Mehrsam-Darou-master\\Mehrsam Darou\\wwwroot\\images\\users\\a76bd40f-1b53-4890-a5dd-9c2d29f1f713.jpg",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "20567"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "image/jpeg"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"Vzs3hVu4mI+Yf6G89IlHabhjZaOf75lkMFba2q9JWF8=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Thu, 13 Mar 2025 18:03:59 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=3600, must-revalidate"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "integrity",
-          "Value": "sha256-Vzs3hVu4mI+Yf6G89IlHabhjZaOf75lkMFba2q9JWF8="
-        }
-      ]
-    },
-    {
       "Route": "images/users/avatar-1.go6m9fxfdw.jpg",
       "AssetFile": "D:\\git Proj\\MD\\Mehrsam-Darou-master\\Mehrsam Darou\\wwwroot\\images\\users\\avatar-1.jpg",
       "Selectors": [],
@@ -210782,88 +210637,6 @@
       ]
     },
     {
-      "Route": "images/users/b6888116-9657-4d37-8900-0d9ad047e661.go6m9fxfdw.jpg",
-      "AssetFile": "D:\\git Proj\\MD\\Mehrsam-Darou-master\\Mehrsam Darou\\wwwroot\\images\\users\\b6888116-9657-4d37-8900-0d9ad047e661.jpg",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "17336"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "image/jpeg"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"sB+WVBU+HCuGuLsCg9zorobfCyLrxmgKkJKGP+1XiCI=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Thu, 27 Feb 2025 13:39:42 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "go6m9fxfdw"
-        },
-        {
-          "Name": "label",
-          "Value": "images/users/b6888116-9657-4d37-8900-0d9ad047e661.jpg"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-sB+WVBU+HCuGuLsCg9zorobfCyLrxmgKkJKGP+1XiCI="
-        }
-      ]
-    },
-    {
-      "Route": "images/users/b6888116-9657-4d37-8900-0d9ad047e661.jpg",
-      "AssetFile": "D:\\git Proj\\MD\\Mehrsam-Darou-master\\Mehrsam Darou\\wwwroot\\images\\users\\b6888116-9657-4d37-8900-0d9ad047e661.jpg",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "17336"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "image/jpeg"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"sB+WVBU+HCuGuLsCg9zorobfCyLrxmgKkJKGP+1XiCI=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Thu, 27 Feb 2025 13:39:42 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=3600, must-revalidate"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "integrity",
-          "Value": "sha256-sB+WVBU+HCuGuLsCg9zorobfCyLrxmgKkJKGP+1XiCI="
-        }
-      ]
-    },
-    {
       "Route": "images/users/c04cd78e-3aea-4dff-8891-2387945062c0.go6m9fxfdw.jpg",
       "AssetFile": "D:\\git Proj\\MD\\Mehrsam-Darou-master\\Mehrsam Darou\\wwwroot\\images\\users\\c04cd78e-3aea-4dff-8891-2387945062c0.jpg",
       "Selectors": [],
@@ -211352,88 +211125,6 @@
         {
           "Name": "integrity",
           "Value": "sha256-YkbPFVC+pGHWqx9mzO5QNSSfqu1ztAuIlnX1dFAYjXY="
-        }
-      ]
-    },
-    {
-      "Route": "images/users/e91c676b-4039-4f4c-8ea6-46bf7a2ee88b.go6m9fxfdw.jpg",
-      "AssetFile": "D:\\git Proj\\MD\\Mehrsam-Darou-master\\Mehrsam Darou\\wwwroot\\images\\users\\e91c676b-4039-4f4c-8ea6-46bf7a2ee88b.jpg",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "17336"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "image/jpeg"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"sB+WVBU+HCuGuLsCg9zorobfCyLrxmgKkJKGP+1XiCI=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Thu, 27 Feb 2025 14:50:00 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "go6m9fxfdw"
-        },
-        {
-          "Name": "label",
-          "Value": "images/users/e91c676b-4039-4f4c-8ea6-46bf7a2ee88b.jpg"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-sB+WVBU+HCuGuLsCg9zorobfCyLrxmgKkJKGP+1XiCI="
-        }
-      ]
-    },
-    {
-      "Route": "images/users/e91c676b-4039-4f4c-8ea6-46bf7a2ee88b.jpg",
-      "AssetFile": "D:\\git Proj\\MD\\Mehrsam-Darou-master\\Mehrsam Darou\\wwwroot\\images\\users\\e91c676b-4039-4f4c-8ea6-46bf7a2ee88b.jpg",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "17336"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "image/jpeg"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"sB+WVBU+HCuGuLsCg9zorobfCyLrxmgKkJKGP+1XiCI=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Thu, 27 Feb 2025 14:50:00 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=3600, must-revalidate"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "integrity",
-          "Value": "sha256-sB+WVBU+HCuGuLsCg9zorobfCyLrxmgKkJKGP+1XiCI="
         }
       ]
     },
