@@ -1050,7 +1050,342 @@ namespace Mehrsam_Darou.Controllers
         }
 
 
+        // Add these methods to your NotificationController class
 
+        // GET: Notification/MyNotificationList - Show notifications for current user only
+        public async Task<IActionResult> MyNotificationList(int? page, string searchKey, string type, bool? seen)
+        {
+            var currentUserId = GetCurrentUserId();
+            if (currentUserId == null)
+            {
+                TempData["ErrorMessage"] = "کاربر یافت نشد";
+                return RedirectToAction("Login", "Account"); // Redirect to login if user not found
+            }
+
+            var setting = await ReadSettingAsync(_context);
+            int pageSize = Convert.ToInt32(setting.NumberPerPage ?? 10);
+            int pageNumber = page ?? 1;
+
+            // Base query - only show notifications for current user
+            IQueryable<Notification> query = _context.Notifications
+                .Where(n => n.UserId == currentUserId)
+                .Include(n => n.User);
+
+            // Apply search filter
+            if (!string.IsNullOrWhiteSpace(searchKey))
+            {
+                query = query.Where(n => n.Title.Contains(searchKey) || n.Message.Contains(searchKey));
+            }
+
+            // Apply type filter
+            if (!string.IsNullOrWhiteSpace(type))
+            {
+                query = query.Where(n => n.Type == type);
+            }
+
+            // Apply seen filter
+            if (seen.HasValue)
+            {
+                query = query.Where(n => n.Seen == seen.Value);
+            }
+
+            // Order by creation date (newest first)
+            query = query.OrderByDescending(n => n.CreatedDate);
+
+            // Get total count for pagination
+            int total = await query.CountAsync();
+
+            // Get paginated items
+            var items = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var paginatedList = new PaginatedList<Notification>(items, total, pageNumber, pageSize);
+
+            // Get statistics for the dashboard cards
+            var totalCount = await _context.Notifications.CountAsync(n => n.UserId == currentUserId);
+            var unreadCount = await _context.Notifications.CountAsync(n => n.UserId == currentUserId && !n.Seen);
+            var chatCount = await _context.Notifications.CountAsync(n => n.UserId == currentUserId && n.Type == "chat");
+            var readCount = totalCount - unreadCount;
+
+            // Set ViewBag properties for filters and statistics
+            ViewBag.TypeFilter = type;
+            ViewBag.SeenFilter = seen;
+            ViewBag.TotalCount = totalCount;
+            ViewBag.UnreadCount = unreadCount;
+            ViewBag.ChatCount = chatCount;
+            ViewBag.ReadCount = readCount;
+
+            return View(paginatedList);
+        }
+
+        // POST: Notification/DeleteMyNotification - Delete a single notification for current user
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteMyNotification(Guid id)
+        {
+            var currentUserId = GetCurrentUserId();
+            if (currentUserId == null)
+            {
+                TempData["ErrorMessage"] = "کاربر یافت نشد";
+                return RedirectToAction(nameof(MyNotificationList));
+            }
+
+            var notification = await _context.Notifications
+                .FirstOrDefaultAsync(n => n.Id == id && n.UserId == currentUserId);
+
+            if (notification == null)
+            {
+                TempData["ErrorMessage"] = "اعلان مورد نظر یافت نشد یا شما مجاز به حذف آن نیستید";
+                return RedirectToAction(nameof(MyNotificationList));
+            }
+
+            try
+            {
+                _context.Notifications.Remove(notification);
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "اعلان با موفقیت حذف شد";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "خطا در حذف اعلان: " + ex.Message;
+            }
+
+            return RedirectToAction(nameof(MyNotificationList));
+        }
+
+        // POST: Notification/DeleteSelectedMyNotifications - Delete multiple notifications for current user
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteSelectedMyNotifications(string selectedIds)
+        {
+            if (string.IsNullOrWhiteSpace(selectedIds))
+            {
+                TempData["ErrorMessage"] = "هیچ اعلانی انتخاب نشده است";
+                return RedirectToAction(nameof(MyNotificationList));
+            }
+
+            var currentUserId = GetCurrentUserId();
+            if (currentUserId == null)
+            {
+                TempData["ErrorMessage"] = "کاربر یافت نشد";
+                return RedirectToAction(nameof(MyNotificationList));
+            }
+
+            try
+            {
+                var ids = selectedIds.Split(',').Select(Guid.Parse).ToList();
+
+                // Only delete notifications that belong to the current user
+                var notifications = await _context.Notifications
+                    .Where(n => ids.Contains(n.Id) && n.UserId == currentUserId)
+                    .ToListAsync();
+
+                if (!notifications.Any())
+                {
+                    TempData["ErrorMessage"] = "هیچ اعلان قابل حذفی یافت نشد";
+                    return RedirectToAction(nameof(MyNotificationList));
+                }
+
+                _context.Notifications.RemoveRange(notifications);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = $"{notifications.Count} اعلان با موفقیت حذف شد";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "خطا در حذف اعلانات: " + ex.Message;
+            }
+
+            return RedirectToAction(nameof(MyNotificationList));
+        }
+
+        // POST: Notification/MarkSelectedAsSeen - Mark multiple notifications as seen for current user
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarkSelectedAsSeen(string selectedIds)
+        {
+            if (string.IsNullOrWhiteSpace(selectedIds))
+            {
+                TempData["ErrorMessage"] = "هیچ اعلانی انتخاب نشده است";
+                return RedirectToAction(nameof(MyNotificationList));
+            }
+
+            var currentUserId = GetCurrentUserId();
+            if (currentUserId == null)
+            {
+                TempData["ErrorMessage"] = "کاربر یافت نشد";
+                return RedirectToAction(nameof(MyNotificationList));
+            }
+
+            try
+            {
+                var ids = selectedIds.Split(',').Select(Guid.Parse).ToList();
+
+                // Only update notifications that belong to the current user and are not seen
+                var notifications = await _context.Notifications
+                    .Where(n => ids.Contains(n.Id) && n.UserId == currentUserId && !n.Seen)
+                    .ToListAsync();
+
+                if (!notifications.Any())
+                {
+                    TempData["WarningMessage"] = "هیچ اعلان خوانده نشده‌ای برای به‌روزرسانی یافت نشد";
+                    return RedirectToAction(nameof(MyNotificationList));
+                }
+
+                foreach (var notification in notifications)
+                {
+                    notification.Seen = true;
+                }
+
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = $"{notifications.Count} اعلان به عنوان خوانده شده علامت‌گذاری شد";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "خطا در به‌روزرسانی اعلانات: " + ex.Message;
+            }
+
+            return RedirectToAction(nameof(MyNotificationList));
+        }
+
+        // POST: Notification/MarkSelectedAsUnseen - Mark multiple notifications as unseen for current user
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarkSelectedAsUnseen(string selectedIds)
+        {
+            if (string.IsNullOrWhiteSpace(selectedIds))
+            {
+                TempData["ErrorMessage"] = "هیچ اعلانی انتخاب نشده است";
+                return RedirectToAction(nameof(MyNotificationList));
+            }
+
+            var currentUserId = GetCurrentUserId();
+            if (currentUserId == null)
+            {
+                TempData["ErrorMessage"] = "کاربر یافت نشد";
+                return RedirectToAction(nameof(MyNotificationList));
+            }
+
+            try
+            {
+                var ids = selectedIds.Split(',').Select(Guid.Parse).ToList();
+
+                // Only update notifications that belong to the current user and are seen
+                var notifications = await _context.Notifications
+                    .Where(n => ids.Contains(n.Id) && n.UserId == currentUserId && n.Seen)
+                    .ToListAsync();
+
+                if (!notifications.Any())
+                {
+                    TempData["WarningMessage"] = "هیچ اعلان خوانده شده‌ای برای به‌روزرسانی یافت نشد";
+                    return RedirectToAction(nameof(MyNotificationList));
+                }
+
+                foreach (var notification in notifications)
+                {
+                    notification.Seen = false;
+                }
+
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = $"{notifications.Count} اعلان به عنوان خوانده نشده علامت‌گذاری شد";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "خطا در به‌روزرسانی اعلانات: " + ex.Message;
+            }
+
+            return RedirectToAction(nameof(MyNotificationList));
+        }
+
+        // Override the existing MarkAllAsSeen to work with MyNotificationList
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarkAllMyNotificationsAsSeen()
+        {
+            var currentUserId = GetCurrentUserId();
+            if (currentUserId == null)
+            {
+                TempData["ErrorMessage"] = "کاربر یافت نشد";
+                return RedirectToAction(nameof(MyNotificationList));
+            }
+
+            try
+            {
+                var notifications = await _context.Notifications
+                    .Where(n => n.UserId == currentUserId && !n.Seen)
+                    .ToListAsync();
+
+                if (!notifications.Any())
+                {
+                    TempData["WarningMessage"] = "هیچ اعلان خوانده نشده‌ای یافت نشد";
+                    return RedirectToAction(nameof(MyNotificationList));
+                }
+
+                foreach (var notification in notifications)
+                {
+                    notification.Seen = true;
+                }
+
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = $"{notifications.Count} اعلان به عنوان خوانده شده علامت‌گذاری شد";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "خطا در به‌روزرسانی اعلانات: " + ex.Message;
+            }
+
+            return RedirectToAction(nameof(MyNotificationList));
+        }
+
+        // GET: Notification/GetMyNotificationStats - Get notification statistics for current user
+        [HttpGet]
+        public async Task<IActionResult> GetMyNotificationStats()
+        {
+            try
+            {
+                var currentUserId = GetCurrentUserId();
+                if (currentUserId == null)
+                {
+                    return Json(new { success = false, message = "کاربر یافت نشد" });
+                }
+
+                var totalCount = await _context.Notifications.CountAsync(n => n.UserId == currentUserId);
+                var unreadCount = await _context.Notifications.CountAsync(n => n.UserId == currentUserId && !n.Seen);
+                var chatCount = await _context.Notifications.CountAsync(n => n.UserId == currentUserId && n.Type == "chat");
+                var readCount = totalCount - unreadCount;
+
+                // Get notifications by type
+                var notificationsByType = await _context.Notifications
+                    .Where(n => n.UserId == currentUserId)
+                    .GroupBy(n => n.Type ?? "Unknown")
+                    .Select(g => new { Type = g.Key, Count = g.Count() })
+                    .ToListAsync();
+
+                // Get recent notifications (last 7 days)
+                var recentCount = await _context.Notifications
+                    .CountAsync(n => n.UserId == currentUserId && n.CreatedDate >= DateTime.Now.AddDays(-7));
+
+                return Json(new
+                {
+                    success = true,
+                    stats = new
+                    {
+                        totalCount,
+                        unreadCount,
+                        chatCount,
+                        readCount,
+                        recentCount,
+                        notificationsByType
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "خطا در دریافت آمار اعلانات: " + ex.Message });
+            }
+        }
 
 
 
