@@ -856,10 +856,10 @@ D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\staticwebasse
 D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.Mehrsam Darou.props
 D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.Mehrsam Darou.props
 D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\staticwebassets.pack.json
-D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\Mehrsam .4AF159D3.Up2Date
 D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\Mehrsam Darou.dll
 D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\refint\Mehrsam Darou.dll
 D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\Mehrsam Darou.pdb
 D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\Mehrsam Darou.genruntimeconfig.cache
 D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\ref\Mehrsam Darou.dll
+D:\git Proj\MD\Mehrsam-Darou-master\Mehrsam Darou\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

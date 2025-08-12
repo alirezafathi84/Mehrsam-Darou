@@ -57,6 +57,14 @@ public partial class User
 
     public virtual ICollection<JournalEntry> JournalEntryCreatedByNavigations { get; set; } = new List<JournalEntry>();
 
+    public virtual ICollection<MaterialRequest> MaterialRequestApprovedByNavigations { get; set; } = new List<MaterialRequest>();
+
+    public virtual ICollection<MaterialRequest> MaterialRequestCreatedByNavigations { get; set; } = new List<MaterialRequest>();
+
+    public virtual ICollection<MaterialRequest> MaterialRequestProcessedByNavigations { get; set; } = new List<MaterialRequest>();
+
+    public virtual ICollection<MaterialRequest> MaterialRequestRequestedByNavigations { get; set; } = new List<MaterialRequest>();
+
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
     public virtual ICollection<PaymentTransaction> PaymentTransactionApprovedByNavigations { get; set; } = new List<PaymentTransaction>();
@@ -78,6 +86,12 @@ public partial class User
     public virtual ICollection<QcTest> QcTestCreatedByNavigations { get; set; } = new List<QcTest>();
 
     public virtual ICollection<QcTest> QcTestLastModifiedByNavigations { get; set; } = new List<QcTest>();
+
+    public virtual ICollection<RequestApproval> RequestApprovals { get; set; } = new List<RequestApproval>();
+
+    public virtual ICollection<RequestWorkflowHistory> RequestWorkflowHistoryAssignedToNavigations { get; set; } = new List<RequestWorkflowHistory>();
+
+    public virtual ICollection<RequestWorkflowHistory> RequestWorkflowHistoryProcessedByNavigations { get; set; } = new List<RequestWorkflowHistory>();
 
     public virtual ICollection<ResearchProject> ResearchProjectCreatedByNavigations { get; set; } = new List<ResearchProject>();
 

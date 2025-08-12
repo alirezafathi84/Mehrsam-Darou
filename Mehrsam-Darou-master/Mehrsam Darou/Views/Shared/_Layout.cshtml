@@ -224,11 +224,19 @@
                                     <i class="bx bx-user-circle text-muted fs-18 align-middle me-1"></i><span class="align-middle">پروفایل</span>
                                 </a> *@
 
+
+
+                                
+                                
+                                
                                 <a class="dropdown-item" href="@Url.Action("Chat", "Chat")">
                                     <i class="bx bx-message-dots text-muted fs-18 align-middle me-1"></i>
                                     <span class="align-middle">پیام‌ها</span>
                                 </a>
-
+                                <a class="dropdown-item" href="@Url.Action("MyRequests", "MaterialRequest")">
+                                    <i class="bx bx-message-dots text-muted fs-18 align-middle me-1"></i>
+                                    <span class="align-middle">درخواست های من</span>
+                                </a>
 
                         
 
@@ -737,6 +745,23 @@
                                             </button>
                                         </form>
                                     </li>
+
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("RequestList", "MaterialRequest")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                <span class="nav-text">تمام درخواست‌ها</span>
+                                            </button>
+                                        </form>
+                                    </li>
+
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("RequestDashboard", "MaterialRequest")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                <span class="nav-text">داشبورد درخواست‌ها</span>
+                                            </button>
+                                        </form>
+                                    </li>
+
                                 </ul>
                             </div>
                         </li>
@@ -1248,7 +1273,7 @@
                             <span class="nav-icon">
                                 <iconify-icon icon="solar:chat-round-bold-duotone"></iconify-icon>
                             </span>
-                            <span class="nav-text"> چت و پیام‌رسانی </span>
+                            <span class="nav-text"> چت / درخواست </span>
                         </a>
 
                         <div class="collapse" id="sidebarChat">
@@ -1269,6 +1294,17 @@
                                         </button>
                                     </form>
                                 </li>
+
+                                <li class="sub-nav-item">
+                                    <form method="post" action="@Url.Action("MyRequests", "MaterialRequest")">
+                                        <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                            <span class="nav-text">درخواست‌های من</span>
+                                        </button>
+                                    </form>
+                                </li>
+
+
+
                             </ul>
                         </div>
 
@@ -1349,10 +1385,56 @@
                                         </a>
                                     </li>
 
+
+                     
+                      
+
+
+                     
+             
+                          
+
+
+
+
                                 </ul>
                             </div>
                         </li>
                     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
                 </ul>
 

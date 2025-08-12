@@ -1,0 +1,555 @@
+﻿@using static Mehrsam_Darou.Helper.Helper
+@model PaginatedList<Mehrsam_Darou.Models.MaterialRequest>
+
+@{
+    ViewData["Title"] = "درخواست‌های من";
+}
+
+<!-- Display Messages -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0">درخواست‌های من</h4>
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">درخواست‌ها</a></li>
+                    <li class="breadcrumb-item active">درخواست‌های من</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="row">
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-height-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="avatar-sm flex-shrink-0">
+                        <span class="avatar-title bg-primary-subtle text-primary rounded-circle fs-3">
+                            <i class="bx bx-file"></i>
+                        </span>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <p class="text-uppercase fw-medium text-muted mb-1">کل درخواست‌های من</p>
+                        <h4 class="mb-0">@(Model?.Count() ?? 0)</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-height-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="avatar-sm flex-shrink-0">
+                        <span class="avatar-title bg-warning-subtle text-warning rounded-circle fs-3">
+                            <i class="bx bx-time-five"></i>
+                        </span>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <p class="text-uppercase fw-medium text-muted mb-1">در انتظار</p>
+                        <h4 class="mb-0">@(Model?.Where(r => r.Status == "در انتظار بررسی" || r.Status == "در حال بررسی").Count() ?? 0)</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-height-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="avatar-sm flex-shrink-0">
+                        <span class="avatar-title bg-success-subtle text-success rounded-circle fs-3">
+                            <i class="bx bx-check-circle"></i>
+                        </span>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <p class="text-uppercase fw-medium text-muted mb-1">تأیید شده</p>
+                        <h4 class="mb-0">@(Model?.Where(r => r.Status == "تأیید شده" || r.Status == "تکمیل شده").Count() ?? 0)</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-height-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="avatar-sm flex-shrink-0">
+                        <span class="avatar-title bg-danger-subtle text-danger rounded-circle fs-3">
+                            <i class="bx bx-x-circle"></i>
+                        </span>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <p class="text-uppercase fw-medium text-muted mb-1">رد شده</p>
+                        <h4 class="mb-0">@(Model?.Where(r => r.Status == "رد شده").Count() ?? 0)</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex align-items-center flex-wrap gap-2">
+                    <div class="flex-grow-1">
+                        <a href="@Url.Action("AddRequest")" class="btn btn-success">
+                            <i class="ri-add-fill me-1"></i> درخواست جدید
+                        </a>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <a href="@Url.Action("RequestList")" class="btn btn-outline-primary">
+                            <i class="ri-list-check me-1"></i> همه درخواست‌ها
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <!-- Search and Filters -->
+                <form method="get" asp-action="MyRequests" class="mb-3">
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <div class="search-box">
+                                <input type="search" name="searchKey" value="@Context.Request.Query["searchKey"]"
+                                       class="form-control" placeholder="جستجو در درخواست‌های من...">
+                                <i class="ri-search-line search-icon"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            @{
+                                var selectedStatus = Context.Request.Query["status"].ToString();
+                            }
+                            <select name="status" class="form-select">
+                                <option value="">همه وضعیت‌ها</option>
+                                <option value="در انتظار بررسی" selected="@(selectedStatus == "در انتظار بررسی")">در انتظار بررسی</option>
+                                <option value="در حال بررسی" selected="@(selectedStatus == "در حال بررسی")">در حال بررسی</option>
+                                <option value="تأیید شده" selected="@(selectedStatus == "تأیید شده")">تأیید شده</option>
+                                <option value="رد شده" selected="@(selectedStatus == "رد شده")">رد شده</option>
+                                <option value="تحویل شده" selected="@(selectedStatus == "تحویل شده")">تحویل شده</option>
+                                <option value="تکمیل شده" selected="@(selectedStatus == "تکمیل شده")">تکمیل شده</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="ri-equalizer-fill me-1"></i> فیلتر
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Requests Cards View (Mobile Friendly) -->
+                <div class="d-block d-lg-none">
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var request in Model)
+                        {
+                            <div class="card border mb-3">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="card-title mb-1">
+                                            <a href="@Url.Action("ProcessRequest", new { id = request.RequestId })" class="text-primary text-decoration-none">
+                                                @request.RequestNumber
+                                            </a>
+                                            @if (request.IsUrgent)
+                                            {
+                                                <span class="badge bg-danger ms-1 fs-11">فوری</span>
+                                            }
+                                        </h6>
+                                        @{
+                                            var statusClass = request.Status switch
+                                            {
+                                                "در انتظار بررسی" => "bg-warning-subtle text-warning",
+                                                "در حال بررسی" => "bg-info-subtle text-info",
+                                                "تأیید شده" => "bg-success-subtle text-success",
+                                                "رد شده" => "bg-danger-subtle text-danger",
+                                                "تحویل شده" => "bg-primary-subtle text-primary",
+                                                "تکمیل شده" => "bg-dark-subtle text-body",
+                                                _ => "bg-light text-dark"
+                                            };
+                                        }
+                                        <span class="badge @statusClass">@request.Status</span>
+                                    </div>
+                                    <p class="card-text text-muted mb-2">@request.RequestTitle</p>
+                                    <div class="row text-muted small">
+                                        <div class="col-6">
+                                            <i class="ri-calendar-line me-1"></i>
+                                            @if (request.RequestDate != null)
+                                            {
+                                                @request.RequestDate.ToString("yyyy/MM/dd")
+                                            }
+                                        </div>
+                                        <div class="col-6 text-end">
+                                            @if (request.Category != null)
+                                            {
+                                                <span class="badge bg-light text-muted">@request.Category.CategoryName</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="ri-file-search-line display-4 text-muted"></i>
+                            <h5 class="mt-3 text-muted">هیچ درخواستی یافت نشد</h5>
+                            <p class="text-muted mb-3">شما هنوز درخواستی ثبت نکرده‌اید</p>
+                            <a href="@Url.Action("AddRequest")" class="btn btn-success">
+                                <i class="ri-add-line me-1"></i> اولین درخواست
+                            </a>
+                        </div>
+                    }
+                </div>
+
+                <!-- Table View (Desktop) -->
+                <div class="table-responsive d-none d-lg-block">
+                    <table class="table align-middle table-nowrap table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>شماره درخواست</th>
+                                <th>عنوان</th>
+                                <th>دسته‌بندی</th>
+                                <th>تاریخ ثبت</th>
+                                <th>اولویت</th>
+                                <th>وضعیت</th>
+                                <th>مرحله فعلی</th>
+                                <th>عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Any())
+                            {
+                                foreach (var request in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a href="@Url.Action("ProcessRequest", new { id = request.RequestId })" class="fw-medium text-primary text-decoration-none">
+                                                @request.RequestNumber
+                                            </a>
+                                            @if (request.IsUrgent)
+                                            {
+                                                <span class="badge bg-danger ms-1 fs-11">فوری</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div>
+                                                @request.RequestTitle
+                                                @if (!string.IsNullOrEmpty(request.Description))
+                                                {
+                                                    <br>
+                                                    <small class="text-muted">
+                                                        @(request.Description.Length > 40 ?
+                                                            request.Description.Substring(0, 40) + "..." :
+                                                            request.Description)
+                                                    </small>
+                                                }
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @if (request.Category != null)
+                                            {
+                                                if (request.Category.CategoryType == "مواد")
+                                                {
+                                                    <span class="badge bg-primary">@request.Category.CategoryName</span>
+                                                }
+                                                else if (request.Category.CategoryType == "ملزومات")
+                                                {
+                                                    <span class="badge bg-info">@request.Category.CategoryName</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">@request.Category.CategoryName</span>
+                                                }
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (request.RequestDate != null)
+                                            {
+                                                <div>@request.RequestDate.ToString("yyyy/MM/dd")</div>
+                                                <small class="text-muted">@request.RequestDate.ToString("HH:mm")</small>
+                                            }
+                                        </td>
+                                        <td>
+                                            @{
+                                                var priorityClass = request.PriorityLevel switch
+                                                {
+                                                    1 => "bg-danger",
+                                                    2 => "bg-warning",
+                                                    3 => "bg-primary",
+                                                    4 => "bg-info",
+                                                    5 => "bg-light text-dark",
+                                                    _ => "bg-secondary"
+                                                };
+                                                var priorityText = request.PriorityLevel switch
+                                                {
+                                                    1 => "بحرانی",
+                                                    2 => "بالا",
+                                                    3 => "متوسط",
+                                                    4 => "پایین",
+                                                    5 => "خیلی پایین",
+                                                    _ => "نامشخص"
+                                                };
+                                            }
+                                            <span class="badge @priorityClass fs-12">@priorityText</span>
+                                        </td>
+                                        <td>
+                                            @{
+                                                var statusClass = request.Status switch
+                                                {
+                                                    "در انتظار بررسی" => "bg-warning-subtle text-warning",
+                                                    "در حال بررسی" => "bg-info-subtle text-info",
+                                                    "تأیید شده" => "bg-success-subtle text-success",
+                                                    "رد شده" => "bg-danger-subtle text-danger",
+                                                    "تحویل شده" => "bg-primary-subtle text-primary",
+                                                    "تکمیل شده" => "bg-dark-subtle text-body",
+                                                    _ => "bg-light text-dark"
+                                                };
+                                            }
+                                            <span class="badge @statusClass fs-12">@request.Status</span>
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(request.WorkflowStage))
+                                            {
+                                                <small class="text-muted">@request.WorkflowStage</small>
+                                            }
+                                            else
+                                            {
+                                                <small class="text-muted">-</small>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="dropdown">
+                                                <button class="btn btn-soft-secondary btn-sm dropdown-toggle" type="button"
+                                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="ri-more-fill"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li>
+                                                        <a class="dropdown-item" href="@Url.Action("ProcessRequest", new { id = request.RequestId })">
+                                                            <i class="ri-eye-fill me-2 text-muted"></i> مشاهده جزئیات
+                                                        </a>
+                                                    </li>
+                                                    @if (request.Status == "در انتظار بررسی")
+                                                    {
+                                                        <li>
+                                                            <a class="dropdown-item text-warning" href="#" onclick="editRequest('@request.RequestId')">
+                                                                <i class="ri-edit-fill me-2"></i> ویرایش
+                                                            </a>
+                                                        </li>
+                                                        <li><hr class="dropdown-divider"></li>
+                                                        <li>
+                                                            <a class="dropdown-item text-danger" href="#" onclick="cancelRequest('@request.RequestId')">
+                                                                <i class="ri-close-fill me-2"></i> لغو درخواست
+                                                            </a>
+                                                        </li>
+                                                    }
+                                                    @if (request.Status == "رد شده" && !string.IsNullOrEmpty(request.RejectionReason))
+                                                    {
+                                                        <li>
+                                                            <a class="dropdown-item text-info" href="#" onclick="showRejectionReason('@request.RejectionReason')">
+                                                                <i class="ri-information-fill me-2"></i> دلیل رد
+                                                            </a>
+                                                        </li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="8" class="text-center py-5">
+                                        <div class="d-flex flex-column align-items-center">
+                                            <i class="ri-file-search-line display-4 text-muted mb-3"></i>
+                                            <h5 class="text-muted">هیچ درخواستی یافت نشد</h5>
+                                            <p class="text-muted mb-3">شما هنوز درخواستی ثبت نکرده‌اید یا فیلتر اعمال شده نتیجه‌ای ندارد</p>
+                                            <a href="@Url.Action("AddRequest")" class="btn btn-primary">
+                                                <i class="ri-add-line me-1"></i> درخواست جدید
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                @if (Model != null && Model.TotalPages > 1)
+                {
+                    <div class="d-flex justify-content-end mt-3">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination mb-0">
+                                @if (Model.HasPreviousPage)
+                                {
+                                    <li class="page-item">
+                                        <a class="page-link" href="@Url.Action("MyRequests", new {
+                                            page = Model.PageIndex - 1,
+                                            searchKey = Context.Request.Query["searchKey"],
+                                            status = Context.Request.Query["status"]
+                                        })">
+                                            <i class="mdi mdi-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                }
+                                else
+                                {
+                                    <li class="page-item disabled">
+                                        <span class="page-link">
+                                            <i class="mdi mdi-chevron-right"></i>
+                                        </span>
+                                    </li>
+                                }
+
+                                @for (int i = 1; i <= Model.TotalPages; i++)
+                                {
+                                    <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                                        <a class="page-link" href="@Url.Action("MyRequests", new {
+                                            page = i,
+                                            searchKey = Context.Request.Query["searchKey"],
+                                            status = Context.Request.Query["status"]
+                                        })">@i</a>
+                                    </li>
+                                }
+
+                                @if (Model.HasNextPage)
+                                {
+                                    <li class="page-item">
+                                        <a class="page-link" href="@Url.Action("MyRequests", new {
+                                            page = Model.PageIndex + 1,
+                                            searchKey = Context.Request.Query["searchKey"],
+                                            status = Context.Request.Query["status"]
+                                        })">
+                                            <i class="mdi mdi-chevron-left"></i>
+                                        </a>
+                                    </li>
+                                }
+                                else
+                                {
+                                    <li class="page-item disabled">
+                                        <span class="page-link">
+                                            <i class="mdi mdi-chevron-left"></i>
+                                        </span>
+                                    </li>
+                                }
+                            </ul>
+                        </nav>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rejection Reason Modal -->
+<div class="modal fade" id="rejectionModal" tabindex="-1" aria-labelledby="rejectionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rejectionModalLabel">دلیل رد درخواست</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" role="alert">
+                    <i class="ri-error-warning-line me-2"></i>
+                    <span id="rejectionReasonText"></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">بستن</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-submit form on status filter change
+        document.querySelector('select[name="status"]').addEventListener('change', function() {
+            this.form.submit();
+        });
+
+        // Show rejection reason modal
+        function showRejectionReason(reason) {
+            document.getElementById('rejectionReasonText').textContent = reason;
+            var modal = new bootstrap.Modal(document.getElementById('rejectionModal'));
+            modal.show();
+        }
+
+        // Edit request function
+        function editRequest(requestId) {
+            // This would redirect to an edit page or open an edit modal
+            // For now, we'll show an alert
+            alert('ویرایش درخواست در حال توسعه است');
+        }
+
+        // Cancel request function
+        function cancelRequest(requestId) {
+            if (confirm('آیا مطمئن هستید که می‌خواهید این درخواست را لغو کنید؟\nاین عمل قابل برگشت نیست.')) {
+                // AJAX call to cancel request
+                fetch('@Url.Action("CancelRequest")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify({ requestId: requestId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('خطا در لغو درخواست: ' + (data.message || 'خطای نامشخص'));
+                    }
+                })
+                .catch(error => {
+                    alert('خطا در ارتباط با سرور');
+                });
+            }
+        }
+
+        // Add progress tracking for requests
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add hover effects and tooltips for better UX
+            var statusBadges = document.querySelectorAll('.badge');
+            statusBadges.forEach(function(badge) {
+                if (badge.textContent.includes('در انتظار')) {
+                    badge.setAttribute('title', 'درخواست در صف بررسی قرار دارد');
+                } else if (badge.textContent.includes('در حال')) {
+                    badge.setAttribute('title', 'درخواست در حال بررسی توسط تیم تأمین است');
+                } else if (badge.textContent.includes('تأیید شده')) {
+                    badge.setAttribute('title', 'درخواست تأیید شده و آماده تأمین است');
+                } else if (badge.textContent.includes('رد شده')) {
+                    badge.setAttribute('title', 'درخواست رد شده - برای دیدن دلیل کلیک کنید');
+                }
+            });
+        });
+    </script>
+}

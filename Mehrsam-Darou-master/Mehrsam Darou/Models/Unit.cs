@@ -31,6 +31,8 @@ public partial class Unit
 
     public virtual ICollection<MaterialBatch> MaterialBatches { get; set; } = new List<MaterialBatch>();
 
+    public virtual ICollection<MaterialRequestItem> MaterialRequestItems { get; set; } = new List<MaterialRequestItem>();
+
     public virtual ICollection<MedicineBom> MedicineBoms { get; set; } = new List<MedicineBom>();
 
     public virtual ICollection<Medicine> Medicines { get; set; } = new List<Medicine>();

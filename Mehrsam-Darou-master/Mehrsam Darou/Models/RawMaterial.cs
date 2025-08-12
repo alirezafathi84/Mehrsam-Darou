@@ -29,6 +29,10 @@ public partial class RawMaterial
 
     public virtual ICollection<MaterialBatch> MaterialBatches { get; set; } = new List<MaterialBatch>();
 
+    public virtual ICollection<MaterialRequestItem> MaterialRequestItemMaterials { get; set; } = new List<MaterialRequestItem>();
+
+    public virtual ICollection<MaterialRequestItem> MaterialRequestItemSubstituteMaterials { get; set; } = new List<MaterialRequestItem>();
+
     public virtual ICollection<MedicineBom> MedicineBoms { get; set; } = new List<MedicineBom>();
 
     public virtual ICollection<PurchaseInvoiceItem> PurchaseInvoiceItems { get; set; } = new List<PurchaseInvoiceItem>();

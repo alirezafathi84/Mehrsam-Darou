@@ -1,0 +1,397 @@
+﻿@{
+    ViewData["Title"] = "داشبورد درخواست‌های مواد";
+}
+
+<!-- Display Messages -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0">داشبورد درخواست‌های مواد</h4>
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">داشبورد</a></li>
+                    <li class="breadcrumb-item active">درخواست‌های مواد</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row">
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-animate">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1 overflow-hidden">
+                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">کل درخواست‌ها</p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <h5 class="text-success fs-14 mb-0">
+                            <i class="ri-arrow-right-up-line fs-13 align-middle"></i>
+                        </h5>
+                    </div>
+                </div>
+                <div class="d-flex align-items-end justify-content-between mt-4">
+                    <div>
+                        <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                            <span class="counter-value" data-target="@ViewBag.TotalRequests">@ViewBag.TotalRequests</span>
+                        </h4>
+                        <a href="@Url.Action("RequestList")" class="text-decoration-underline text-muted">مشاهده همه</a>
+                    </div>
+                    <div class="avatar-sm flex-shrink-0">
+                        <span class="avatar-title bg-success-subtle rounded fs-3">
+                            <i class="bx bx-file text-success"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-animate">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1 overflow-hidden">
+                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">در انتظار بررسی</p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <h5 class="text-warning fs-14 mb-0">
+                            <i class="ri-arrow-right-up-line fs-13 align-middle"></i>
+                        </h5>
+                    </div>
+                </div>
+                <div class="d-flex align-items-end justify-content-between mt-4">
+                    <div>
+                        <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                            <span class="counter-value" data-target="@ViewBag.PendingRequests">@ViewBag.PendingRequests</span>
+                        </h4>
+                        <a href="@Url.Action("RequestList", new { status = "در انتظار بررسی" })" class="text-decoration-underline text-muted">مشاهده</a>
+                    </div>
+                    <div class="avatar-sm flex-shrink-0">
+                        <span class="avatar-title bg-warning-subtle rounded fs-3">
+                            <i class="bx bx-time-five text-warning"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-animate">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1 overflow-hidden">
+                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">تأیید شده</p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <h5 class="text-success fs-14 mb-0">
+                            <i class="ri-arrow-right-up-line fs-13 align-middle"></i>
+                        </h5>
+                    </div>
+                </div>
+                <div class="d-flex align-items-end justify-content-between mt-4">
+                    <div>
+                        <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                            <span class="counter-value" data-target="@ViewBag.ApprovedRequests">@ViewBag.ApprovedRequests</span>
+                        </h4>
+                        <a href="@Url.Action("RequestList", new { status = "تأیید شده" })" class="text-decoration-underline text-muted">مشاهده</a>
+                    </div>
+                    <div class="avatar-sm flex-shrink-0">
+                        <span class="avatar-title bg-success-subtle rounded fs-3">
+                            <i class="bx bx-check-circle text-success"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-animate">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1 overflow-hidden">
+                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">درخواست‌های من</p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <h5 class="text-info fs-14 mb-0">
+                            <i class="ri-arrow-right-up-line fs-13 align-middle"></i>
+                        </h5>
+                    </div>
+                </div>
+                <div class="d-flex align-items-end justify-content-between mt-4">
+                    <div>
+                        <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                            <span class="counter-value" data-target="@ViewBag.MyRequests">@ViewBag.MyRequests</span>
+                        </h4>
+                        <a href="@Url.Action("MyRequests")" class="text-decoration-underline text-muted">مشاهده</a>
+                    </div>
+                    <div class="avatar-sm flex-shrink-0">
+                        <span class="avatar-title bg-info-subtle rounded fs-3">
+                            <i class="bx bx-user text-info"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Chart: Requests by Status -->
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-header align-items-center d-flex">
+                <h4 class="card-title mb-0 flex-grow-1">وضعیت درخواست‌ها</h4>
+                <div class="flex-shrink-0">
+                    <div class="dropdown card-header-dropdown">
+                        <a class="text-reset dropdown-btn" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="fw-semibold text-uppercase fs-12">مرتب‌سازی:</span>
+                            <span class="text-muted">هفته جاری <i class="mdi mdi-chevron-down ms-1"></i></span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <a class="dropdown-item" href="#">امروز</a>
+                            <a class="dropdown-item" href="#">هفته گذشته</a>
+                            <a class="dropdown-item" href="#">ماه گذشته</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="statusChart" style="height: 350px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Requests -->
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-header align-items-center d-flex">
+                <h4 class="card-title mb-0 flex-grow-1">آخرین درخواست‌ها</h4>
+                <div class="flex-shrink-0">
+                    <a href="@Url.Action("RequestList")" class="btn btn-outline-light btn-sm">
+                        مشاهده همه <i class="ri-arrow-right-line align-bottom"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive table-card">
+                    <table class="table table-borderless table-centered align-middle table-nowrap mb-0">
+                        <thead class="text-muted table-light">
+                            <tr>
+                                <th scope="col">شماره درخواست</th>
+                                <th scope="col">درخواست‌کننده</th>
+                                <th scope="col">وضعیت</th>
+                                <th scope="col">تاریخ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewBag.RecentRequests != null)
+                            {
+                                @foreach (var request in ViewBag.RecentRequests)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a href="@Url.Action("ProcessRequest", new { id = request.RequestId })" class="fw-medium link-primary">
+                                                @request.RequestNumber
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="flex-shrink-0 me-2">
+                                                    <img src="@(request.RequestedByNavigation?.AvatarImg ?? "/images/users/dummy-avatar.jpg")"
+                                                         alt="" class="avatar-xs rounded-circle">
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    @if (request.RequestedByNavigation != null)
+                                                    {
+                                                        @request.RequestedByNavigation.FirstName @request.RequestedByNavigation.LastName
+                                                    }
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @{
+                                                var statusClass = request.Status switch
+                                                {
+                                                    "در انتظار بررسی" => "bg-warning-subtle text-warning",
+                                                    "در حال بررسی" => "bg-info-subtle text-info",
+                                                    "تأیید شده" => "bg-success-subtle text-success",
+                                                    "رد شده" => "bg-danger-subtle text-danger",
+                                                    "تکمیل شده" => "bg-dark-subtle text-body",
+                                                    _ => "bg-light text-dark"
+                                                };
+                                            }
+                                            <span class="badge @statusClass">@request.Status</span>
+                                        </td>
+                                        <td>
+                                            @if (request.RequestDate != null)
+                                            {
+                                                @request.RequestDate.ToString("yyyy/MM/dd")
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center py-4">
+                                        <div class="text-muted">
+                                            <i class="ri-file-search-line display-5"></i>
+                                            <div class="mt-2">درخواستی یافت نشد</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0">عملیات سریع</h4>
+            </div>
+            <div class="card-body">
+                <div class="row g-4">
+                    <div class="col-sm-6 col-lg-3">
+                        <div class="d-flex p-3 border rounded-2">
+                            <div class="flex-shrink-0">
+                                <i class="ri-add-line fs-2 text-primary"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="mb-1">درخواست جدید</h6>
+                                <p class="text-muted mb-2">ایجاد درخواست مواد جدید</p>
+                                <a href="@Url.Action("AddRequest")" class="btn btn-sm btn-primary">شروع</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-3">
+                        <div class="d-flex p-3 border rounded-2">
+                            <div class="flex-shrink-0">
+                                <i class="ri-user-line fs-2 text-success"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="mb-1">درخواست‌های من</h6>
+                                <p class="text-muted mb-2">مشاهده درخواست‌های شخصی</p>
+                                <a href="@Url.Action("MyRequests")" class="btn btn-sm btn-success">مشاهده</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-3">
+                        <div class="d-flex p-3 border rounded-2">
+                            <div class="flex-shrink-0">
+                                <i class="ri-file-list-line fs-2 text-info"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="mb-1">همه درخواست‌ها</h6>
+                                <p class="text-muted mb-2">مشاهده کلیه درخواست‌ها</p>
+                                <a href="@Url.Action("RequestList")" class="btn btn-sm btn-info">مشاهده</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-3">
+                        <div class="d-flex p-3 border rounded-2">
+                            <div class="flex-shrink-0">
+                                <i class="ri-bar-chart-line fs-2 text-warning"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="mb-1">گزارش‌گیری</h6>
+                                <p class="text-muted mb-2">گزارش‌های تفصیلی</p>
+                                <a href="#" class="btn btn-sm btn-warning">گزارش</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script>
+        // Status Chart
+        var statusData = @Html.Raw(Json.Serialize(ViewBag.RequestsByStatus ?? new List<object>()));
+
+        var statusLabels = statusData.map(item => item.Status || 'نامشخص');
+        var statusCounts = statusData.map(item => item.Count || 0);
+
+        var statusOptions = {
+            series: statusCounts,
+            chart: {
+                type: 'donut',
+                height: 350,
+                fontFamily: 'IRANSans, sans-serif'
+            },
+            labels: statusLabels,
+            colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57', '#FF9FF3', '#54A0FF'],
+            legend: {
+                position: 'bottom',
+                horizontalAlign: 'center',
+            },
+            plotOptions: {
+                pie: {
+                    donut: {
+                        labels: {
+                            show: true,
+                            total: {
+                                show: true,
+                                label: 'کل',
+                                formatter: function (w) {
+                                    return w.globals.seriesTotals.reduce((a, b) => {
+                                        return a + b
+                                    }, 0)
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            responsive: [{
+                breakpoint: 480,
+                options: {
+                    chart: {
+                        width: 200
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }]
+        };
+
+        if (statusCounts.length > 0) {
+            var statusChart = new ApexCharts(document.querySelector("#statusChart"), statusOptions);
+            statusChart.render();
+        } else {
+            document.querySelector("#statusChart").innerHTML = '<div class="text-center text-muted py-5"><i class="ri-pie-chart-line display-4"></i><br>داده‌ای برای نمایش وجود ندارد</div>';
+        }
+    </script>
+}

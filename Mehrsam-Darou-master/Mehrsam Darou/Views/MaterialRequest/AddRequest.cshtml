@@ -1,0 +1,337 @@
+﻿@model Mehrsam_Darou.Models.MaterialRequest
+
+@{
+    ViewData["Title"] = "درخواست جدید مواد";
+}
+
+<!-- Display Messages -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0">درخواست جدید مواد</h4>
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">درخواست‌ها</a></li>
+                    <li class="breadcrumb-item active">درخواست جدید</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form asp-action="AddRequest" method="post" class="needs-validation" novalidate>
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.RequestId)
+
+    <div class="row">
+        <!-- Main Form -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="ri-file-add-line align-middle me-1"></i>
+                        اطلاعات درخواست
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Request Number -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="RequestNumber" class="form-label">شماره درخواست <span class="text-danger">*</span></label>
+                                <input asp-for="RequestNumber" class="form-control" readonly />
+                                <span asp-validation-for="RequestNumber" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Request Date -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="RequestDate" class="form-label">تاریخ درخواست <span class="text-danger">*</span></label>
+                                <input asp-for="RequestDate" class="form-control" type="datetime-local" />
+                                <span asp-validation-for="RequestDate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Request Title -->
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label asp-for="RequestTitle" class="form-label">عنوان درخواست <span class="text-danger">*</span></label>
+                                <input asp-for="RequestTitle" class="form-control" placeholder="عنوان مختصری برای درخواست وارد کنید" />
+                                <span asp-validation-for="RequestTitle" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label asp-for="Description" class="form-label">توضیحات</label>
+                                <textarea asp-for="Description" class="form-control" rows="3" placeholder="توضیحات تکمیلی درخواست..."></textarea>
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Category -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="CategoryId" class="form-label">دسته‌بندی <span class="text-danger">*</span></label>
+                                <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.Categories">
+                                    <option value="">انتخاب کنید</option>
+                                </select>
+                                <span asp-validation-for="CategoryId" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Request Type -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="RequestTypeId" class="form-label">نوع درخواست <span class="text-danger">*</span></label>
+                                <select asp-for="RequestTypeId" class="form-select" asp-items="ViewBag.RequestTypes">
+                                    <option value="">انتخاب کنید</option>
+                                </select>
+                                <span asp-validation-for="RequestTypeId" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Department -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Department" class="form-label">بخش/واحد</label>
+                                <input asp-for="Department" class="form-control" placeholder="نام بخش یا واحد سازمانی" />
+                                <span asp-validation-for="Department" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Budget Code -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="BudgetCode" class="form-label">کد بودجه</label>
+                                <input asp-for="BudgetCode" class="form-control" placeholder="کد بودجه مربوطه" />
+                                <span asp-validation-for="BudgetCode" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Currency -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Currency" class="form-label">واحد پولی</label>
+                                <select asp-for="Currency" class="form-select">
+                                    <option value="IRR">ریال (IRR)</option>
+                                    <option value="USD">دلار (USD)</option>
+                                    <option value="EUR">یورو (EUR)</option>
+                                </select>
+                                <span asp-validation-for="Currency" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Required Date -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="RequiredDate" class="form-label">تاریخ مورد نیاز</label>
+                                <input asp-for="RequiredDate" class="form-control" type="date" />
+                                <span asp-validation-for="RequiredDate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Delivery Location -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="DeliveryLocation" class="form-label">محل تحویل</label>
+                                <input asp-for="DeliveryLocation" class="form-control" placeholder="آدرس یا محل تحویل کالا" />
+                                <span asp-validation-for="DeliveryLocation" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Special Instructions -->
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label asp-for="SpecialInstructions" class="form-label">دستورالعمل‌های ویژه</label>
+                                <textarea asp-for="SpecialInstructions" class="form-control" rows="2" placeholder="دستورالعمل‌های خاص برای این درخواست..."></textarea>
+                                <span asp-validation-for="SpecialInstructions" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Request Items (Future Enhancement) -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="ri-list-check align-middle me-1"></i>
+                        اقلام درخواستی
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info" role="alert">
+                        <i class="ri-information-line me-2"></i>
+                        <strong>توجه:</strong> پس از ثبت درخواست، می‌توانید اقلام مورد نیاز را اضافه کنید.
+                    </div>
+
+                    <div class="text-center py-4">
+                        <i class="ri-file-add-line display-4 text-muted"></i>
+                        <h5 class="mt-3 text-muted">اقلام درخواستی</h5>
+                        <p class="text-muted">اقلام درخواستی پس از ثبت اولیه قابل اضافه کردن خواهند بود</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Side Panel -->
+        <div class="col-lg-4">
+            <!-- Priority & Settings -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="ri-settings-3-line align-middle me-1"></i>
+                        تنظیمات درخواست
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Priority Level -->
+                    <div class="mb-3">
+                        <label asp-for="PriorityLevel" class="form-label">سطح اولویت <span class="text-danger">*</span></label>
+                        <select asp-for="PriorityLevel" class="form-select" asp-items="ViewBag.PriorityLevels">
+                            <option value="">انتخاب کنید</option>
+                        </select>
+                        <span asp-validation-for="PriorityLevel" class="text-danger"></span>
+                    </div>
+
+                    <!-- Urgency Level -->
+                    <div class="mb-3">
+                        <label class="form-label">سطح فوریت</label>
+                        <select name="UrgencyLevel" class="form-select">
+                            <option value="">انتخاب کنید</option>
+                            <option value="فوری">فوری</option>
+                            <option value="عادی">عادی</option>
+                            <option value="کم اهمیت">کم اهمیت</option>
+                        </select>
+                    </div>
+
+                    <!-- Is Urgent -->
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input asp-for="IsUrgent" class="form-check-input" type="checkbox" />
+                            <label asp-for="IsUrgent" class="form-check-label">درخواست فوری</label>
+                        </div>
+                    </div>
+
+                    <!-- Is Substitute Allowed -->
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input asp-for="IsSubstituteAllowed" class="form-check-input" type="checkbox" />
+                            <label asp-for="IsSubstituteAllowed" class="form-check-label">امکان جایگزینی کالا</label>
+                        </div>
+                        <small class="text-muted">در صورت عدم موجودی، کالای مشابه قابل قبول است</small>
+                    </div>
+
+                    <!-- Total Budget -->
+                    <div class="mb-3">
+                        <label class="form-label">بودجه تخمینی</label>
+                        <div class="input-group">
+                            <input name="TotalBudget" class="form-control" type="number" step="0.01" placeholder="0.00" />
+                            <span class="input-group-text">IRR</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="ri-rocket-line align-middle me-1"></i>
+                        عملیات
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success">
+                            <i class="ri-save-line me-1"></i>
+                            ثبت درخواست
+                        </button>
+                        <a href="@Url.Action("MyRequests")" class="btn btn-secondary">
+                            <i class="ri-arrow-left-line me-1"></i>
+                            انصراف
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Help -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="ri-question-line align-middle me-1"></i>
+                        راهنما
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info border-0 mb-0" role="alert">
+                        <h6 class="mt-0"><i class="ri-lightbulb-line me-1"></i>نکات مهم:</h6>
+                        <ul class="mb-0 ps-3">
+                            <li class="mb-1">عنوان درخواست باید دقیق و مفصل باشد</li>
+                            <li class="mb-1">دسته‌بندی و نوع درخواست را به دقت انتخاب کنید</li>
+                            <li class="mb-1">تاریخ مورد نیاز را واقع‌گرایانه تعیین کنید</li>
+                            <li class="mb-0">در صورت فوری بودن، علت را در توضیحات ذکر کنید</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // Form validation
+        (function() {
+            'use strict';
+            window.addEventListener('load', function() {
+                var forms = document.getElementsByClassName('needs-validation');
+                var validation = Array.prototype.filter.call(forms, function(form) {
+                    form.addEventListener('submit', function(event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            }, false);
+        })();
+
+        // Update currency symbol when currency changes
+        document.querySelector('select[name="Currency"]').addEventListener('change', function() {
+            var currencySymbol = this.options[this.selectedIndex].text.match(/\(([^)]+)\)/)[1];
+            document.querySelector('.input-group-text').textContent = currencySymbol;
+        });
+
+        // Auto-fill department based on user profile (if available)
+        // This would be implemented based on your user management system
+
+        // Set minimum date for required date to today
+        var today = new Date().toISOString().split('T')[0];
+        document.querySelector('input[name="RequiredDate"]').setAttribute('min', today);
+    </script>
+}
