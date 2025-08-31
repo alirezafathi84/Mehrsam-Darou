@@ -23,7 +23,7 @@ public partial class User
 
     public Guid? TeamId { get; set; }
 
-    public string? AvatarImg { get; set; }
+    public string AvatarImg { get; set; } = null!;
 
     public virtual ICollection<AttendanceLog> AttendanceLogs { get; set; } = new List<AttendanceLog>();
 

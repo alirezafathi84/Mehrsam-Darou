@@ -10,7 +10,6 @@ namespace Mehrsam_Darou.Controllers
         private readonly ILogger<UserController> _logger;
         private readonly DarouAppContext _context;
 
-        // Combine both constructors into one
         public TeamController(DarouAppContext context) : base(context)
         {
             _context = context;
@@ -18,16 +17,12 @@ namespace Mehrsam_Darou.Controllers
 
         public async Task<IActionResult> TeamList(int? page, string SearchKey)
         {
-
-
-
-
             // Set common view data and get the page size
             var setting = await ReadSettingAsync(_context);
-            int pageSize = Convert.ToInt32(setting.NumberPerPage ?? 10); // Default to 10 if setting.NumberPerPage is null
+            int pageSize = Convert.ToInt32(setting.NumberPerPage ?? 10);
             int pageNumber = page ?? 1;
 
-            // Base query for fetching users
+            // Base query for fetching teams
             IQueryable<Team> query = _context.Teams.Include(u => u.Users);
 
             // Apply search filter if SearchKey is provided
@@ -47,29 +42,21 @@ namespace Mehrsam_Darou.Controllers
                 .ToListAsync();
 
             // Create the paginated list
-            var paginatedUsers = new PaginatedList<Team>(teams, total, pageNumber, pageSize);
+            var paginatedTeams = new PaginatedList<Team>(teams, total, pageNumber, pageSize);
 
             ViewBag.Teams = await _context.Teams.ToListAsync();
 
-            // Pass paginated list to the view
-            return View(paginatedUsers);
+            return View(paginatedTeams);
         }
-
-
 
         public async Task<IActionResult> AddNewTeam()
         {
-   
-
             return View("AddTeam");
         }
 
         [HttpPost]
         public async Task<IActionResult> AddTeam(Team team)
         {
-
-
-            // Add the user to the database
             _context.Teams.Add(team);
             await _context.SaveChangesAsync();
 
@@ -77,15 +64,9 @@ namespace Mehrsam_Darou.Controllers
             return RedirectToAction("TeamList");
         }
 
-
-
-
-
         [HttpGet]
         public async Task<IActionResult> EditTeam(Guid id)
-        {            // Validate session and get the user
-
-
+        {
             var team = await _context.Teams.FindAsync(id);
             if (team == null)
             {
@@ -111,11 +92,11 @@ namespace Mehrsam_Darou.Controllers
                 return View("EditTeam");
             }
 
-            // Update all properties from the submitted form
+            // Update basic properties
             existingTeam.Name = team.Name;
             existingTeam.DefaultPageForTeam = team.DefaultPageForTeam;
 
-            // Update boolean properties (checkbox values)
+            // Update module-level permissions (existing)
             existingTeam.IsActive = team.IsActive;
             existingTeam.ManagmentDashboard = team.ManagmentDashboard;
             existingTeam.Setting = team.Setting;
@@ -130,6 +111,84 @@ namespace Mehrsam_Darou.Controllers
             existingTeam.Qa = team.Qa;
             existingTeam.Pmo = team.Pmo;
 
+            // Update page-level permissions (new)
+
+            existingTeam.ManagementDashboardDashboard = team.ManagementDashboardDashboard;
+            existingTeam.ManagementDashboardNotifications = team.ManagementDashboardNotifications;
+            existingTeam.ManagementDashboardAllRequests = team.ManagementDashboardAllRequests;
+            existingTeam.ManagementDashboardRequestsDashboard = team.ManagementDashboardRequestsDashboard;
+
+            // System Users Pages
+            existingTeam.SystemUsersUserList = team.SystemUsersUserList;
+            existingTeam.SystemUsersTeamManagement = team.SystemUsersTeamManagement;
+
+            // HR Pages
+            existingTeam.HrAttendanceLog = team.HrAttendanceLog;
+            existingTeam.HrDailyAttendance = team.HrDailyAttendance;
+            existingTeam.HrSalaryManagement = team.HrSalaryManagement;
+            existingTeam.HrVacations = team.HrVacations;
+            existingTeam.HrVacationTypes = team.HrVacationTypes;
+            existingTeam.HrSalaryCalculation = team.HrSalaryCalculation;
+
+            // Product Pages
+            existingTeam.ProductMedicines = team.ProductMedicines;
+            existingTeam.ProductMedicineCategories = team.ProductMedicineCategories;
+            existingTeam.ProductRawMaterials = team.ProductRawMaterials;
+            existingTeam.ProductMaterialCategories = team.ProductMaterialCategories;
+            existingTeam.ProductBom = team.ProductBom;
+
+            // Purchase Pages
+            existingTeam.BuyCommercialSuppliers = team.BuyCommercialSuppliers;
+            existingTeam.BuyCommercialPurchaseOrders = team.BuyCommercialPurchaseOrders;
+            existingTeam.BuyCommercialPurchaseInvoices = team.BuyCommercialPurchaseInvoices;
+
+            // Inventory Pages
+            existingTeam.InventoryStorageLocations = team.InventoryStorageLocations;
+            existingTeam.InventoryMaterialBatches = team.InventoryMaterialBatches;
+            existingTeam.InventoryFinishedGoodsBatches = team.InventoryFinishedGoodsBatches;
+
+            // Production Pages
+            existingTeam.PmoProductionOrders = team.PmoProductionOrders;
+            existingTeam.PmoProductionSteps = team.PmoProductionSteps;
+
+            // R&D Pages
+            existingTeam.RandDResearchProjects = team.RandDResearchProjects;
+            existingTeam.RandDDevelopment = team.RandDDevelopment;
+            existingTeam.RandDFormulas = team.RandDFormulas;
+
+            // QC Pages
+            existingTeam.QcQctests = team.QcQctests;
+            existingTeam.QcBatchTests = team.QcBatchTests;
+            existingTeam.QcQcreports = team.QcQcreports;
+
+            // QA Pages
+            existingTeam.QaQastandards = team.QaQastandards;
+            existingTeam.QaQaaudits = team.QaQaaudits;
+            existingTeam.QaCertifications = team.QaCertifications;
+
+            // Sales Pages
+            existingTeam.SellCommercialCustomers = team.SellCommercialCustomers;
+            existingTeam.SellCommercialSalesOrders = team.SellCommercialSalesOrders;
+            existingTeam.SellCommercialSalesInvoices = team.SellCommercialSalesInvoices;
+            existingTeam.SellCommercialShipments = team.SellCommercialShipments;
+
+            // Financial Pages
+            existingTeam.FinancialFinancialReports = team.FinancialFinancialReports;
+            existingTeam.FinancialPayments = team.FinancialPayments;
+            existingTeam.FinancialAccounting = team.FinancialAccounting;
+
+            // Communication Pages
+            existingTeam.CommunicationChat = team.CommunicationChat;
+            existingTeam.CommunicationMyNotifications = team.CommunicationMyNotifications;
+            existingTeam.CommunicationMyRequests = team.CommunicationMyRequests;
+
+            // Settings Pages
+            existingTeam.SettingGeneralSettings = team.SettingGeneralSettings;
+            existingTeam.SettingOrganizations = team.SettingOrganizations;
+            existingTeam.SettingUnits = team.SettingUnits;
+            existingTeam.SettingUnitTypes = team.SettingUnitTypes;
+            existingTeam.SettingPersianDateConverter = team.SettingPersianDateConverter;
+
             try
             {
                 _context.Teams.Update(existingTeam);
@@ -140,12 +199,10 @@ namespace Mehrsam_Darou.Controllers
             }
             catch (Exception ex)
             {
-                // Log the error (ex) here if you have logging configured
                 TempData["ErrorMessage"] = "خطایی در به‌روزرسانی اطلاعات تیم رخ داد.";
                 return View("EditTeam", team);
             }
         }
-
 
         [HttpPost]
         public async Task<IActionResult> DeleteTeam(Guid id)
@@ -157,21 +214,11 @@ namespace Mehrsam_Darou.Controllers
                 return RedirectToAction("TeamList");
             }
 
-
-
-            _context.Teams.Remove(team);  // Remove the user from the database
-            await _context.SaveChangesAsync();  // Save the changes to the database
+            _context.Teams.Remove(team);
+            await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "تیم با موفقیت حذف شد.";
             return RedirectToAction("TeamList");
         }
-
-
-
-
-
     }
-
-
-
 }

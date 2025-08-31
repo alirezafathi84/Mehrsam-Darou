@@ -107,6 +107,7 @@ wwwroot\assets\js\pages\profile.js
 wwwroot\assets\js\pages\seller-detail.js
 wwwroot\assets\js\pages\toasts.js
 wwwroot\assets\js\pages\widgets.js
+wwwroot\assets\js\persian-datepicker.js
 wwwroot\assets\libs\@fullcalendar\core\index.cjs
 wwwroot\assets\libs\@fullcalendar\core\index.global.min.js
 wwwroot\assets\libs\@fullcalendar\core\index.js

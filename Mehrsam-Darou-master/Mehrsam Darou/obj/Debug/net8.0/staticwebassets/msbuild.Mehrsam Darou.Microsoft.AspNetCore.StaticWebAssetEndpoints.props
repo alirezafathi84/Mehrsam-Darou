@@ -1308,6 +1308,18 @@
       <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"x5g6jebjnq"},{"Name":"integrity","Value":"sha256-VfIDLYxK8YNTj\u002BC4cjtVlaHZLapQ5nm5M1Z9Ka/b1DI="},{"Name":"label","Value":"_content/Mehrsam Darou/assets/js/pages/widgets.js"}]]]></EndpointProperties>
       <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"4930"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022VfIDLYxK8YNTj\u002BC4cjtVlaHZLapQ5nm5M1Z9Ka/b1DI=\u0022"},{"Name":"Last-Modified","Value":"Sat, 07 Dec 2024 10:00:33 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/Mehrsam Darou/assets/js/persian-datepicker.4o2byrtvj9.js">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\assets\js\persian-datepicker.js'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"4o2byrtvj9"},{"Name":"integrity","Value":"sha256-RCAEDqmKRZtsfHbQi/jOm6a/XWgXGJTOL1UZQIGG8HQ="},{"Name":"label","Value":"_content/Mehrsam Darou/assets/js/persian-datepicker.js"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"45581"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022RCAEDqmKRZtsfHbQi/jOm6a/XWgXGJTOL1UZQIGG8HQ=\u0022"},{"Name":"Last-Modified","Value":"Sun, 31 Aug 2025 17:37:19 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/Mehrsam Darou/assets/js/persian-datepicker.js">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\assets\js\persian-datepicker.js'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-RCAEDqmKRZtsfHbQi/jOm6a/XWgXGJTOL1UZQIGG8HQ="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"45581"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022RCAEDqmKRZtsfHbQi/jOm6a/XWgXGJTOL1UZQIGG8HQ=\u0022"},{"Name":"Last-Modified","Value":"Sun, 31 Aug 2025 17:37:19 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/Mehrsam Darou/assets/libs/@fullcalendar/core/index.cjs">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\assets\libs\@fullcalendar\core\index.cjs'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
@@ -24604,13 +24616,13 @@
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\Mehrsam Darou.kipkqfo9yw.bundle.scp.css'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
       <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-1ItLinGAi9CPYN8Uaj4w\u002B\u002B2wnLRWJv86OhgsmQdWH8Q="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"1131"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u00221ItLinGAi9CPYN8Uaj4w\u002B\u002B2wnLRWJv86OhgsmQdWH8Q=\u0022"},{"Name":"Last-Modified","Value":"Mon, 11 Aug 2025 21:15:48 GMT"}]]]></ResponseHeaders>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"1131"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u00221ItLinGAi9CPYN8Uaj4w\u002B\u002B2wnLRWJv86OhgsmQdWH8Q=\u0022"},{"Name":"Last-Modified","Value":"Fri, 15 Aug 2025 17:51:34 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/Mehrsam Darou/Mehrsam Darou.kipkqfo9yw.bundle.scp.css">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\Mehrsam Darou.kipkqfo9yw.bundle.scp.css'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
       <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"kipkqfo9yw"},{"Name":"integrity","Value":"sha256-1ItLinGAi9CPYN8Uaj4w\u002B\u002B2wnLRWJv86OhgsmQdWH8Q="},{"Name":"label","Value":"_content/Mehrsam Darou/Mehrsam Darou.bundle.scp.css"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"1131"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u00221ItLinGAi9CPYN8Uaj4w\u002B\u002B2wnLRWJv86OhgsmQdWH8Q=\u0022"},{"Name":"Last-Modified","Value":"Mon, 11 Aug 2025 21:15:48 GMT"}]]]></ResponseHeaders>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"1131"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u00221ItLinGAi9CPYN8Uaj4w\u002B\u002B2wnLRWJv86OhgsmQdWH8Q=\u0022"},{"Name":"Last-Modified","Value":"Fri, 15 Aug 2025 17:51:34 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
   </ItemGroup>
 </Project>

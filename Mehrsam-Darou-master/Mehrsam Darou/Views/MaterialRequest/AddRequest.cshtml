@@ -60,11 +60,17 @@
                             </div>
                         </div>
 
-                        <!-- Request Date -->
+                        <!-- Request Date - Using Persian DatePicker -->
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label asp-for="RequestDate" class="form-label">تاریخ درخواست <span class="text-danger">*</span></label>
-                                <input asp-for="RequestDate" class="form-control" type="datetime-local" />
+                                <input type="text"
+                                       class="form-control"
+                                       data-persian-date="true"
+                                       autocomplete="off"
+                                       readonly
+                                       placeholder="تاریخ درخواست" />
+                                <input type="hidden" asp-for="RequestDate" class="persian-date-hidden" />
                                 <span asp-validation-for="RequestDate" class="text-danger"></span>
                             </div>
                         </div>
@@ -140,11 +146,19 @@
                             </div>
                         </div>
 
-                        <!-- Required Date -->
+                        <!-- Required Date - CORRECTED Persian DatePicker -->
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label asp-for="RequiredDate" class="form-label">تاریخ مورد نیاز</label>
-                                <input asp-for="RequiredDate" class="form-control" type="date" />
+                                <!-- Display input (Persian) - NO asp-for attribute -->
+                                <input type="text"
+                                       class="form-control"
+                                       data-persian-date="true"
+                                       autocomplete="off"
+                                       readonly
+                                       placeholder="انتخاب تاریخ" />
+                                <!-- Hidden input (Gregorian DateTime) - HAS asp-for attribute -->
+                                <input type="hidden" asp-for="RequiredDate" class="persian-date-hidden" />
                                 <span asp-validation-for="RequiredDate" class="text-danger"></span>
                             </div>
                         </div>
@@ -303,6 +317,9 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 
+    <!-- Persian DatePicker JavaScript -->
+    <script src="~/js/persian-datepicker.js"></script>
+
     <script>
         // Form validation
         (function() {
@@ -327,11 +344,26 @@
             document.querySelector('.input-group-text').textContent = currencySymbol;
         });
 
-        // Auto-fill department based on user profile (if available)
+        // Initialize Persian date pickers when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Give the PersianDatePicker time to initialize
+            setTimeout(function() {
+                if (window.initializePersianDatePickers) {
+                    window.initializePersianDatePickers();
+                }
+            }, 200);
+        });
+
+        // Re-initialize after AJAX calls (if needed)
+        function reinitializePickers() {
+            if (window.initializePersianDatePickers) {
+                window.initializePersianDatePickers();
+            }
+        }
+
+        // Optional: Auto-fill department based on user profile
         // This would be implemented based on your user management system
 
-        // Set minimum date for required date to today
-        var today = new Date().toISOString().split('T')[0];
-        document.querySelector('input[name="RequiredDate"]').setAttribute('min', today);
+        console.log('Form initialized with Persian date picker support');
     </script>
 }

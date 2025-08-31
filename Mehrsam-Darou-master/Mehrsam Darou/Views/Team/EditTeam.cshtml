@@ -40,96 +40,99 @@
                             </div>
                         </div>
 
-                        <!-- First Row of 4 Checkboxes -->
+                        <!-- Module-Level Permissions -->
+                        <h5 class="mb-3">دسترسی‌های ماژول</h5>
+
+                        <!-- First Row of Module Checkboxes -->
                         <div class="row mb-3">
                             <div class="col-md-3">
                                 <div class="form-check form-switch">
-                                    <input type="checkbox" class="form-check-input" role="switch" id="IsActive" name="IsActive" value="true" checked="@Model.IsActive" />
+                                    <input type="checkbox" class="form-check-input module-checkbox" role="switch" id="IsActive" name="IsActive" value="true" @((Model.IsActive ?? false) ? "checked" : "") />
                                     <input type="hidden" name="IsActive" value="false" />
                                     <label class="form-check-label" for="IsActive">فعال</label>
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-check form-switch">
-                                    <input type="checkbox" class="form-check-input" role="switch" id="ManagmentDashboard" name="ManagmentDashboard" value="true" checked="@Model.ManagmentDashboard" />
+                                    <input type="checkbox" class="form-check-input module-checkbox" role="switch" id="ManagmentDashboard" name="ManagmentDashboard" value="true" @((Model.ManagmentDashboard ?? false) ? "checked" : "") data-module="ManagmentDashboard" />
                                     <input type="hidden" name="ManagmentDashboard" value="false" />
                                     <label class="form-check-label" for="ManagmentDashboard">داشبورد مدیریت</label>
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-check form-switch">
-                                    <input type="checkbox" class="form-check-input" role="switch" id="Setting" name="Setting" value="true" checked="@Model.Setting" />
+                                    <input type="checkbox" class="form-check-input module-checkbox" role="switch" id="Setting" name="Setting" value="true" @((Model.Setting ?? false) ? "checked" : "") data-module="Setting" />
                                     <input type="hidden" name="Setting" value="false" />
                                     <label class="form-check-label" for="Setting">تنظیمات</label>
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-check form-switch">
-                                    <input type="checkbox" class="form-check-input" role="switch" id="SystemUsers" name="SystemUsers" value="true" checked="@Model.SystemUsers" />
+                                    <input type="checkbox" class="form-check-input module-checkbox" role="switch" id="SystemUsers" name="SystemUsers" value="true" @((Model.SystemUsers ?? false) ? "checked" : "") data-module="SystemUsers" />
                                     <input type="hidden" name="SystemUsers" value="false" />
                                     <label class="form-check-label" for="SystemUsers">کاربران سیستم</label>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Second Row of 4 Checkboxes -->
+                        <!-- Second Row of Module Checkboxes -->
                         <div class="row mb-3">
                             <div class="col-md-3">
                                 <div class="form-check form-switch">
-                                    <input type="checkbox" class="form-check-input" role="switch" id="Financial" name="Financial" value="true" checked="@Model.Financial" />
+                                    <input type="checkbox" class="form-check-input module-checkbox" role="switch" id="Financial" name="Financial" value="true" @((Model.Financial ?? false) ? "checked" : "") data-module="Financial" />
                                     <input type="hidden" name="Financial" value="false" />
                                     <label class="form-check-label" for="Financial">مالی</label>
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-check form-switch">
-                                    <input type="checkbox" class="form-check-input" role="switch" id="Inventory" name="Inventory" value="true" checked="@Model.Inventory" />
+                                    <input type="checkbox" class="form-check-input module-checkbox" role="switch" id="Inventory" name="Inventory" value="true" @((Model.Inventory ?? false) ? "checked" : "") data-module="Inventory" />
                                     <input type="hidden" name="Inventory" value="false" />
                                     <label class="form-check-label" for="Inventory">انبار</label>
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-check form-switch">
-                                    <input type="checkbox" class="form-check-input" role="switch" id="Product" name="Product" value="true" checked="@Model.Product" />
+                                    <input type="checkbox" class="form-check-input module-checkbox" role="switch" id="Product" name="Product" value="true" @((Model.Product ?? false) ? "checked" : "") data-module="Product" />
                                     <input type="hidden" name="Product" value="false" />
                                     <label class="form-check-label" for="Product">محصول</label>
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-check form-switch">
-                                    <input type="checkbox" class="form-check-input" role="switch" id="SellCommercial" name="SellCommercial" value="true" checked="@Model.SellCommercial" />
+                                    <input type="checkbox" class="form-check-input module-checkbox" role="switch" id="SellCommercial" name="SellCommercial" value="true" @((Model.SellCommercial ?? false) ? "checked" : "") data-module="SellCommercial" />
                                     <input type="hidden" name="SellCommercial" value="false" />
                                     <label class="form-check-label" for="SellCommercial">بازرگانی فروش</label>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Third Row of 4 Checkboxes -->
+                        <!-- Third Row of Module Checkboxes -->
                         <div class="row mb-3">
                             <div class="col-md-3">
                                 <div class="form-check form-switch">
-                                    <input type="checkbox" class="form-check-input" role="switch" id="BuyCommercial" name="BuyCommercial" value="true" checked="@Model.BuyCommercial" />
+                                    <input type="checkbox" class="form-check-input module-checkbox" role="switch" id="BuyCommercial" name="BuyCommercial" value="true" @((Model.BuyCommercial ?? false) ? "checked" : "") data-module="BuyCommercial" />
                                     <input type="hidden" name="BuyCommercial" value="false" />
                                     <label class="form-check-label" for="BuyCommercial">بازرگانی خرید</label>
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-check form-switch">
-                                    <input type="checkbox" class="form-check-input" role="switch" id="RandD" name="RandD" value="true" checked="@Model.RandD" />
+                                    <input type="checkbox" class="form-check-input module-checkbox" role="switch" id="RandD" name="RandD" value="true" @((Model.RandD ?? false) ? "checked" : "") data-module="RandD" />
                                     <input type="hidden" name="RandD" value="false" />
                                     <label class="form-check-label" for="RandD">تحقیق و توسعه</label>
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-check form-switch">
-                                    <input type="checkbox" class="form-check-input" role="switch" id="Qc" name="Qc" value="true" checked="@Model.Qc" />
+                                    <input type="checkbox" class="form-check-input module-checkbox" role="switch" id="Qc" name="Qc" value="true" @((Model.Qc ?? false) ? "checked" : "") data-module="Qc" />
                                     <input type="hidden" name="Qc" value="false" />
                                     <label class="form-check-label" for="Qc">کنترل کیفیت</label>
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-check form-switch">
-                                    <input type="checkbox" class="form-check-input" role="switch" id="Qa" name="Qa" value="true" checked="@Model.Qa" />
+                                    <input type="checkbox" class="form-check-input module-checkbox" role="switch" id="Qa" name="Qa" value="true" @((Model.Qa ?? false) ? "checked" : "") data-module="Qa" />
                                     <input type="hidden" name="Qa" value="false" />
                                     <label class="form-check-label" for="Qa">تضمین کیفیت</label>
                                 </div>
@@ -140,12 +143,462 @@
                         <div class="row mb-4">
                             <div class="col-md-3">
                                 <div class="form-check form-switch">
-                                    <input type="checkbox" class="form-check-input" role="switch" id="Pmo" name="Pmo" value="true" checked="@Model.Pmo" />
+                                    <input type="checkbox" class="form-check-input module-checkbox" role="switch" id="Pmo" name="Pmo" value="true" @((Model.Pmo ?? false) ? "checked" : "") data-module="Pmo" />
                                     <input type="hidden" name="Pmo" value="false" />
                                     <label class="form-check-label" for="Pmo">مدیریت پروژه</label>
                                 </div>
                             </div>
                         </div>
+
+                        <hr class="my-4" />
+
+                        <!-- Page-Level Permissions -->
+                        <h5 class="mb-3">دسترسی‌های صفحه</h5>
+
+                        <!-- Management Dashboard Pages -->
+                        <div class="permission-section" data-module="ManagmentDashboard" style="display: @((Model.ManagmentDashboard ?? false) ? "block" : "none");">
+                            <h6 class="text-primary mb-2">صفحات داشبورد مدیریت</h6>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="ManagementDashboardDashboard" name="ManagementDashboardDashboard" value="true" @((Model.ManagementDashboardDashboard ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="ManagementDashboardDashboard" value="false" />
+                                        <label class="form-check-label" for="ManagementDashboardDashboard">داشبورد</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="ManagementDashboardNotifications" name="ManagementDashboardNotifications" value="true" @((Model.ManagementDashboardNotifications ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="ManagementDashboardNotifications" value="false" />
+                                        <label class="form-check-label" for="ManagementDashboardNotifications">مدیریت اعلان‌ها</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="ManagementDashboardAllRequests" name="ManagementDashboardAllRequests" value="true" @((Model.ManagementDashboardAllRequests ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="ManagementDashboardAllRequests" value="false" />
+                                        <label class="form-check-label" for="ManagementDashboardAllRequests">تمام درخواست‌ها</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="ManagementDashboardRequestsDashboard" name="ManagementDashboardRequestsDashboard" value="true" @((Model.ManagementDashboardRequestsDashboard ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="ManagementDashboardRequestsDashboard" value="false" />
+                                        <label class="form-check-label" for="ManagementDashboardRequestsDashboard">داشبورد درخواست‌ها</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- System Users Pages -->
+                        <div class="permission-section" data-module="SystemUsers" style="display: @((Model.SystemUsers ?? false) ? "block" : "none");">
+                            <h6 class="text-primary mb-2">صفحات مدیریت کاربران</h6>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="SystemUsersUserList" name="SystemUsersUserList" value="true" @((Model.SystemUsersUserList ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="SystemUsersUserList" value="false" />
+                                        <label class="form-check-label" for="SystemUsersUserList">لیست کاربران</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="SystemUsersTeamManagement" name="SystemUsersTeamManagement" value="true" @((Model.SystemUsersTeamManagement ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="SystemUsersTeamManagement" value="false" />
+                                        <label class="form-check-label" for="SystemUsersTeamManagement">مدیریت تیم‌ها</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h6 class="text-secondary mb-2">صفحات منابع انسانی</h6>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="HrAttendanceLog" name="HrAttendanceLog" value="true" @((Model.HrAttendanceLog ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="HrAttendanceLog" value="false" />
+                                        <label class="form-check-label" for="HrAttendanceLog">ثبت ورود و خروج</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="HrDailyAttendance" name="HrDailyAttendance" value="true" @((Model.HrDailyAttendance ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="HrDailyAttendance" value="false" />
+                                        <label class="form-check-label" for="HrDailyAttendance">گزارش حضور و غیاب</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="HrSalaryManagement" name="HrSalaryManagement" value="true" @((Model.HrSalaryManagement ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="HrSalaryManagement" value="false" />
+                                        <label class="form-check-label" for="HrSalaryManagement">مدیریت حقوق</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="HrVacations" name="HrVacations" value="true" @((Model.HrVacations ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="HrVacations" value="false" />
+                                        <label class="form-check-label" for="HrVacations">مرخصی‌ها</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="HrVacationTypes" name="HrVacationTypes" value="true" @((Model.HrVacationTypes ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="HrVacationTypes" value="false" />
+                                        <label class="form-check-label" for="HrVacationTypes">انواع مرخصی</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="HrSalaryCalculation" name="HrSalaryCalculation" value="true" @((Model.HrSalaryCalculation ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="HrSalaryCalculation" value="false" />
+                                        <label class="form-check-label" for="HrSalaryCalculation">محاسبه حقوق و دستمزد</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Product Pages -->
+                        <div class="permission-section" data-module="Product" style="display: @((Model.Product ?? false) ? "block" : "none");">
+                            <h6 class="text-primary mb-2">صفحات محصولات و مواد</h6>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="ProductMedicines" name="ProductMedicines" value="true" @((Model.ProductMedicines ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="ProductMedicines" value="false" />
+                                        <label class="form-check-label" for="ProductMedicines">داروها</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="ProductMedicineCategories" name="ProductMedicineCategories" value="true" @((Model.ProductMedicineCategories ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="ProductMedicineCategories" value="false" />
+                                        <label class="form-check-label" for="ProductMedicineCategories">دسته‌بندی داروها</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="ProductRawMaterials" name="ProductRawMaterials" value="true" @((Model.ProductRawMaterials ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="ProductRawMaterials" value="false" />
+                                        <label class="form-check-label" for="ProductRawMaterials">مواد اولیه</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="ProductMaterialCategories" name="ProductMaterialCategories" value="true" @((Model.ProductMaterialCategories ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="ProductMaterialCategories" value="false" />
+                                        <label class="form-check-label" for="ProductMaterialCategories">دسته‌بندی مواد اولیه</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="ProductBom" name="ProductBom" value="true" @((Model.ProductBom ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="ProductBom" value="false" />
+                                        <label class="form-check-label" for="ProductBom">فرمول‌های تولید (BOM)</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Buy Commercial Pages -->
+                        <div class="permission-section" data-module="BuyCommercial" style="display: @((Model.BuyCommercial ?? false) ? "block" : "none");">
+                            <h6 class="text-primary mb-2">صفحات خرید و تأمین</h6>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="BuyCommercialSuppliers" name="BuyCommercialSuppliers" value="true" @((Model.BuyCommercialSuppliers ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="BuyCommercialSuppliers" value="false" />
+                                        <label class="form-check-label" for="BuyCommercialSuppliers">تأمین‌کنندگان</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="BuyCommercialPurchaseOrders" name="BuyCommercialPurchaseOrders" value="true" @((Model.BuyCommercialPurchaseOrders ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="BuyCommercialPurchaseOrders" value="false" />
+                                        <label class="form-check-label" for="BuyCommercialPurchaseOrders">سفارشات خرید</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="BuyCommercialPurchaseInvoices" name="BuyCommercialPurchaseInvoices" value="true" @((Model.BuyCommercialPurchaseInvoices ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="BuyCommercialPurchaseInvoices" value="false" />
+                                        <label class="form-check-label" for="BuyCommercialPurchaseInvoices">فاکتورهای خرید</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Inventory Pages -->
+                        <div class="permission-section" data-module="Inventory" style="display: @((Model.Inventory ?? false) ? "block" : "none");">
+                            <h6 class="text-primary mb-2">صفحات انبارداری</h6>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="InventoryStorageLocations" name="InventoryStorageLocations" value="true" @((Model.InventoryStorageLocations ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="InventoryStorageLocations" value="false" />
+                                        <label class="form-check-label" for="InventoryStorageLocations">مکان‌های انبار</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="InventoryMaterialBatches" name="InventoryMaterialBatches" value="true" @((Model.InventoryMaterialBatches ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="InventoryMaterialBatches" value="false" />
+                                        <label class="form-check-label" for="InventoryMaterialBatches">بچ‌های مواد اولیه</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="InventoryFinishedGoodsBatches" name="InventoryFinishedGoodsBatches" value="true" @((Model.InventoryFinishedGoodsBatches ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="InventoryFinishedGoodsBatches" value="false" />
+                                        <label class="form-check-label" for="InventoryFinishedGoodsBatches">بچ‌های محصول نهایی</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PMO Pages -->
+                        <div class="permission-section" data-module="Pmo" style="display: @((Model.Pmo ?? false) ? "block" : "none");">
+                            <h6 class="text-primary mb-2">صفحات تولید</h6>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="PmoProductionOrders" name="PmoProductionOrders" value="true" @((Model.PmoProductionOrders ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="PmoProductionOrders" value="false" />
+                                        <label class="form-check-label" for="PmoProductionOrders">سفارشات تولید</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="PmoProductionSteps" name="PmoProductionSteps" value="true" @((Model.PmoProductionSteps ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="PmoProductionSteps" value="false" />
+                                        <label class="form-check-label" for="PmoProductionSteps">مراحل تولید</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- R&D Pages -->
+                        <div class="permission-section" data-module="RandD" style="display: @((Model.RandD ?? false) ? "block" : "none");">
+                            <h6 class="text-primary mb-2">صفحات تحقیق و توسعه</h6>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="RandDResearchProjects" name="RandDResearchProjects" value="true" @((Model.RandDResearchProjects ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="RandDResearchProjects" value="false" />
+                                        <label class="form-check-label" for="RandDResearchProjects">پروژه‌های تحقیق</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="RandDDevelopment" name="RandDDevelopment" value="true" @((Model.RandDDevelopment ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="RandDDevelopment" value="false" />
+                                        <label class="form-check-label" for="RandDDevelopment">فرایند توسعه</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="RandDFormulas" name="RandDFormulas" value="true" @((Model.RandDFormulas ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="RandDFormulas" value="false" />
+                                        <label class="form-check-label" for="RandDFormulas">فرمول‌های جدید</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- QC Pages -->
+                        <div class="permission-section" data-module="Qc" style="display: @((Model.Qc ?? false) ? "block" : "none");">
+                            <h6 class="text-primary mb-2">صفحات کنترل کیفیت</h6>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="QcQctests" name="QcQctests" value="true" @((Model.QcQctests ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="QcQctests" value="false" />
+                                        <label class="form-check-label" for="QcQctests">آزمایشات کیفی</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="QcBatchTests" name="QcBatchTests" value="true" @((Model.QcBatchTests ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="QcBatchTests" value="false" />
+                                        <label class="form-check-label" for="QcBatchTests">تست بچ‌ها</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="QcQcreports" name="QcQcreports" value="true" @((Model.QcQcreports ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="QcQcreports" value="false" />
+                                        <label class="form-check-label" for="QcQcreports">گزارشات کنترل کیفیت</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- QA Pages -->
+                        <div class="permission-section" data-module="Qa" style="display: @((Model.Qa ?? false) ? "block" : "none");">
+                            <h6 class="text-primary mb-2">صفحات تضمین کیفیت</h6>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="QaQastandards" name="QaQastandards" value="true" @((Model.QaQastandards ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="QaQastandards" value="false" />
+                                        <label class="form-check-label" for="QaQastandards">استانداردهای کیفیت</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="QaQaaudits" name="QaQaaudits" value="true" @((Model.QaQaaudits ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="QaQaaudits" value="false" />
+                                        <label class="form-check-label" for="QaQaaudits">ممیزی کیفیت</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="QaCertifications" name="QaCertifications" value="true" @((Model.QaCertifications ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="QaCertifications" value="false" />
+                                        <label class="form-check-label" for="QaCertifications">گواهی‌نامه‌ها</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sales Pages -->
+                        <div class="permission-section" data-module="SellCommercial" style="display: @((Model.SellCommercial ?? false) ? "block" : "none");">
+                            <h6 class="text-primary mb-2">صفحات فروش و توزیع</h6>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="SellCommercialCustomers" name="SellCommercialCustomers" value="true" @((Model.SellCommercialCustomers ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="SellCommercialCustomers" value="false" />
+                                        <label class="form-check-label" for="SellCommercialCustomers">مشتریان</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="SellCommercialSalesOrders" name="SellCommercialSalesOrders" value="true" @((Model.SellCommercialSalesOrders ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="SellCommercialSalesOrders" value="false" />
+                                        <label class="form-check-label" for="SellCommercialSalesOrders">سفارشات فروش</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="SellCommercialSalesInvoices" name="SellCommercialSalesInvoices" value="true" @((Model.SellCommercialSalesInvoices ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="SellCommercialSalesInvoices" value="false" />
+                                        <label class="form-check-label" for="SellCommercialSalesInvoices">فاکتورهای فروش</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="SellCommercialShipments" name="SellCommercialShipments" value="true" @((Model.SellCommercialShipments ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="SellCommercialShipments" value="false" />
+                                        <label class="form-check-label" for="SellCommercialShipments">حمل و نقل</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Financial Pages -->
+                        <div class="permission-section" data-module="Financial" style="display: @((Model.Financial ?? false) ? "block" : "none");">
+                            <h6 class="text-primary mb-2">صفحات مالی</h6>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="FinancialFinancialReports" name="FinancialFinancialReports" value="true" @((Model.FinancialFinancialReports ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="FinancialFinancialReports" value="false" />
+                                        <label class="form-check-label" for="FinancialFinancialReports">گزارشات مالی</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="FinancialPayments" name="FinancialPayments" value="true" @((Model.FinancialPayments ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="FinancialPayments" value="false" />
+                                        <label class="form-check-label" for="FinancialPayments">پرداخت‌ها</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="FinancialAccounting" name="FinancialAccounting" value="true" @((Model.FinancialAccounting ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="FinancialAccounting" value="false" />
+                                        <label class="form-check-label" for="FinancialAccounting">حسابداری</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Communication Pages (Always visible) -->
+                        <div class="permission-section" style="display: block;">
+                            <h6 class="text-primary mb-2">صفحات ارتباطات</h6>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="CommunicationChat" name="CommunicationChat" value="true" @((Model.CommunicationChat ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="CommunicationChat" value="false" />
+                                        <label class="form-check-label" for="CommunicationChat">چت</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="CommunicationMyNotifications" name="CommunicationMyNotifications" value="true" @((Model.CommunicationMyNotifications ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="CommunicationMyNotifications" value="false" />
+                                        <label class="form-check-label" for="CommunicationMyNotifications">اعلان‌های من</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="CommunicationMyRequests" name="CommunicationMyRequests" value="true" @((Model.CommunicationMyRequests ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="CommunicationMyRequests" value="false" />
+                                        <label class="form-check-label" for="CommunicationMyRequests">درخواست‌های من</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Settings Pages -->
+                        <div class="permission-section" data-module="Setting" style="display: @((Model.Setting ?? false) ? "block" : "none");">
+                            <h6 class="text-primary mb-2">صفحات تنظیمات</h6>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="SettingGeneralSettings" name="SettingGeneralSettings" value="true" @((Model.SettingGeneralSettings ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="SettingGeneralSettings" value="false" />
+                                        <label class="form-check-label" for="SettingGeneralSettings">تنظیمات عمومی</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="SettingOrganizations" name="SettingOrganizations" value="true" @((Model.SettingOrganizations ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="SettingOrganizations" value="false" />
+                                        <label class="form-check-label" for="SettingOrganizations">مدیریت شرکت‌ها</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="SettingUnits" name="SettingUnits" value="true" @((Model.SettingUnits ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="SettingUnits" value="false" />
+                                        <label class="form-check-label" for="SettingUnits">واحدهای اندازه‌گیری</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="SettingUnitTypes" name="SettingUnitTypes" value="true" @((Model.SettingUnitTypes ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="SettingUnitTypes" value="false" />
+                                        <label class="form-check-label" for="SettingUnitTypes">انواع واحد</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="SettingPersianDateConverter" name="SettingPersianDateConverter" value="true" @((Model.SettingPersianDateConverter ?? false) ? "checked" : "") />
+                                        <input type="hidden" name="SettingPersianDateConverter" value="false" />
+                                        <label class="form-check-label" for="SettingPersianDateConverter">تعریف روز های سال</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
 
                     <!-- Submit Button -->
@@ -157,3 +610,29 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const moduleCheckboxes = document.querySelectorAll('.module-checkbox[data-module]');
+
+        moduleCheckboxes.forEach(function(checkbox) {
+            checkbox.addEventListener('change', function() {
+                const module = this.getAttribute('data-module');
+                const permissionSections = document.querySelectorAll('.permission-section[data-module="' + module + '"]');
+
+                permissionSections.forEach(function(section) {
+                    if (checkbox.checked) {
+                        section.style.display = 'block';
+                    } else {
+                        section.style.display = 'none';
+                        // Uncheck all page permissions when module is disabled
+                        const pageCheckboxes = section.querySelectorAll('input[type="checkbox"]');
+                        pageCheckboxes.forEach(function(pageCheckbox) {
+                            pageCheckbox.checked = false;
+                        });
+                    }
+                });
+            });
+        });
+    });
+</script>

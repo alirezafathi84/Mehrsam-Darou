@@ -26,6 +26,7 @@
 
     @*     <link rel="stylesheet" href="/assets/libs/flatpickr/flatpickr.min.css"> *@
     <script src="/assets/js/config.js"></script>
+    <script src="/assets/js/persian-datepicker.js"></script>
 </head>
 
 <body>
@@ -715,7 +716,6 @@
 
                     @if ((bool)ViewData["ManagmentMenu"])
                     {
-
                         <li class="nav-item">
                             <a class="nav-link menu-arrow" href="#sidebarMng" data-bs-toggle="collapse" role="button"
                                aria-expanded="false" aria-controls="sidebarMng">
@@ -726,49 +726,52 @@
                             </a>
                             <div class="collapse" id="sidebarMng">
                                 <ul class="nav sub-navbar-nav">
+                                    @if ((bool)ViewData["ManagementDashboard_Dashboard"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("Dashboard", "Dashboard")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text"> داشبورد</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
 
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("Dashboard", "Dashboard")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text"> داشبورد</span>
-                                            </button>
-                                        </form>
-                                    </li>
+                                    @if ((bool)ViewData["ManagementDashboard_Notifications"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("NotificationList", "Notification")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">مدیریت اعلان‌ها</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
 
+                                    @if ((bool)ViewData["ManagementDashboard_AllRequests"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("RequestList", "MaterialRequest")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">تمام درخواست‌ها</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
 
-
-
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("NotificationList", "Notification")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">مدیریت اعلان‌ها</span>
-                                            </button>
-                                        </form>
-                                    </li>
-
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("RequestList", "MaterialRequest")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">تمام درخواست‌ها</span>
-                                            </button>
-                                        </form>
-                                    </li>
-
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("RequestDashboard", "MaterialRequest")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">داشبورد درخواست‌ها</span>
-                                            </button>
-                                        </form>
-                                    </li>
-
+                                    @if ((bool)ViewData["ManagementDashboard_RequestsDashboard"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("RequestDashboard", "MaterialRequest")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">داشبورد درخواست‌ها</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
                                 </ul>
                             </div>
                         </li>
-
-
-
-            
                     }
 
                     <li class="menu-title">کاربران سیستم</li>
@@ -784,21 +787,27 @@
                             </a>
                             <div class="collapse" id="sidebarUsers">
                                 <ul class="nav sub-navbar-nav">
+                                    @if ((bool)ViewData["SystemUsers_UserList"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("UserList", "User")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">لیست کاربران</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
 
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("UserList", "User")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">لیست کاربران</span>
-                                            </button>
-                                        </form>
-                                    </li>
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("TeamList", "Team")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">مدیریت تیم‌ها</span>
-                                            </button>
-                                        </form>
-                                    </li>
+                                    @if ((bool)ViewData["SystemUsers_TeamManagement"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("TeamList", "Team")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">مدیریت تیم‌ها</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
                                 </ul>
                             </div>
                         </li>
@@ -818,57 +827,69 @@
                             </a>
                             <div class="collapse" id="sidebarHR">
                                 <ul class="nav sub-navbar-nav">
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("AttendanceLogList", "AttendanceLog")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">ثبت ورود و خروج</span>
-                                            </button>
-                                        </form>
-                                    </li>
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("DailyAttendanceList", "DailyAttendance")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">گزارش حضور و غیاب</span>
-                                            </button>
-                                        </form>
-                                    </li>
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("SalaryInfoList", "SalaryInfo")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">مدیریت حقوق</span>
-                                            </button>
-                                        </form>
-                                    </li>
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("VacationList", "Vacation")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">مرخصی‌ها</span>
-                                            </button>
-                                        </form>
-                                    </li>
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("VacationTypeList", "VacationType")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">انواع مرخصی</span>
-                                            </button>
-                                        </form>
-                                    </li>
+                                    @if ((bool)ViewData["HR_AttendanceLog"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("AttendanceLogList", "AttendanceLog")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">ثبت ورود و خروج</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
 
-                                    <li class="sub-nav-item">
-                                        <a class="nav-link" href="@Url.Action("Index", "SalaryCalculation")">
-                                            <span class="nav-text">محاسبه حقوق و دستمزد</span>
-                                        </a>
-                                    </li>
+                                    @if ((bool)ViewData["HR_DailyAttendance"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("DailyAttendanceList", "DailyAttendance")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">گزارش حضور و غیاب</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
 
-                     
+                                    @if ((bool)ViewData["HR_SalaryManagement"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("SalaryInfoList", "SalaryInfo")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">مدیریت حقوق</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
 
-                                    @*                         <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("UserStatusList", "UserStatus")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">وضعیت کاربران</span>
-                                            </button>
-                                        </form>
-                                    </li> *@
+                                    @if ((bool)ViewData["HR_Vacations"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("VacationList", "Vacation")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">مرخصی‌ها</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
+
+                                    @if ((bool)ViewData["HR_VacationTypes"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("VacationTypeList", "VacationType")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">انواع مرخصی</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
+
+                                    @if ((bool)ViewData["HR_SalaryCalculation"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <a class="nav-link" href="@Url.Action("Index", "SalaryCalculation")">
+                                                <span class="nav-text">محاسبه حقوق و دستمزد</span>
+                                            </a>
+                                        </li>
+                                    }
                                 </ul>
                             </div>
                         </li>
@@ -888,41 +909,60 @@
                             </a>
                             <div class="collapse" id="sidebarProduct">
                                 <ul class="nav sub-navbar-nav">
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("MedicineList", "Medicine")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">داروها</span>
-                                            </button>
-                                        </form>
-                                    </li>
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("MedicineCategoryList", "MedicineCategory")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">دسته‌بندی داروها</span>
-                                            </button>
-                                        </form>
-                                    </li>
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("RawMaterialList", "RawMaterial")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">مواد اولیه</span>
-                                            </button>
-                                        </form>
-                                    </li>
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("MaterialCategoryList", "MaterialCategory")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">دسته‌بندی مواد اولیه</span>
-                                            </button>
-                                        </form>
-                                    </li>
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("MedicineBomList", "MedicineBom")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">فرمول‌های تولید (BOM)</span>
-                                            </button>
-                                        </form>
-                                    </li>
+                                    @if ((bool)ViewData["Product_Medicines"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("MedicineList", "Medicine")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">داروها</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
+
+                                    @if ((bool)ViewData["Product_MedicineCategories"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("MedicineCategoryList", "MedicineCategory")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">دسته‌بندی داروها</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
+
+                                    @if ((bool)ViewData["Product_RawMaterials"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("RawMaterialList", "RawMaterial")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">مواد اولیه</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
+
+                                    @if ((bool)ViewData["Product_MaterialCategories"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("MaterialCategoryList", "MaterialCategory")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">دسته‌بندی مواد اولیه</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
+
+                                    @if ((bool)ViewData["Product_BOM"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("MedicineBomList", "MedicineBom")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">فرمول‌های تولید (BOM)</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
                                 </ul>
                             </div>
                         </li>
@@ -942,27 +982,38 @@
                             </a>
                             <div class="collapse" id="sidebarBuyCommercial">
                                 <ul class="nav sub-navbar-nav">
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("SupplierList", "Supplier")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">تأمین‌کنندگان</span>
-                                            </button>
-                                        </form>
-                                    </li>
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("PurchaseOrderList", "PurchaseOrder")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">سفارشات خرید</span>
-                                            </button>
-                                        </form>
-                                    </li>
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("PurchaseInvoiceList", "PurchaseInvoice")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">فاکتورهای خرید</span>
-                                            </button>
-                                        </form>
-                                    </li>
+                                    @if ((bool)ViewData["BuyCommercial_Suppliers"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("SupplierList", "Supplier")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">تأمین‌کنندگان</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
+
+                                    @if ((bool)ViewData["BuyCommercial_PurchaseOrders"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("PurchaseOrderList", "PurchaseOrder")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">سفارشات خرید</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
+
+                                    @if ((bool)ViewData["BuyCommercial_PurchaseInvoices"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("PurchaseInvoiceList", "PurchaseInvoice")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">فاکتورهای خرید</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
                                 </ul>
                             </div>
                         </li>
@@ -982,34 +1033,38 @@
                             </a>
                             <div class="collapse" id="sidebarInventory">
                                 <ul class="nav sub-navbar-nav">
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("StorageLocationList", "StorageLocation")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">مکان‌های انبار</span>
-                                            </button>
-                                        </form>
-                                    </li>
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("MaterialBatchList", "MaterialBatch")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">بچ‌های مواد اولیه</span>
-                                            </button>
-                                        </form>
-                                    </li>
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("FinishedGoodsBatchList", "FinishedGoodsBatch")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">بچ‌های محصول نهایی</span>
-                                            </button>
-                                        </form>
-                                    </li>
-                                    @*                        <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("InventoryReport", "Inventory")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">گزارش موجودی</span>
-                                            </button>
-                                        </form>
-                                    </li> *@
+                                    @if ((bool)ViewData["Inventory_StorageLocations"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("StorageLocationList", "StorageLocation")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">مکان‌های انبار</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
+
+                                    @if ((bool)ViewData["Inventory_MaterialBatches"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("MaterialBatchList", "MaterialBatch")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">بچ‌های مواد اولیه</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
+
+                                    @if ((bool)ViewData["Inventory_FinishedGoodsBatches"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("FinishedGoodsBatchList", "FinishedGoodsBatch")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">بچ‌های محصول نهایی</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
                                 </ul>
                             </div>
                         </li>
@@ -1029,34 +1084,27 @@
                             </a>
                             <div class="collapse" id="sidebarPMO">
                                 <ul class="nav sub-navbar-nav">
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("ProductionOrderList", "ProductionOrder")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">سفارشات تولید</span>
-                                            </button>
-                                        </form>
-                                    </li>
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("ProductionStepList", "ProductionStep")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">مراحل تولید</span>
-                                            </button>
-                                        </form>
-                                    </li>
-                                    @*                       <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("ProductionOrderStepList", "ProductionOrderStep")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">پیگیری مراحل سفارش</span>
-                                            </button>
-                                        </form>
-                                    </li> *@
-                   @*                  <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("ProductionSchedule", "Production")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">برنامه‌ریزی تولید</span>
-                                            </button>
-                                        </form>
-                                    </li> *@
+                                    @if ((bool)ViewData["PMO_ProductionOrders"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("ProductionOrderList", "ProductionOrder")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">سفارشات تولید</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
+
+                                    @if ((bool)ViewData["PMO_ProductionSteps"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("ProductionStepList", "ProductionStep")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">مراحل تولید</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
                                 </ul>
                             </div>
                         </li>
@@ -1076,27 +1124,38 @@
                             </a>
                             <div class="collapse" id="sidebarRandD">
                                 <ul class="nav sub-navbar-nav">
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("ResearchProjectList", "ResearchProject")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">پروژه‌های تحقیق</span>
-                                            </button>
-                                        </form>
-                                    </li>
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("DevelopmentList", "Development")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">فرایند توسعه</span>
-                                            </button>
-                                        </form>
-                                    </li>
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("FormulaList", "Formula")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">فرمول‌های جدید</span>
-                                            </button>
-                                        </form>
-                                    </li>
+                                    @if ((bool)ViewData["RandD_ResearchProjects"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("ResearchProjectList", "ResearchProject")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">پروژه‌های تحقیق</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
+
+                                    @if ((bool)ViewData["RandD_Development"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("DevelopmentList", "Development")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">فرایند توسعه</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
+
+                                    @if ((bool)ViewData["RandD_Formulas"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("FormulaList", "Formula")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">فرمول‌های جدید</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
                                 </ul>
                             </div>
                         </li>
@@ -1114,27 +1173,38 @@
                             </a>
                             <div class="collapse" id="sidebarQC">
                                 <ul class="nav sub-navbar-nav">
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("QCTestList", "QCTest")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">آزمایشات کیفی</span>
-                                            </button>
-                                        </form>
-                                    </li>
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("BatchTestList", "BatchTest")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">تست بچ‌ها</span>
-                                            </button>
-                                        </form>
-                                    </li>
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("QCReportList", "QCReport")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">گزارشات کنترل کیفیت</span>
-                                            </button>
-                                        </form>
-                                    </li>
+                                    @if ((bool)ViewData["QC_QCTests"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("QCTestList", "QCTest")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">آزمایشات کیفی</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
+
+                                    @if ((bool)ViewData["QC_BatchTests"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("BatchTestList", "BatchTest")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">تست بچ‌ها</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
+
+                                    @if ((bool)ViewData["QC_QCReports"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("QCReportList", "QCReport")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">گزارشات کنترل کیفیت</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
                                 </ul>
                             </div>
                         </li>
@@ -1152,27 +1222,38 @@
                             </a>
                             <div class="collapse" id="sidebarQA">
                                 <ul class="nav sub-navbar-nav">
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("QAStandardList", "QAStandard")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">استانداردهای کیفیت</span>
-                                            </button>
-                                        </form>
-                                    </li>
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("QAAuditList", "QAAudit")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">ممیزی کیفیت</span>
-                                            </button>
-                                        </form>
-                                    </li>
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("CertificationList", "Certification")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">گواهی‌نامه‌ها</span>
-                                            </button>
-                                        </form>
-                                    </li>
+                                    @if ((bool)ViewData["QA_QAStandards"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("QAStandardList", "QAStandard")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">استانداردهای کیفیت</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
+
+                                    @if ((bool)ViewData["QA_QAAudits"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("QAAuditList", "QAAudit")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">ممیزی کیفیت</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
+
+                                    @if ((bool)ViewData["QA_Certifications"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("CertificationList", "Certification")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">گواهی‌نامه‌ها</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
                                 </ul>
                             </div>
                         </li>
@@ -1192,34 +1273,49 @@
                             </a>
                             <div class="collapse" id="sidebarSellCommercial">
                                 <ul class="nav sub-navbar-nav">
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("CustomerList", "Customer")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">مشتریان</span>
-                                            </button>
-                                        </form>
-                                    </li>
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("SalesOrderList", "SalesOrder")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">سفارشات فروش</span>
-                                            </button>
-                                        </form>
-                                    </li>
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("SalesInvoiceList", "SalesInvoice")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">فاکتورهای فروش</span>
-                                            </button>
-                                        </form>
-                                    </li>
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("ShipmentList", "Shipment")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">حمل و نقل</span>
-                                            </button>
-                                        </form>
-                                    </li>
+                                    @if ((bool)ViewData["SellCommercial_Customers"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("CustomerList", "Customer")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">مشتریان</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
+
+                                    @if ((bool)ViewData["SellCommercial_SalesOrders"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("SalesOrderList", "SalesOrder")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">سفارشات فروش</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
+
+                                    @if ((bool)ViewData["SellCommercial_SalesInvoices"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("SalesInvoiceList", "SalesInvoice")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">فاکتورهای فروش</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
+
+                                    @if ((bool)ViewData["SellCommercial_Shipments"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("ShipmentList", "Shipment")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">حمل و نقل</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
                                 </ul>
                             </div>
                         </li>
@@ -1239,27 +1335,38 @@
                             </a>
                             <div class="collapse" id="sidebarFinancial">
                                 <ul class="nav sub-navbar-nav">
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("FinancialReport", "Financial")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">گزارشات مالی</span>
-                                            </button>
-                                        </form>
-                                    </li>
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("PaymentList", "Payment")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">پرداخت‌ها</span>
-                                            </button>
-                                        </form>
-                                    </li>
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("AccountingReport", "Accounting")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">حسابداری</span>
-                                            </button>
-                                        </form>
-                                    </li>
+                                    @if ((bool)ViewData["Financial_FinancialReports"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("FinancialReport", "Financial")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">گزارشات مالی</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
+
+                                    @if ((bool)ViewData["Financial_Payments"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("PaymentList", "Payment")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">پرداخت‌ها</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
+
+                                    @if ((bool)ViewData["Financial_Accounting"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("AccountingReport", "Accounting")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">حسابداری</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
                                 </ul>
                             </div>
                         </li>
@@ -1278,33 +1385,39 @@
 
                         <div class="collapse" id="sidebarChat">
                             <ul class="nav sub-navbar-nav">
-                                <li class="sub-nav-item">
-                                    <form method="post" action="@Url.Action("Chat", "Chat")">
-                                        <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                            <span class="nav-text">چت </span>
-                                        </button>
-                                    </form>
-                                </li>
-                   
-                                <li class="sub-nav-item">
-                                    <form method="get" action="@Url.Action("MyNotificationList", "Notification")">
-                                        <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                            <span class="nav-text">اعلان‌های من</span>
-                                            <span id="notificationBadge" class="badge bg-danger ms-1" style="display: none;">0</span>
-                                        </button>
-                                    </form>
-                                </li>
+                                @if ((bool)ViewData["Communication_Chat"])
+                                {
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("Chat", "Chat")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                <span class="nav-text">چت </span>
+                                            </button>
+                                        </form>
+                                    </li>
+                                }
 
-                                <li class="sub-nav-item">
-                                    <form method="post" action="@Url.Action("MyRequests", "MaterialRequest")">
-                                        <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                            <span class="nav-text">درخواست‌های من</span>
-                                        </button>
-                                    </form>
-                                </li>
+                                @if ((bool)ViewData["Communication_MyNotifications"])
+                                {
+                                    <li class="sub-nav-item">
+                                        <form method="get" action="@Url.Action("MyNotificationList", "Notification")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                <span class="nav-text">اعلان‌های من</span>
+                                                <span id="notificationBadge" class="badge bg-danger ms-1" style="display: none;">0</span>
+                                            </button>
+                                        </form>
+                                    </li>
+                                }
 
-
-
+                                @if ((bool)ViewData["Communication_MyRequests"])
+                                {
+                                    <li class="sub-nav-item">
+                                        <form method="post" action="@Url.Action("MyRequests", "MaterialRequest")">
+                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                <span class="nav-text">درخواست‌های من</span>
+                                            </button>
+                                        </form>
+                                    </li>
+                                }
                             </ul>
                         </div>
 
@@ -1350,93 +1463,65 @@
                             </a>
                             <div class="collapse" id="sidebarSetting">
                                 <ul class="nav sub-navbar-nav">
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("Setting", "Setting")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">تنظیمات عمومی</span>
-                                            </button>
-                                        </form>
-                                    </li>
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("OrganizationList", "Organization")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">مدیریت شرکت‌ها</span>
-                                            </button>
-                                        </form>
-                                    </li>
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("UnitList", "Unit")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">واحدهای اندازه‌گیری</span>
-                                            </button>
-                                        </form>
-                                    </li>
-                                    <li class="sub-nav-item">
-                                        <form method="post" action="@Url.Action("UnitTypeList", "UnitType")">
-                                            <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
-                                                <span class="nav-text">انواع واحد</span>
-                                            </button>
-                                        </form>
-                                    </li>
+                                    @if ((bool)ViewData["Setting_GeneralSettings"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("Setting", "Setting")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">تنظیمات عمومی</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
 
-                                    <li class="sub-nav-item">
-                                        <a class="nav-link" href="@Url.Action("Index", "PersianDateConverter")">
-                                            <span class="nav-text">تعریف روز های سال</span>
-                                        </a>
-                                    </li>
+                                    @if ((bool)ViewData["Setting_Organizations"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("OrganizationList", "Organization")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">مدیریت شرکت‌ها</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
 
+                                    @if ((bool)ViewData["Setting_Units"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("UnitList", "Unit")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">واحدهای اندازه‌گیری</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
 
-                     
-                      
+                                    @if ((bool)ViewData["Setting_UnitTypes"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("UnitTypeList", "UnitType")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">انواع واحد</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
 
-
-                     
-             
-                          
-
-
-
-
+                                    @if ((bool)ViewData["Setting_PersianDateConverter"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <a class="nav-link" href="@Url.Action("Index", "PersianDateConverter")">
+                                                <span class="nav-text">تعریف روز های سال</span>
+                                            </a>
+                                        </li>
+                                    }
                                 </ul>
                             </div>
                         </li>
                     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                 </ul>
+
 
             </div>
         </div>
@@ -2001,6 +2086,13 @@
             // DOM already loaded
             setTimeout(initializeMenuState, 300);
         }
+
+
+
+
+
+
+
     </script>
 
     @RenderSection("Scripts", required: false)

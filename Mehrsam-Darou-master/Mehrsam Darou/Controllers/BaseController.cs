@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using static Mehrsam_Darou.Helper.Helper;
 using System.Text.Json;
 using System.Globalization;
+// Add this using for Persian calendar
+using System.Globalization;
 
 public class BaseController : Controller
 {
@@ -77,6 +79,149 @@ public class BaseController : Controller
         }
         return null;
     }
+
+    #region Persian Date APIs
+
+    [HttpPost]
+    public JsonResult ConvertPersianDate([FromBody] PersianDateRequest request)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(request.PersianDate))
+                return Json(new { success = false, error = "تاریخ نمی‌تواند خالی باشد" });
+
+            // Parse Persian date (format: 1403/05/15)
+            var persianDateClean = request.PersianDate
+                .Replace("۰", "0").Replace("۱", "1").Replace("۲", "2")
+                .Replace("۳", "3").Replace("۴", "4").Replace("۵", "5")
+                .Replace("۶", "6").Replace("۷", "7").Replace("۸", "8")
+                .Replace("۹", "9");
+
+            var parts = persianDateClean.Split('/');
+
+            if (parts.Length != 3)
+                return Json(new { success = false, error = "فرمت تاریخ صحیح نیست" });
+
+            if (!int.TryParse(parts[0], out int year) ||
+                !int.TryParse(parts[1], out int month) ||
+                !int.TryParse(parts[2], out int day))
+            {
+                return Json(new { success = false, error = "فرمت تاریخ صحیح نیست" });
+            }
+
+            // Validate Persian date ranges
+            if (year < 1300 || year > 1500)
+                return Json(new { success = false, error = "سال وارد شده معتبر نیست" });
+            if (month < 1 || month > 12)
+                return Json(new { success = false, error = "ماه وارد شده معتبر نیست" });
+            if (day < 1 || day > 31)
+                return Json(new { success = false, error = "روز وارد شده معتبر نیست" });
+
+            // Convert using Persian Calendar
+            var persianCalendar = new PersianCalendar();
+
+            try
+            {
+                // Get current server time to preserve time portion
+                var serverNow = DateTime.Now;
+
+                // Persian Calendar months are 0-based in .NET, but our input is 1-based
+                var gregorianDate = persianCalendar.ToDateTime(year, month, day,
+                    serverNow.Hour, serverNow.Minute, serverNow.Second, serverNow.Millisecond);
+
+                return Json(new
+                {
+                    success = true,
+                    gregorianDate = gregorianDate.ToString("yyyy-MM-ddTHH:mm:ss.fff"),
+                    serverTime = serverNow.ToString("HH:mm:ss")
+                });
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                // Handle invalid dates like 31st day of a 30-day month
+                return Json(new { success = false, error = "تاریخ وارد شده در تقویم شمسی معتبر نیست" });
+            }
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, error = "خطا در تبدیل تاریخ: " + ex.Message });
+        }
+    }
+
+    [HttpGet]
+    public JsonResult GetTodayPersian()
+    {
+        try
+        {
+            var persianCalendar = new PersianCalendar();
+            var serverNow = DateTime.Now; // Use server local time, not UTC
+
+            var year = persianCalendar.GetYear(serverNow);
+            var month = persianCalendar.GetMonth(serverNow);
+            var day = persianCalendar.GetDayOfMonth(serverNow);
+
+            return Json(new
+            {
+                success = true,
+                year = year,
+                month = month,
+                day = day,
+                formatted = $"{year:0000}/{month:00}/{day:00}",
+                serverDateTime = serverNow.ToString("yyyy-MM-ddTHH:mm:ss.fff"),
+                serverTime = serverNow.ToString("HH:mm:ss")
+            });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, error = ex.Message });
+        }
+    }
+
+    // Add new endpoint for Gregorian to Persian conversion
+    [HttpPost]
+    public JsonResult ConvertGregorianDate([FromBody] GregorianDateRequest request)
+    {
+        try
+        {
+            if (request.Year < 1900 || request.Year > 2200)
+                return Json(new { success = false, error = "سال میلادی معتبر نیست" });
+
+            if (request.Month < 1 || request.Month > 12)
+                return Json(new { success = false, error = "ماه میلادی معتبر نیست" });
+
+            if (request.Day < 1 || request.Day > 31)
+                return Json(new { success = false, error = "روز میلادی معتبر نیست" });
+
+            // Get current server time to preserve time portion
+            var serverNow = DateTime.Now;
+            var gregorianDate = new DateTime(request.Year, request.Month, request.Day,
+                serverNow.Hour, serverNow.Minute, serverNow.Second, serverNow.Millisecond);
+
+            var persianCalendar = new PersianCalendar();
+            var persianYear = persianCalendar.GetYear(gregorianDate);
+            var persianMonth = persianCalendar.GetMonth(gregorianDate);
+            var persianDay = persianCalendar.GetDayOfMonth(gregorianDate);
+
+            return Json(new
+            {
+                success = true,
+                persianDate = new
+                {
+                    year = persianYear,
+                    month = persianMonth,
+                    day = persianDay
+                },
+                gregorianDate = gregorianDate.ToString("yyyy-MM-ddTHH:mm:ss.fff"),
+                serverTime = serverNow.ToString("HH:mm:ss")
+            });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, error = "خطا در تبدیل تاریخ میلادی: " + ex.Message });
+        }
+    }
+
+    #endregion
 
     #region Menu State Management
 
@@ -362,9 +507,10 @@ public class BaseController : Controller
 
     protected async Task SetUserPermissions(User user)
     {
-        Team t = _context.Teams.SingleOrDefault(t => t.Id.Equals(user.TeamId));
+        Team t = await _context.Teams.SingleOrDefaultAsync(t => t.Id.Equals(user.TeamId));
         if (t != null)
         {
+            // Module-level permissions
             ViewData["ManagmentMenu"] = t.ManagmentDashboard == true;
             ViewData["SettingMenu"] = t.Setting == true;
             ViewData["SystemUsersMenu"] = t.SystemUsers == true;
@@ -377,9 +523,87 @@ public class BaseController : Controller
             ViewData["QcMenu"] = t.Qc == true;
             ViewData["QaMenu"] = t.Qa == true;
             ViewData["PmoMenu"] = t.Pmo == true;
+
+            // Page-level permissions for Management Dashboard
+            ViewData["ManagementDashboard_Dashboard"] = t.ManagementDashboardDashboard == true;
+            ViewData["ManagementDashboard_Notifications"] = t.ManagementDashboardNotifications == true;
+            ViewData["ManagementDashboard_AllRequests"] = t.ManagementDashboardAllRequests == true;
+            ViewData["ManagementDashboard_RequestsDashboard"] = t.ManagementDashboardRequestsDashboard == true;
+
+            // Page-level permissions for System Users
+            ViewData["SystemUsers_UserList"] = t.SystemUsersUserList == true;
+            ViewData["SystemUsers_TeamManagement"] = t.SystemUsersTeamManagement == true;
+
+            // Page-level permissions for HR
+            ViewData["HR_AttendanceLog"] = t.HrAttendanceLog == true;
+            ViewData["HR_DailyAttendance"] = t.HrDailyAttendance == true;
+            ViewData["HR_SalaryManagement"] = t.HrSalaryManagement == true;
+            ViewData["HR_Vacations"] = t.HrVacations == true;
+            ViewData["HR_VacationTypes"] = t.HrVacationTypes == true;
+            ViewData["HR_SalaryCalculation"] = t.HrSalaryCalculation == true;
+
+            // Page-level permissions for Product
+            ViewData["Product_Medicines"] = t.ProductMedicines == true;
+            ViewData["Product_MedicineCategories"] = t.ProductMedicineCategories == true;
+            ViewData["Product_RawMaterials"] = t.ProductRawMaterials == true;
+            ViewData["Product_MaterialCategories"] = t.ProductMaterialCategories == true;
+            ViewData["Product_BOM"] = t.ProductBom == true;
+
+            // Page-level permissions for Buy Commercial
+            ViewData["BuyCommercial_Suppliers"] = t.BuyCommercialSuppliers == true;
+            ViewData["BuyCommercial_PurchaseOrders"] = t.BuyCommercialPurchaseOrders == true;
+            ViewData["BuyCommercial_PurchaseInvoices"] = t.BuyCommercialPurchaseInvoices == true;
+
+            // Page-level permissions for Inventory
+            ViewData["Inventory_StorageLocations"] = t.InventoryStorageLocations == true;
+            ViewData["Inventory_MaterialBatches"] = t.InventoryMaterialBatches == true;
+            ViewData["Inventory_FinishedGoodsBatches"] = t.InventoryFinishedGoodsBatches == true;
+
+            // Page-level permissions for PMO
+            ViewData["PMO_ProductionOrders"] = t.PmoProductionOrders == true;
+            ViewData["PMO_ProductionSteps"] = t.PmoProductionSteps == true;
+
+            // Page-level permissions for R&D
+            ViewData["RandD_ResearchProjects"] = t.RandDResearchProjects == true;
+            ViewData["RandD_Development"] = t.RandDDevelopment == true;
+            ViewData["RandD_Formulas"] = t.RandDFormulas == true;
+
+            // Page-level permissions for QC
+            ViewData["QC_QCTests"] = t.QcQctests == true;
+            ViewData["QC_BatchTests"] = t.QcBatchTests == true;
+            ViewData["QC_QCReports"] = t.QcQcreports == true;
+
+            // Page-level permissions for QA
+            ViewData["QA_QAStandards"] = t.QaQastandards == true;
+            ViewData["QA_QAAudits"] = t.QaQaaudits == true;
+            ViewData["QA_Certifications"] = t.QaCertifications == true;
+
+            // Page-level permissions for Sell Commercial
+            ViewData["SellCommercial_Customers"] = t.SellCommercialCustomers == true;
+            ViewData["SellCommercial_SalesOrders"] = t.SellCommercialSalesOrders == true;
+            ViewData["SellCommercial_SalesInvoices"] = t.SellCommercialSalesInvoices == true;
+            ViewData["SellCommercial_Shipments"] = t.SellCommercialShipments == true;
+
+            // Page-level permissions for Financial
+            ViewData["Financial_FinancialReports"] = t.FinancialFinancialReports == true;
+            ViewData["Financial_Payments"] = t.FinancialPayments == true;
+            ViewData["Financial_Accounting"] = t.FinancialAccounting == true;
+
+            // Page-level permissions for Communication (always available)
+            ViewData["Communication_Chat"] = t.CommunicationChat == true;
+            ViewData["Communication_MyNotifications"] = t.CommunicationMyNotifications == true;
+            ViewData["Communication_MyRequests"] = t.CommunicationMyRequests == true;
+
+            // Page-level permissions for Settings
+            ViewData["Setting_GeneralSettings"] = t.SettingGeneralSettings == true;
+            ViewData["Setting_Organizations"] = t.SettingOrganizations == true;
+            ViewData["Setting_Units"] = t.SettingUnits == true;
+            ViewData["Setting_UnitTypes"] = t.SettingUnitTypes == true;
+            ViewData["Setting_PersianDateConverter"] = t.SettingPersianDateConverter == true;
         }
         else
         {
+            // Module-level permissions
             ViewData["ManagmentMenu"] = false;
             ViewData["SettingMenu"] = false;
             ViewData["SystemUsersMenu"] = false;
@@ -392,6 +616,57 @@ public class BaseController : Controller
             ViewData["QcMenu"] = false;
             ViewData["QaMenu"] = false;
             ViewData["PmoMenu"] = false;
+
+            // Page-level permissions - all false when no team
+            ViewData["ManagementDashboard_Dashboard"] = false;
+            ViewData["ManagementDashboard_Notifications"] = false;
+            ViewData["ManagementDashboard_AllRequests"] = false;
+            ViewData["ManagementDashboard_RequestsDashboard"] = false;
+            ViewData["SystemUsers_UserList"] = false;
+            ViewData["SystemUsers_TeamManagement"] = false;
+            ViewData["HR_AttendanceLog"] = false;
+            ViewData["HR_DailyAttendance"] = false;
+            ViewData["HR_SalaryManagement"] = false;
+            ViewData["HR_Vacations"] = false;
+            ViewData["HR_VacationTypes"] = false;
+            ViewData["HR_SalaryCalculation"] = false;
+            ViewData["Product_Medicines"] = false;
+            ViewData["Product_MedicineCategories"] = false;
+            ViewData["Product_RawMaterials"] = false;
+            ViewData["Product_MaterialCategories"] = false;
+            ViewData["Product_BOM"] = false;
+            ViewData["BuyCommercial_Suppliers"] = false;
+            ViewData["BuyCommercial_PurchaseOrders"] = false;
+            ViewData["BuyCommercial_PurchaseInvoices"] = false;
+            ViewData["Inventory_StorageLocations"] = false;
+            ViewData["Inventory_MaterialBatches"] = false;
+            ViewData["Inventory_FinishedGoodsBatches"] = false;
+            ViewData["PMO_ProductionOrders"] = false;
+            ViewData["PMO_ProductionSteps"] = false;
+            ViewData["RandD_ResearchProjects"] = false;
+            ViewData["RandD_Development"] = false;
+            ViewData["RandD_Formulas"] = false;
+            ViewData["QC_QCTests"] = false;
+            ViewData["QC_BatchTests"] = false;
+            ViewData["QC_QCReports"] = false;
+            ViewData["QA_QAStandards"] = false;
+            ViewData["QA_QAAudits"] = false;
+            ViewData["QA_Certifications"] = false;
+            ViewData["SellCommercial_Customers"] = false;
+            ViewData["SellCommercial_SalesOrders"] = false;
+            ViewData["SellCommercial_SalesInvoices"] = false;
+            ViewData["SellCommercial_Shipments"] = false;
+            ViewData["Financial_FinancialReports"] = false;
+            ViewData["Financial_Payments"] = false;
+            ViewData["Financial_Accounting"] = false;
+            ViewData["Communication_Chat"] = false;
+            ViewData["Communication_MyNotifications"] = false;
+            ViewData["Communication_MyRequests"] = false;
+            ViewData["Setting_GeneralSettings"] = false;
+            ViewData["Setting_Organizations"] = false;
+            ViewData["Setting_Units"] = false;
+            ViewData["Setting_UnitTypes"] = false;
+            ViewData["Setting_PersianDateConverter"] = false;
         }
     }
 
@@ -406,7 +681,10 @@ public class BaseController : Controller
                                         actionName == "GetMenuState" ||
                                         actionName == "ClearMenuState" ||
                                         actionName == "SaveThemeSettings" ||
-                                        actionName == "GetThemeSettings")))
+                                        actionName == "GetThemeSettings" ||
+                                        actionName == "ConvertPersianDate" ||
+                                        actionName == "GetTodayPersian" ||
+                                        actionName == "ConvertGregorianDate")))
         {
             await next();
             return;
@@ -513,6 +791,18 @@ public class ThemeSettingsModel
     public string TopbarColor { get; set; } = "light";
     public string MenuColor { get; set; } = "light";
     public string MenuSize { get; set; } = "default";
+}
+
+public class PersianDateRequest
+{
+    public string PersianDate { get; set; }
+}
+
+public class GregorianDateRequest
+{
+    public int Year { get; set; }
+    public int Month { get; set; }
+    public int Day { get; set; }
 }
 
 #endregion

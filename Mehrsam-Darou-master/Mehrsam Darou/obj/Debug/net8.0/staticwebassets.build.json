@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "0Z2iZJRHKYIPt7RvPC8cqeG/l/4jH1aCu45pSI352BQ=",
+  "Hash": "Lg03RUNM5987HfLkpjSDp0lXRpwokTpuzC/4UMDdYeY=",
   "Source": "Mehrsam Darou",
   "BasePath": "_content/Mehrsam Darou",
   "Mode": "Default",
@@ -2346,6 +2346,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\assets\\js\\pages\\widgets.js"
+    },
+    {
+      "Identity": "D:\\git Proj\\MD\\Mehrsam-Darou-master\\Mehrsam Darou\\wwwroot\\assets\\js\\persian-datepicker.js",
+      "SourceId": "Mehrsam Darou",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\git Proj\\MD\\Mehrsam-Darou-master\\Mehrsam Darou\\wwwroot\\",
+      "BasePath": "_content/Mehrsam Darou",
+      "RelativePath": "assets/js/persian-datepicker#[.{fingerprint}]?.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "4o2byrtvj9",
+      "Integrity": "RCAEDqmKRZtsfHbQi/jOm6a/XWgXGJTOL1UZQIGG8HQ=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\assets\\js\\persian-datepicker.js"
     },
     {
       "Identity": "D:\\git Proj\\MD\\Mehrsam-Darou-master\\Mehrsam Darou\\wwwroot\\assets\\libs\\@fullcalendar\\core\\index.cjs",
@@ -52045,6 +52066,88 @@
         {
           "Name": "integrity",
           "Value": "sha256-VfIDLYxK8YNTj+C4cjtVlaHZLapQ5nm5M1Z9Ka/b1DI="
+        }
+      ]
+    },
+    {
+      "Route": "assets/js/persian-datepicker.4o2byrtvj9.js",
+      "AssetFile": "D:\\git Proj\\MD\\Mehrsam-Darou-master\\Mehrsam Darou\\wwwroot\\assets\\js\\persian-datepicker.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "45581"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"RCAEDqmKRZtsfHbQi/jOm6a/XWgXGJTOL1UZQIGG8HQ=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 31 Aug 2025 17:37:19 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "4o2byrtvj9"
+        },
+        {
+          "Name": "label",
+          "Value": "assets/js/persian-datepicker.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-RCAEDqmKRZtsfHbQi/jOm6a/XWgXGJTOL1UZQIGG8HQ="
+        }
+      ]
+    },
+    {
+      "Route": "assets/js/persian-datepicker.js",
+      "AssetFile": "D:\\git Proj\\MD\\Mehrsam-Darou-master\\Mehrsam Darou\\wwwroot\\assets\\js\\persian-datepicker.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "45581"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"RCAEDqmKRZtsfHbQi/jOm6a/XWgXGJTOL1UZQIGG8HQ=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 31 Aug 2025 17:37:19 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-RCAEDqmKRZtsfHbQi/jOm6a/XWgXGJTOL1UZQIGG8HQ="
         }
       ]
     },
@@ -211233,7 +211336,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 11 Aug 2025 21:15:48 GMT"
+          "Value": "Fri, 15 Aug 2025 17:51:34 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -211270,7 +211373,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 11 Aug 2025 21:15:48 GMT"
+          "Value": "Fri, 15 Aug 2025 17:51:34 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -211315,7 +211418,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 11 Aug 2025 21:15:48 GMT"
+          "Value": "Fri, 15 Aug 2025 17:51:34 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -211360,7 +211463,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 11 Aug 2025 21:15:48 GMT"
+          "Value": "Fri, 15 Aug 2025 17:51:34 GMT"
         },
         {
           "Name": "Cache-Control",
