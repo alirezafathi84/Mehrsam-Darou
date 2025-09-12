@@ -35,7 +35,7 @@
     </div>
 </div>
 
-<form asp-action="AddRequest" method="post" class="needs-validation" novalidate>
+<form asp-action="AddRequest" method="post" id="materialRequestForm">
     @Html.AntiForgeryToken()
     @Html.HiddenFor(m => m.RequestId)
 
@@ -62,8 +62,8 @@
 
                         <!-- Request Date - Using Persian DatePicker -->
                         <div class="col-md-6">
-                            <div class="mb-3">
-                                <label asp-for="RequestDate" class="form-label">تاریخ درخواست <span class="text-danger">*</span></label>
+                            <div class="mb-3" data-field="RequestDate">
+                                <label class="form-label">تاریخ درخواست <span class="text-danger">*</span></label>
                                 <input type="text"
                                        class="form-control"
                                        data-persian-date="true"
@@ -115,6 +115,28 @@
                             </div>
                         </div>
 
+                        <!-- Cost Center (Required) -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="CostCenterId" class="form-label">مرکز هزینه <span class="text-danger">*</span></label>
+                                <select asp-for="CostCenterId" class="form-select" asp-items="ViewBag.CostCenters">
+                                    <option value="">انتخاب کنید</option>
+                                </select>
+                                <span asp-validation-for="CostCenterId" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Project (Optional) -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="ProjectId" class="form-label">پروژه</label>
+                                <select asp-for="ProjectId" class="form-select" asp-items="ViewBag.Projects">
+                                    <option value="">انتخاب کنید (اختیاری)</option>
+                                </select>
+                                <span asp-validation-for="ProjectId" class="text-danger"></span>
+                            </div>
+                        </div>
+
                         <!-- Department -->
                         <div class="col-md-6">
                             <div class="mb-3">
@@ -146,18 +168,16 @@
                             </div>
                         </div>
 
-                        <!-- Required Date - CORRECTED Persian DatePicker -->
+                        <!-- Required Date - Using Persian DatePicker -->
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label asp-for="RequiredDate" class="form-label">تاریخ مورد نیاز</label>
-                                <!-- Display input (Persian) - NO asp-for attribute -->
+                                <label class="form-label">تاریخ مورد نیاز</label>
                                 <input type="text"
                                        class="form-control"
                                        data-persian-date="true"
                                        autocomplete="off"
                                        readonly
                                        placeholder="انتخاب تاریخ" />
-                                <!-- Hidden input (Gregorian DateTime) - HAS asp-for attribute -->
                                 <input type="hidden" asp-for="RequiredDate" class="persian-date-hidden" />
                                 <span asp-validation-for="RequiredDate" class="text-danger"></span>
                             </div>
@@ -184,24 +204,24 @@
                 </div>
             </div>
 
-            <!-- Request Items (Future Enhancement) -->
+            <!-- Request Items Section -->
             <div class="card">
-                <div class="card-header">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0">
                         <i class="ri-list-check align-middle me-1"></i>
                         اقلام درخواستی
                     </h5>
+                    <button type="button" class="btn btn-sm btn-primary" onclick="addRequestItem()">
+                        <i class="ri-add-line me-1"></i>
+                        افزودن کالا
+                    </button>
                 </div>
                 <div class="card-body">
-                    <div class="alert alert-info" role="alert">
-                        <i class="ri-information-line me-2"></i>
-                        <strong>توجه:</strong> پس از ثبت درخواست، می‌توانید اقلام مورد نیاز را اضافه کنید.
-                    </div>
-
-                    <div class="text-center py-4">
-                        <i class="ri-file-add-line display-4 text-muted"></i>
-                        <h5 class="mt-3 text-muted">اقلام درخواستی</h5>
-                        <p class="text-muted">اقلام درخواستی پس از ثبت اولیه قابل اضافه کردن خواهند بود</p>
+                    <div id="request-items-container">
+                        <div class="alert alert-info text-center" id="no-items-message">
+                            <i class="ri-information-line me-2"></i>
+                            هنوز کالایی اضافه نشده است. برای افزودن کالا روی دکمه "افزودن کالا" کلیک کنید.
+                        </div>
                     </div>
                 </div>
             </div>
@@ -229,11 +249,10 @@
 
                     <!-- Urgency Level -->
                     <div class="mb-3">
-                        <label class="form-label">سطح فوریت</label>
-                        <select name="UrgencyLevel" class="form-select">
-                            <option value="">انتخاب کنید</option>
-                            <option value="فوری">فوری</option>
+                        <label asp-for="Urgency" class="form-label">سطح فوریت</label>
+                        <select asp-for="Urgency" class="form-select">
                             <option value="عادی">عادی</option>
+                            <option value="فوری">فوری</option>
                             <option value="کم اهمیت">کم اهمیت</option>
                         </select>
                     </div>
@@ -242,6 +261,7 @@
                     <div class="mb-3">
                         <div class="form-check form-switch">
                             <input asp-for="IsUrgent" class="form-check-input" type="checkbox" />
+                            <input asp-for="IsUrgent" type="hidden" value="false" />
                             <label asp-for="IsUrgent" class="form-check-label">درخواست فوری</label>
                         </div>
                     </div>
@@ -250,17 +270,8 @@
                     <div class="mb-3">
                         <div class="form-check form-switch">
                             <input asp-for="IsSubstituteAllowed" class="form-check-input" type="checkbox" />
-                            <label asp-for="IsSubstituteAllowed" class="form-check-label">امکان جایگزینی کالا</label>
-                        </div>
-                        <small class="text-muted">در صورت عدم موجودی، کالای مشابه قابل قبول است</small>
-                    </div>
-
-                    <!-- Total Budget -->
-                    <div class="mb-3">
-                        <label class="form-label">بودجه تخمینی</label>
-                        <div class="input-group">
-                            <input name="TotalBudget" class="form-control" type="number" step="0.01" placeholder="0.00" />
-                            <span class="input-group-text">IRR</span>
+                            <input asp-for="IsSubstituteAllowed" type="hidden" value="false" />
+                            <label asp-for="IsSubstituteAllowed" class="form-check-label">امکان جایگزینی</label>
                         </div>
                     </div>
                 </div>
@@ -276,7 +287,7 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-success">
+                        <button type="submit" class="btn btn-success" id="submitBtn">
                             <i class="ri-save-line me-1"></i>
                             ثبت درخواست
                         </button>
@@ -301,7 +312,8 @@
                         <h6 class="mt-0"><i class="ri-lightbulb-line me-1"></i>نکات مهم:</h6>
                         <ul class="mb-0 ps-3">
                             <li class="mb-1">عنوان درخواست باید دقیق و مفصل باشد</li>
-                            <li class="mb-1">دسته‌بندی و نوع درخواست را به دقت انتخاب کنید</li>
+                            <li class="mb-1">مرکز هزینه را به دقت انتخاب کنید (الزامی)</li>
+                            <li class="mb-1">گروه کالا را برای هر قلم مشخص کنید</li>
                             <li class="mb-1">تاریخ مورد نیاز را واقع‌گرایانه تعیین کنید</li>
                             <li class="mb-0">در صورت فوری بودن، علت را در توضیحات ذکر کنید</li>
                         </ul>
@@ -312,6 +324,107 @@
     </div>
 </form>
 
+<!-- Item Template (Hidden) -->
+<div id="item-template" style="display: none;">
+    <div class="border rounded p-3 mb-3 request-item">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="mb-0">کالای شماره <span class="item-number">1</span></h6>
+            <button type="button" class="btn btn-sm btn-danger" onclick="removeRequestItem(this)">
+                <i class="ri-delete-bin-line me-1"></i>
+                حذف
+            </button>
+        </div>
+
+        <div class="row">
+            <!-- Item Group -->
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">گروه کالا <span class="text-danger">*</span></label>
+                    <select name="items[0].ItemGroupId" class="form-select item-group-select" onchange="loadMaterialsByGroup(this)">
+                        <option value="">انتخاب کنید</option>
+                        @if (ViewBag.ItemGroups != null)
+                        {
+                            @foreach (var item in (IEnumerable<SelectListItem>)ViewBag.ItemGroups)
+                            {
+                                <option value="@item.Value">@item.Text</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <!-- Material (Optional) -->
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">ماده موجود (اختیاری)</label>
+                    <select name="items[0].MaterialId" class="form-select material-select">
+                        <option value="">ابتدا گروه کالا را انتخاب کنید</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Item Name -->
+            <div class="col-md-12">
+                <div class="mb-3">
+                    <label class="form-label">نام کالا <span class="text-danger">*</span></label>
+                    <input name="items[0].ItemName" class="form-control" placeholder="نام دقیق کالا یا قطعه" />
+                </div>
+            </div>
+
+            <!-- Item Description -->
+            <div class="col-md-12">
+                <div class="mb-3">
+                    <label class="form-label">توضیحات کالا</label>
+                    <textarea name="items[0].ItemDescription" class="form-control" rows="2" placeholder="مشخصات فنی، برند، مدل و سایر توضیحات..."></textarea>
+                </div>
+            </div>
+
+            <!-- Quantity and Unit -->
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">مقدار <span class="text-danger">*</span></label>
+                    <input name="items[0].QuantityRequested" class="form-control quantity-input" type="number" step="0.001" placeholder="0" />
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">واحد <span class="text-danger">*</span></label>
+                    <select name="items[0].UnitId" class="form-select">
+                        <option value="">انتخاب کنید</option>
+                        @if (ViewBag.Units != null)
+                        {
+                            @foreach (var item in (IEnumerable<SelectListItem>)ViewBag.Units)
+                            {
+                                <option value="@item.Value">@item.Text</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <!-- Unit Price Estimated -->
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">قیمت تخمینی واحد</label>
+                    <input name="items[0].UnitPriceEstimated" class="form-control" type="number" step="0.01" min="0" placeholder="0" />
+                </div>
+            </div>
+
+            <!-- Critical Item -->
+            <div class="col-md-6 d-flex align-items-end">
+                <div class="mb-3">
+                    <div class="form-check form-switch">
+                        <input name="items[0].IsCritical" class="form-check-input" type="checkbox" value="true" />
+                        <input name="items[0].IsCritical" type="hidden" value="false" />
+                        <label class="form-check-label">کالای حیاتی</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
@@ -321,49 +434,307 @@
     <script src="~/js/persian-datepicker.js"></script>
 
     <script>
-        // Form validation
-        (function() {
-            'use strict';
-            window.addEventListener('load', function() {
-                var forms = document.getElementsByClassName('needs-validation');
-                var validation = Array.prototype.filter.call(forms, function(form) {
-                    form.addEventListener('submit', function(event) {
-                        if (form.checkValidity() === false) {
-                            event.preventDefault();
-                            event.stopPropagation();
-                        }
-                        form.classList.add('was-validated');
-                    }, false);
-                });
-            }, false);
-        })();
+        let itemCounter = 0;
+        let isFormSubmitting = false;
 
-        // Update currency symbol when currency changes
-        document.querySelector('select[name="Currency"]').addEventListener('change', function() {
-            var currencySymbol = this.options[this.selectedIndex].text.match(/\(([^)]+)\)/)[1];
-            document.querySelector('.input-group-text').textContent = currencySymbol;
-        });
-
-        // Initialize Persian date pickers when DOM is ready
+        // Wait for page to load completely
         document.addEventListener('DOMContentLoaded', function() {
-            // Give the PersianDatePicker time to initialize
+            console.log('DOM loaded, initializing form...');
+
+            // Initialize date pickers after a delay to ensure all scripts are loaded
             setTimeout(function() {
                 if (window.initializePersianDatePickers) {
+                    console.log('Initializing Persian date pickers...');
                     window.initializePersianDatePickers();
+                } else if (window.PersianDatePicker) {
+                    console.log('PersianDatePicker class available, trying manual init...');
+                    const dateInputs = document.querySelectorAll('[data-persian-date="true"]');
+                    dateInputs.forEach(input => {
+                        try {
+                            if (!window.PersianDatePicker.activePickers.has(input)) {
+                                window.PersianDatePicker.initializeDatePicker(input);
+                            }
+                        } catch (e) {
+                            console.warn('Error initializing date picker for input:', e);
+                        }
+                    });
+                } else {
+                    console.log('Persian date picker not ready, retrying...');
+                    setTimeout(arguments.callee, 500);
                 }
-            }, 200);
+            }, 300);
         });
 
-        // Re-initialize after AJAX calls (if needed)
-        function reinitializePickers() {
-            if (window.initializePersianDatePickers) {
-                window.initializePersianDatePickers();
+        // Add request item
+        function addRequestItem() {
+            const template = document.getElementById('item-template');
+            const clone = template.cloneNode(true);
+            clone.style.display = 'block';
+            clone.id = `item-${itemCounter}`;
+
+            // Update item number display
+            clone.querySelector('.item-number').textContent = itemCounter + 1;
+
+            // Update field names with correct index
+            updateFieldNames(clone, itemCounter);
+
+            document.getElementById('request-items-container').appendChild(clone);
+            document.getElementById('no-items-message').style.display = 'none';
+
+            itemCounter++;
+            console.log(`Added item ${itemCounter}`);
+        }
+
+        // Update field names for proper model binding
+        function updateFieldNames(container, index) {
+            const inputs = container.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                if (input.name && input.name.startsWith('items[')) {
+                    const fieldName = input.name.split('.')[1];
+                    input.name = `items[${index}].${fieldName}`;
+
+                    // Handle checkbox inputs - don't change the ID for hidden fields
+                    if (input.type === 'checkbox') {
+                        input.id = `items_${index}__${fieldName}`;
+                    } else if (input.type === 'hidden' && fieldName === 'IsCritical') {
+                        // Keep the hidden field name the same as checkbox for proper binding
+                        input.name = `items[${index}].${fieldName}`;
+                    } else {
+                        input.id = `items_${index}__${fieldName}`;
+                    }
+                }
+            });
+        }
+
+        // Remove request item
+        function removeRequestItem(button) {
+            const item = button.closest('.request-item');
+            item.remove();
+
+            // Reindex remaining items
+            reindexItems();
+
+            // Show/hide messages
+            const container = document.getElementById('request-items-container');
+            const items = container.querySelectorAll('.request-item');
+            if (items.length === 0) {
+                document.getElementById('no-items-message').style.display = 'block';
+            }
+
+            console.log(`Removed item, remaining: ${items.length}`);
+        }
+
+        // Reindex items after removal
+        function reindexItems() {
+            const items = document.querySelectorAll('.request-item');
+            items.forEach((item, index) => {
+                item.querySelector('.item-number').textContent = index + 1;
+                updateFieldNames(item, index);
+            });
+            itemCounter = items.length;
+        }
+
+        // Load materials by group
+        async function loadMaterialsByGroup(selectElement) {
+            const groupId = selectElement.value;
+            const materialSelect = selectElement.closest('.request-item').querySelector('.material-select');
+
+            // Clear current options
+            materialSelect.innerHTML = '<option value="">در حال بارگذاری...</option>';
+
+            if (groupId) {
+                try {
+                    const response = await fetch(`@Url.Action("GetMaterialsByGroup")?itemGroupId=${groupId}`);
+                    if (response.ok) {
+                        const materials = await response.json();
+
+                        materialSelect.innerHTML = '<option value="">انتخاب کنید (اختیاری)</option>';
+                        materials.forEach(material => {
+                            const option = document.createElement('option');
+                            option.value = material.value;
+                            option.textContent = material.text;
+                            materialSelect.appendChild(option);
+                        });
+
+                        console.log(`Loaded ${materials.length} materials for group ${groupId}`);
+                    } else {
+                        throw new Error('Failed to load materials');
+                    }
+                } catch (error) {
+                    console.error('Error loading materials:', error);
+                    materialSelect.innerHTML = '<option value="">خطا در بارگذاری</option>';
+                }
+            } else {
+                materialSelect.innerHTML = '<option value="">ابتدا گروه کالا را انتخاب کنید</option>';
             }
         }
 
-        // Optional: Auto-fill department based on user profile
-        // This would be implemented based on your user management system
+        // Auto-select material name when material is selected
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('material-select')) {
+                const selectedOption = e.target.options[e.target.selectedIndex];
+                if (selectedOption.value) {
+                    const itemNameInput = e.target.closest('.request-item').querySelector('input[name*="ItemName"]');
+                    if (!itemNameInput.value.trim()) {
+                        itemNameInput.value = selectedOption.text;
+                        console.log(`Auto-filled item name: ${selectedOption.text}`);
+                    }
+                }
+            }
+        });
 
-        console.log('Form initialized with Persian date picker support');
+        // Enhanced form submission handler
+        document.getElementById('materialRequestForm').addEventListener('submit', function(e) {
+            console.log('=== FORM SUBMISSION DEBUG ===');
+
+            if (isFormSubmitting) {
+                console.log('Form already submitting, preventing double submission');
+                e.preventDefault();
+                return false;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+
+            // Clear previous error messages
+            document.querySelectorAll('.alert-danger.custom-error').forEach(el => el.remove());
+
+            let hasErrors = false;
+            const errorMessages = [];
+
+            // Check required fields
+            const requiredFields = [
+                { selector: 'input[name="RequestTitle"]', name: 'عنوان درخواست' },
+                { selector: 'select[name="CategoryId"]', name: 'دسته‌بندی' },
+                { selector: 'select[name="RequestTypeId"]', name: 'نوع درخواست' },
+                { selector: 'select[name="CostCenterId"]', name: 'مرکز هزینه' },
+                { selector: 'select[name="PriorityLevel"]', name: 'سطح اولویت' }
+            ];
+
+            console.log('Checking required fields...');
+            requiredFields.forEach(field => {
+                const element = document.querySelector(field.selector);
+                let isValid = false;
+                let actualValue = 'NOT FOUND';
+
+                if (element) {
+                    actualValue = element.value;
+                    // For select elements, also check if it's not the default empty option
+                    if (element.tagName.toLowerCase() === 'select') {
+                        isValid = element.value && element.value.trim() !== '' && element.selectedIndex > 0;
+                        console.log(`  ${field.name}: value="${actualValue}", selectedIndex=${element.selectedIndex}, options count=${element.options.length}`);
+                    } else {
+                        isValid = element.value && element.value.trim() !== '';
+                        console.log(`  ${field.name}: value="${actualValue}"`);
+                    }
+                } else {
+                    console.log(`  ${field.name}: ELEMENT NOT FOUND`);
+                }
+
+                if (!isValid) {
+                    errorMessages.push(`${field.name} الزامی است`);
+                    hasErrors = true;
+                    console.log(`  ❌ ${field.name} validation failed`);
+                } else {
+                    console.log(`  ✅ ${field.name} validation passed`);
+                }
+            });
+
+            // Debug: List all request-item elements
+            const allItems = document.querySelectorAll('.request-item');
+            console.log(`Total .request-item elements found: ${allItems.length}`);
+            allItems.forEach((item, i) => {
+                console.log(`  Item ${i}: id="${item.id}", display="${item.style.display}", visible=${item.offsetParent !== null}`);
+            });
+
+            // Get only visible items in the container (not the template)
+            const itemsContainer = document.getElementById('request-items-container');
+            const visibleItems = Array.from(itemsContainer.querySelectorAll('.request-item'))
+                .filter(item => item.style.display !== 'none' && item.id !== 'item-template');
+
+            console.log(`Visible items in container: ${visibleItems.length}`);
+
+            if (visibleItems.length === 0) {
+                errorMessages.push('لطفاً حداقل یک کالا اضافه کنید');
+                hasErrors = true;
+                console.log('ERROR: No visible items found');
+            } else {
+                console.log('Validating visible items...');
+                visibleItems.forEach((item, index) => {
+                    const itemName = item.querySelector('input[name*="ItemName"]');
+                    const quantity = item.querySelector('input[name*="QuantityRequested"]');
+                    const unit = item.querySelector('select[name*="UnitId"]');
+
+                    console.log(`Item ${index + 1} validation:`);
+                    console.log(`  Name: "${itemName?.value || ''}" (length: ${itemName?.value?.length || 0})`);
+                    console.log(`  Quantity: "${quantity?.value || ''}" (parsed: ${parseFloat(quantity?.value || '0')})`);
+                    console.log(`  Unit: "${unit?.value || ''}" (selected index: ${unit?.selectedIndex || -1})`);
+
+                    let itemHasError = false;
+
+                    if (!itemName || !itemName.value || itemName.value.trim() === '') {
+                        errorMessages.push(`کالای ${index + 1}: نام کالا الزامی است`);
+                        hasErrors = true;
+                        itemHasError = true;
+                        console.log(`  ❌ Name validation failed`);
+                    }
+
+                    if (!quantity || !quantity.value || quantity.value.trim() === '' || parseFloat(quantity.value) <= 0 || isNaN(parseFloat(quantity.value))) {
+                        errorMessages.push(`کالای ${index + 1}: مقدار باید بیشتر از صفر باشد`);
+                        hasErrors = true;
+                        itemHasError = true;
+                        console.log(`  ❌ Quantity validation failed`);
+                    }
+
+                    if (!unit || !unit.value || unit.value.trim() === '' || unit.selectedIndex <= 0) {
+                        errorMessages.push(`کالای ${index + 1}: انتخاب واحد الزامی است`);
+                        hasErrors = true;
+                        itemHasError = true;
+                        console.log(`  ❌ Unit validation failed`);
+                    }
+
+                    if (!itemHasError) {
+                        console.log(`  ✅ Item ${index + 1} validation passed`);
+                    }
+                });
+            }
+
+            console.log(`Validation summary: hasErrors=${hasErrors}, errorCount=${errorMessages.length}`);
+
+            // If there are validation errors, prevent submission
+            if (hasErrors) {
+                e.preventDefault();
+
+                // Show errors
+                const errorHtml = `
+                    <div class="alert alert-danger alert-dismissible fade show custom-error" role="alert">
+                        <h6><i class="ri-error-warning-line me-1"></i>خطاهای اعتبارسنجی:</h6>
+                        <ul class="mb-0">
+                            ${errorMessages.map(msg => `<li>${msg}</li>`).join('')}
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
+
+                // Add error at top of form
+                const firstCard = document.querySelector('.row .col-lg-8');
+                firstCard.insertAdjacentHTML('afterbegin', errorHtml);
+
+                // Scroll to top to show errors
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                console.log('❌ Form validation failed:', errorMessages);
+                return false;
+            }
+
+            // If validation passes, set submitting flag and update button
+            isFormSubmitting = true;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="ri-loader-4-line me-1 spinner-border spinner-border-sm"></i> در حال ثبت...';
+
+            console.log('✅ Form validation passed, submitting...');
+            return true;
+        });
+
+        console.log('AddRequest form with Persian date picker initialized successfully');
     </script>
 }

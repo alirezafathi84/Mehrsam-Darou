@@ -83,15 +83,23 @@ public partial class MaterialRequest
 
     public DateTime? LastModifiedDate { get; set; }
 
+    public Guid? CostCenterId { get; set; }
+
+    public Guid? ProjectId { get; set; }
+
     public virtual User? ApprovedByNavigation { get; set; }
 
     public virtual RequestCategory Category { get; set; } = null!;
+
+    public virtual CostCenter? CostCenter { get; set; }
 
     public virtual User CreatedByNavigation { get; set; } = null!;
 
     public virtual ICollection<MaterialRequestItem> MaterialRequestItems { get; set; } = new List<MaterialRequestItem>();
 
     public virtual User? ProcessedByNavigation { get; set; }
+
+    public virtual Project? Project { get; set; }
 
     public virtual ICollection<RequestApproval> RequestApprovals { get; set; } = new List<RequestApproval>();
 

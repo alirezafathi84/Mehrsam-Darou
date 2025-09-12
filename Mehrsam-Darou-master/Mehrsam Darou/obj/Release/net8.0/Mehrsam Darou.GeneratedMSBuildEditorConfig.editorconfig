@@ -232,8 +232,24 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWF0ZXJpYWxSZXF1ZXN0XEFkZFJlcXVlc3QuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/MaterialRequest/EditRequest.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWF0ZXJpYWxSZXF1ZXN0XEVkaXRSZXF1ZXN0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/MaterialRequest/InventoryProcessRequest.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWF0ZXJpYWxSZXF1ZXN0XEludmVudG9yeVByb2Nlc3NSZXF1ZXN0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/MaterialRequest/InventoryRequestList.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWF0ZXJpYWxSZXF1ZXN0XEludmVudG9yeVJlcXVlc3RMaXN0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/MaterialRequest/MyRequests.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWF0ZXJpYWxSZXF1ZXN0XE15UmVxdWVzdHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/MaterialRequest/ProcessRequest.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWF0ZXJpYWxSZXF1ZXN0XFByb2Nlc3NSZXF1ZXN0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/MaterialRequest/RequestDashboard.cshtml]

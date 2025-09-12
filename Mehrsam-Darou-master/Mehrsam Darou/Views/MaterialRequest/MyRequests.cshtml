@@ -144,12 +144,54 @@
                             }
                             <select name="status" class="form-select">
                                 <option value="">همه وضعیت‌ها</option>
-                                <option value="در انتظار بررسی" selected="@(selectedStatus == "در انتظار بررسی")">در انتظار بررسی</option>
-                                <option value="در حال بررسی" selected="@(selectedStatus == "در حال بررسی")">در حال بررسی</option>
-                                <option value="تأیید شده" selected="@(selectedStatus == "تأیید شده")">تأیید شده</option>
-                                <option value="رد شده" selected="@(selectedStatus == "رد شده")">رد شده</option>
-                                <option value="تحویل شده" selected="@(selectedStatus == "تحویل شده")">تحویل شده</option>
-                                <option value="تکمیل شده" selected="@(selectedStatus == "تکمیل شده")">تکمیل شده</option>
+                                @if (selectedStatus == "در انتظار بررسی")
+                                {
+                                    <option value="در انتظار بررسی" selected>در انتظار بررسی</option>
+                                }
+                                else
+                                {
+                                    <option value="در انتظار بررسی">در انتظار بررسی</option>
+                                }
+                                @if (selectedStatus == "در حال بررسی")
+                                {
+                                    <option value="در حال بررسی" selected>در حال بررسی</option>
+                                }
+                                else
+                                {
+                                    <option value="در حال بررسی">در حال بررسی</option>
+                                }
+                                @if (selectedStatus == "تأیید شده")
+                                {
+                                    <option value="تأیید شده" selected>تأیید شده</option>
+                                }
+                                else
+                                {
+                                    <option value="تأیید شده">تأیید شده</option>
+                                }
+                                @if (selectedStatus == "رد شده")
+                                {
+                                    <option value="رد شده" selected>رد شده</option>
+                                }
+                                else
+                                {
+                                    <option value="رد شده">رد شده</option>
+                                }
+                                @if (selectedStatus == "تحویل شده")
+                                {
+                                    <option value="تحویل شده" selected>تحویل شده</option>
+                                }
+                                else
+                                {
+                                    <option value="تحویل شده">تحویل شده</option>
+                                }
+                                @if (selectedStatus == "تکمیل شده")
+                                {
+                                    <option value="تکمیل شده" selected>تکمیل شده</option>
+                                }
+                                else
+                                {
+                                    <option value="تکمیل شده">تکمیل شده</option>
+                                }
                             </select>
                         </div>
                         <div class="col-md-2">
@@ -196,10 +238,7 @@
                                     <div class="row text-muted small">
                                         <div class="col-6">
                                             <i class="ri-calendar-line me-1"></i>
-                                            @if (request.RequestDate != null)
-                                            {
-                                                @request.RequestDate.ToString("yyyy/MM/dd")
-                                            }
+                                            @request.RequestDate.ToString("yyyy/MM/dd")
                                         </div>
                                         <div class="col-6 text-end">
                                             @if (request.Category != null)
@@ -287,11 +326,8 @@
                                             }
                                         </td>
                                         <td>
-                                            @if (request.RequestDate != null)
-                                            {
-                                                <div>@request.RequestDate.ToString("yyyy/MM/dd")</div>
-                                                <small class="text-muted">@request.RequestDate.ToString("HH:mm")</small>
-                                            }
+                                            <div>@request.RequestDate.ToString("yyyy/MM/dd")</div>
+                                            <small class="text-muted">@request.RequestDate.ToString("HH:mm")</small>
                                         </td>
                                         <td>
                                             @{
@@ -502,11 +538,9 @@
             modal.show();
         }
 
-        // Edit request function
+        // Updated edit request function - now redirects to EditRequest action
         function editRequest(requestId) {
-            // This would redirect to an edit page or open an edit modal
-            // For now, we'll show an alert
-            alert('ویرایش درخواست در حال توسعه است');
+            window.location.href = '@Url.Action("EditRequest")' + '/' + requestId;
         }
 
         // Cancel request function

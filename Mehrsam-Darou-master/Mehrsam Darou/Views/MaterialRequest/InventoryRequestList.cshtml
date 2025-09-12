@@ -1,0 +1,943 @@
+﻿@using static Mehrsam_Darou.Helper.Helper
+@model PaginatedList<Mehrsam_Darou.Models.MaterialRequest>
+@using System.Globalization
+
+@{
+    PersianCalendar pc = new PersianCalendar();
+}
+@{
+    ViewData["Title"] = "مدیریت درخواست‌های مواد - انبارداری";
+}
+
+<!-- Display Messages -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0">مدیریت درخواست‌های مواد</h4>
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">انبارداری</a></li>
+                    <li class="breadcrumb-item active">درخواست‌های مواد</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row">
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-height-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="avatar-sm flex-shrink-0">
+                        <span class="avatar-title bg-warning-subtle text-warning rounded-circle fs-3">
+                            <i class="bx bx-time-five"></i>
+                        </span>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <p class="text-uppercase fw-medium text-muted mb-1">در انتظار بررسی موجودی</p>
+                        <h4 class="mb-0">@(Model?.Where(r => r.Status == "در انتظار بررسی" || r.Status == "در حال بررسی").Count() ?? 0)</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-height-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="avatar-sm flex-shrink-0">
+                        <span class="avatar-title bg-success-subtle text-success rounded-circle fs-3">
+                            <i class="bx bx-package"></i>
+                        </span>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <p class="text-uppercase fw-medium text-muted mb-1">آماده تحویل</p>
+                        <h4 class="mb-0">@(Model?.Where(r => r.Status == "آماده تحویل").Count() ?? 0)</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-height-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="avatar-sm flex-shrink-0">
+                        <span class="avatar-title bg-info-subtle text-info rounded-circle fs-3">
+                            <i class="bx bx-search-alt"></i>
+                        </span>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <p class="text-uppercase fw-medium text-muted mb-1">نیاز به جایگزین</p>
+                        <h4 class="mb-0">@(Model?.Where(r => r.Status == "نیاز به جایگزین" || r.Status == "در حال جستجوی جایگزین").Count() ?? 0)</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-height-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="avatar-sm flex-shrink-0">
+                        <span class="avatar-title bg-danger-subtle text-danger rounded-circle fs-3">
+                            <i class="bx bx-cart"></i>
+                        </span>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <p class="text-uppercase fw-medium text-muted mb-1">نیاز به خرید</p>
+                        <h4 class="mb-0">@(Model?.Where(r => r.Status == "نیاز به خرید").Count() ?? 0)</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <div class="d-flex p-3 bg-primary-subtle rounded-2 border align-items-center hover-card">
+                            <div class="flex-shrink-0 me-3">
+                                <i class="ri-search-line fs-2 text-primary"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">بررسی سریع موجودی</h6>
+                                <p class="text-muted mb-0 fs-13">بررسی موجودی همه درخواست‌های باز</p>
+                            </div>
+                            <div class="flex-shrink-0">
+                                <button class="btn btn-sm btn-primary" onclick="bulkInventoryCheck()">
+                                    <i class="ri-play-line me-1"></i>شروع
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex p-3 bg-success-subtle rounded-2 border align-items-center hover-card">
+                            <div class="flex-shrink-0 me-3">
+                                <i class="ri-truck-line fs-2 text-success"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">آماده‌سازی تحویل</h6>
+                                <p class="text-muted mb-0 fs-13">آماده‌سازی کالاهای قابل تحویل</p>
+                            </div>
+                            <div class="flex-shrink-0">
+                                <a href="?status=آماده تحویل" class="btn btn-sm btn-success">
+                                    <i class="ri-eye-line me-1"></i>مشاهده
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex p-3 bg-warning-subtle rounded-2 border align-items-center hover-card">
+                            <div class="flex-shrink-0 me-3">
+                                <i class="ri-alert-line fs-2 text-warning"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">اقلام فوری</h6>
+                                <p class="text-muted mb-0 fs-13">درخواست‌های با اولویت بالا</p>
+                            </div>
+                            <div class="flex-shrink-0">
+                                <span class="badge bg-warning fs-12">@(Model?.Where(r => r.IsUrgent == true || r.PriorityLevel <= 2).Count() ?? 0)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex p-3 bg-info-subtle rounded-2 border align-items-center hover-card">
+                            <div class="flex-shrink-0 me-3">
+                                <i class="ri-file-list-line fs-2 text-info"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">گزارش موجودی</h6>
+                                <p class="text-muted mb-0 fs-13">تولید گزارش وضعیت انبار</p>
+                            </div>
+                            <div class="flex-shrink-0">
+                                <button class="btn btn-sm btn-info" onclick="generateInventoryReport()">
+                                    <i class="ri-file-download-line me-1"></i>تولید
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex align-items-center flex-wrap gap-2">
+                    <div class="flex-grow-1">
+                        <h5 class="card-title mb-0">
+                            <i class="ri-list-check me-1"></i>
+                            درخواست‌های مواد (@(Model?.Count() ?? 0))
+                        </h5>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="refreshData()">
+                                <i class="ri-refresh-line me-1"></i>
+                                به‌روزرسانی
+                            </button>
+                            <button type="button" class="btn btn-outline-success btn-sm" onclick="bulkApprove()">
+                                <i class="ri-check-double-line me-1"></i>
+                                تأیید گروهی
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <!-- Search and Filters -->
+                <form method="get" asp-action="InventoryRequestList" class="mb-3">
+                    <div class="row g-2">
+                        <div class="col-md-3">
+                            <div class="search-box">
+                                <input type="search" name="searchKey" value="@Context.Request.Query["searchKey"]"
+                                       class="form-control" placeholder="جستجو در درخواست‌ها...">
+                                <i class="ri-search-line search-icon"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            @{
+                                var selectedStatus = Context.Request.Query["status"].ToString();
+                            }
+                            <select name="status" class="form-select" onchange="this.form.submit()">
+                                <option value="">همه وضعیت‌ها</option>
+                                @{
+                                    var statusOptions = new[]
+                                    {
+                                new { Value = "در انتظار بررسی", Text = "در انتظار بررسی" },
+                                new { Value = "در حال بررسی", Text = "در حال بررسی" },
+                                new { Value = "آماده تحویل", Text = "آماده تحویل" },
+                                new { Value = "نیاز به جایگزین", Text = "نیاز به جایگزین" },
+                                new { Value = "نیاز به خرید", Text = "نیاز به خرید" }
+                                };
+                                }
+                                @foreach (var option in statusOptions)
+                                {
+                                    <option value="@option.Value" selected="@(selectedStatus == option.Value ? "selected" : null)">@option.Text</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            @{
+                                var selectedPriority = Context.Request.Query["priority"].ToString();
+                                var priorityOptions = new[]
+                                {
+                            new { Value = "1", Text = "بحرانی" },
+                            new { Value = "2", Text = "بالا" },
+                            new { Value = "3", Text = "متوسط" },
+                            new { Value = "4", Text = "پایین" }
+                            };
+                            }
+                            <select name="priority" class="form-select" onchange="this.form.submit()">
+                                <option value="">همه اولویت‌ها</option>
+                                @foreach (var option in priorityOptions)
+                                {
+                                    <option value="@option.Value" selected="@(selectedPriority == option.Value)">@option.Text</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-md-2">
+                            <div class="form-check form-switch mt-2">
+                                <input class="form-check-input" type="checkbox" name="urgentOnly" value="true"
+                                @(Context.Request.Query["urgentOnly"].ToString() == "true" ? "checked" : "")
+                                       onchange="this.form.submit()">
+                                <label class="form-check-label">فقط فوری</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="btn-group w-100" role="group">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="ri-search-line me-1"></i>جستجو
+                                </button>
+                                <a href="@Url.Action("InventoryRequestList")" class="btn btn-outline-secondary">
+                                    <i class="ri-refresh-line me-1"></i>پاک کردن
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Requests Table -->
+                <div class="table-responsive">
+                    <table class="table align-middle table-nowrap table-hover" id="requestsTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th width="40">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                                    </div>
+                                </th>
+                                <th>درخواست</th>
+                                <th>درخواست‌کننده</th>
+                                <th>اقلام</th>
+                                <th>وضعیت موجودی</th>
+                                <th>اولویت</th>
+                                <th>وضعیت</th>
+                                <th width="120">عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Any())
+                            {
+                                foreach (var request in Model)
+                                {
+                                    <tr data-request-id="@request.RequestId">
+                                        <td>
+                                            <div class="form-check">
+                                                <input class="form-check-input request-checkbox" type="checkbox" value="@request.RequestId">
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <a href="@Url.Action("InventoryProcessRequest", new { id = request.RequestId })"
+                                                   class="fw-medium text-primary text-decoration-none">
+                                                    @request.RequestNumber
+                                                </a>
+                                                @if (request.IsUrgent)
+                                                {
+                                                    <span class="badge bg-danger ms-1 fs-11">فوری</span>
+                                                }
+                                                <br>
+                                                <small class="text-muted">@request.RequestTitle</small>
+                                                <br>
+                                                <small class="text-muted">
+                                                    <i class="ri-calendar-line me-1"></i>
+
+
+                              
+                                                        @{
+                                                        if (@request.RequestDate!=null)
+                                                            {
+                                                               var date = @request.RequestDate;
+                                                                var persianDate = $"{pc.GetYear(date)}/{pc.GetMonth(date):00}/{pc.GetDayOfMonth(date):00} {date:HH:mm}";
+                                                                @persianDate
+                                                            }
+                                                        }
+                                   
+                                                
+                                                </small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @if (request.RequestedByNavigation != null)
+                                            {
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-shrink-0 me-2">
+                                                        <img src="@(request.RequestedByNavigation.AvatarImg ?? "/images/users/dummy-avatar.jpg")"
+                                                             alt="" class="avatar-xs rounded-circle" onerror="this.src='/images/users/dummy-avatar.jpg';">
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-0 fs-14">@request.RequestedByNavigation.FirstName @request.RequestedByNavigation.LastName</h6>
+                                                        @if (!string.IsNullOrEmpty(request.Department))
+                                                        {
+                                                            <small class="text-muted">@request.Department</small>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <span class="badge bg-primary fs-12">@(request.MaterialRequestItems?.Count ?? 0) قلم</span>
+                                                @if (request.MaterialRequestItems?.Any(i => i.IsCritical) == true)
+                                                {
+                                                    <span class="badge bg-warning fs-11 ms-1">حیاتی</span>
+                                                }
+                                                <br>
+                                                @if (request.TotalEstimatedCost.HasValue && request.TotalEstimatedCost > 0)
+                                                {
+                                                    <small class="text-muted">
+                                                        برآورد: @request.TotalEstimatedCost.Value.ToString("N0") @request.Currency
+                                                    </small>
+                                                }
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @{
+                                                var availableCount = request.MaterialRequestItems?.Count(i => i.ItemStatus == "موجود") ?? 0;
+                                                var partialCount = request.MaterialRequestItems?.Count(i => i.ItemStatus == "موجود جزئی") ?? 0;
+                                                var unavailableCount = request.MaterialRequestItems?.Count(i => i.ItemStatus == "ناموجود" || string.IsNullOrEmpty(i.ItemStatus)) ?? 0;
+                                                var totalItems = request.MaterialRequestItems?.Count ?? 0;
+                                            }
+                                            <div class="inventory-status">
+                                                @if (availableCount > 0)
+                                                {
+                                                    <span class="badge bg-success-subtle text-success fs-12">
+                                                        @availableCount موجود
+                                                    </span>
+                                                }
+                                                @if (partialCount > 0)
+                                                {
+                                                    <span class="badge bg-warning-subtle text-warning fs-12">
+                                                        @partialCount جزئی
+                                                    </span>
+                                                }
+                                                @if (unavailableCount > 0)
+                                                {
+                                                    <span class="badge bg-danger-subtle text-danger fs-12">
+                                                        @unavailableCount ناموجود
+                                                    </span>
+                                                }
+                                                @if (totalItems == 0)
+                                                {
+                                                    <span class="badge bg-light text-muted fs-12">بررسی نشده</span>
+                                                }
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @{
+                                                var priorityClass = request.PriorityLevel switch
+                                                {
+                                                    1 => "bg-danger",
+                                                    2 => "bg-warning",
+                                                    3 => "bg-primary",
+                                                    4 => "bg-info",
+                                                    5 => "bg-light text-dark",
+                                                    _ => "bg-secondary"
+                                                };
+                                                var priorityText = request.PriorityLevel switch
+                                                {
+                                                    1 => "بحرانی",
+                                                    2 => "بالا",
+                                                    3 => "متوسط",
+                                                    4 => "پایین",
+                                                    5 => "خیلی پایین",
+                                                    _ => "نامشخص"
+                                                };
+                                            }
+                                            <span class="badge @priorityClass fs-12">@priorityText</span>
+                                        </td>
+                                        <td>
+                                            @{
+                                                var statusClass = request.Status switch
+                                                {
+                                                    "در انتظار بررسی" => "bg-warning-subtle text-warning",
+                                                    "در حال بررسی" => "bg-info-subtle text-info",
+                                                    "آماده تحویل" => "bg-success-subtle text-success",
+                                                    "نیاز به جایگزین" => "bg-primary-subtle text-primary",
+                                                    "نیاز به خرید" => "bg-danger-subtle text-danger",
+                                                    "تحویل شده" => "bg-dark-subtle text-body",
+                                                    _ => "bg-light text-dark"
+                                                };
+                                            }
+                                            <span class="badge @statusClass fs-12">@request.Status</span>
+                                            @if (!string.IsNullOrEmpty(request.WorkflowStage))
+                                            {
+                                                <br>
+                                                <small class="text-muted">@request.WorkflowStage</small>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <a href="@Url.Action("InventoryProcessRequest", new { id = request.RequestId })"
+                                                   class="btn btn-outline-primary" title="مشاهده جزئیات">
+                                                    <i class="ri-eye-line">مشاهده جزئیات</i>
+                                                </a>
+                                                @if (request.Status == "در انتظار بررسی")
+                                                {
+                                                    <button type="button" class="btn btn-outline-info"
+                                                            onclick="quickInventoryCheck('@request.RequestId')" title="بررسی سریع موجودی">
+                                                        <i class="ri-search-line">بررسی سریع موجودی</i>
+                                                    </button>
+                                                }
+                                                @if (request.Status == "آماده تحویل")
+                                                {
+                                                    <button type="button" class="btn btn-outline-success"
+                                                            onclick="quickDeliver('@request.RequestId')" title="تحویل سریع">
+                                                        <i class="ri-truck-line">تحویل سریع</i>
+                                                    </button>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="8" class="text-center py-5">
+                                        <div class="d-flex flex-column align-items-center">
+                                            <i class="ri-inbox-line display-4 text-muted mb-3"></i>
+                                            <h5 class="text-muted">هیچ درخواستی یافت نشد</h5>
+                                            <p class="text-muted mb-3">در حال حاضر درخواست مطابق با فیلتر اعمال شده وجود ندارد</p>
+                                            <a href="@Url.Action("InventoryRequestList")" class="btn btn-primary">
+                                                <i class="ri-refresh-line me-1"></i> نمایش همه
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                @if (Model != null && Model.TotalPages > 1)
+                {
+                    <div class="d-flex justify-content-end mt-3">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination mb-0">
+                                @if (Model.HasPreviousPage)
+                                {
+                                    <li class="page-item">
+                                        <a class="page-link" href="@Url.Action("InventoryRequestList", new {
+                                            page = Model.PageIndex - 1,
+                                            searchKey = Context.Request.Query["searchKey"],
+                                            status = Context.Request.Query["status"],
+                                            priority = Context.Request.Query["priority"],
+                                            urgentOnly = Context.Request.Query["urgentOnly"]
+                                        })">
+                                            <i class="mdi mdi-chevron-right"> قبلی</i>
+                                        </a>
+                                    </li>
+                                }
+
+                                @for (int i = 1; i <= Model.TotalPages; i++)
+                                {
+                                    <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                                        <a class="page-link" href="@Url.Action("InventoryRequestList", new {
+                                            page = i,
+                                            searchKey = Context.Request.Query["searchKey"],
+                                            status = Context.Request.Query["status"],
+                                            priority = Context.Request.Query["priority"],
+                                            urgentOnly = Context.Request.Query["urgentOnly"]
+                                        })">@i</a>
+                                    </li>
+                                }
+
+                                @if (Model.HasNextPage)
+                                {
+                                    <li class="page-item">
+                                        <a class="page-link" href="@Url.Action("InventoryRequestList", new {
+                                            page = Model.PageIndex + 1,
+                                            searchKey = Context.Request.Query["searchKey"],
+                                            status = Context.Request.Query["status"],
+                                            priority = Context.Request.Query["priority"],
+                                            urgentOnly = Context.Request.Query["urgentOnly"]
+                                        })">
+                                            <i class="mdi mdi-chevron-left">بعدی</i>
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </nav>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Actions Modal -->
+<div class="modal fade" id="bulkActionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bulkActionModalLabel">عملیات گروهی</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="bulkActionContent">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">در حال بارگذاری...</span>
+                        </div>
+                        <p class="mt-2">در حال پردازش...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">بستن</button>
+                <button type="button" class="btn btn-primary" id="executeBulkAction" style="display: none;">
+                    اجرای عملیات
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Global variables
+        let selectedRequests = [];
+
+        // Document ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            // Auto-refresh every 5 minutes
+            setInterval(function() {
+                showAutoRefreshNotification();
+            }, 300000); // 5 minutes
+        });
+
+        // Select all checkbox functionality
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('.request-checkbox');
+
+            checkboxes.forEach(function(checkbox) {
+                checkbox.checked = selectAll.checked;
+            });
+
+            updateSelectedRequests();
+        }
+
+        // Update selected requests array
+        function updateSelectedRequests() {
+            const checkboxes = document.querySelectorAll('.request-checkbox:checked');
+            selectedRequests = Array.from(checkboxes).map(cb => cb.value);
+
+            // Update bulk action buttons visibility
+            const bulkButtons = document.querySelector('.btn-group');
+            if (selectedRequests.length > 0) {
+                bulkButtons.classList.add('bulk-actions-visible');
+            } else {
+                bulkButtons.classList.remove('bulk-actions-visible');
+            }
+        }
+
+        // Listen for individual checkbox changes
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('request-checkbox')) {
+                updateSelectedRequests();
+            }
+        });
+
+        // Quick inventory check for single request
+        async function quickInventoryCheck(requestId) {
+            try {
+                showLoadingSpinner('در حال بررسی موجودی...');
+
+                const response = await fetch('@Url.Action("ProcessRequest")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': getAntiForgeryToken()
+                    },
+                    body: `requestId=${requestId}&action=check_inventory&comments=بررسی سریع موجودی توسط انبارداری`
+                });
+
+                hideLoadingSpinner();
+
+                if (response.ok) {
+                    showSuccessNotification('موجودی بررسی شد');
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    const errorData = await response.text();
+                    showErrorNotification('خطا در بررسی موجودی: ' + errorData);
+                }
+            } catch (error) {
+                hideLoadingSpinner();
+                showErrorNotification('خطا در ارتباط با سرور');
+                console.error('Error:', error);
+            }
+        }
+
+        // Quick deliver for single request
+        async function quickDeliver(requestId) {
+            if (!confirm('آیا مطمئن هستید که این درخواست تحویل داده شده است؟')) {
+                return;
+            }
+
+            try {
+                showLoadingSpinner('در حال ثبت تحویل...');
+
+                const response = await fetch('@Url.Action("ProcessRequest")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': getAntiForgeryToken()
+                    },
+                    body: `requestId=${requestId}&action=deliver&comments=تحویل سریع توسط انبارداری`
+                });
+
+                hideLoadingSpinner();
+
+                if (response.ok) {
+                    showSuccessNotification('درخواست تحویل شد');
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    const errorData = await response.text();
+                    showErrorNotification('خطا در ثبت تحویل: ' + errorData);
+                }
+            } catch (error) {
+                hideLoadingSpinner();
+                showErrorNotification('خطا در ارتباط با سرور');
+                console.error('Error:', error);
+            }
+        }
+
+        // Bulk inventory check
+        async function bulkInventoryCheck() {
+            const pendingRequests = Array.from(document.querySelectorAll('[data-request-id]'))
+                .filter(row => {
+                    const statusBadge = row.querySelector('.badge');
+                    return statusBadge && (statusBadge.textContent.includes('در انتظار بررسی') || statusBadge.textContent.includes('در حال بررسی'));
+                })
+                .map(row => row.getAttribute('data-request-id'));
+
+            if (pendingRequests.length === 0) {
+                showWarningNotification('درخواست قابل بررسی‌ای یافت نشد');
+                return;
+            }
+
+            if (!confirm(`آیا مطمئن هستید که می‌خواهید موجودی ${pendingRequests.length} درخواست را بررسی کنید؟`)) {
+                return;
+            }
+
+            showLoadingSpinner('در حال بررسی موجودی درخواست‌ها...');
+
+            let processed = 0;
+            let errors = 0;
+
+            for (const requestId of pendingRequests) {
+                try {
+                    const response = await fetch('@Url.Action("ProcessRequest")', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'RequestVerificationToken': getAntiForgeryToken()
+                        },
+                        body: `requestId=${requestId}&action=check_inventory&comments=بررسی گروهی موجودی`
+                    });
+
+                    if (response.ok) {
+                        processed++;
+                    } else {
+                        errors++;
+                    }
+                } catch (error) {
+                    errors++;
+                    console.error('Error processing request:', requestId, error);
+                }
+
+                // Update progress
+                updateProgressSpinner(`در حال پردازش... (${processed + errors}/${pendingRequests.length})`);
+
+                // Small delay to prevent overwhelming the server
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+
+            hideLoadingSpinner();
+
+            if (errors === 0) {
+                showSuccessNotification(`${processed} درخواست با موفقیت پردازش شد`);
+            } else {
+                showWarningNotification(`${processed} درخواست پردازش شد، ${errors} درخواست با خطا مواجه شد`);
+            }
+
+            setTimeout(() => location.reload(), 2000);
+        }
+
+        // Bulk approve selected requests
+        async function bulkApprove() {
+            if (selectedRequests.length === 0) {
+                showWarningNotification('لطفاً حداقل یک درخواست انتخاب کنید');
+                return;
+            }
+
+            if (!confirm(`آیا مطمئن هستید که می‌خواهید ${selectedRequests.length} درخواست انتخاب شده را تأیید کنید؟`)) {
+                return;
+            }
+
+            showLoadingSpinner('در حال تأیید درخواست‌ها...');
+
+            let processed = 0;
+            let errors = 0;
+
+            for (const requestId of selectedRequests) {
+                try {
+                    const response = await fetch('@Url.Action("ProcessRequest")', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'RequestVerificationToken': getAntiForgeryToken()
+                        },
+                        body: `requestId=${requestId}&action=approve&comments=تأیید گروهی توسط انبارداری`
+                    });
+
+                    if (response.ok) {
+                        processed++;
+                    } else {
+                        errors++;
+                    }
+                } catch (error) {
+                    errors++;
+                    console.error('Error approving request:', requestId, error);
+                }
+
+                updateProgressSpinner(`در حال تأیید... (${processed + errors}/${selectedRequests.length})`);
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+
+            hideLoadingSpinner();
+
+            if (errors === 0) {
+                showSuccessNotification(`${processed} درخواست با موفقیت تأیید شد`);
+            } else {
+                showWarningNotification(`${processed} درخواست تأیید شد، ${errors} درخواست با خطا مواجه شد`);
+            }
+
+            setTimeout(() => location.reload(), 2000);
+        }
+
+        // Refresh data
+        function refreshData() {
+            showLoadingSpinner('در حال به‌روزرسانی...');
+            setTimeout(() => location.reload(), 1000);
+        }
+
+        // Generate inventory report
+        function generateInventoryReport() {
+            showLoadingSpinner('در حال تولید گزارش...');
+
+            // Simulate report generation
+            setTimeout(() => {
+                hideLoadingSpinner();
+                showInfoNotification('گزارش‌گیری در حال توسعه است');
+            }, 2000);
+        }
+
+        // Utility functions
+        function getAntiForgeryToken() {
+            return document.querySelector('input[name="__RequestVerificationToken"]')?.value ||
+                   document.querySelector('[name=__RequestVerificationToken]')?.value || '';
+        }
+
+        // Notification functions
+        function showSuccessNotification(message) {
+            showNotification(message, 'success');
+        }
+
+        function showErrorNotification(message) {
+            showNotification(message, 'danger');
+        }
+
+        function showWarningNotification(message) {
+            showNotification(message, 'warning');
+        }
+
+        function showInfoNotification(message) {
+            showNotification(message, 'info');
+        }
+
+        function showNotification(message, type) {
+            const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show position-fixed"
+                     style="top: 20px; right: 20px; z-index: 9999; min-width: 300px;" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>`;
+
+            document.body.insertAdjacentHTML('beforeend', alertHtml);
+
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                const alert = document.querySelector('.alert:last-of-type');
+                if (alert) {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }
+            }, 5000);
+        }
+
+        function showAutoRefreshNotification() {
+            const alertHtml = `
+                <div class="alert alert-info alert-dismissible fade show position-fixed"
+                     style="bottom: 20px; right: 20px; z-index: 9999; min-width: 300px;" role="alert">
+                    <i class="ri-information-line me-2"></i>
+                    داده‌ها ممکن است نیاز به به‌روزرسانی داشته باشند
+                    <button type="button" class="btn btn-sm btn-outline-primary ms-2" onclick="refreshData()">
+                        به‌روزرسانی
+                    </button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>`;
+
+            document.body.insertAdjacentHTML('beforeend', alertHtml);
+        }
+
+        // Loading spinner functions
+        function showLoadingSpinner(message = 'در حال بارگذاری...') {
+            const spinnerHtml = `
+                <div id="loadingSpinner" class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+                     style="background-color: rgba(0,0,0,0.5); z-index: 9999;">
+                    <div class="bg-white rounded p-4 text-center">
+                        <div class="spinner-border text-primary mb-3" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <div id="spinnerMessage">${message}</div>
+                    </div>
+                </div>`;
+
+            document.body.insertAdjacentHTML('beforeend', spinnerHtml);
+        }
+
+        function updateProgressSpinner(message) {
+            const spinnerMessage = document.getElementById('spinnerMessage');
+            if (spinnerMessage) {
+                spinnerMessage.textContent = message;
+            }
+        }
+
+        function hideLoadingSpinner() {
+            const spinner = document.getElementById('loadingSpinner');
+            if (spinner) {
+                spinner.remove();
+            }
+        }
+
+        // Add hover effects to cards
+        document.addEventListener('DOMContentLoaded', function() {
+            const hoverCards = document.querySelectorAll('.hover-card');
+            hoverCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                    this.style.transition = 'all 0.3s ease';
+                });
+
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = '';
+                });
+            });
+        });
+    </script>
+
+
+}

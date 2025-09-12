@@ -1,0 +1,1002 @@
+﻿@model Mehrsam_Darou.Models.MaterialRequest
+
+@{
+    ViewData["Title"] = "ویرایش درخواست مواد";
+}
+
+<!-- Display Messages -->
+@if (TempData["SuccessMessage"] != null)
+{
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0">ویرایش درخواست مواد</h4>
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="@Url.Action("MyRequests")">درخواست‌ها</a></li>
+                    <li class="breadcrumb-item"><a href="@Url.Action("ProcessRequest", new { id = Model.RequestId })">@Model.RequestNumber</a></li>
+                    <li class="breadcrumb-item active">ویرایش</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model.Status != "در انتظار بررسی")
+{
+        <div class="alert alert-warning" role="alert">
+            <i class="ri-alert-line me-2"></i>
+            <strong>توجه:</strong> این درخواست در وضعیت "@Model.Status" قرار دارد و ممکن است قابل ویرایش نباشد.
+        </div>
+}
+
+<form asp-action="EditRequest" method="post" id="materialRequestForm">
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.RequestId)
+    @Html.HiddenFor(m => m.RequestNumber)
+    @Html.HiddenFor(m => m.Status)
+    @Html.HiddenFor(m => m.CreatedDate)
+    @Html.HiddenFor(m => m.CreatedBy)
+    @Html.HiddenFor(m => m.RequestedBy)
+
+    <div class="row">
+        <!-- Main Form -->
+        <div class="col-lg-8">
+            <!-- Request Information -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="ri-edit-line align-middle me-1"></i>
+                        اطلاعات درخواست
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Request Status Info -->
+                    <div class="alert alert-info border-0 mb-4" role="alert">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0 me-3">
+                                <i class="ri-information-line fs-4"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">وضعیت فعلی: <span class="badge bg-primary">@Model.Status</span></h6>
+                                <p class="mb-0">شماره درخواست: <strong>@Model.RequestNumber</strong></p>
+                                <small class="text-muted">تاریخ ایجاد: @Model.RequestDate.ToString("yyyy/MM/dd HH:mm")</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Request Title -->
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label asp-for="RequestTitle" class="form-label">عنوان درخواست <span class="text-danger">*</span></label>
+                                <input asp-for="RequestTitle" class="form-control" placeholder="عنوان مختصری برای درخواست وارد کنید" />
+                                <span asp-validation-for="RequestTitle" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label asp-for="Description" class="form-label">توضیحات</label>
+                                <textarea asp-for="Description" class="form-control" rows="3" placeholder="توضیحات تکمیلی درخواست..."></textarea>
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Category -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="CategoryId" class="form-label">دسته‌بندی <span class="text-danger">*</span></label>
+                                <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.Categories">
+                                    <option value="">انتخاب کنید</option>
+                                </select>
+                                <span asp-validation-for="CategoryId" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Request Type -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="RequestTypeId" class="form-label">نوع درخواست <span class="text-danger">*</span></label>
+                                <select asp-for="RequestTypeId" class="form-select" asp-items="ViewBag.RequestTypes">
+                                    <option value="">انتخاب کنید</option>
+                                </select>
+                                <span asp-validation-for="RequestTypeId" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Cost Center -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="CostCenterId" class="form-label">مرکز هزینه <span class="text-danger">*</span></label>
+                                <select asp-for="CostCenterId" class="form-select" asp-items="ViewBag.CostCenters">
+                                    <option value="">انتخاب کنید</option>
+                                </select>
+                                <span asp-validation-for="CostCenterId" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Project -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="ProjectId" class="form-label">پروژه</label>
+                                <select asp-for="ProjectId" class="form-select" asp-items="ViewBag.Projects">
+                                    <option value="">انتخاب کنید (اختیاری)</option>
+                                </select>
+                                <span asp-validation-for="ProjectId" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Department -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Department" class="form-label">بخش/واحد</label>
+                                <input asp-for="Department" class="form-control" placeholder="نام بخش یا واحد سازمانی" />
+                                <span asp-validation-for="Department" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Budget Code -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="BudgetCode" class="form-label">کد بودجه</label>
+                                <input asp-for="BudgetCode" class="form-control" placeholder="کد بودجه مربوطه" />
+                                <span asp-validation-for="BudgetCode" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Currency -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Currency" class="form-label">واحد پولی</label>
+                                <select asp-for="Currency" class="form-select">
+                                    <option value="IRR">ریال (IRR)</option>
+                                    <option value="USD">دلار (USD)</option>
+                                    <option value="EUR">یورو (EUR)</option>
+                                </select>
+                                <span asp-validation-for="Currency" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Required Date -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">تاریخ مورد نیاز</label>
+                                <input type="text"
+                                       class="form-control"
+                                       data-persian-date="true"
+                                       autocomplete="off"
+                                       readonly
+                                       placeholder="انتخاب تاریخ"
+                                       value="@(Model.RequiredDate?.ToString("yyyy/MM/dd") ?? "")" />
+                                <input type="hidden" asp-for="RequiredDate" class="persian-date-hidden" />
+                                <span asp-validation-for="RequiredDate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Delivery Location -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="DeliveryLocation" class="form-label">محل تحویل</label>
+                                <input asp-for="DeliveryLocation" class="form-control" placeholder="آدرس یا محل تحویل کالا" />
+                                <span asp-validation-for="DeliveryLocation" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Special Instructions -->
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label asp-for="SpecialInstructions" class="form-label">دستورالعمل‌های ویژه</label>
+                                <textarea asp-for="SpecialInstructions" class="form-control" rows="2" placeholder="دستورالعمل‌های خاص برای این درخواست..."></textarea>
+                                <span asp-validation-for="SpecialInstructions" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Request Items Section -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="ri-list-check align-middle me-1"></i>
+                        اقلام درخواستی
+                    </h5>
+                    @if (Model.Status == "در انتظار بررسی")
+                    {
+                            <button type="button" class="btn btn-sm btn-primary" onclick="addRequestItem()">
+                                <i class="ri-add-line me-1"></i>
+                                افزودن کالا
+                            </button>
+                    }
+                </div>
+                <div class="card-body">
+                    <div id="request-items-container">
+                        @if (Model.MaterialRequestItems != null && Model.MaterialRequestItems.Any())
+                        {
+                            @for (int i = 0; i < Model.MaterialRequestItems.Count; i++)
+                            {
+                                var item = Model.MaterialRequestItems.ElementAt(i);
+                                        <div class="border rounded p-3 mb-3 request-item" id="item-@i">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <h6 class="mb-0">کالای شماره <span class="item-number">@(i + 1)</span></h6>
+                                        @if (Model.Status == "در انتظار بررسی")
+                                        {
+                                                        <button type="button" class="btn btn-sm btn-danger" onclick="removeRequestItem(this)">
+                                                            <i class="ri-delete-bin-line me-1"></i>
+                                                            حذف
+                                                        </button>
+                                        }
+                                            </div>
+
+                                            <input type="hidden" name="items[@i].ItemIndex" value="@i" />
+
+                                            <div class="row">
+                                                <!-- Item Group -->
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">گروه کالا <span class="text-danger">*</span></label>
+                                                @if (Model.Status != "در انتظار بررسی")
+                                                {
+                                                                <select name="items[@i].ItemGroupId" class="form-select item-group-select" onchange="loadMaterialsByGroup(this)" disabled>
+                                                                    <option value="">انتخاب کنید</option>
+                                                        @if (ViewBag.ItemGroups != null)
+                                                        {
+                                                            @foreach (var group in (IEnumerable<SelectListItem>)ViewBag.ItemGroups)
+                                                            {
+                                                                if (group.Value == item.ItemGroupId?.ToString())
+                                                                {
+                                                                                            <option value="@group.Value" selected>@group.Text</option>
+                                                                }
+                                                                else
+                                                                {
+                                                                                            <option value="@group.Value">@group.Text</option>
+                                                                }
+                                                            }
+                                                        }
+                                                                </select>
+                                                }
+                                                else
+                                                {
+                                                                <select name="items[@i].ItemGroupId" class="form-select item-group-select" onchange="loadMaterialsByGroup(this)">
+                                                                    <option value="">انتخاب کنید</option>
+                                                        @if (ViewBag.ItemGroups != null)
+                                                        {
+                                                            @foreach (var group in (IEnumerable<SelectListItem>)ViewBag.ItemGroups)
+                                                            {
+                                                                if (group.Value == item.ItemGroupId?.ToString())
+                                                                {
+                                                                                            <option value="@group.Value" selected>@group.Text</option>
+                                                                }
+                                                                else
+                                                                {
+                                                                                            <option value="@group.Value">@group.Text</option>
+                                                                }
+                                                            }
+                                                        }
+                                                                </select>
+                                                }
+                                                    </div>
+                                                </div>
+
+                                                <!-- Material -->
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">ماده موجود (اختیاری)</label>
+                                                @if (Model.Status != "در انتظار بررسی")
+                                                {
+                                                                <select name="items[@i].MaterialId" class="form-select material-select" disabled>
+                                                                    <option value="">انتخاب کنید</option>
+                                                        @if (ViewBag.Materials != null)
+                                                        {
+                                                            @foreach (var material in (IEnumerable<SelectListItem>)ViewBag.Materials)
+                                                            {
+                                                                if (material.Value == item.MaterialId?.ToString())
+                                                                {
+                                                                                            <option value="@material.Value" selected>@material.Text</option>
+                                                                }
+                                                                else
+                                                                {
+                                                                                            <option value="@material.Value">@material.Text</option>
+                                                                }
+                                                            }
+                                                        }
+                                                                </select>
+                                                }
+                                                else
+                                                {
+                                                                <select name="items[@i].MaterialId" class="form-select material-select">
+                                                                    <option value="">انتخاب کنید</option>
+                                                        @if (ViewBag.Materials != null)
+                                                        {
+                                                            @foreach (var material in (IEnumerable<SelectListItem>)ViewBag.Materials)
+                                                            {
+                                                                if (material.Value == item.MaterialId?.ToString())
+                                                                {
+                                                                                            <option value="@material.Value" selected>@material.Text</option>
+                                                                }
+                                                                else
+                                                                {
+                                                                                            <option value="@material.Value">@material.Text</option>
+                                                                }
+                                                            }
+                                                        }
+                                                                </select>
+                                                }
+                                                    </div>
+                                                </div>
+
+                                                <!-- Item Name -->
+                                                <div class="col-md-12">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">نام کالا <span class="text-danger">*</span></label>
+                                                @if (Model.Status != "در انتظار بررسی")
+                                                {
+                                                                <input name="items[@i].ItemName" class="form-control" placeholder="نام دقیق کالا یا قطعه" 
+                                                                       value="@item.ItemName" readonly />
+                                                }
+                                                else
+                                                {
+                                                                <input name="items[@i].ItemName" class="form-control" placeholder="نام دقیق کالا یا قطعه" 
+                                                                       value="@item.ItemName" />
+                                                }
+                                                    </div>
+                                                </div>
+
+                                                <!-- Item Description -->
+                                                <div class="col-md-12">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">توضیحات کالا</label>
+                                                @if (Model.Status != "در انتظار بررسی")
+                                                {
+                                                                <textarea name="items[@i].ItemDescription" class="form-control" rows="2" 
+                                                                          placeholder="مشخصات فنی، برند، مدل و سایر توضیحات..." readonly>@item.ItemDescription</textarea>
+                                                }
+                                                else
+                                                {
+                                                                <textarea name="items[@i].ItemDescription" class="form-control" rows="2" 
+                                                                          placeholder="مشخصات فنی، برند، مدل و سایر توضیحات...">@item.ItemDescription</textarea>
+                                                }
+                                                    </div>
+                                                </div>
+
+                                                <!-- Quantity and Unit -->
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">مقدار <span class="text-danger">*</span></label>
+                                                @if (Model.Status != "در انتظار بررسی")
+                                                {
+                                                                <input name="items[@i].QuantityRequested" class="form-control quantity-input" type="number" step="0.001" 
+                                                                       placeholder="0" value="@item.QuantityRequested" readonly />
+                                                }
+                                                else
+                                                {
+                                                                <input name="items[@i].QuantityRequested" class="form-control quantity-input" type="number" step="0.001" 
+                                                                       placeholder="0" value="@item.QuantityRequested" />
+                                                }
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">واحد <span class="text-danger">*</span></label>
+                                                @if (Model.Status != "در انتظار بررسی")
+                                                {
+                                                                <select name="items[@i].UnitId" class="form-select" disabled>
+                                                                    <option value="">انتخاب کنید</option>
+                                                        @if (ViewBag.Units != null)
+                                                        {
+                                                            @foreach (var unit in (IEnumerable<SelectListItem>)ViewBag.Units)
+                                                            {
+                                                                if (unit.Value == item.UnitId?.ToString())
+                                                                {
+                                                                                            <option value="@unit.Value" selected>@unit.Text</option>
+                                                                }
+                                                                else
+                                                                {
+                                                                                            <option value="@unit.Value">@unit.Text</option>
+                                                                }
+                                                            }
+                                                        }
+                                                                </select>
+                                                }
+                                                else
+                                                {
+                                                                <select name="items[@i].UnitId" class="form-select">
+                                                                    <option value="">انتخاب کنید</option>
+                                                        @if (ViewBag.Units != null)
+                                                        {
+                                                            @foreach (var unit in (IEnumerable<SelectListItem>)ViewBag.Units)
+                                                            {
+                                                                if (unit.Value == item.UnitId?.ToString())
+                                                                {
+                                                                                            <option value="@unit.Value" selected>@unit.Text</option>
+                                                                }
+                                                                else
+                                                                {
+                                                                                            <option value="@unit.Value">@unit.Text</option>
+                                                                }
+                                                            }
+                                                        }
+                                                                </select>
+                                                }
+                                                    </div>
+                                                </div>
+
+                                                <!-- Unit Price Estimated -->
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">قیمت تخمینی واحد</label>
+                                                @if (Model.Status != "در انتظار بررسی")
+                                                {
+                                                                <input name="items[@i].UnitPriceEstimated" class="form-control" type="number" step="0.01" min="0" 
+                                                                       placeholder="0" value="@item.UnitPriceEstimated" readonly />
+                                                }
+                                                else
+                                                {
+                                                                <input name="items[@i].UnitPriceEstimated" class="form-control" type="number" step="0.01" min="0" 
+                                                                       placeholder="0" value="@item.UnitPriceEstimated" />
+                                                }
+                                                    </div>
+                                                </div>
+
+                                                <!-- Critical Item -->
+                                                <div class="col-md-6 d-flex align-items-end">
+                                                    <div class="mb-3">
+                                                        <div class="form-check form-switch">
+                                                    @if (Model.Status != "در انتظار بررسی")
+                                                    {
+                                                                    <input name="items[@i].IsCritical" class="form-check-input" type="checkbox" value="true" 
+                                                        @(item.IsCritical ? "checked" : "") disabled />
+                                                                    <input name="items[@i].IsCritical" type="hidden" value="false" />
+                                                    }
+                                                    else
+                                                    {
+                                                                    <input name="items[@i].IsCritical" class="form-check-input" type="checkbox" value="true" 
+                                                        @(item.IsCritical ? "checked" : "") />
+                                                                    <input name="items[@i].IsCritical" type="hidden" value="false" />
+                                                    }
+                                                            <label class="form-check-label">کالای حیاتی</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                        @if (Model.Status != "در انتظار بررسی")
+                                        {
+                                                        <!-- Show current status for locked items -->
+                                                        <div class="col-12">
+                                                            <div class="alert alert-light border mb-2" role="alert">
+                                                                <div class="d-flex justify-content-between align-items-center">
+                                                                    <small class="text-muted mb-0">
+                                                                        <i class="ri-information-line me-1"></i>
+                                                                        وضعیت: @(item.ItemStatus ?? "در حال بررسی")
+                                                                    </small>
+                                                        @if (item.StockQuantity.HasValue)
+                                                        {
+                                                                            <small class="text-muted">موجودی: @item.StockQuantity.Value</small>
+                                                        }
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                        }
+                                            </div>
+                                        </div>
+                            }
+                        }
+                        else
+                        {
+                                <div class="alert alert-info text-center" id="no-items-message">
+                                    <i class="ri-information-line me-2"></i>
+                                    هیچ کالایی در این درخواست ثبت نشده است.
+                                </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Side Panel -->
+        <div class="col-lg-4">
+            <!-- Priority & Settings -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="ri-settings-3-line align-middle me-1"></i>
+                        تنظیمات درخواست
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Priority Level -->
+                    <div class="mb-3">
+                        <label asp-for="PriorityLevel" class="form-label">سطح اولویت <span class="text-danger">*</span></label>
+                        @if (Model.Status != "در انتظار بررسی")
+                        {
+                                <select asp-for="PriorityLevel" class="form-select" asp-items="ViewBag.PriorityLevels" disabled>
+                                    <option value="">انتخاب کنید</option>
+                                </select>
+                        }
+                        else
+                        {
+                                <select asp-for="PriorityLevel" class="form-select" asp-items="ViewBag.PriorityLevels">
+                                    <option value="">انتخاب کنید</option>
+                                </select>
+                        }
+                        <span asp-validation-for="PriorityLevel" class="text-danger"></span>
+                    </div>
+
+                    <!-- Urgency Level -->
+                    <div class="mb-3">
+                        <label asp-for="Urgency" class="form-label">سطح فوریت</label>
+                        @{
+                            var urgencyOptions = new[] { "عادی", "فوری", "کم اهمیت" };
+                        }
+                        @if (Model.Status != "در انتظار بررسی")
+                        {
+                                <select asp-for="Urgency" class="form-select" disabled>
+                                @foreach (var option in urgencyOptions)
+                                {
+                                    if (option == Model.Urgency)
+                                    {
+                                                    <option value="@option" selected>@option</option>
+                                    }
+                                    else
+                                    {
+                                                    <option value="@option">@option</option>
+                                    }
+                                }
+                                </select>
+                        }
+                        else
+                        {
+                                <select asp-for="Urgency" class="form-select">
+                                @foreach (var option in urgencyOptions)
+                                {
+                                    if (option == Model.Urgency)
+                                    {
+                                                    <option value="@option" selected>@option</option>
+                                    }
+                                    else
+                                    {
+                                                    <option value="@option">@option</option>
+                                    }
+                                }
+                                </select>
+                        }
+                    </div>
+
+                    <!-- Is Urgent -->
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            @if (Model.Status != "در انتظار بررسی")
+                            {
+                                    <input asp-for="IsUrgent" class="form-check-input" type="checkbox" disabled />
+                            }
+                            else
+                            {
+                                    <input asp-for="IsUrgent" class="form-check-input" type="checkbox" />
+                            }
+                            <input asp-for="IsUrgent" type="hidden" value="false" />
+                            <label asp-for="IsUrgent" class="form-check-label">درخواست فوری</label>
+                        </div>
+                    </div>
+
+                    <!-- Is Substitute Allowed -->
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            @if (Model.Status != "در انتظار بررسی")
+                            {
+                                    <input asp-for="IsSubstituteAllowed" class="form-check-input" type="checkbox" disabled />
+                            }
+                            else
+                            {
+                                    <input asp-for="IsSubstituteAllowed" class="form-check-input" type="checkbox" />
+                            }
+                            <input asp-for="IsSubstituteAllowed" type="hidden" value="false" />
+                            <label asp-for="IsSubstituteAllowed" class="form-check-label">امکان جایگزینی</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="ri-rocket-line align-middle me-1"></i>
+                        عملیات
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        @if (Model.Status == "در انتظار بررسی")
+                        {
+                                <button type="submit" class="btn btn-success" id="submitBtn">
+                                    <i class="ri-save-line me-1"></i>
+                                    ذخیره تغییرات
+                                </button>
+                        }
+                        else
+                        {
+                                <div class="alert alert-warning border-0" role="alert">
+                                    <i class="ri-lock-line me-2"></i>
+                                    این درخواست قابل ویرایش نیست زیرا در مرحله "@Model.Status" قرار دارد.
+                                </div>
+                        }
+                        <a href="@Url.Action("ProcessRequest", new { id = Model.RequestId })" class="btn btn-info">
+                            <i class="ri-eye-line me-1"></i>
+                            مشاهده جزئیات
+                        </a>
+                        <a href="@Url.Action("MyRequests")" class="btn btn-secondary">
+                            <i class="ri-arrow-left-line me-1"></i>
+                            بازگشت
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit History -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="ri-history-line align-middle me-1"></i>
+                        تاریخچه
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline-sm">
+                        <div class="timeline-sm-item">
+                            <div class="timeline-sm-marker bg-primary"></div>
+                            <div class="timeline-sm-content">
+                                <p class="timeline-sm-title mb-1">ایجاد درخواست</p>
+                                <p class="mb-0 fs-14 text-muted">@Model.RequestDate.ToString("yyyy/MM/dd HH:mm")</p>
+                            </div>
+                        </div>
+                        <div class="timeline-sm-item">
+                            <div class="timeline-sm-marker bg-info"></div>
+                            <div class="timeline-sm-content">
+                                <p class="timeline-sm-title mb-1">وضعیت فعلی</p>
+                                <p class="mb-0 fs-14 text-muted">@Model.Status</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Help -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="ri-question-line align-middle me-1"></i>
+                        راهنما
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info border-0 mb-0" role="alert">
+                        <h6 class="mt-0"><i class="ri-lightbulb-line me-1"></i>نکات مهم:</h6>
+                        <ul class="mb-0 ps-3">
+                            <li class="mb-1">تنها درخواست‌های "در انتظار بررسی" قابل ویرایش هستند</li>
+                            <li class="mb-1">پس از تأیید درخواست، امکان ویرایش وجود ندارد</li>
+                            <li class="mb-1">تغییرات عمده ممکن است نیاز به بررسی مجدد داشته باشد</li>
+                            <li class="mb-0">در صورت حذف اقلام، آن‌ها به طور کامل حذف خواهند شد</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- Item Template (Hidden) for new items -->
+<div id="item-template" style="display: none;">
+    <div class="border rounded p-3 mb-3 request-item">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="mb-0">کالای شماره <span class="item-number">1</span></h6>
+            <button type="button" class="btn btn-sm btn-danger" onclick="removeRequestItem(this)">
+                <i class="ri-delete-bin-line me-1"></i>
+                حذف
+            </button>
+        </div>
+
+        <input type="hidden" name="items[0].ItemIndex" value="0" />
+
+        <div class="row">
+            <!-- Item Group -->
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">گروه کالا <span class="text-danger">*</span></label>
+                    <select name="items[0].ItemGroupId" class="form-select item-group-select" onchange="loadMaterialsByGroup(this)">
+                        <option value="">انتخاب کنید</option>
+                        @if (ViewBag.ItemGroups != null)
+                        {
+                            @foreach (var item in (IEnumerable<SelectListItem>)ViewBag.ItemGroups)
+                            {
+                                        <option value="@item.Value">@item.Text</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <!-- Material (Optional) -->
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">ماده موجود (اختیاری)</label>
+                    <select name="items[0].MaterialId" class="form-select material-select">
+                        <option value="">ابتدا گروه کالا را انتخاب کنید</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Item Name -->
+            <div class="col-md-12">
+                <div class="mb-3">
+                    <label class="form-label">نام کالا <span class="text-danger">*</span></label>
+                    <input name="items[0].ItemName" class="form-control" placeholder="نام دقیق کالا یا قطعه" />
+                </div>
+            </div>
+
+            <!-- Item Description -->
+            <div class="col-md-12">
+                <div class="mb-3">
+                    <label class="form-label">توضیحات کالا</label>
+                    <textarea name="items[0].ItemDescription" class="form-control" rows="2" placeholder="مشخصات فنی، برند، مدل و سایر توضیحات..."></textarea>
+                </div>
+            </div>
+
+            <!-- Quantity and Unit -->
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">مقدار <span class="text-danger">*</span></label>
+                    <input name="items[0].QuantityRequested" class="form-control quantity-input" type="number" step="0.001" placeholder="0" />
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">واحد <span class="text-danger">*</span></label>
+                    <select name="items[0].UnitId" class="form-select">
+                        <option value="">انتخاب کنید</option>
+                        @if (ViewBag.Units != null)
+                        {
+                            @foreach (var item in (IEnumerable<SelectListItem>)ViewBag.Units)
+                            {
+                                        <option value="@item.Value">@item.Text</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <!-- Unit Price Estimated -->
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">قیمت تخمینی واحد</label>
+                    <input name="items[0].UnitPriceEstimated" class="form-control" type="number" step="0.01" min="0" placeholder="0" />
+                </div>
+            </div>
+
+            <!-- Critical Item -->
+            <div class="col-md-6 d-flex align-items-end">
+                <div class="mb-3">
+                    <div class="form-check form-switch">
+                        <input name="items[0].IsCritical" class="form-check-input" type="checkbox" value="true" />
+                        <input name="items[0].IsCritical" type="hidden" value="false" />
+                        <label class="form-check-label">کالای حیاتی</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+        <!-- Persian DatePicker JavaScript -->
+        <script src="~/js/persian-datepicker.js"></script>
+
+        <script>
+            let itemCounter = @(Model.MaterialRequestItems?.Count ?? 0);
+            let isFormSubmitting = false;
+            const isEditable = '@Model.Status' === 'در انتظار بررسی';
+
+            // Wait for page to load completely
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('DOM loaded, initializing edit form...');
+                console.log('Request editable:', isEditable);
+
+                // Initialize date pickers
+                setTimeout(function() {
+                    if (window.initializePersianDatePickers) {
+                        console.log('Initializing Persian date pickers...');
+                        window.initializePersianDatePickers();
+                    } else if (window.PersianDatePicker) {
+                        console.log('PersianDatePicker class available, trying manual init...');
+                        const dateInputs = document.querySelectorAll('[data-persian-date="true"]');
+                        dateInputs.forEach(input => {
+                            try {
+                                if (!window.PersianDatePicker.activePickers.has(input)) {
+                                    window.PersianDatePicker.initializeDatePicker(input);
+                                }
+                            } catch (e) {
+                                console.warn('Error initializing date picker for input:', e);
+                            }
+                        });
+                    }
+                }, 300);
+            });
+
+            // Add request item (only if editable)
+            function addRequestItem() {
+                if (!isEditable) {
+                    alert('این درخواست قابل ویرایش نیست');
+                    return;
+                }
+
+                const template = document.getElementById('item-template');
+                const clone = template.cloneNode(true);
+                clone.style.display = 'block';
+                clone.id = `item-${itemCounter}`;
+
+                // Update item number display
+                clone.querySelector('.item-number').textContent = itemCounter + 1;
+
+                // Update field names with correct index
+                updateFieldNames(clone, itemCounter);
+
+                document.getElementById('request-items-container').appendChild(clone);
+                const noItemsMsg = document.getElementById('no-items-message');
+                if (noItemsMsg) {
+                    noItemsMsg.style.display = 'none';
+                }
+
+                itemCounter++;
+                console.log(`Added item ${itemCounter}`);
+            }
+
+            // Update field names for proper model binding
+            function updateFieldNames(container, index) {
+                const inputs = container.querySelectorAll('input, select, textarea');
+                inputs.forEach(input => {
+                    if (input.name && input.name.startsWith('items[')) {
+                        const fieldName = input.name.split('.')[1];
+                        input.name = `items[${index}].${fieldName}`;
+
+                        if (input.type === 'checkbox') {
+                            input.id = `items_${index}__${fieldName}`;
+                        } else if (input.type === 'hidden' && fieldName === 'IsCritical') {
+                            input.name = `items[${index}].${fieldName}`;
+                        } else {
+                            input.id = `items_${index}__${fieldName}`;
+                        }
+                    }
+                });
+            }
+
+            // Remove request item (only if editable)
+            function removeRequestItem(button) {
+                if (!isEditable) {
+                    alert('این درخواست قابل ویرایش نیست');
+                    return;
+                }
+
+                if (confirm('آیا مطمئن هستید که می‌خواهید این کالا را حذف کنید؟')) {
+                    const item = button.closest('.request-item');
+                    item.remove();
+                    reindexItems();
+
+                    const container = document.getElementById('request-items-container');
+                    const items = container.querySelectorAll('.request-item');
+                    if (items.length === 0) {
+                        const noItemsMsg = document.getElementById('no-items-message');
+                        if (noItemsMsg) {
+                            noItemsMsg.style.display = 'block';
+                        }
+                    }
+                    console.log(`Removed item, remaining: ${items.length}`);
+                }
+            }
+
+            // Reindex items after removal
+            function reindexItems() {
+                const items = document.querySelectorAll('.request-item');
+                items.forEach((item, index) => {
+                    item.querySelector('.item-number').textContent = index + 1;
+                    updateFieldNames(item, index);
+                });
+                itemCounter = items.length;
+            }
+
+            // Load materials by group
+            async function loadMaterialsByGroup(selectElement) {
+                if (!isEditable) return;
+
+                const groupId = selectElement.value;
+                const materialSelect = selectElement.closest('.request-item').querySelector('.material-select');
+
+                materialSelect.innerHTML = '<option value="">در حال بارگذاری...</option>';
+
+                if (groupId) {
+                    try {
+                        const response = await fetch(`@Url.Action("GetMaterialsByGroup")?itemGroupId=${groupId}`);
+                        if (response.ok) {
+                            const materials = await response.json();
+
+                            materialSelect.innerHTML = '<option value="">انتخاب کنید (اختیاری)</option>';
+                            materials.forEach(material => {
+                                const option = document.createElement('option');
+                                option.value = material.value;
+                                option.textContent = material.text;
+                                materialSelect.appendChild(option);
+                            });
+                        } else {
+                            throw new Error('Failed to load materials');
+                        }
+                    } catch (error) {
+                        console.error('Error loading materials:', error);
+                        materialSelect.innerHTML = '<option value="">خطا در بارگذاری</option>';
+                    }
+                } else {
+                    materialSelect.innerHTML = '<option value="">ابتدا گروه کالا را انتخاب کنید</option>';
+                }
+            }
+
+            // Auto-select material name when material is selected
+            document.addEventListener('change', function(e) {
+                if (e.target.classList.contains('material-select') && isEditable) {
+                    const selectedOption = e.target.options[e.target.selectedIndex];
+                    if (selectedOption.value) {
+                        const itemNameInput = e.target.closest('.request-item').querySelector('input[name*="ItemName"]');
+                        if (!itemNameInput.value.trim()) {
+                            itemNameInput.value = selectedOption.text;
+                        }
+                    }
+                }
+            });
+
+            // Form submission handler
+            const form = document.getElementById('materialRequestForm');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    if (!isEditable) {
+                        e.preventDefault();
+                        alert('این درخواست قابل ویرایش نیست');
+                        return false;
+                    }
+
+                    if (isFormSubmitting) {
+                        e.preventDefault();
+                        return false;
+                    }
+
+                    const submitBtn = document.getElementById('submitBtn');
+                    if (submitBtn) {
+                        isFormSubmitting = true;
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<i class="ri-loader-4-line me-1 spinner-border spinner-border-sm"></i> در حال ذخیره...';
+                    }
+
+                    return true;
+                });
+            }
+
+            console.log('EditRequest form initialized successfully');
+        </script>
+}

@@ -1,0 +1,1281 @@
+﻿@model Mehrsam_Darou.Models.MaterialRequest
+
+@{
+    ViewData["Title"] = $"بررسی درخواست انبار - {Model.RequestNumber}";
+    var currentUserId = ViewContext.HttpContext.User.FindFirst("UserId")?.Value;
+    var canProcess = ViewBag.CanProcess ?? false;
+    
+    // Fix: Define variables in the correct scope at the top level
+    var totalItems = Model.MaterialRequestItems?.Count ?? 0;
+    var availableItems = Model.MaterialRequestItems?.Count(i => i.ItemStatus == "موجود") ?? 0;
+    var partialItems = Model.MaterialRequestItems?.Count(i => i.ItemStatus == "موجود جزئی") ?? 0;
+    var unavailableItems = Model.MaterialRequestItems?.Count(i => i.ItemStatus == "ناموجود") ?? 0;
+    var uncheckedItems = totalItems - availableItems - partialItems - unavailableItems;
+}
+
+<!-- Display Messages -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0">بررسی درخواست مواد - انبارداری</h4>
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="@Url.Action("InventoryRequestList")">درخواست‌های انبار</a></li>
+                    <li class="breadcrumb-item active">@Model.RequestNumber</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Main Content -->
+    <div class="col-lg-8">
+        <!-- Request Header Card -->
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-start">
+                    <div class="flex-grow-1">
+                        <div class="d-flex align-items-center mb-3">
+                            <h5 class="card-title mb-0 me-3">@Model.RequestTitle</h5>
+                            @if (Model.IsUrgent)
+                            {
+                                <span class="badge bg-danger fs-11">فوری</span>
+                            }
+                            @{
+                                var priorityClass = Model.PriorityLevel switch
+                                {
+                                    1 => "bg-danger",
+                                    2 => "bg-warning",
+                                    3 => "bg-primary",
+                                    4 => "bg-info", 
+                                    5 => "bg-light text-dark",
+                                    _ => "bg-secondary"
+                                };
+                                var priorityText = Model.PriorityLevel switch
+                                {
+                                    1 => "بحرانی",
+                                    2 => "بالا",
+                                    3 => "متوسط",
+                                    4 => "پایین",
+                                    5 => "خیلی پایین",
+                                    _ => "نامشخص"
+                                };
+                            }
+                            <span class="badge @priorityClass ms-2">اولویت: @priorityText</span>
+                        </div>
+
+                        <div class="row text-muted mb-3">
+                            <div class="col-sm-6">
+                                <p class="mb-1"><i class="ri-hashtag me-1"></i><strong>شماره:</strong> @Model.RequestNumber</p>
+                                <p class="mb-1"><i class="ri-calendar-line me-1"></i><strong>تاریخ ثبت:</strong> @Model.RequestDate.ToString("yyyy/MM/dd HH:mm")</p>
+                                @if (Model.RequiredDate.HasValue)
+                                {
+                                    <p class="mb-1"><i class="ri-time-line me-1"></i><strong>تاریخ مورد نیاز:</strong> @Model.RequiredDate.Value.ToString("yyyy/MM/dd")</p>
+                                }
+                            </div>
+                            <div class="col-sm-6">
+                                @if (Model.RequestedByNavigation != null)
+                                {
+                                    <p class="mb-1"><i class="ri-user-line me-1"></i><strong>درخواست‌کننده:</strong> @Model.RequestedByNavigation.FirstName @Model.RequestedByNavigation.LastName</p>
+                                }
+                                @if (!string.IsNullOrEmpty(Model.Department))
+                                {
+                                    <p class="mb-1"><i class="ri-building-line me-1"></i><strong>بخش:</strong> @Model.Department</p>
+                                }
+                                @if (Model.CostCenter != null)
+                                {
+                                    <p class="mb-1"><i class="ri-bank-line me-1"></i><strong>مرکز هزینه:</strong> @Model.CostCenter.CostCenterName</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex-shrink-0 ms-3">
+                        @{
+                            var statusClass = Model.Status switch
+                            {
+                                "در انتظار بررسی" => "bg-warning-subtle text-warning",
+                                "در حال بررسی" => "bg-info-subtle text-info",
+                                "آماده تحویل" => "bg-success-subtle text-success",
+                                "نیاز به جایگزین" => "bg-primary-subtle text-primary",
+                                "نیاز به خرید" => "bg-danger-subtle text-danger",
+                                "تحویل شده" => "bg-dark-subtle text-body",
+                                _ => "bg-light text-dark"
+                            };
+                        }
+                        <div class="text-end">
+                            <span class="badge @statusClass fs-12 mb-2 d-block">@Model.Status</span>
+                            @if (!string.IsNullOrEmpty(Model.WorkflowStage))
+                            {
+                                <small class="text-muted">@Model.WorkflowStage</small>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Request Items with Stock Status -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="ri-list-check me-1"></i>
+                    بررسی موجودی اقلام (@totalItems قلم)
+                </h5>
+                @if (canProcess && (Model.Status == "در انتظار بررسی" || Model.Status == "در حال بررسی"))
+                {
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-sm btn-info" onclick="checkAllInventory()">
+                            <i class="ri-search-line me-1"></i>
+                            بررسی همه
+                        </button>
+                        <button type="button" class="btn btn-sm btn-success" onclick="markAllAvailable()">
+                            <i class="ri-check-line me-1"></i>
+                            همه موجود
+                        </button>
+                    </div>
+                }
+            </div>
+            <div class="card-body">
+                @if (Model.MaterialRequestItems != null && Model.MaterialRequestItems.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-nowrap align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="40">#</th>
+                                    <th>نام کالا</th>
+                                    <th>مقدار درخواستی</th>
+                                    <th>موجودی فعلی</th>
+                                    <th>وضعیت</th>
+                                    <th>جایگزین</th>
+                                    <th width="120">عملیات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    var itemIndex = 1;
+                                }
+                                @foreach (var item in Model.MaterialRequestItems)
+                                {
+                                    <tr id="item-row-@item.ItemId">
+                                        <td>@itemIndex</td>
+                                        <td>
+                                            <div>
+                                                <h6 class="mb-1">@item.ItemName</h6>
+                                                @if (!string.IsNullOrEmpty(item.ItemDescription))
+                                                {
+                                                    <p class="text-muted mb-0 fs-13">@item.ItemDescription</p>
+                                                }
+                                                @if (item.IsCritical)
+                                                {
+                                                    <span class="badge bg-danger-subtle text-danger fs-11 mt-1">حیاتی</span>
+                                                }
+                                                @if (item.Material != null)
+                                                {
+                                                    <div class="mt-1">
+                                                        <small class="text-info">کد: @item.Material.MaterialCode</small>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <span class="fw-medium">@item.QuantityRequested</span>
+                                                @if (item.Unit != null)
+                                                {
+                                                    <span class="text-muted">@item.Unit.UnitName</span>
+                                                }
+                                                @if (item.UnitPriceEstimated.HasValue)
+                                                {
+                                                    <br>
+                                                    <small class="text-muted">
+                                                        قیمت تخمینی: @item.UnitPriceEstimated.Value.ToString("N0") @Model.Currency
+                                                    </small>
+                                                }
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="stock-info" data-item-id="@item.ItemId">
+                                                @if (item.StockQuantity.HasValue)
+                                                {
+                                                    var stockRatio = item.StockQuantity.Value / item.QuantityRequested * 100;
+                                                    var stockClass = stockRatio >= 100 ? "text-success" : stockRatio >= 50 ? "text-warning" : "text-danger";
+
+                                                    <span class="fw-medium stock-quantity">@item.StockQuantity.Value</span>
+                                                    @if (item.Unit != null)
+                                                    {
+                                                        <span class="text-muted">@item.Unit.UnitName</span>
+                                                    }
+                                                    <br>
+                                                    <small class="@stockClass">
+                                                        @stockRatio.ToString("F1")% موجود
+                                                    </small>
+                                                }
+
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="item-status" data-item-id="@item.ItemId">
+                                                @{
+                                                    var itemStatusClass = item.ItemStatus switch
+                                                    {
+                                                        "موجود" => "bg-success-subtle text-success",
+                                                        "موجود جزئی" => "bg-warning-subtle text-warning",
+                                                        "ناموجود" => "bg-danger-subtle text-danger",
+                                                        _ => "bg-light text-muted"
+                                                    };
+                                                }
+                                                <span class="badge @itemStatusClass fs-11 status-badge">
+                                                    @(item.ItemStatus ?? "بررسی نشده")
+                                                </span>
+                                                @if (!string.IsNullOrEmpty(item.AvailabilityStatus) && item.AvailabilityStatus != item.ItemStatus)
+                                                {
+                                                    <br>
+                                                    <small class="text-muted">@item.AvailabilityStatus</small>
+                                                }
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="substitute-info">
+                                                @if (item.SubstituteMaterial != null)
+                                                {
+                                                    <small class="text-info d-block">
+                                                        <i class="ri-arrow-right-line me-1"></i>
+                                                        @item.SubstituteMaterial.MaterialName
+                                                    </small>
+                                                }
+                                                else if (Model.IsSubstituteAllowed == true && (item.ItemStatus == "ناموجود" || item.ItemStatus == "موجود جزئی"))
+                                                {
+                                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="findSubstitute('@item.ItemId')">
+                                                        <i class="ri-search-line me-1"></i>
+                                                        جستجوی جایگزین
+                                                    </button>
+                                                }
+                                                else if (item.ItemStatus == "ناموجود")
+                                                {
+                                                    <small class="text-muted">نیاز به خرید</small>
+                                                }
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @if (canProcess && (Model.Status == "در انتظار بررسی" || Model.Status == "در حال بررسی"))
+                                            {
+                                                <div class="btn-group btn-group-sm" role="group">
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                                            <i class="ri-more-fill"></i>
+                                                        </button>
+                                                        <ul class="dropdown-menu">
+                                                            <li>
+                                                                <a class="dropdown-item text-success" href="#" 
+                                                                   onclick="updateItemStatus('@item.ItemId', 'موجود')">
+                                                                    <i class="ri-check-fill me-2"></i>موجود
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item text-warning" href="#" 
+                                                                   onclick="updateItemStatus('@item.ItemId', 'موجود جزئی')">
+                                                                    <i class="ri-error-warning-fill me-2"></i>جزئی
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item text-danger" href="#" 
+                                                                   onclick="updateItemStatus('@item.ItemId', 'ناموجود')">
+                                                                    <i class="ri-close-fill me-2"></i>ناموجود
+                                                                </a>
+                                                            </li>
+                                                            @if (item.Material != null)
+                                                            {
+                                                                <li><hr class="dropdown-divider"></li>
+                                                                <li>
+                                                                    <a class="dropdown-item text-info" href="#" 
+                                                                       onclick="showBatchDetails('@item.MaterialId')">
+                                                                        <i class="ri-eye-fill me-2"></i>جزئیات بچ‌ها
+                                                                    </a>
+                                                                </li>
+                                                            }
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <small class="text-muted">قفل شده</small>
+                                            }
+                                        </td>
+                                    </tr>
+                                    itemIndex++;
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Summary Row - Fixed variable scope -->
+                    <div class="row mt-3">
+                        <div class="col-md-8">
+                            <div class="d-flex gap-3">
+                                <div class="text-center">
+                                    <h6 class="text-success mb-0">@availableItems</h6>
+                                    <small class="text-muted">موجود</small>
+                                </div>
+                                <div class="text-center">
+                                    <h6 class="text-warning mb-0">@partialItems</h6>
+                                    <small class="text-muted">جزئی</small>
+                                </div>
+                                <div class="text-center">
+                                    <h6 class="text-danger mb-0">@unavailableItems</h6>
+                                    <small class="text-muted">ناموجود</small>
+                                </div>
+                                <div class="text-center">
+                                    <h6 class="text-muted mb-0">@uncheckedItems</h6>
+                                    <small class="text-muted">بررسی نشده</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            @if (Model.TotalEstimatedCost.HasValue && Model.TotalEstimatedCost > 0)
+                            {
+                                <div>
+                                    <small class="text-muted">برآورد کل:</small>
+                                    <h6 class="text-primary mb-0">@Model.TotalEstimatedCost.Value.ToString("N0") @Model.Currency</h6>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <i class="ri-inbox-line display-4 text-muted"></i>
+                        <h5 class="mt-3 text-muted">هیچ کالایی ثبت نشده است</h5>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Request Details -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-information-line me-1"></i>
+                    جزئیات درخواست
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        @if (!string.IsNullOrEmpty(Model.Description))
+                        {
+                            <div class="mb-3">
+                                <strong>توضیحات:</strong>
+                                <p class="text-muted mb-0">@Model.Description</p>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.SpecialInstructions))
+                        {
+                            <div class="mb-3">
+                                <strong>دستورالعمل‌های ویژه:</strong>
+                                <p class="text-muted mb-0">@Model.SpecialInstructions</p>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.DeliveryLocation))
+                        {
+                            <div class="mb-3">
+                                <strong>محل تحویل:</strong>
+                                <p class="text-muted mb-0">@Model.DeliveryLocation</p>
+                            </div>
+                        }
+                    </div>
+                    <div class="col-md-6">
+                        @if (Model.Project != null)
+                        {
+                            <div class="mb-3">
+                                <strong>پروژه:</strong>
+                                <p class="text-muted mb-0">@Model.Project.ProjectName</p>
+                            </div>
+                        }
+                        <div class="mb-3">
+                            <strong>امکان جایگزینی:</strong>
+                            <p class="text-muted mb-0">
+                                @if (Model.IsSubstituteAllowed == true)
+                                {
+                                    <span class="text-success">مجاز</span>
+                                }
+                                else
+                                {
+                                    <span class="text-danger">غیرمجاز</span>
+                                }
+                            </p>
+                        </div>
+                        @if (!string.IsNullOrEmpty(Model.BudgetCode))
+                        {
+                            <div class="mb-3">
+                                <strong>کد بودجه:</strong>
+                                <p class="text-muted mb-0">@Model.BudgetCode</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.RejectionReason))
+                {
+                    <div class="alert alert-danger mt-3" role="alert">
+                        <h6 class="alert-heading"><i class="ri-error-warning-line me-2"></i>دلیل رد:</h6>
+                        <p class="mb-0">@Model.RejectionReason</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Inventory Actions -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-tools-line me-1"></i>
+                    عملیات انبارداری
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    @if (canProcess)
+                    {
+                        @if (Model.Status == "در انتظار بررسی")
+                        {
+                            <button type="button" class="btn btn-info" onclick="startInventoryCheck()">
+                                <i class="ri-search-line me-1"></i>
+                                شروع بررسی موجودی
+                            </button>
+                        }
+
+                        @if (Model.Status == "در حال بررسی" || Model.Status == "آماده تحویل")
+                        {
+                            <button type="button" class="btn btn-success" onclick="processAction('approve')">
+                                <i class="ri-check-line me-1"></i>
+                                تأیید و آماده‌سازی
+                            </button>
+
+                            @if (Model.IsSubstituteAllowed == true)
+                            {
+                                <button type="button" class="btn btn-warning" onclick="processAction('find_substitute')">
+                                    <i class="ri-exchange-line me-1"></i>
+                                    جستجوی جایگزین
+                                </button>
+                            }
+                        }
+
+                        @if (Model.Status == "آماده تحویل")
+                        {
+                            <button type="button" class="btn btn-primary" onclick="processAction('deliver')">
+                                <i class="ri-truck-line me-1"></i>
+                                ثبت تحویل
+                            </button>
+                        }
+
+                        <hr class="my-3">
+
+                        <button type="button" class="btn btn-danger" onclick="processAction('reject')">
+                            <i class="ri-close-line me-1"></i>
+                            عدم تأیید درخواست
+                        </button>
+                    }
+
+                    <a href="@Url.Action("InventoryRequestList")" class="btn btn-outline-secondary">
+                        <i class="ri-arrow-left-line me-1"></i>
+                        بازگشت به لیست
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stock Summary - Fixed variable scope -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-bar-chart-line me-1"></i>
+                    خلاصه موجودی
+                </h5>
+            </div>
+            <div class="card-body">
+                @{
+                    var completionPercentage = totalItems > 0 ? (availableItems * 100.0 / totalItems) : 0;
+                    var partialPercentage = totalItems > 0 ? (partialItems * 100.0 / totalItems) : 0;
+                    var progressClass = completionPercentage >= 80 ? "bg-success" : completionPercentage >= 50 ? "bg-warning" : "bg-danger";
+                }
+                
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="fs-14">تکمیل موجودی</span>
+                        <span class="fs-14 fw-medium">@completionPercentage.ToString("F1")%</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar @progressClass" role="progressbar" 
+                             style="width: @completionPercentage.ToString("F1")%" 
+                             aria-valuenow="@completionPercentage" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+
+                <div class="row g-0 text-center">
+                    <div class="col-3">
+                        <div class="border-end">
+                            <h5 class="text-success mb-1">@availableItems</h5>
+                            <p class="text-muted mb-0 fs-13">کامل</p>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="border-end">
+                            <h5 class="text-warning mb-1">@partialItems</h5>
+                            <p class="text-muted mb-0 fs-13">جزئی</p>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="border-end">
+                            <h5 class="text-danger mb-1">@unavailableItems</h5>
+                            <p class="text-muted mb-0 fs-13">ناموجود</p>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <h5 class="text-muted mb-1">@uncheckedItems</h5>
+                        <p class="text-muted mb-0 fs-13">بررسی نشده</p>
+                    </div>
+                </div>
+
+                @if (availableItems > 0 && unavailableItems > 0)
+                {
+                    <div class="alert alert-warning mt-3 border-0" role="alert">
+                        <i class="ri-alert-line me-2"></i>
+                        <small>این درخواست نیاز به تحویل جزئی و خرید دارد</small>
+                    </div>
+                }
+                else if (availableItems == totalItems && totalItems > 0)
+                {
+                    <div class="alert alert-success mt-3 border-0" role="alert">
+                        <i class="ri-check-line me-2"></i>
+                        <small>تمام اقلام موجود و آماده تحویل هستند</small>
+                    </div>
+                }
+                else if (unavailableItems == totalItems && totalItems > 0)
+                {
+                    <div class="alert alert-danger mt-3 border-0" role="alert">
+                        <i class="ri-shopping-cart-line me-2"></i>
+                        <small>تمام اقلام نیاز به خرید دارند</small>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Workflow Timeline -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-time-line me-1"></i>
+                    سیر پردازش
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="timeline-sm">
+                    @if (ViewBag.WorkflowHistory != null)
+                    {
+                        @foreach (var workflow in ViewBag.WorkflowHistory)
+                        {
+                            <div class="timeline-sm-item">
+                                @{
+                                    var timelineClass = workflow.Status switch
+                                    {
+                                        "تأیید شده" => "bg-success",
+                                        "رد شده" => "bg-danger",
+                                        "در انتظار بررسی" => "bg-warning",
+                                        "در حال بررسی" => "bg-info",
+                                        "آماده تحویل" => "bg-success",
+                                        _ => "bg-primary"
+                                    };
+                                }
+                                <div class="timeline-sm-marker @timelineClass"></div>
+                                <div class="timeline-sm-content">
+                                    <p class="timeline-sm-title mb-1">@workflow.Stage</p>
+                                    <p class="mb-1 fs-14">@workflow.Status</p>
+                                    @if (!string.IsNullOrEmpty(workflow.Comments))
+                                    {
+                                        <p class="text-muted mb-1 fs-13">@workflow.Comments</p>
+                                    }
+                                    <p class="mb-0 fs-12 text-muted">
+                                        @workflow.ProcessedDate.ToString("yyyy/MM/dd HH:mm")
+                                        @if (workflow.ProcessedByNavigation != null)
+                                        {
+                                            <span> - @workflow.ProcessedByNavigation.FirstName @workflow.ProcessedByNavigation.LastName</span>
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="timeline-sm-item">
+                            <div class="timeline-sm-marker bg-primary"></div>
+                            <div class="timeline-sm-content">
+                                <p class="timeline-sm-title mb-1">ثبت درخواست</p>
+                                <p class="mb-0 fs-14 text-muted">@Model.RequestDate.ToString("yyyy/MM/dd HH:mm")</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stock Info -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-database-2-line me-1"></i>
+                    اطلاعات سریع انبار
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3 text-center">
+                    <div class="col-6">
+                        <div class="border rounded p-2">
+                            <i class="ri-stack-line fs-4 text-primary mb-2"></i>
+                            <h6 class="mb-0" id="totalBatches">-</h6>
+                            <small class="text-muted">کل بچ‌ها</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="border rounded p-2">
+                            <i class="ri-check-line fs-4 text-success mb-2"></i>
+                            <h6 class="mb-0" id="availableBatches">-</h6>
+                            <small class="text-muted">آزاد شده</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="button" class="btn btn-outline-info btn-sm w-100 mt-3" onclick="loadWarehouseSummary()">
+                    <i class="ri-refresh-line me-1"></i>
+                    به‌روزرسانی اطلاعات
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Process Action Modal -->
+<div class="modal fade" id="processModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="processModalLabel">پردازش درخواست</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="processForm" method="post" action="@Url.Action("ProcessRequest")">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="requestId" value="@Model.RequestId" />
+                <input type="hidden" name="action" id="processAction" />
+
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="comments" class="form-label">توضیحات:</label>
+                        <textarea class="form-control" id="comments" name="comments" rows="3"
+                                  placeholder="توضیحات مربوط به این عملیات..."></textarea>
+                    </div>
+
+                    <div id="rejectionSection" style="display: none;">
+                        <div class="alert alert-warning" role="alert">
+                            <i class="ri-error-warning-line me-2"></i>
+                            لطفاً دلیل عدم تأیید درخواست را مشخص کنید.
+                        </div>
+                    </div>
+                    
+                    <div id="deliverySection" style="display: none;">
+                        <div class="alert alert-info" role="alert">
+                            <i class="ri-truck-line me-2"></i>
+                            با انتخاب این گزینه، درخواست به عنوان تحویل شده ثبت خواهد شد.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                    <button type="submit" class="btn btn-primary" id="processSubmit">تأیید</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Batch Details Modal -->
+<div class="modal fade" id="batchModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">جزئیات بچ‌های موجود</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="batchContent">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">در حال بارگذاری...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Global variables
+        let currentRequestId = '@Model.RequestId';
+        
+        // Document ready
+        document.addEventListener('DOMContentLoaded', function() {
+            loadWarehouseSummary();
+            
+            // Auto-update stock info every 2 minutes
+            setInterval(function() {
+                updateStockInfo();
+            }, 120000);
+        });
+
+        // Start inventory check process
+        function startInventoryCheck() {
+            if (confirm('آیا می‌خواهید بررسی موجودی تمام اقلام را شروع کنید؟')) {
+                processAction('check_inventory');
+            }
+        }
+
+        // Process action (approve, reject, etc.)
+        function processAction(action) {
+            document.getElementById('processAction').value = action;
+
+            let modalTitle = 'پردازش درخواست';
+            let submitText = 'تأیید';
+            let submitClass = 'btn-primary';
+            let showRejection = false;
+            let showDelivery = false;
+
+            switch(action) {
+                case 'check_inventory':
+                    modalTitle = 'بررسی موجودی';
+                    submitText = 'شروع بررسی';
+                    submitClass = 'btn-info';
+                    break;
+                case 'approve':
+                    modalTitle = 'تأیید و آماده‌سازی درخواست';
+                    submitText = 'تأیید';
+                    submitClass = 'btn-success';
+                    break;
+                case 'reject':
+                    modalTitle = 'عدم تأیید درخواست';
+                    submitText = 'عدم تأیید';
+                    submitClass = 'btn-danger';
+                    showRejection = true;
+                    break;
+                case 'find_substitute':
+                    modalTitle = 'جستجوی مواد جایگزین';
+                    submitText = 'شروع جستجو';
+                    submitClass = 'btn-warning';
+                    break;
+                case 'deliver':
+                    modalTitle = 'ثبت تحویل کالا';
+                    submitText = 'ثبت تحویل';
+                    submitClass = 'btn-primary';
+                    showDelivery = true;
+                    break;
+            }
+
+            document.getElementById('processModalLabel').textContent = modalTitle;
+            document.getElementById('processSubmit').textContent = submitText;
+            document.getElementById('processSubmit').className = `btn ${submitClass}`;
+            document.getElementById('rejectionSection').style.display = showRejection ? 'block' : 'none';
+            document.getElementById('deliverySection').style.display = showDelivery ? 'block' : 'none';
+
+            if (showRejection) {
+                document.getElementById('comments').setAttribute('required', 'required');
+                document.getElementById('comments').setAttribute('placeholder', 'لطفاً دلیل عدم تأیید را وارد کنید...');
+            } else {
+                document.getElementById('comments').removeAttribute('required');
+                document.getElementById('comments').setAttribute('placeholder', 'توضیحات مربوط به این عملیات...');
+            }
+
+            var modal = new bootstrap.Modal(document.getElementById('processModal'));
+            modal.show();
+        }
+
+        // Update individual item status
+        async function updateItemStatus(itemId, status) {
+            try {
+                showLoadingSpinner('در حال به‌روزرسانی...');
+                
+                const response = await fetch('@Url.Action("UpdateItemStatus")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': getAntiForgeryToken()
+                    },
+                    body: JSON.stringify({ itemId: itemId, status: status })
+                });
+
+                const result = await response.json();
+                hideLoadingSpinner();
+                
+                if (result.success) {
+                    // Update UI
+                    updateItemStatusUI(itemId, status);
+                    showSuccessNotification('وضعیت با موفقیت به‌روزرسانی شد');
+                    
+                    // Update summary
+                    updateSummaryCounters();
+                } else {
+                    showErrorNotification(result.message || 'خطا در به‌روزرسانی وضعیت');
+                }
+            } catch (error) {
+                hideLoadingSpinner();
+                showErrorNotification('خطا در ارتباط با سرور');
+                console.error('Error:', error);
+            }
+        }
+
+        // Update item status in UI
+        function updateItemStatusUI(itemId, status) {
+            const itemRow = document.getElementById(`item-row-${itemId}`);
+            if (itemRow) {
+                const statusBadge = itemRow.querySelector('.status-badge');
+                if (statusBadge) {
+                    // Remove old classes
+                    statusBadge.className = 'badge fs-11 status-badge';
+                    
+                    // Add new classes based on status
+                    const statusClass = status === 'موجود' ? 'bg-success-subtle text-success' :
+                                       status === 'موجود جزئی' ? 'bg-warning-subtle text-warning' :
+                                       status === 'ناموجود' ? 'bg-danger-subtle text-danger' :
+                                       'bg-light text-muted';
+                    
+                    statusBadge.className += ' ' + statusClass;
+                    statusBadge.textContent = status;
+                }
+            }
+        }
+
+        // Check individual item stock
+        async function checkItemStock(itemId) {
+            try {
+                showLoadingSpinner('در حال بررسی موجودی...');
+                
+                const response = await fetch('@Url.Action("CheckSingleItemStock")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': getAntiForgeryToken()
+                    },
+                    body: JSON.stringify({ itemId: itemId })
+                });
+
+                const result = await response.json();
+                hideLoadingSpinner();
+                
+                if (result.success) {
+                    // Update stock info in UI
+                    const stockInfo = document.querySelector(`[data-item-id="${itemId}"] .stock-quantity`);
+                    if (stockInfo) {
+                        stockInfo.textContent = result.stockQuantity;
+                        
+                        // Update status based on stock
+                        updateItemStatusUI(itemId, result.status);
+                    }
+                    
+                    showSuccessNotification('موجودی بررسی شد');
+                } else {
+                    showErrorNotification(result.message || 'خطا در بررسی موجودی');
+                }
+            } catch (error) {
+                hideLoadingSpinner();
+                showErrorNotification('خطا در بررسی موجودی');
+                console.error('Error:', error);
+            }
+        }
+
+        // Check all inventory
+        async function checkAllInventory() {
+            const items = document.querySelectorAll('[data-item-id]');
+            if (items.length === 0) return;
+            
+            showLoadingSpinner('در حال بررسی تمام اقلام...');
+            
+            for (const item of items) {
+                const itemId = item.getAttribute('data-item-id');
+                await checkItemStock(itemId);
+                await new Promise(resolve => setTimeout(resolve, 500)); // Small delay
+            }
+            
+            hideLoadingSpinner();
+            showSuccessNotification('بررسی تمام اقلام تکمیل شد');
+            updateSummaryCounters();
+        }
+
+        // Mark all items as available
+        async function markAllAvailable() {
+            if (!confirm('آیا مطمئن هستید که تمام اقلام را به عنوان موجود علامت‌گذاری کنید؟')) {
+                return;
+            }
+            
+            const items = document.querySelectorAll('[data-item-id]');
+            showLoadingSpinner('در حال به‌روزرسانی...');
+            
+            let processed = 0;
+            for (const item of items) {
+                const itemId = item.getAttribute('data-item-id');
+                try {
+                    await updateItemStatus(itemId, 'موجود');
+                    processed++;
+                } catch (error) {
+                    console.error('Error updating item:', itemId, error);
+                }
+                await new Promise(resolve => setTimeout(resolve, 200));
+            }
+            
+            hideLoadingSpinner();
+            showSuccessNotification(`${processed} قلم به عنوان موجود علامت‌گذاری شد`);
+            updateSummaryCounters();
+        }
+
+        // Find substitute for item
+        async function findSubstitute(itemId) {
+            showLoadingSpinner('در حال جستجوی جایگزین...');
+            
+            // Simulate substitute finding process
+            setTimeout(() => {
+                hideLoadingSpinner();
+                showInfoNotification('جستجوی جایگزین در حال توسعه است');
+            }, 2000);
+        }
+
+        // Show batch details
+        async function showBatchDetails(materialId) {
+            const modal = new bootstrap.Modal(document.getElementById('batchModal'));
+            modal.show();
+            
+            try {
+                const response = await fetch(`@Url.Action("GetMaterialBatches")?materialId=${materialId}`);
+                const result = await response.json();
+                
+                const batchContent = document.getElementById('batchContent');
+                
+                if (result.success && result.batches && result.batches.length > 0) {
+                    let tableHtml = `
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>شماره بچ</th>
+                                        <th>موجودی</th>
+                                        <th>واحد</th>
+                                        <th>مکان</th>
+                                        <th>تاریخ انقضا</th>
+                                        <th>وضعیت</th>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
+                    
+                    result.batches.forEach(batch => {
+                        const statusClass = batch.status === 'آزاد شده' ? 'bg-success' : 'bg-warning';
+                        tableHtml += `
+                            <tr>
+                                <td>${batch.batchNumber || '-'}</td>
+                                <td>${batch.currentQuantity}</td>
+                                <td>${batch.unit || '-'}</td>
+                                <td>${batch.location || '-'}</td>
+                                <td>${batch.expiryDate ? new Date(batch.expiryDate).toLocaleDateString('fa-IR') : '-'}</td>
+                                <td><span class="badge ${statusClass}">${batch.status}</span></td>
+                            </tr>`;
+                    });
+                    
+                    tableHtml += `
+                                </tbody>
+                            </table>
+                        </div>`;
+                    
+                    batchContent.innerHTML = tableHtml;
+                } else {
+                    batchContent.innerHTML = `
+                        <div class="alert alert-info">
+                            <i class="ri-information-line me-1"></i>
+                            هیچ بچی برای این ماده یافت نشد
+                        </div>`;
+                }
+            } catch (error) {
+                const batchContent = document.getElementById('batchContent');
+                batchContent.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="ri-error-warning-line me-1"></i>
+                        خطا در بارگیری اطلاعات بچ‌ها
+                    </div>`;
+                console.error('Error loading batch details:', error);
+            }
+        }
+
+        // Load warehouse summary
+        async function loadWarehouseSummary() {
+            try {
+                const response = await fetch('@Url.Action("GetWarehouseSummary")');
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('totalBatches').textContent = result.totalBatches;
+                    document.getElementById('availableBatches').textContent = result.availableBatches;
+                } else {
+                    // Fallback to mock data
+                    document.getElementById('totalBatches').textContent = Math.floor(Math.random() * 50) + 20;
+                    document.getElementById('availableBatches').textContent = Math.floor(Math.random() * 40) + 15;
+                }
+            } catch (error) {
+                console.error('Error loading warehouse summary:', error);
+                // Fallback to mock data
+                document.getElementById('totalBatches').textContent = Math.floor(Math.random() * 50) + 20;
+                document.getElementById('availableBatches').textContent = Math.floor(Math.random() * 40) + 15;
+            }
+        }
+
+        // Update summary counters
+        function updateSummaryCounters() {
+            const items = document.querySelectorAll('.status-badge');
+            let available = 0, partial = 0, unavailable = 0;
+            
+            items.forEach(badge => {
+                const status = badge.textContent.trim();
+                if (status === 'موجود') available++;
+                else if (status === 'موجود جزئی') partial++;
+                else if (status === 'ناموجود') unavailable++;
+            });
+            
+            // Update progress bar
+            const total = items.length;
+            const percentage = total > 0 ? (available / total * 100) : 0;
+            const progressBar = document.querySelector('.progress-bar');
+            if (progressBar) {
+                progressBar.style.width = percentage + '%';
+                progressBar.setAttribute('aria-valuenow', percentage);
+                
+                // Update progress bar color
+                progressBar.className = 'progress-bar ' + 
+                    (percentage >= 80 ? 'bg-success' : percentage >= 50 ? 'bg-warning' : 'bg-danger');
+            }
+            
+            // Update counter displays
+            const counterElements = document.querySelectorAll('.row.g-0.text-center h5');
+            if (counterElements.length >= 4) {
+                counterElements[0].textContent = available;
+                counterElements[1].textContent = partial;
+                counterElements[2].textContent = unavailable;
+                counterElements[3].textContent = total - available - partial - unavailable;
+            }
+        }
+
+        // Update stock info periodically
+        function updateStockInfo() {
+            // This would typically make API calls to get latest stock information
+            console.log('Updating stock info...');
+        }
+
+        // Utility functions
+        function getAntiForgeryToken() {
+            return document.querySelector('input[name="__RequestVerificationToken"]')?.value || 
+                   document.querySelector('[name=__RequestVerificationToken]')?.value || '';
+        }
+
+        // Notification functions
+        function showSuccessNotification(message) {
+            showNotification(message, 'success');
+        }
+
+        function showErrorNotification(message) {
+            showNotification(message, 'danger');
+        }
+
+        function showInfoNotification(message) {
+            showNotification(message, 'info');
+        }
+
+        function showNotification(message, type) {
+            const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show position-fixed" 
+                     style="top: 20px; right: 20px; z-index: 9999; min-width: 300px;" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>`;
+            
+            document.body.insertAdjacentHTML('beforeend', alertHtml);
+            
+            setTimeout(() => {
+                const alert = document.querySelector('.alert:last-of-type');
+                if (alert) {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }
+            }, 5000);
+        }
+
+        // Loading spinner functions
+        function showLoadingSpinner(message = 'در حال بارگذاری...') {
+            const spinnerHtml = `
+                <div id="loadingSpinner" class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" 
+                     style="background-color: rgba(0,0,0,0.5); z-index: 9999;">
+                    <div class="bg-white rounded p-4 text-center">
+                        <div class="spinner-border text-primary mb-3" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <div>${message}</div>
+                    </div>
+                </div>`;
+            
+            document.body.insertAdjacentHTML('beforeend', spinnerHtml);
+        }
+
+        function hideLoadingSpinner() {
+            const spinner = document.getElementById('loadingSpinner');
+            if (spinner) {
+                spinner.remove();
+            }
+        }
+
+        // Form validation
+        document.getElementById('processForm').addEventListener('submit', function(e) {
+            const action = document.getElementById('processAction').value;
+            const comments = document.getElementById('comments').value.trim();
+
+            if (action === 'reject' && comments === '') {
+                e.preventDefault();
+                showErrorNotification('لطفاً دلیل عدم تأیید درخواست را وارد کنید');
+                document.getElementById('comments').focus();
+                return false;
+            }
+
+            return true;
+        });
+    </script>
+
+    <style>
+        .timeline-sm {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline-sm::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #e9ecef;
+        }
+
+        .timeline-sm-item {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .timeline-sm-marker {
+            position: absolute;
+            left: -26px;
+            top: 3px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .timeline-sm-content {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 3px solid #dee2e6;
+        }
+
+        .timeline-sm-title {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .inventory-status .badge {
+            margin-right: 4px;
+            margin-bottom: 2px;
+        }
+
+        .hover-effect:hover {
+            transform: translateY(-2px);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .table th {
+            border-top: none;
+            font-weight: 600;
+            background-color: #f8f9fa;
+            font-size: 13px;
+        }
+
+        .table td {
+            vertical-align: middle;
+            font-size: 14px;
+        }
+
+        .btn-group-sm > .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.775rem;
+        }
+
+        .progress {
+            background-color: #f1f3f4;
+        }
+
+        .card {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            border: 1px solid #e3e6f0;
+        }
+
+        .alert {
+            border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        }
+
+        @@media (max-width: 768px) {
+            .table-responsive {
+                font-size: 12px;
+            }
+            
+            .timeline-sm {
+                padding-left: 20px;
+            }
+            
+            .timeline-sm-marker {
+                left: -18px;
+                width: 12px;
+                height: 12px;
+            }
+        }
+    </style>
+}

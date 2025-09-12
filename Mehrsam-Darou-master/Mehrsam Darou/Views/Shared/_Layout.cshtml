@@ -1033,6 +1033,23 @@
                             </a>
                             <div class="collapse" id="sidebarInventory">
                                 <ul class="nav sub-navbar-nav">
+
+                                    @if ((bool)ViewData["Inventory_StorageLocations"])
+                                    {
+                                        <li class="sub-nav-item">
+                                            <form method="post" action="@Url.Action("InventoryRequestList", "MaterialRequest")">
+                                                <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer;">
+                                                    <span class="nav-text">درخواست‌های مواد</span>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
                                     @if ((bool)ViewData["Inventory_StorageLocations"])
                                     {
                                         <li class="sub-nav-item">

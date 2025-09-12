@@ -57,6 +57,10 @@ public partial class MaterialRequestItem
 
     public DateTime CreatedDate { get; set; }
 
+    public Guid? ItemGroupId { get; set; }
+
+    public virtual ItemGroup? ItemGroup { get; set; }
+
     public virtual RawMaterial? Material { get; set; }
 
     public virtual PurchaseOrder? PurchaseOrder { get; set; }

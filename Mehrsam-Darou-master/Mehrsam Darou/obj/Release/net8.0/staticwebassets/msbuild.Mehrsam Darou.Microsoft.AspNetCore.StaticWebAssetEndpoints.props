@@ -1308,6 +1308,18 @@
       <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"x5g6jebjnq"},{"Name":"integrity","Value":"sha256-VfIDLYxK8YNTj\u002BC4cjtVlaHZLapQ5nm5M1Z9Ka/b1DI="},{"Name":"label","Value":"_content/Mehrsam Darou/assets/js/pages/widgets.js"}]]]></EndpointProperties>
       <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"4930"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022VfIDLYxK8YNTj\u002BC4cjtVlaHZLapQ5nm5M1Z9Ka/b1DI=\u0022"},{"Name":"Last-Modified","Value":"Sat, 07 Dec 2024 10:00:33 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/Mehrsam Darou/assets/js/persian-datepicker.js">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\assets\js\persian-datepicker.js'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-gEOUDF41ZQkJstCj\u002B92fm33onT8zt0Ky5oMN\u002BzBjIxo="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"56450"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022gEOUDF41ZQkJstCj\u002B92fm33onT8zt0Ky5oMN\u002BzBjIxo=\u0022"},{"Name":"Last-Modified","Value":"Mon, 01 Sep 2025 08:27:53 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/Mehrsam Darou/assets/js/persian-datepicker.o22w101vbo.js">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\assets\js\persian-datepicker.js'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"o22w101vbo"},{"Name":"integrity","Value":"sha256-gEOUDF41ZQkJstCj\u002B92fm33onT8zt0Ky5oMN\u002BzBjIxo="},{"Name":"label","Value":"_content/Mehrsam Darou/assets/js/persian-datepicker.js"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"56450"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022gEOUDF41ZQkJstCj\u002B92fm33onT8zt0Ky5oMN\u002BzBjIxo=\u0022"},{"Name":"Last-Modified","Value":"Mon, 01 Sep 2025 08:27:53 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/Mehrsam Darou/assets/libs/@fullcalendar/core/index.cjs">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\assets\libs\@fullcalendar\core\index.cjs'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>

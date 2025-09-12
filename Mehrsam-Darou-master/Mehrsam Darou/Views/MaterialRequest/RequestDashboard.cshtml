@@ -51,7 +51,7 @@
                 <div class="d-flex align-items-end justify-content-between mt-4">
                     <div>
                         <h4 class="fs-22 fw-semibold ff-secondary mb-4">
-                            <span class="counter-value" data-target="@ViewBag.TotalRequests">@ViewBag.TotalRequests</span>
+                            <span class="counter-value" data-target="@(ViewBag.TotalRequests ?? 0)">@(ViewBag.TotalRequests ?? 0)</span>
                         </h4>
                         <a href="@Url.Action("RequestList")" class="text-decoration-underline text-muted">مشاهده همه</a>
                     </div>
@@ -81,7 +81,7 @@
                 <div class="d-flex align-items-end justify-content-between mt-4">
                     <div>
                         <h4 class="fs-22 fw-semibold ff-secondary mb-4">
-                            <span class="counter-value" data-target="@ViewBag.PendingRequests">@ViewBag.PendingRequests</span>
+                            <span class="counter-value" data-target="@(ViewBag.PendingRequests ?? 0)">@(ViewBag.PendingRequests ?? 0)</span>
                         </h4>
                         <a href="@Url.Action("RequestList", new { status = "در انتظار بررسی" })" class="text-decoration-underline text-muted">مشاهده</a>
                     </div>
@@ -111,7 +111,7 @@
                 <div class="d-flex align-items-end justify-content-between mt-4">
                     <div>
                         <h4 class="fs-22 fw-semibold ff-secondary mb-4">
-                            <span class="counter-value" data-target="@ViewBag.ApprovedRequests">@ViewBag.ApprovedRequests</span>
+                            <span class="counter-value" data-target="@(ViewBag.ApprovedRequests ?? 0)">@(ViewBag.ApprovedRequests ?? 0)</span>
                         </h4>
                         <a href="@Url.Action("RequestList", new { status = "تأیید شده" })" class="text-decoration-underline text-muted">مشاهده</a>
                     </div>
@@ -141,7 +141,7 @@
                 <div class="d-flex align-items-end justify-content-between mt-4">
                     <div>
                         <h4 class="fs-22 fw-semibold ff-secondary mb-4">
-                            <span class="counter-value" data-target="@ViewBag.MyRequests">@ViewBag.MyRequests</span>
+                            <span class="counter-value" data-target="@(ViewBag.MyRequests ?? 0)">@(ViewBag.MyRequests ?? 0)</span>
                         </h4>
                         <a href="@Url.Action("MyRequests")" class="text-decoration-underline text-muted">مشاهده</a>
                     </div>
@@ -177,7 +177,13 @@
                 </div>
             </div>
             <div class="card-body">
-                <div id="statusChart" style="height: 350px;"></div>
+                <div id="statusChart" style="height: 350px;">
+                    <div class="d-flex justify-content-center align-items-center h-100">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">در حال بارگذاری...</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -205,7 +211,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if (ViewBag.RecentRequests != null)
+                            @if (ViewBag.RecentRequests != null && ((IEnumerable<dynamic>)ViewBag.RecentRequests).Any())
                             {
                                 @foreach (var request in ViewBag.RecentRequests)
                                 {
@@ -219,12 +225,17 @@
                                             <div class="d-flex align-items-center">
                                                 <div class="flex-shrink-0 me-2">
                                                     <img src="@(request.RequestedByNavigation?.AvatarImg ?? "/images/users/dummy-avatar.jpg")"
-                                                         alt="" class="avatar-xs rounded-circle">
+                                                         alt="" class="avatar-xs rounded-circle"
+                                                         onerror="this.src='/images/users/dummy-avatar.jpg';">
                                                 </div>
                                                 <div class="flex-grow-1">
                                                     @if (request.RequestedByNavigation != null)
                                                     {
-                                                        @request.RequestedByNavigation.FirstName @request.RequestedByNavigation.LastName
+                                                        <span>@request.RequestedByNavigation.FirstName @request.RequestedByNavigation.LastName</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">نامشخص</span>
                                                     }
                                                 </div>
                                             </div>
@@ -237,6 +248,8 @@
                                                     "در حال بررسی" => "bg-info-subtle text-info",
                                                     "تأیید شده" => "bg-success-subtle text-success",
                                                     "رد شده" => "bg-danger-subtle text-danger",
+                                                    "در حال تأمین" => "bg-primary-subtle text-primary",
+                                                    "تحویل شده" => "bg-success-subtle text-success",
                                                     "تکمیل شده" => "bg-dark-subtle text-body",
                                                     _ => "bg-light text-dark"
                                                 };
@@ -246,7 +259,18 @@
                                         <td>
                                             @if (request.RequestDate != null)
                                             {
-                                                @request.RequestDate.ToString("yyyy/MM/dd")
+                                                try
+                                                {
+                                                    <span>@((DateTime)request.RequestDate).ToString("yyyy/MM/dd")</span>
+                                                }
+                                                catch
+                                                {
+                                                    <span class="text-muted">-</span>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
                                             }
                                         </td>
                                     </tr>
@@ -271,6 +295,26 @@
     </div>
 </div>
 
+<!-- Chart: Requests by Cost Center -->
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0">درخواست‌ها بر اساس مرکز هزینه</h4>
+            </div>
+            <div class="card-body">
+                <div id="costCenterChart" style="height: 300px;">
+                    <div class="d-flex justify-content-center align-items-center h-100">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">در حال بارگذاری...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Quick Actions -->
 <div class="row">
     <div class="col-lg-12">
@@ -281,7 +325,7 @@
             <div class="card-body">
                 <div class="row g-4">
                     <div class="col-sm-6 col-lg-3">
-                        <div class="d-flex p-3 border rounded-2">
+                        <div class="d-flex p-3 border rounded-2 hover-card">
                             <div class="flex-shrink-0">
                                 <i class="ri-add-line fs-2 text-primary"></i>
                             </div>
@@ -293,7 +337,7 @@
                         </div>
                     </div>
                     <div class="col-sm-6 col-lg-3">
-                        <div class="d-flex p-3 border rounded-2">
+                        <div class="d-flex p-3 border rounded-2 hover-card">
                             <div class="flex-shrink-0">
                                 <i class="ri-user-line fs-2 text-success"></i>
                             </div>
@@ -305,7 +349,7 @@
                         </div>
                     </div>
                     <div class="col-sm-6 col-lg-3">
-                        <div class="d-flex p-3 border rounded-2">
+                        <div class="d-flex p-3 border rounded-2 hover-card">
                             <div class="flex-shrink-0">
                                 <i class="ri-file-list-line fs-2 text-info"></i>
                             </div>
@@ -317,14 +361,14 @@
                         </div>
                     </div>
                     <div class="col-sm-6 col-lg-3">
-                        <div class="d-flex p-3 border rounded-2">
+                        <div class="d-flex p-3 border rounded-2 hover-card">
                             <div class="flex-shrink-0">
                                 <i class="ri-bar-chart-line fs-2 text-warning"></i>
                             </div>
                             <div class="flex-grow-1 ms-3">
                                 <h6 class="mb-1">گزارش‌گیری</h6>
                                 <p class="text-muted mb-2">گزارش‌های تفصیلی</p>
-                                <a href="#" class="btn btn-sm btn-warning">گزارش</a>
+                                <button class="btn btn-sm btn-warning" onclick="generateReport()">گزارش</button>
                             </div>
                         </div>
                     </div>
@@ -335,63 +379,172 @@
 </div>
 
 @section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts@latest"></script>
     <script>
-        // Status Chart
-        var statusData = @Html.Raw(Json.Serialize(ViewBag.RequestsByStatus ?? new List<object>()));
+        document.addEventListener('DOMContentLoaded', function() {
+            // Status Chart Data
+            var statusData = @Html.Raw(Json.Serialize(ViewBag.RequestsByStatus ?? new List<object>()));
 
-        var statusLabels = statusData.map(item => item.Status || 'نامشخص');
-        var statusCounts = statusData.map(item => item.Count || 0);
+            // Cost Center Chart Data
+            var costCenterData = @Html.Raw(Json.Serialize(ViewBag.RequestsByCostCenter ?? new List<object>()));
 
-        var statusOptions = {
-            series: statusCounts,
-            chart: {
-                type: 'donut',
-                height: 350,
-                fontFamily: 'IRANSans, sans-serif'
-            },
-            labels: statusLabels,
-            colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57', '#FF9FF3', '#54A0FF'],
-            legend: {
-                position: 'bottom',
-                horizontalAlign: 'center',
-            },
-            plotOptions: {
-                pie: {
-                    donut: {
-                        labels: {
-                            show: true,
-                            total: {
+            // Initialize Status Chart
+            initializeStatusChart(statusData);
+
+            // Initialize Cost Center Chart
+            initializeCostCenterChart(costCenterData);
+        });
+
+        function initializeStatusChart(statusData) {
+            var statusLabels = statusData.map(item => item.Status || 'نامشخص');
+            var statusCounts = statusData.map(item => item.Count || 0);
+
+            var statusOptions = {
+                series: statusCounts,
+                chart: {
+                    type: 'donut',
+                    height: 350,
+                    fontFamily: 'IRANSans, sans-serif'
+                },
+                labels: statusLabels,
+                colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57', '#FF9FF3', '#54A0FF'],
+                legend: {
+                    position: 'bottom',
+                    horizontalAlign: 'center',
+                },
+                plotOptions: {
+                    pie: {
+                        donut: {
+                            size: '65%',
+                            labels: {
                                 show: true,
-                                label: 'کل',
-                                formatter: function (w) {
-                                    return w.globals.seriesTotals.reduce((a, b) => {
-                                        return a + b
-                                    }, 0)
+                                total: {
+                                    show: true,
+                                    label: 'کل درخواست‌ها',
+                                    formatter: function (w) {
+                                        return w.globals.seriesTotals.reduce((a, b) => {
+                                            return a + b
+                                        }, 0)
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            },
-            responsive: [{
-                breakpoint: 480,
-                options: {
-                    chart: {
-                        width: 200
+                },
+                dataLabels: {
+                    enabled: true,
+                    formatter: function(val, opts) {
+                        return opts.w.config.series[opts.seriesIndex]
+                    }
+                },
+                responsive: [{
+                    breakpoint: 480,
+                    options: {
+                        chart: {
+                            width: 200
+                        },
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }]
+            };
+
+            if (statusCounts.length > 0 && statusCounts.some(count => count > 0)) {
+                var statusChart = new ApexCharts(document.querySelector("#statusChart"), statusOptions);
+                statusChart.render();
+            } else {
+                document.querySelector("#statusChart").innerHTML = '<div class="text-center text-muted py-5"><i class="ri-pie-chart-line display-4"></i><br><div class="mt-2">داده‌ای برای نمایش وجود ندارد</div></div>';
+            }
+        }
+
+        function initializeCostCenterChart(costCenterData) {
+            var costCenterLabels = costCenterData.map(item => item.CostCenter || 'نامشخص');
+            var costCenterCounts = costCenterData.map(item => item.Count || 0);
+
+            var costCenterOptions = {
+                series: [{
+                    name: 'تعداد درخواست',
+                    data: costCenterCounts
+                }],
+                chart: {
+                    type: 'bar',
+                    height: 300,
+                    fontFamily: 'IRANSans, sans-serif'
+                },
+                plotOptions: {
+                    bar: {
+                        horizontal: false,
+                        columnWidth: '55%',
+                        endingShape: 'rounded'
                     },
-                    legend: {
-                        position: 'bottom'
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                stroke: {
+                    show: true,
+                    width: 2,
+                    colors: ['transparent']
+                },
+                xaxis: {
+                    categories: costCenterLabels,
+                },
+                yaxis: {
+                    title: {
+                        text: 'تعداد درخواست'
+                    }
+                },
+                fill: {
+                    opacity: 1
+                },
+                colors: ['#4f46e5'],
+                tooltip: {
+                    y: {
+                        formatter: function (val) {
+                            return val + " درخواست"
+                        }
                     }
                 }
-            }]
-        };
+            };
 
-        if (statusCounts.length > 0) {
-            var statusChart = new ApexCharts(document.querySelector("#statusChart"), statusOptions);
-            statusChart.render();
-        } else {
-            document.querySelector("#statusChart").innerHTML = '<div class="text-center text-muted py-5"><i class="ri-pie-chart-line display-4"></i><br>داده‌ای برای نمایش وجود ندارد</div>';
+            if (costCenterCounts.length > 0 && costCenterCounts.some(count => count > 0)) {
+                var costCenterChart = new ApexCharts(document.querySelector("#costCenterChart"), costCenterOptions);
+                costCenterChart.render();
+            } else {
+                document.querySelector("#costCenterChart").innerHTML = '<div class="text-center text-muted py-5"><i class="ri-bar-chart-line display-4"></i><br><div class="mt-2">داده‌ای برای نمایش وجود ندارد</div></div>';
+            }
         }
+
+        function generateReport() {
+            // Show loading
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = 'در حال تولید...';
+            btn.disabled = true;
+
+            // Simulate report generation
+            setTimeout(() => {
+                alert('گزارش‌گیری در حال توسعه است');
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }, 1000);
+        }
+
+        // Add hover effects for quick action cards
+        document.addEventListener('DOMContentLoaded', function() {
+            const hoverCards = document.querySelectorAll('.hover-card');
+            hoverCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+                    this.style.transition = 'all 0.3s ease';
+                });
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = '';
+                });
+            });
+        });
     </script>
 }

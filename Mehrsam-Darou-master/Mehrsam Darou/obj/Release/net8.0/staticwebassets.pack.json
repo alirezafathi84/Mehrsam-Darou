@@ -441,6 +441,10 @@
       "PackagePath": "staticwebassets\\assets\\js\\pages\\widgets.js"
     },
     {
+      "Id": "D:\\git Proj\\MD\\Mehrsam-Darou-master\\Mehrsam Darou\\wwwroot\\assets\\js\\persian-datepicker.js",
+      "PackagePath": "staticwebassets\\assets\\js\\persian-datepicker.js"
+    },
+    {
       "Id": "D:\\git Proj\\MD\\Mehrsam-Darou-master\\Mehrsam Darou\\wwwroot\\assets\\libs\\@fullcalendar\\core\\index.cjs",
       "PackagePath": "staticwebassets\\assets\\libs\\@fullcalendar\\core\\index.cjs"
     },

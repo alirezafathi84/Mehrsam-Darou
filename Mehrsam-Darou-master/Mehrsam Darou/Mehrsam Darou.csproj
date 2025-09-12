@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <Folder Include="Views\InventoryReport\" />
+    <Folder Include="Views\Warehouse\" />
     <Folder Include="wwwroot\assets\libs\chart.js\docs\" />
     <Folder Include="wwwroot\assets\libs\choices.js\public\types\cypress\e2e\" />
     <Folder Include="wwwroot\assets\libs\choices.js\public\types\cypress\integration\" />

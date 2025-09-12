@@ -1974,8 +1974,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>4o2byrtvj9</Fingerprint>
-      <Integrity>RCAEDqmKRZtsfHbQi/jOm6a/XWgXGJTOL1UZQIGG8HQ=</Integrity>
+      <Fingerprint>o22w101vbo</Fingerprint>
+      <Integrity>gEOUDF41ZQkJstCj+92fm33onT8zt0Ky5oMN+zBjIxo=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\assets\js\persian-datepicker.js'))</OriginalItemSpec>

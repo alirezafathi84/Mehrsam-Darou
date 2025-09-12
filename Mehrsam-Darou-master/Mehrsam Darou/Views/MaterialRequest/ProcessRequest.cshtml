@@ -1,0 +1,731 @@
+﻿@model Mehrsam_Darou.Models.MaterialRequest
+
+@{
+    ViewData["Title"] = $"مشاهده درخواست {Model.RequestNumber}";
+    var currentUserId = ViewContext.HttpContext.User.FindFirst("UserId")?.Value;
+    var isOwner = currentUserId != null && Model.RequestedBy.ToString() == currentUserId;
+    var canProcess = ViewBag.CanProcess ?? false;
+}
+
+<!-- Display Messages -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["WarningMessage"] != null)
+{
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        @TempData["WarningMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0">مشاهده درخواست مواد</h4>
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item">
+                        @if (isOwner)
+                        {
+                            <a href="@Url.Action("MyRequests")">درخواست‌های من</a>
+                        }
+                        else
+                        {
+                            <a href="@Url.Action("RequestList")">همه درخواست‌ها</a>
+                        }
+                    </li>
+                    <li class="breadcrumb-item active">@Model.RequestNumber</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Main Content -->
+    <div class="col-lg-8">
+        <!-- Request Header -->
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-start">
+                    <div class="flex-grow-1">
+                        <div class="d-flex align-items-center mb-3">
+                            <h5 class="card-title mb-0 me-3">@Model.RequestTitle</h5>
+                            @if (Model.IsUrgent)
+                            {
+                                <span class="badge bg-danger fs-11">فوری</span>
+                            }
+                        </div>
+
+                        <div class="row text-muted mb-3">
+                            <div class="col-sm-6">
+                                <p class="mb-1"><i class="ri-hashtag me-1"></i><strong>شماره:</strong> @Model.RequestNumber</p>
+                                <p class="mb-1"><i class="ri-calendar-line me-1"></i><strong>تاریخ ثبت:</strong> @Model.RequestDate.ToString("yyyy/MM/dd HH:mm")</p>
+                                @if (Model.RequiredDate.HasValue)
+                                {
+                                    <p class="mb-1"><i class="ri-time-line me-1"></i><strong>تاریخ مورد نیاز:</strong> @Model.RequiredDate.Value.ToString("yyyy/MM/dd")</p>
+                                }
+                            </div>
+                            <div class="col-sm-6">
+                                @if (Model.RequestedByNavigation != null)
+                                {
+                                    <p class="mb-1"><i class="ri-user-line me-1"></i><strong>درخواست‌کننده:</strong> @Model.RequestedByNavigation.FirstName @Model.RequestedByNavigation.LastName</p>
+                                }
+                                @if (!string.IsNullOrEmpty(Model.Department))
+                                {
+                                    <p class="mb-1"><i class="ri-building-line me-1"></i><strong>بخش:</strong> @Model.Department</p>
+                                }
+                                @if (Model.CostCenter != null)
+                                {
+                                    <p class="mb-1"><i class="ri-bank-line me-1"></i><strong>مرکز هزینه:</strong> @Model.CostCenter.CostCenterName</p>
+                                }
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(Model.Description))
+                        {
+                            <div class="bg-light rounded p-3 mb-3">
+                                <h6 class="mb-2"><i class="ri-file-text-line me-1"></i>توضیحات:</h6>
+                                <p class="mb-0 text-muted">@Model.Description</p>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="flex-shrink-0 ms-3">
+                        @{
+                            var statusClass = Model.Status switch
+                            {
+                                "در انتظار بررسی" => "bg-warning-subtle text-warning",
+                                "در حال بررسی" => "bg-info-subtle text-info",
+                                "تأیید شده" => "bg-success-subtle text-success",
+                                "رد شده" => "bg-danger-subtle text-danger",
+                                "در حال تأمین" => "bg-primary-subtle text-primary",
+                                "تحویل شده" => "bg-success-subtle text-success",
+                                "تکمیل شده" => "bg-dark-subtle text-body",
+                                _ => "bg-light text-dark"
+                            };
+                            var priorityClass = Model.PriorityLevel switch
+                            {
+                                1 => "bg-danger",
+                                2 => "bg-warning",
+                                3 => "bg-primary",
+                                4 => "bg-info",
+                                5 => "bg-light text-dark",
+                                _ => "bg-secondary"
+                            };
+                            var priorityText = Model.PriorityLevel switch
+                            {
+                                1 => "بحرانی",
+                                2 => "بالا",
+                                3 => "متوسط",
+                                4 => "پایین",
+                                5 => "خیلی پایین",
+                                _ => "نامشخص"
+                            };
+                        }
+
+                        <div class="text-end">
+                            <span class="badge @statusClass fs-12 mb-2 d-block">@Model.Status</span>
+                            <span class="badge @priorityClass fs-11">اولویت: @priorityText</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Request Items -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-list-check me-1"></i>
+                    اقلام درخواستی (@(Model.MaterialRequestItems?.Count ?? 0) قلم)
+                </h5>
+            </div>
+            <div class="card-body">
+                @if (Model.MaterialRequestItems != null && Model.MaterialRequestItems.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-nowrap align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>نام کالا</th>
+                                    <th>مقدار</th>
+                                    <th>واحد</th>
+                                    <th>قیمت تخمینی</th>
+                                    <th>وضعیت</th>
+                                    <th>اقدامات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    var itemIndex = 1;
+                                }
+                                @foreach (var item in Model.MaterialRequestItems)
+                                {
+                                    <tr>
+                                        <td>@itemIndex</td>
+                                        <td>
+                                            <div>
+                                                <h6 class="mb-1">@item.ItemName</h6>
+                                                @if (!string.IsNullOrEmpty(item.ItemDescription))
+                                                {
+                                                    <p class="text-muted mb-0 fs-13">@item.ItemDescription</p>
+                                                }
+                                                @if (item.IsCritical)
+                                                {
+                                                    <span class="badge bg-danger-subtle text-danger fs-11 mt-1">حیاتی</span>
+                                                }
+                                                @if (item.Material != null)
+                                                {
+                                                    <span class="badge bg-info-subtle text-info fs-11 mt-1">@item.Material.MaterialName</span>
+                                                }
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="fw-medium">@item.QuantityRequested</span>
+                                            @if (item.StockQuantity.HasValue)
+                                            {
+                                                <br>
+
+                                                <small class="text-muted">موجودی: @item.StockQuantity.Value</small>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (item.Unit != null)
+                                            {
+                                                @item.Unit.UnitName
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (item.UnitPriceEstimated.HasValue)
+                                            {
+                                                <span class="fw-medium">@item.UnitPriceEstimated.Value.ToString("N0") @Model.Currency</span>
+                                                @if (item.TotalPriceEstimated.HasValue)
+                                                {
+                                                    <br>
+
+                                                    <small class="text-muted">کل: @item.TotalPriceEstimated.Value.ToString("N0") @Model.Currency</small>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">نامشخص</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @{
+                                                var itemStatusClass = item.ItemStatus switch
+                                                {
+                                                    "موجود" => "bg-success-subtle text-success",
+                                                    "موجود جزئی" => "bg-warning-subtle text-warning",
+                                                    "ناموجود" => "bg-danger-subtle text-danger",
+                                                    "در حال تأمین" => "bg-info-subtle text-info",
+                                                    _ => "bg-light text-muted"
+                                                };
+                                            }
+                                            <span class="badge @itemStatusClass fs-11">
+                                                @(item.ItemStatus ?? "در انتظار بررسی")
+                                            </span>
+                                        </td>
+                                        <td>
+                                            @if (canProcess && Model.Status == "در حال بررسی")
+                                            {
+                                                <div class="dropdown">
+                                                    <button class="btn btn-soft-secondary btn-sm dropdown-toggle" type="button"
+                                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                                        <i class="ri-more-fill"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-end">
+                                                        <li>
+                                                            <a class="dropdown-item text-success" href="#" onclick="updateItemStatus('@item.ItemId', 'موجود')">
+                                                                <i class="ri-check-fill me-2"></i> علامت‌گذاری به عنوان موجود
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item text-warning" href="#" onclick="updateItemStatus('@item.ItemId', 'موجود جزئی')">
+                                                                <i class="ri-error-warning-fill me-2"></i> علامت‌گذاری به عنوان موجود جزئی
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item text-danger" href="#" onclick="updateItemStatus('@item.ItemId', 'ناموجود')">
+                                                                <i class="ri-close-fill me-2"></i> علامت‌گذاری به عنوان ناموجود
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            }
+                                        </td>
+                                    </tr>
+                                    itemIndex++;
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    @if (Model.TotalEstimatedCost.HasValue && Model.TotalEstimatedCost > 0)
+                    {
+                        <div class="border-top pt-3 mt-3">
+                            <div class="row">
+                                <div class="col-sm-6 offset-sm-6">
+                                    <div class="text-end">
+                                        <p class="mb-1"><strong>جمع کل تخمینی:</strong></p>
+                                        <h5 class="text-primary">@Model.TotalEstimatedCost.Value.ToString("N0") @Model.Currency</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <i class="ri-file-search-line display-4 text-muted"></i>
+                        <h5 class="mt-3 text-muted">هیچ کالایی ثبت نشده است</h5>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Additional Information -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-information-line me-1"></i>
+                    اطلاعات تکمیلی
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        @if (Model.Category != null)
+                        {
+                            <p class="mb-2"><i class="ri-price-tag-3-line me-2"></i><strong>دسته‌بندی:</strong> @Model.Category.CategoryName</p>
+                        }
+                        @if (Model.RequestType != null)
+                        {
+                            <p class="mb-2"><i class="ri-file-list-3-line me-2"></i><strong>نوع درخواست:</strong> @Model.RequestType.TypeName</p>
+                        }
+                        @if (Model.Project != null)
+                        {
+                            <p class="mb-2"><i class="ri-briefcase-line me-2"></i><strong>پروژه:</strong> @Model.Project.ProjectName</p>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.BudgetCode))
+                        {
+                            <p class="mb-2"><i class="ri-money-dollar-circle-line me-2"></i><strong>کد بودجه:</strong> @Model.BudgetCode</p>
+                        }
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-2"><i class="ri-funds-line me-2"></i><strong>واحد پولی:</strong> @Model.Currency</p>
+                        <p class="mb-2"><i class="ri-speed-up-line me-2"></i><strong>فوریت:</strong> @Model.Urgency</p>
+                        @if (!string.IsNullOrEmpty(Model.DeliveryLocation))
+                        {
+                            <p class="mb-2"><i class="ri-map-pin-line me-2"></i><strong>محل تحویل:</strong> @Model.DeliveryLocation</p>
+                        }
+                        <p class="mb-2">
+                            <i class="ri-exchange-line me-2"></i><strong>امکان جایگزینی:</strong>
+                            @if (Model.IsSubstituteAllowed == true)
+                            {
+                                <span class="text-success">بله</span>
+                            }
+                            else
+                            {
+                                <span class="text-danger">خیر</span>
+                            }
+                        </p>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.SpecialInstructions))
+                {
+                    <hr>
+                    <div class="bg-light rounded p-3">
+                        <h6 class="mb-2"><i class="ri-file-text-line me-1"></i>دستورالعمل‌های ویژه:</h6>
+                        <p class="mb-0 text-muted">@Model.SpecialInstructions</p>
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.RejectionReason))
+                {
+                    <hr>
+                    <div class="alert alert-danger" role="alert">
+                        <h6 class="alert-heading"><i class="ri-error-warning-line me-2"></i>دلیل رد درخواست:</h6>
+                        <p class="mb-0">@Model.RejectionReason</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Quick Actions -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-settings-line me-1"></i>
+                    عملیات
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    @if (isOwner && Model.Status == "در انتظار بررسی")
+                    {
+                        <a href="@Url.Action("EditRequest", new { id = Model.RequestId })" class="btn btn-warning">
+                            <i class="ri-edit-line me-1"></i>
+                            ویرایش درخواست
+                        </a>
+                    }
+
+                    @if (canProcess)
+                    {
+                        @if (Model.Status == "در انتظار بررسی")
+                        {
+                            <button type="button" class="btn btn-info" onclick="processAction('check_inventory')">
+                                <i class="ri-search-line me-1"></i>
+                                بررسی موجودی
+                            </button>
+                            <button type="button" class="btn btn-success" onclick="processAction('approve')">
+                                <i class="ri-check-line me-1"></i>
+                                تأیید درخواست
+                            </button>
+                            <button type="button" class="btn btn-danger" onclick="processAction('reject')">
+                                <i class="ri-close-line me-1"></i>
+                                رد درخواست
+                            </button>
+                        }
+
+                        @if (Model.Status == "در حال بررسی")
+                        {
+                            <button type="button" class="btn btn-success" onclick="processAction('approve')">
+                                <i class="ri-check-line me-1"></i>
+                                تأیید نهایی
+                            </button>
+
+                            @if (Model.IsSubstituteAllowed == true)
+                            {
+                                <button type="button" class="btn btn-warning" onclick="processAction('find_substitute')">
+                                    <i class="ri-exchange-line me-1"></i>
+                                    جستجوی جایگزین
+                                </button>
+                            }
+
+                            @if (Model.TotalEstimatedCost > 10000000) // 10 million threshold example
+                            {
+                                <button type="button" class="btn btn-primary" onclick="processAction('request_ceo_approval')">
+                                    <i class="ri-user-star-line me-1"></i>
+                                    ارسال به مدیرعامل
+                                </button>
+                            }
+                        }
+
+                        @if (Model.Status == "تأیید شده" || Model.Status == "آماده تحویل")
+                        {
+                            <button type="button" class="btn btn-success" onclick="processAction('deliver')">
+                                <i class="ri-truck-line me-1"></i>
+                                علامت‌گذاری تحویل شده
+                            </button>
+                        }
+                    }
+
+                    <a href="@Url.Action("RequestList")" class="btn btn-outline-secondary">
+                        <i class="ri-list-check me-1"></i>
+                        همه درخواست‌ها
+                    </a>
+
+                    @if (isOwner)
+                    {
+                        <a href="@Url.Action("MyRequests")" class="btn btn-outline-primary">
+                            <i class="ri-user-line me-1"></i>
+                            درخواست‌های من
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Request Timeline/Workflow -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-time-line me-1"></i>
+                    مراحل پردازش
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="timeline-sm">
+                    @if (ViewBag.WorkflowHistory != null)
+                    {
+                        @foreach (var workflow in ViewBag.WorkflowHistory)
+                        {
+                            <div class="timeline-sm-item">
+                                @{
+                                    var timelineClass = workflow.Status switch
+                                    {
+                                        "تأیید شده" => "bg-success",
+                                        "رد شده" => "bg-danger",
+                                        "در انتظار بررسی" => "bg-warning",
+                                        "در حال بررسی" => "bg-info",
+                                        _ => "bg-primary"
+                                    };
+                                }
+                                <div class="timeline-sm-marker @timelineClass"></div>
+                                <div class="timeline-sm-content">
+                                    <p class="timeline-sm-title mb-1">@workflow.Stage</p>
+                                    <p class="mb-1 fs-14">@workflow.Status</p>
+                                    @if (!string.IsNullOrEmpty(workflow.Comments))
+                                    {
+                                        <p class="text-muted mb-1 fs-13">@workflow.Comments</p>
+                                    }
+                                    <p class="mb-0 fs-12 text-muted">
+                                        @workflow.ProcessedDate.ToString("yyyy/MM/dd HH:mm")
+                                        @if (workflow.ProcessedByNavigation != null)
+                                        {
+                                            <span> - @workflow.ProcessedByNavigation.FirstName @workflow.ProcessedByNavigation.LastName</span>
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="timeline-sm-item">
+                            <div class="timeline-sm-marker bg-primary"></div>
+                            <div class="timeline-sm-content">
+                                <p class="timeline-sm-title mb-1">ثبت درخواست</p>
+                                <p class="mb-0 fs-14 text-muted">@Model.RequestDate.ToString("yyyy/MM/dd HH:mm")</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Request Statistics -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-bar-chart-line me-1"></i>
+                    خلاصه درخواست
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-0">
+                    <div class="col-6">
+                        <div class="border-end pe-3">
+                            <h4 class="mb-1">@(Model.MaterialRequestItems?.Count ?? 0)</h4>
+                            <p class="text-muted mb-0 fs-13">تعداد اقلام</p>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="ps-3">
+                            <h4 class="mb-1">@(Model.MaterialRequestItems?.Count(i => i.IsCritical) ?? 0)</h4>
+                            <p class="text-muted mb-0 fs-13">اقلام حیاتی</p>
+                        </div>
+                    </div>
+                </div>
+
+                @if (Model.MaterialRequestItems != null && Model.MaterialRequestItems.Any())
+                {
+                    <hr class="my-3">
+                    <div class="row g-0">
+                        <div class="col-4">
+                            <div class="border-end pe-2 text-center">
+                                <h5 class="text-success mb-1">@Model.MaterialRequestItems.Count(i => i.ItemStatus == "موجود")</h5>
+                                <p class="text-muted mb-0 fs-12">موجود</p>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="border-end pe-2 ps-2 text-center">
+                                <h5 class="text-warning mb-1">@Model.MaterialRequestItems.Count(i => i.ItemStatus == "موجود جزئی")</h5>
+                                <p class="text-muted mb-0 fs-12">جزئی</p>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="ps-2 text-center">
+                                <h5 class="text-danger mb-1">@Model.MaterialRequestItems.Count(i => i.ItemStatus == "ناموجود" || string.IsNullOrEmpty(i.ItemStatus))</h5>
+                                <p class="text-muted mb-0 fs-12">ناموجود</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Process Action Modal -->
+<div class="modal fade" id="processModal" tabindex="-1" aria-labelledby="processModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="processModalLabel">پردازش درخواست</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="processForm" method="post" action="@Url.Action("ProcessRequest")">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="requestId" value="@Model.RequestId" />
+                <input type="hidden" name="action" id="processAction" />
+
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="comments" class="form-label">توضیحات:</label>
+                        <textarea class="form-control" id="comments" name="comments" rows="3"
+                                  placeholder="توضیحات اضافی در مورد این عملیات..."></textarea>
+                    </div>
+
+                    <div id="rejectionSection" style="display: none;">
+                        <div class="alert alert-warning" role="alert">
+                            <i class="ri-error-warning-line me-2"></i>
+                            لطفاً دلیل رد درخواست را مشخص کنید. این اطلاعات برای درخواست‌کننده ارسال خواهد شد.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                    <button type="submit" class="btn btn-primary" id="processSubmit">تأیید</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function processAction(action) {
+            document.getElementById('processAction').value = action;
+
+            let modalTitle = 'پردازش درخواست';
+            let submitText = 'تأیید';
+            let submitClass = 'btn-primary';
+            let showRejection = false;
+
+            switch(action) {
+                case 'check_inventory':
+                    modalTitle = 'بررسی موجودی';
+                    submitText = 'شروع بررسی';
+                    submitClass = 'btn-info';
+                    break;
+                case 'approve':
+                    modalTitle = 'تأیید درخواست';
+                    submitText = 'تأیید';
+                    submitClass = 'btn-success';
+                    break;
+                case 'reject':
+                    modalTitle = 'رد درخواست';
+                    submitText = 'رد درخواست';
+                    submitClass = 'btn-danger';
+                    showRejection = true;
+                    break;
+                case 'find_substitute':
+                    modalTitle = 'جستجوی جایگزین';
+                    submitText = 'شروع جستجو';
+                    submitClass = 'btn-warning';
+                    break;
+                case 'request_ceo_approval':
+                    modalTitle = 'ارسال به مدیرعامل';
+                    submitText = 'ارسال';
+                    submitClass = 'btn-primary';
+                    break;
+                case 'deliver':
+                    modalTitle = 'تحویل کالا';
+                    submitText = 'تأیید تحویل';
+                    submitClass = 'btn-success';
+                    break;
+            }
+
+            document.getElementById('processModalLabel').textContent = modalTitle;
+            document.getElementById('processSubmit').textContent = submitText;
+            document.getElementById('processSubmit').className = `btn ${submitClass}`;
+            document.getElementById('rejectionSection').style.display = showRejection ? 'block' : 'none';
+
+            if (showRejection) {
+                document.getElementById('comments').setAttribute('required', 'required');
+                document.getElementById('comments').setAttribute('placeholder', 'لطفاً دلیل رد درخواست را وارد کنید...');
+            } else {
+                document.getElementById('comments').removeAttribute('required');
+                document.getElementById('comments').setAttribute('placeholder', 'توضیحات اضافی در مورد این عملیات...');
+            }
+
+            var modal = new bootstrap.Modal(document.getElementById('processModal'));
+            modal.show();
+        }
+
+        function updateItemStatus(itemId, status) {
+            if (confirm(`آیا مطمئن هستید که وضعیت این کالا را به "${status}" تغییر دهید؟`)) {
+                // AJAX call to update item status
+                fetch('@Url.Action("UpdateItemStatus")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify({ itemId: itemId, status: status })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('خطا در به‌روزرسانی وضعیت: ' + (data.message || 'خطای نامشخص'));
+                    }
+                })
+                .catch(error => {
+                    alert('خطا در ارتباط با سرور');
+                });
+            }
+        }
+
+        // Auto-resize textarea
+        document.getElementById('comments').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+
+        // Form validation
+        document.getElementById('processForm').addEventListener('submit', function(e) {
+            const action = document.getElementById('processAction').value;
+            const comments = document.getElementById('comments').value.trim();
+
+            if (action === 'reject' && comments === '') {
+                e.preventDefault();
+                alert('لطفاً دلیل رد درخواست را وارد کنید');
+                document.getElementById('comments').focus();
+                return false;
+            }
+
+            // Confirm critical actions
+            const criticalActions = ['reject', 'approve', 'deliver'];
+            if (criticalActions.includes(action)) {
+                const actionTexts = {
+                    'reject': 'رد',
+                    'approve': 'تأیید',
+                    'deliver': 'تحویل'
+                };
+
+                if (!confirm(`آیا مطمئن هستید که می‌خواهید این درخواست را ${actionTexts[action]} کنید؟`)) {
+                    e.preventDefault();
+                    return false;
+                }
+            }
+
+            return true;
+        });
+    </script>
+}

@@ -192,15 +192,21 @@ public class BaseController : Controller
             if (request.Day < 1 || request.Day > 31)
                 return Json(new { success = false, error = "روز میلادی معتبر نیست" });
 
-            // Get current server time to preserve time portion
+            // Create DateTime with explicit UTC to avoid local timezone issues
+            var utcDate = new DateTime(request.Year, request.Month, request.Day, 12, 0, 0, DateTimeKind.Utc);
+
+            // Convert to local server time
+            var localDate = utcDate.ToLocalTime();
+
+            // Get current server time for time portion
             var serverNow = DateTime.Now;
-            var gregorianDate = new DateTime(request.Year, request.Month, request.Day,
-                serverNow.Hour, serverNow.Minute, serverNow.Second, serverNow.Millisecond);
+            var finalDate = new DateTime(request.Year, request.Month, request.Day,
+                serverNow.Hour, serverNow.Minute, serverNow.Second, serverNow.Millisecond, DateTimeKind.Local);
 
             var persianCalendar = new PersianCalendar();
-            var persianYear = persianCalendar.GetYear(gregorianDate);
-            var persianMonth = persianCalendar.GetMonth(gregorianDate);
-            var persianDay = persianCalendar.GetDayOfMonth(gregorianDate);
+            var persianYear = persianCalendar.GetYear(finalDate);
+            var persianMonth = persianCalendar.GetMonth(finalDate);
+            var persianDay = persianCalendar.GetDayOfMonth(finalDate);
 
             return Json(new
             {
@@ -211,8 +217,15 @@ public class BaseController : Controller
                     month = persianMonth,
                     day = persianDay
                 },
-                gregorianDate = gregorianDate.ToString("yyyy-MM-ddTHH:mm:ss.fff"),
-                serverTime = serverNow.ToString("HH:mm:ss")
+                gregorianDate = finalDate.ToString("yyyy-MM-ddTHH:mm:ss.fff"),
+                originalRequest = $"{request.Year}/{request.Month}/{request.Day}",
+                serverTime = serverNow.ToString("HH:mm:ss"),
+                debugInfo = new
+                {
+                    requestedDate = $"{request.Year}-{request.Month:00}-{request.Day:00}",
+                    createdDateTime = finalDate.ToString("yyyy-MM-dd HH:mm:ss"),
+                    persianResult = $"{persianYear}/{persianMonth}/{persianDay}"
+                }
             });
         }
         catch (Exception ex)

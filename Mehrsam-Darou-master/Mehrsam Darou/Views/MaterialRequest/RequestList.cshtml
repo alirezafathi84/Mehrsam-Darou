@@ -144,11 +144,46 @@
                             }
                             <select name="status" class="form-select">
                                 <option value="">همه وضعیت‌ها</option>
-                                <option value="در انتظار بررسی" selected="@(selectedStatus == "در انتظار بررسی")">در انتظار بررسی</option>
-                                <option value="در حال بررسی" selected="@(selectedStatus == "در حال بررسی")">در حال بررسی</option>
-                                <option value="تأیید شده" selected="@(selectedStatus == "تأیید شده")">تأیید شده</option>
-                                <option value="رد شده" selected="@(selectedStatus == "رد شده")">رد شده</option>
-                                <option value="تکمیل شده" selected="@(selectedStatus == "تکمیل شده")">تکمیل شده</option>
+                                @if (selectedStatus == "در انتظار بررسی")
+                                {
+                                    <option value="در انتظار بررسی" selected>در انتظار بررسی</option>
+                                }
+                                else
+                                {
+                                    <option value="در انتظار بررسی">در انتظار بررسی</option>
+                                }
+                                @if (selectedStatus == "در حال بررسی")
+                                {
+                                    <option value="در حال بررسی" selected>در حال بررسی</option>
+                                }
+                                else
+                                {
+                                    <option value="در حال بررسی">در حال بررسی</option>
+                                }
+                                @if (selectedStatus == "تأیید شده")
+                                {
+                                    <option value="تأیید شده" selected>تأیید شده</option>
+                                }
+                                else
+                                {
+                                    <option value="تأیید شده">تأیید شده</option>
+                                }
+                                @if (selectedStatus == "رد شده")
+                                {
+                                    <option value="رد شده" selected>رد شده</option>
+                                }
+                                else
+                                {
+                                    <option value="رد شده">رد شده</option>
+                                }
+                                @if (selectedStatus == "تکمیل شده")
+                                {
+                                    <option value="تکمیل شده" selected>تکمیل شده</option>
+                                }
+                                else
+                                {
+                                    <option value="تکمیل شده">تکمیل شده</option>
+                                }
                             </select>
                         </div>
                         <div class="col-md-3">
@@ -157,11 +192,46 @@
                             }
                             <select name="priority" class="form-select">
                                 <option value="">همه اولویت‌ها</option>
-                                <option value="1" selected="@(selectedPriority == "1")">بحرانی (1)</option>
-                                <option value="2" selected="@(selectedPriority == "2")">بالا (2)</option>
-                                <option value="3" selected="@(selectedPriority == "3")">متوسط (3)</option>
-                                <option value="4" selected="@(selectedPriority == "4")">پایین (4)</option>
-                                <option value="5" selected="@(selectedPriority == "5")">خیلی پایین (5)</option>
+                                @if (selectedPriority == "1")
+                                {
+                                    <option value="1" selected>بحرانی (1)</option>
+                                }
+                                else
+                                {
+                                    <option value="1">بحرانی (1)</option>
+                                }
+                                @if (selectedPriority == "2")
+                                {
+                                    <option value="2" selected>بالا (2)</option>
+                                }
+                                else
+                                {
+                                    <option value="2">بالا (2)</option>
+                                }
+                                @if (selectedPriority == "3")
+                                {
+                                    <option value="3" selected>متوسط (3)</option>
+                                }
+                                else
+                                {
+                                    <option value="3">متوسط (3)</option>
+                                }
+                                @if (selectedPriority == "4")
+                                {
+                                    <option value="4" selected>پایین (4)</option>
+                                }
+                                else
+                                {
+                                    <option value="4">پایین (4)</option>
+                                }
+                                @if (selectedPriority == "5")
+                                {
+                                    <option value="5" selected>خیلی پایین (5)</option>
+                                }
+                                else
+                                {
+                                    <option value="5">خیلی پایین (5)</option>
+                                }
                             </select>
                         </div>
                         <div class="col-md-2">
@@ -253,11 +323,8 @@
                                             }
                                         </td>
                                         <td>
-                                            @if (request.RequestDate != null)
-                                            {
-                                                @request.RequestDate.ToString("yyyy/MM/dd")
-                                                @request.RequestDate.ToString("HH:mm")
-                                            }
+                                            @request.RequestDate.ToString("yyyy/MM/dd")
+                                            @request.RequestDate.ToString("HH:mm")
                                         </td>
                                         <td>
                                             @{
