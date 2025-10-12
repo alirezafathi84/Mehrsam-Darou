@@ -1,4 +1,4 @@
-﻿@using static Mehrsam_Darou.Helper.Helper
+@using static Mehrsam_Darou.Helper.Helper
 @model PaginatedList<Mehrsam_Darou.Models.Vacation>
 @using System.Globalization
 
@@ -21,7 +21,6 @@
                         <p class="mb-0">@TempData["SuccessMessage"]</p>
                     </div>
                 }
-
                 @if (TempData["ErrorMessage"] != null)
                 {
                     <div class="alert alert-danger px-2" role="alert">
@@ -29,15 +28,14 @@
                         <p class="mb-0">@TempData["ErrorMessage"]</p>
                     </div>
                 }
-
                 <div class="d-flex flex-wrap justify-content-between gap-3 mb-3">
                     <div class="d-flex gap-2">
-                        <form method="get" asp-action="VacationList" class="d-flex gap-2">
+                        <form method="get" asp-action="VacationList" class="d-flex gap-2 align-items-center">
                             <div class="search-bar">
                                 <span><i class="bx bx-search-alt"></i></span>
                                 <input type="search" name="searchKey" value="@Context.Request.Query["searchKey"]" class="form-control" placeholder="جستجو در نام کارمند، نوع مرخصی...">
                             </div>
-                            <select name="status" class="form-select" style="min-width: 150px;">
+                            <select name="status" class="form-control" style="min-width: 150px;">
                                 <option value="">همه وضعیت‌ها</option>
                                 <option value="Pending" selected="@(ViewBag.StatusFilter == "Pending" ? "selected" : null)">در انتظار</option>
                                 <option value="Approved" selected="@(ViewBag.StatusFilter == "Approved" ? "selected" : null)">تایید شده</option>
@@ -61,15 +59,15 @@
                     <table class="table align-middle mb-0 table-hover table-centered">
                         <thead class="bg-light-subtle">
                             <tr>
-                                <th>کارمند</th>
-                                <th>نوع مرخصی</th>
-                                <th>تاریخ شروع</th>
-                                <th>تاریخ پایان</th>
-                                <th>مدت (روز)</th>
-                                <th>وضعیت</th>
-                                <th>تاریخ درخواست</th>
-                                <th>تایید کننده</th>
-                                <th>اقدامات</th>
+                                <th class="text-center" style="width: 12%;">کارمند</th>
+                                <th class="text-center" style="width: 10%;">نوع مرخصی</th>
+                                <th class="text-center" style="width: 9%;">تاریخ شروع</th>
+                                <th class="text-center" style="width: 9%;">تاریخ پایان</th>
+                                <th class="text-center" style="width: 8%;">مدت (روز)</th>
+                                <th class="text-center" style="width: 8%;">وضعیت</th>
+                                <th class="text-center" style="width: 10%;">تاریخ درخواست</th>
+                                <th class="text-center" style="width: 12%;">تایید کننده</th>
+                                <th class="text-center" style="width: 12%;">اقدامات</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -77,7 +75,25 @@
                             {
                                 foreach (var vacation in Model)
                                 {
-                                    var duration = vacation.EndDate.DayNumber - vacation.StartDate.DayNumber + 1;
+                                    // Calculate duration properly
+                                    int duration = 1;
+                                    try
+                                    {
+                                        var startDateTime = vacation.StartDate.ToDateTime(TimeOnly.MinValue);
+                                        var endDateTime = vacation.EndDate.ToDateTime(TimeOnly.MinValue);
+
+                                        // Reset time to midnight for accurate calculation
+                                        startDateTime = startDateTime.Date;
+                                        endDateTime = endDateTime.Date;
+
+                                        duration = (int)Math.Floor((endDateTime - startDateTime).TotalDays) + 1;
+                                    }
+                                    catch
+                                    {
+                                        // Fallback calculation
+                                        duration = vacation.EndDate.DayNumber - vacation.StartDate.DayNumber + 1;
+                                    }
+
                                     <tr>
                                         <td>
                                             <div class="d-flex align-items-center">
@@ -155,6 +171,10 @@
                                                     @($"{pc.GetYear(vacation.DateCreated.Value)}/{pc.GetMonth(vacation.DateCreated.Value):00}/{pc.GetDayOfMonth(vacation.DateCreated.Value):00}")
                                                 </small>
                                             }
+                                            else
+                                            {
+                                                <small class="text-muted">-</small>
+                                            }
                                         </td>
                                         <td>
                                             @if (vacation.ApprovedByNavigation != null)
@@ -163,7 +183,6 @@
                                                 @if (vacation.ApprovalDate.HasValue)
                                                 {
                                                     <br>
-
                                                     <small class="text-muted">@($"{pc.GetYear(vacation.ApprovalDate.Value)}/{pc.GetMonth(vacation.ApprovalDate.Value):00}/{pc.GetDayOfMonth(vacation.ApprovalDate.Value):00}")</small>
                                                 }
                                             }
@@ -202,7 +221,12 @@
                                                     <iconify-icon icon="solar:eye-broken" class="align-middle fs-16"></iconify-icon>
                                                 </button>
 
-                                                @if (vacation.Status != "Approved" || vacation.StartDate > DateOnly.FromDateTime(DateTime.Now))
+                                                @{
+                                                    var currentDate = DateOnly.FromDateTime(DateTime.Now);
+                                                    var canDelete = vacation.Status != "Approved" || vacation.StartDate > currentDate;
+                                                }
+
+                                                @if (canDelete)
                                                 {
                                                     <button type="button" class="btn btn-soft-danger btn-sm"
                                                             data-bs-toggle="modal"
@@ -327,6 +351,24 @@
 </div>
 
 @section Scripts {
+    <style>
+        .table thead th {
+            white-space: nowrap;
+            vertical-align: middle;
+            font-weight: 600;
+            padding: 12px 8px;
+        }
+
+        .table tbody td {
+            vertical-align: middle;
+            padding: 12px 8px;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+    </style>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var deleteModal = document.getElementById('deleteModal');
@@ -343,7 +385,7 @@
 
             // Auto-dismiss alerts after 5 seconds
             setTimeout(function () {
-                var alerts = document.querySelectorAll('.alert');
+                var alerts = document.querySelectorAll('.alert-success, .alert-danger');
                 alerts.forEach(function (alert) {
                     var bsAlert = new bootstrap.Alert(alert);
                     bsAlert.close();
@@ -358,7 +400,7 @@
                 '<div class="text-center"><div class="spinner-border" role="status"></div><p class="mt-2">در حال بارگذاری...</p></div>';
             modal.show();
 
-            // Simulate loading details
+            // Simulate loading details - Replace with actual AJAX call
             setTimeout(function() {
                 document.getElementById('vacationDetailsContent').innerHTML =
                     '<p>جزئیات کامل درخواست مرخصی اینجا نمایش داده خواهد شد.</p>' +

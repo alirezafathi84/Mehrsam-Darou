@@ -1,4 +1,4 @@
-﻿@model Mehrsam_Darou.Models.Vacation
+@model Mehrsam_Darou.Models.Vacation
 
 @{
     ViewData["Title"] = "ثبت درخواست مرخصی جدید";
@@ -72,16 +72,30 @@
 
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="mb-3">
+                            <div class="mb-3" data-field="StartDate">
                                 <label asp-for="StartDate" class="form-label">تاریخ شروع <span class="text-danger">*</span></label>
-                                <input asp-for="StartDate" type="date" class="form-control" required id="startDate" />
+                                <input type="text"
+                                       class="form-control"
+                                       data-persian-date="true"
+                                       autocomplete="off"
+                                       readonly
+                                       placeholder="تاریخ شروع"
+                                       id="startDate" />
+                                <input type="hidden" asp-for="StartDate" class="persian-date-hidden" />
                                 <span asp-validation-for="StartDate" class="text-danger"></span>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="mb-3">
+                            <div class="mb-3" data-field="EndDate">
                                 <label asp-for="EndDate" class="form-label">تاریخ پایان <span class="text-danger">*</span></label>
-                                <input asp-for="EndDate" type="date" class="form-control" required id="endDate" />
+                                <input type="text"
+                                       class="form-control"
+                                       data-persian-date="true"
+                                       autocomplete="off"
+                                       readonly
+                                       placeholder="تاریخ پایان"
+                                       id="endDate" />
+                                <input type="hidden" asp-for="EndDate" class="persian-date-hidden" />
                                 <span asp-validation-for="EndDate" class="text-danger"></span>
                                 <small id="durationInfo" class="form-text text-muted"></small>
                             </div>
@@ -129,8 +143,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const startDateInput = document.getElementById('startDate');
-            const endDateInput = document.getElementById('endDate');
             const vacationTypeSelect = document.getElementById('vacationTypeSelect');
             const vacationTypeInfo = document.getElementById('vacationTypeInfo');
             const durationInfo = document.getElementById('durationInfo');
@@ -155,55 +167,67 @@
                 }
             });
 
+            // Get the hidden inputs for Persian dates
+            const startDateHidden = document.querySelector('[name="StartDate"]');
+            const endDateHidden = document.querySelector('[name="EndDate"]');
+            const startDateDisplay = document.getElementById('startDate');
+            const endDateDisplay = document.getElementById('endDate');
+
             // Calculate duration when dates change
             function updateDuration() {
-                if (startDateInput.value && endDateInput.value) {
-                    const startDate = new Date(startDateInput.value);
-                    const endDate = new Date(endDateInput.value);
+                if (startDateHidden.value && endDateHidden.value) {
+                    const startDate = new Date(startDateHidden.value);
+                    const endDate = new Date(endDateHidden.value);
 
-                    if (endDate >= startDate) {
-                        const timeDiff = Math.abs(endDate.getTime() - startDate.getTime());
-                        const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
-                        durationInfo.textContent = `مدت: ${dayDiff} روز`;
-                        durationInfo.className = 'form-text text-success';
-                    } else {
+                    if (endDate < startDate) {
                         durationInfo.textContent = 'تاریخ پایان باید بعد از تاریخ شروع باشد';
                         durationInfo.className = 'form-text text-danger';
+                    } else {
+                        // Reset time to midnight for accurate day calculation
+                        startDate.setHours(0, 0, 0, 0);
+                        endDate.setHours(0, 0, 0, 0);
+
+                        const timeDiff = endDate.getTime() - startDate.getTime();
+                        const dayDiff = Math.floor(timeDiff / (1000 * 3600 * 24)) + 1;
+                        durationInfo.textContent = `مدت: ${dayDiff} روز`;
+                        durationInfo.className = 'form-text text-success';
                     }
                 } else {
                     durationInfo.textContent = '';
                 }
             }
 
-            startDateInput.addEventListener('change', updateDuration);
-            endDateInput.addEventListener('change', updateDuration);
-
-            // Set minimum date to today
-            const today = new Date().toISOString().split('T')[0];
-            startDateInput.min = today;
-
-            // Update end date minimum when start date changes
-            startDateInput.addEventListener('change', function() {
-                endDateInput.min = this.value;
-            });
+            // Listen to changes on hidden inputs (these will be updated by Persian date picker)
+            if (startDateHidden) {
+                const observer = new MutationObserver(updateDuration);
+                observer.observe(startDateHidden, { attributes: true, attributeFilter: ['value'] });
+            }
+            if (endDateHidden) {
+                const observer = new MutationObserver(updateDuration);
+                observer.observe(endDateHidden, { attributes: true, attributeFilter: ['value'] });
+            }
         });
 
         function calculateWorkingDays() {
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
+            const startDateValue = document.querySelector('[name="StartDate"]').value;
+            const endDateValue = document.querySelector('[name="EndDate"]').value;
 
-            if (!startDate || !endDate) {
+            if (!startDateValue || !endDateValue) {
                 alert('لطفاً ابتدا تاریخ شروع و پایان را انتخاب کنید.');
                 return;
             }
 
-            const start = new Date(startDate);
-            const end = new Date(endDate);
+            const start = new Date(startDateValue);
+            const end = new Date(endDateValue);
 
-            if (end <= start) {
+            if (end < start) {
                 alert('تاریخ پایان باید بعد از تاریخ شروع باشد.');
                 return;
             }
+
+            // Reset time to midnight for accurate day calculation
+            start.setHours(0, 0, 0, 0);
+            end.setHours(0, 0, 0, 0);
 
             let workingDays = 0;
             let totalDays = 0;
@@ -219,19 +243,19 @@
             }
 
             // Show result
-            const alert = document.createElement('div');
-            alert.className = 'alert alert-info alert-dismissible fade show mt-2';
-            alert.innerHTML = `
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-info alert-dismissible fade show mt-2';
+            alertDiv.innerHTML = `
                 <strong>محاسبه انجام شد!</strong>
                 کل روزها: ${totalDays} روز - روزهای کاری: ${workingDays} روز
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             `;
-            document.querySelector('.card-body').insertBefore(alert, document.querySelector('form'));
+            document.querySelector('.card-body').insertBefore(alertDiv, document.querySelector('form'));
 
             // Auto remove after 5 seconds
             setTimeout(() => {
-                if (alert.parentNode) {
-                    alert.parentNode.removeChild(alert);
+                if (alertDiv.parentNode) {
+                    alertDiv.parentNode.removeChild(alertDiv);
                 }
             }, 5000);
         }

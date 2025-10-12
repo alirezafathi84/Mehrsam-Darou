@@ -1,7 +1,11 @@
 ﻿@{
     ViewData["Title"] = "داشبورد درخواست‌های مواد";
 }
+@using System.Globalization
 
+@{
+    PersianCalendar pc = new PersianCalendar();
+}
 <!-- Display Messages -->
 @if (TempData["SuccessMessage"] != null)
 {
@@ -158,38 +162,10 @@
 
 <div class="row">
     <!-- Chart: Requests by Status -->
-    <div class="col-xl-6">
-        <div class="card">
-            <div class="card-header align-items-center d-flex">
-                <h4 class="card-title mb-0 flex-grow-1">وضعیت درخواست‌ها</h4>
-                <div class="flex-shrink-0">
-                    <div class="dropdown card-header-dropdown">
-                        <a class="text-reset dropdown-btn" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <span class="fw-semibold text-uppercase fs-12">مرتب‌سازی:</span>
-                            <span class="text-muted">هفته جاری <i class="mdi mdi-chevron-down ms-1"></i></span>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-end">
-                            <a class="dropdown-item" href="#">امروز</a>
-                            <a class="dropdown-item" href="#">هفته گذشته</a>
-                            <a class="dropdown-item" href="#">ماه گذشته</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body">
-                <div id="statusChart" style="height: 350px;">
-                    <div class="d-flex justify-content-center align-items-center h-100">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">در حال بارگذاری...</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+
 
     <!-- Recent Requests -->
-    <div class="col-xl-6">
+    <div class="col-xl-12">
         <div class="card">
             <div class="card-header align-items-center d-flex">
                 <h4 class="card-title mb-0 flex-grow-1">آخرین درخواست‌ها</h4>
@@ -261,7 +237,9 @@
                                             {
                                                 try
                                                 {
-                                                    <span>@((DateTime)request.RequestDate).ToString("yyyy/MM/dd")</span>
+                                                    <span>
+                                                        @pc.GetYear((DateTime)request.RequestDate)/@pc.GetMonth((DateTime)request.RequestDate).ToString("00")/@pc.GetDayOfMonth((DateTime)request.RequestDate).ToString("00")
+                                                    </span>
                                                 }
                                                 catch
                                                 {
@@ -295,25 +273,6 @@
     </div>
 </div>
 
-<!-- Chart: Requests by Cost Center -->
-<div class="row">
-    <div class="col-xl-12">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="card-title mb-0">درخواست‌ها بر اساس مرکز هزینه</h4>
-            </div>
-            <div class="card-body">
-                <div id="costCenterChart" style="height: 300px;">
-                    <div class="d-flex justify-content-center align-items-center h-100">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">در حال بارگذاری...</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Quick Actions -->
 <div class="row">

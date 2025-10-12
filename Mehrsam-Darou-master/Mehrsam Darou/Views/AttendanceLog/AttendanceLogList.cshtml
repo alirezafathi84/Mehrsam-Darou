@@ -38,11 +38,23 @@
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">از تاریخ</label>
-                        <input type="date" name="startDate" value="@ViewBag.StartDate" class="form-control">
+                        <input type="text"
+                               class="form-control"
+                               id="startDateDisplay"
+                               autocomplete="off"
+                               readonly
+                               placeholder="از تاریخ" />
+                        <input type="hidden" name="startDate" value="@ViewBag.StartDate" id="startDateInput" />
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">تا تاریخ</label>
-                        <input type="date" name="endDate" value="@ViewBag.EndDate" class="form-control">
+                        <input type="text"
+                               class="form-control"
+                               id="endDateDisplay"
+                               autocomplete="off"
+                               readonly
+                               placeholder="تا تاریخ" />
+                        <input type="hidden" name="endDate" value="@ViewBag.EndDate" id="endDateInput" />
                     </div>
                     <div class="col-md-3 d-flex align-items-end">
                         <button type="submit" class="btn btn-primary me-2">
@@ -212,6 +224,51 @@
     </div>
 </div>
 
+<!-- Persian Date Picker Modal for Filter -->
+<div class="modal fade" id="filterDateModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filterDateModalTitle">انتخاب تاریخ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="form-label">سال</label>
+                        <select id="filterPersianYear" class="form-select"></select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">ماه</label>
+                        <select id="filterPersianMonth" class="form-select">
+                            <option value="1">فروردین</option>
+                            <option value="2">اردیبهشت</option>
+                            <option value="3">خرداد</option>
+                            <option value="4">تیر</option>
+                            <option value="5">مرداد</option>
+                            <option value="6">شهریور</option>
+                            <option value="7">مهر</option>
+                            <option value="8">آبان</option>
+                            <option value="9">آذر</option>
+                            <option value="10">دی</option>
+                            <option value="11">بهمن</option>
+                            <option value="12">اسفند</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">روز</label>
+                        <select id="filterPersianDay" class="form-select"></select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="setFilterDate()">تایید</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Recalculate Modal -->
 <div class="modal fade" id="recalculateModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
@@ -224,11 +281,23 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">از تاریخ</label>
-                        <input type="date" name="startDate" class="form-control" value="@DateTime.Today.AddDays(-30).ToString("yyyy-MM-dd")">
+                        <input type="text"
+                               class="form-control"
+                               id="recalcStartDateDisplay"
+                               autocomplete="off"
+                               readonly
+                               placeholder="از تاریخ" />
+                        <input type="hidden" name="startDate" id="recalcStartDateInput">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">تا تاریخ</label>
-                        <input type="date" name="endDate" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")">
+                        <input type="text"
+                               class="form-control"
+                               id="recalcEndDateDisplay"
+                               autocomplete="off"
+                               readonly
+                               placeholder="تا تاریخ" />
+                        <input type="hidden" name="endDate" id="recalcEndDateInput">
                     </div>
                     <div class="alert alert-info">
                         <small>این عملیات تمام رکوردهای حضور روزانه را در بازه زمانی مشخص شده مجدداً محاسبه می‌کند.</small>
@@ -240,6 +309,51 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<!-- Persian Date Picker Modal for Recalculate -->
+<div class="modal fade" id="recalcDateModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="recalcDateModalTitle">انتخاب تاریخ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="form-label">سال</label>
+                        <select id="recalcPersianYear" class="form-select"></select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">ماه</label>
+                        <select id="recalcPersianMonth" class="form-select">
+                            <option value="1">فروردین</option>
+                            <option value="2">اردیبهشت</option>
+                            <option value="3">خرداد</option>
+                            <option value="4">تیر</option>
+                            <option value="5">مرداد</option>
+                            <option value="6">شهریور</option>
+                            <option value="7">مهر</option>
+                            <option value="8">آبان</option>
+                            <option value="9">آذر</option>
+                            <option value="10">دی</option>
+                            <option value="11">بهمن</option>
+                            <option value="12">اسفند</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">روز</label>
+                        <select id="recalcPersianDay" class="form-select"></select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="setRecalcDate()">تایید</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+            </div>
         </div>
     </div>
 </div>
@@ -281,6 +395,214 @@
 
 @section Scripts {
     <script>
+        // Persian to Gregorian conversion functions
+        function persianToGregorian(jy, jm, jd) {
+            var sal_a, gy, gm, gd, days;
+            jy += 1595;
+            days = -355668 + (365 * jy) + (~~(jy / 33) * 8) + ~~(((jy % 33) + 3) / 4) + jd + ((jm < 7) ? (jm - 1) * 31 : ((jm - 7) * 30) + 186);
+            gy = 400 * ~~(days / 146097);
+            days %= 146097;
+            if (days > 36524) {
+                gy += 100 * ~~(--days / 36524);
+                days %= 36524;
+                if (days >= 365) days++;
+            }
+            gy += 4 * ~~(days / 1461);
+            days %= 1461;
+            if (days > 365) {
+                gy += ~~((days - 1) / 365);
+                days = (days - 1) % 365;
+            }
+            gd = days + 1;
+            sal_a = [0, 31, ((gy % 4 === 0 && gy % 100 !== 0) || (gy % 400 === 0)) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            for (gm = 0; gm < 13 && gd > sal_a[gm]; gm++) gd -= sal_a[gm];
+            return [gy, gm, gd];
+        }
+
+        function gregorianToPersian(gy, gm, gd) {
+            var g_d_m, jy, jm, jd, gy2, days;
+            g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+            gy2 = (gm > 2) ? (gy + 1) : gy;
+            days = 355666 + (365 * gy) + ~~((gy2 + 3) / 4) - ~~((gy2 + 99) / 100) + ~~((gy2 + 399) / 400) + gd + g_d_m[gm - 1];
+            jy = -1595 + (33 * ~~(days / 12053));
+            days %= 12053;
+            jy += 4 * ~~(days / 1461);
+            days %= 1461;
+            if (days > 365) {
+                jy += ~~((days - 1) / 365);
+                days = (days - 1) % 365;
+            }
+            if (days < 186) {
+                jm = 1 + ~~(days / 31);
+                jd = 1 + (days % 31);
+            } else {
+                jm = 7 + ~~((days - 186) / 30);
+                jd = 1 + ((days - 186) % 30);
+            }
+            return [jy, jm, jd];
+        }
+
+        let currentFilterField = null;
+        let currentRecalcField = null;
+
+        // Filter date picker functions
+        function openFilterDatePicker(field) {
+            currentFilterField = field;
+            const dateInput = document.getElementById(field === 'start' ? 'startDateInput' : 'endDateInput');
+            let currentDate = new Date();
+
+            if (dateInput.value) {
+                currentDate = new Date(dateInput.value);
+            }
+
+            const persianDate = gregorianToPersian(currentDate.getFullYear(), currentDate.getMonth() + 1, currentDate.getDate());
+
+            // Populate years
+            const yearSelect = document.getElementById('filterPersianYear');
+            yearSelect.innerHTML = '';
+            for (let i = persianDate[0] - 10; i <= persianDate[0] + 5; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                if (i === persianDate[0]) option.selected = true;
+                yearSelect.appendChild(option);
+            }
+
+            document.getElementById('filterPersianMonth').value = persianDate[1];
+            updateFilterDays();
+            document.getElementById('filterPersianDay').value = persianDate[2];
+
+            document.getElementById('filterDateModalTitle').textContent = field === 'start' ? 'از تاریخ' : 'تا تاریخ';
+
+            const modal = new bootstrap.Modal(document.getElementById('filterDateModal'));
+            modal.show();
+        }
+
+        function updateFilterDays() {
+            const month = parseInt(document.getElementById('filterPersianMonth').value);
+            const daySelect = document.getElementById('filterPersianDay');
+            const currentDay = daySelect.value;
+
+            daySelect.innerHTML = '';
+
+            let maxDays = 31;
+            if (month >= 1 && month <= 6) {
+                maxDays = 31;
+            } else if (month >= 7 && month <= 11) {
+                maxDays = 30;
+            } else if (month === 12) {
+                maxDays = 29;
+            }
+
+            for (let i = 1; i <= maxDays; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                if (i == currentDay && i <= maxDays) option.selected = true;
+                daySelect.appendChild(option);
+            }
+        }
+
+        function setFilterDate() {
+            const year = parseInt(document.getElementById('filterPersianYear').value);
+            const month = parseInt(document.getElementById('filterPersianMonth').value);
+            const day = parseInt(document.getElementById('filterPersianDay').value);
+
+            const gregorianDate = persianToGregorian(year, month, day);
+            const dateString = `${gregorianDate[0]}-${String(gregorianDate[1]).padStart(2, '0')}-${String(gregorianDate[2]).padStart(2, '0')}`;
+
+            if (currentFilterField === 'start') {
+                document.getElementById('startDateInput').value = dateString;
+                document.getElementById('startDateDisplay').value = `${year}/${String(month).padStart(2, '0')}/${String(day).padStart(2, '0')}`;
+            } else {
+                document.getElementById('endDateInput').value = dateString;
+                document.getElementById('endDateDisplay').value = `${year}/${String(month).padStart(2, '0')}/${String(day).padStart(2, '0')}`;
+            }
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById('filterDateModal'));
+            modal.hide();
+        }
+
+        // Recalculate date picker functions
+        function openRecalcDatePicker(field) {
+            currentRecalcField = field;
+            const dateInput = document.getElementById(field === 'start' ? 'recalcStartDateInput' : 'recalcEndDateInput');
+            let currentDate = new Date();
+
+            if (dateInput.value) {
+                currentDate = new Date(dateInput.value);
+            } else if (field === 'start') {
+                currentDate.setDate(currentDate.getDate() - 30);
+            }
+
+            const persianDate = gregorianToPersian(currentDate.getFullYear(), currentDate.getMonth() + 1, currentDate.getDate());
+
+            // Populate years
+            const yearSelect = document.getElementById('recalcPersianYear');
+            yearSelect.innerHTML = '';
+            for (let i = persianDate[0] - 10; i <= persianDate[0] + 5; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                if (i === persianDate[0]) option.selected = true;
+                yearSelect.appendChild(option);
+            }
+
+            document.getElementById('recalcPersianMonth').value = persianDate[1];
+            updateRecalcDays();
+            document.getElementById('recalcPersianDay').value = persianDate[2];
+
+            document.getElementById('recalcDateModalTitle').textContent = field === 'start' ? 'از تاریخ' : 'تا تاریخ';
+
+            const modal = new bootstrap.Modal(document.getElementById('recalcDateModal'));
+            modal.show();
+        }
+
+        function updateRecalcDays() {
+            const month = parseInt(document.getElementById('recalcPersianMonth').value);
+            const daySelect = document.getElementById('recalcPersianDay');
+            const currentDay = daySelect.value;
+
+            daySelect.innerHTML = '';
+
+            let maxDays = 31;
+            if (month >= 1 && month <= 6) {
+                maxDays = 31;
+            } else if (month >= 7 && month <= 11) {
+                maxDays = 30;
+            } else if (month === 12) {
+                maxDays = 29;
+            }
+
+            for (let i = 1; i <= maxDays; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                if (i == currentDay && i <= maxDays) option.selected = true;
+                daySelect.appendChild(option);
+            }
+        }
+
+        function setRecalcDate() {
+            const year = parseInt(document.getElementById('recalcPersianYear').value);
+            const month = parseInt(document.getElementById('recalcPersianMonth').value);
+            const day = parseInt(document.getElementById('recalcPersianDay').value);
+
+            const gregorianDate = persianToGregorian(year, month, day);
+            const dateString = `${gregorianDate[0]}-${String(gregorianDate[1]).padStart(2, '0')}-${String(gregorianDate[2]).padStart(2, '0')}`;
+
+            if (currentRecalcField === 'start') {
+                document.getElementById('recalcStartDateInput').value = dateString;
+                document.getElementById('recalcStartDateDisplay').value = `${year}/${String(month).padStart(2, '0')}/${String(day).padStart(2, '0')}`;
+            } else {
+                document.getElementById('recalcEndDateInput').value = dateString;
+                document.getElementById('recalcEndDateDisplay').value = `${year}/${String(month).padStart(2, '0')}/${String(day).padStart(2, '0')}`;
+            }
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById('recalcDateModal'));
+            modal.hide();
+        }
+
         function quickEntry() {
             const userId = document.getElementById('quickUserId').value;
             if (!userId) {
@@ -336,12 +658,10 @@
         }
 
         function printReport() {
-            // Get current filter values
             const searchKey = document.querySelector('input[name="searchKey"]').value;
-            const startDate = document.querySelector('input[name="startDate"]').value;
-            const endDate = document.querySelector('input[name="endDate"]').value;
+            const startDate = document.getElementById('startDateInput').value;
+            const endDate = document.getElementById('endDateInput').value;
 
-            // Build URL with current filters
             let url = '@Url.Action("PrintReport")';
             const params = new URLSearchParams();
 
@@ -353,17 +673,61 @@
                 url += '?' + params.toString();
             }
 
-            // Open in new window for printing
             window.open(url, '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
         }
 
-        // Auto-dismiss alerts after 5 seconds
-        setTimeout(function () {
-            var alerts = document.querySelectorAll('.alert');
-            alerts.forEach(function (alert) {
-                var bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
-            });
-        }, 5000);
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize filter dates
+            const startDateInput = document.getElementById('startDateInput');
+            const endDateInput = document.getElementById('endDateInput');
+
+            if (startDateInput.value) {
+                const date = new Date(startDateInput.value);
+                const persianDate = gregorianToPersian(date.getFullYear(), date.getMonth() + 1, date.getDate());
+                document.getElementById('startDateDisplay').value = `${persianDate[0]}/${String(persianDate[1]).padStart(2, '0')}/${String(persianDate[2]).padStart(2, '0')}`;
+            }
+
+            if (endDateInput.value) {
+                const date = new Date(endDateInput.value);
+                const persianDate = gregorianToPersian(date.getFullYear(), date.getMonth() + 1, date.getDate());
+                document.getElementById('endDateDisplay').value = `${persianDate[0]}/${String(persianDate[1]).padStart(2, '0')}/${String(persianDate[2]).padStart(2, '0')}`;
+            }
+
+            // Initialize recalculate dates (30 days ago to today)
+            const today = new Date();
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(today.getDate() - 30);
+
+            const startPersian = gregorianToPersian(thirtyDaysAgo.getFullYear(), thirtyDaysAgo.getMonth() + 1, thirtyDaysAgo.getDate());
+            const endPersian = gregorianToPersian(today.getFullYear(), today.getMonth() + 1, today.getDate());
+
+            document.getElementById('recalcStartDateInput').value = `${thirtyDaysAgo.getFullYear()}-${String(thirtyDaysAgo.getMonth() + 1).padStart(2, '0')}-${String(thirtyDaysAgo.getDate()).padStart(2, '0')}`;
+            document.getElementById('recalcStartDateDisplay').value = `${startPersian[0]}/${String(startPersian[1]).padStart(2, '0')}/${String(startPersian[2]).padStart(2, '0')}`;
+
+            document.getElementById('recalcEndDateInput').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            document.getElementById('recalcEndDateDisplay').value = `${endPersian[0]}/${String(endPersian[1]).padStart(2, '0')}/${String(endPersian[2]).padStart(2, '0')}`;
+
+            // Add click event listeners
+            document.getElementById('startDateDisplay').addEventListener('click', () => openFilterDatePicker('start'));
+            document.getElementById('endDateDisplay').addEventListener('click', () => openFilterDatePicker('end'));
+            document.getElementById('recalcStartDateDisplay').addEventListener('click', () => openRecalcDatePicker('start'));
+            document.getElementById('recalcEndDateDisplay').addEventListener('click', () => openRecalcDatePicker('end'));
+
+            // Add event listeners for month changes
+            document.getElementById('filterPersianMonth').addEventListener('change', updateFilterDays);
+            document.getElementById('filterPersianYear').addEventListener('change', updateFilterDays);
+            document.getElementById('recalcPersianMonth').addEventListener('change', updateRecalcDays);
+            document.getElementById('recalcPersianYear').addEventListener('change', updateRecalcDays);
+
+            // Auto-dismiss alerts after 5 seconds
+            setTimeout(function () {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function (alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+        });
     </script>
 }

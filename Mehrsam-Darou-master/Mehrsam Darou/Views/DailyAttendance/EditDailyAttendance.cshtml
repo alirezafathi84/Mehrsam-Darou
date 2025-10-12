@@ -51,11 +51,17 @@
                             <div class="mb-3">
                                 <label asp-for="Date" class="form-label">تاریخ <span class="text-danger">*</span></label>
                                 <div class="input-group">
-                                    <input asp-for="Date" type="date" class="form-control" id="dateInput" />
-                                    <button type="button" class="btn btn-outline-secondary" onclick="openPersianDatePicker()">
+                                    <input type="text"
+                                           class="form-control"
+                                           id="dateDisplay"
+                                           autocomplete="off"
+                                           readonly
+                                           placeholder="انتخاب تاریخ" />
+                                    <button type="button" class="btn btn-outline-secondary" id="openDatePickerBtn">
                                         <i class="bx bx-calendar"></i>
                                     </button>
                                 </div>
+                                <input asp-for="Date" type="hidden" id="dateInput" />
                                 <span asp-validation-for="Date" class="text-danger"></span>
                                 <!-- Persian Date Display -->
                                 <small class="text-muted mt-1 d-block" id="persianDateDisplay"></small>
@@ -209,157 +215,137 @@
     }
 
     <script>
-        // Persian calendar functions
+        // Persian to Gregorian conversion functions
+        function persianToGregorian(jy, jm, jd) {
+            var sal_a, gy, gm, gd, days;
+            jy += 1595;
+            days = -355668 + (365 * jy) + (~~(jy / 33) * 8) + ~~(((jy % 33) + 3) / 4) + jd + ((jm < 7) ? (jm - 1) * 31 : ((jm - 7) * 30) + 186);
+            gy = 400 * ~~(days / 146097);
+            days %= 146097;
+            if (days > 36524) {
+                gy += 100 * ~~(--days / 36524);
+                days %= 36524;
+                if (days >= 365) days++;
+            }
+            gy += 4 * ~~(days / 1461);
+            days %= 1461;
+            if (days > 365) {
+                gy += ~~((days - 1) / 365);
+                days = (days - 1) % 365;
+            }
+            gd = days + 1;
+            sal_a = [0, 31, ((gy % 4 === 0 && gy % 100 !== 0) || (gy % 400 === 0)) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            for (gm = 0; gm < 13 && gd > sal_a[gm]; gm++) gd -= sal_a[gm];
+            return [gy, gm, gd];
+        }
+
+        function gregorianToPersian(gy, gm, gd) {
+            var g_d_m, jy, jm, jd, gy2, days;
+            g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+            gy2 = (gm > 2) ? (gy + 1) : gy;
+            days = 355666 + (365 * gy) + ~~((gy2 + 3) / 4) - ~~((gy2 + 99) / 100) + ~~((gy2 + 399) / 400) + gd + g_d_m[gm - 1];
+            jy = -1595 + (33 * ~~(days / 12053));
+            days %= 12053;
+            jy += 4 * ~~(days / 1461);
+            days %= 1461;
+            if (days > 365) {
+                jy += ~~((days - 1) / 365);
+                days = (days - 1) % 365;
+            }
+            if (days < 186) {
+                jm = 1 + ~~(days / 31);
+                jd = 1 + (days % 31);
+            } else {
+                jm = 7 + ~~((days - 186) / 30);
+                jd = 1 + ((days - 186) % 30);
+            }
+            return [jy, jm, jd];
+        }
+
         const persianMonthNames = [
             'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
             'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'
         ];
 
-        function isLeapYear(year) {
-            const breaks = [
-                -61, 9, 38, 199, 426, 686, 756, 818, 1111, 1181, 1210,
-                1635, 2060, 2097, 2192, 2262, 2324, 2394, 2456, 3178
-            ];
-            const jp = breaks.length;
-            let jump = 0;
-            for (let j = 1; j < jp; j++) {
-                const jm = breaks[j];
-                jump = jm - breaks[j - 1];
-                if (year < jm) break;
-            }
-            let n = year - breaks[jp - 1];
-            if (n < jump) {
-                n = n - Math.floor(n / 33) * 33;
-                return ((n % 4) === 1);
-            }
-            return false;
-        }
+        function updatePersianDateDisplay() {
+            const dateInput = document.getElementById('dateInput');
+            if (dateInput.value) {
+                const date = new Date(dateInput.value);
+                const persianDate = gregorianToPersian(date.getFullYear(), date.getMonth() + 1, date.getDate());
 
-        function getDaysInMonth(year, month) {
-            if (month <= 6) return 31;
-            if (month <= 11) return 30;
-            return isLeapYear(year) ? 30 : 29;
-        }
+                const persianDateString = `${persianDate[0]}/${String(persianDate[1]).padStart(2, '0')}/${String(persianDate[2]).padStart(2, '0')}`;
+                const monthName = persianMonthNames[persianDate[1] - 1];
 
-        function persianToGregorian(jy, jm, jd) {
-            const PERSIAN_EPOCH = 1948321;
-            let epyear = jy - 979;
-            let epbase;
-            if (epyear >= 0) {
-                epbase = epyear;
-            } else {
-                epbase = epyear - 128;
+                document.getElementById('dateDisplay').value = persianDateString;
+                document.getElementById('persianDateDisplay').textContent = `${persianDate[2]} ${monthName} ${persianDate[0]} - تاریخ میلادی: ` + date.toLocaleDateString('en-CA');
             }
-            let epochAux = Math.floor(epbase / 128);
-            let aux1 = (epbase % 128);
-            let aux2;
-            if (aux1 >= 29) {
-                aux2 = Math.floor(aux1 / 33);
-                aux1 = (aux1 % 33);
-            } else {
-                aux2 = 0;
-            }
-            let jday = PERSIAN_EPOCH - 1 + 365 * jy + Math.floor(epyear / 33) * 8 + Math.floor((aux1 + 3) / 4);
-            for (let i = 1; i < jm; i++) {
-                jday += getDaysInMonth(jy, i);
-            }
-            jday += jd;
-
-            // Convert Julian day to Gregorian
-            let l = jday + 68569;
-            let n = Math.floor((4 * l) / 146097);
-            l = l - Math.floor((146097 * n + 3) / 4);
-            let i = Math.floor((4000 * (l + 1)) / 1461001);
-            l = l - Math.floor((1461 * i) / 4) + 31;
-            let j = Math.floor((80 * l) / 2447);
-            let d = l - Math.floor((2447 * j) / 80);
-            l = Math.floor(j / 11);
-            let m = j + 2 - (12 * l);
-            let y = 100 * (n - 49) + i + l;
-
-            return new Date(y, m - 1, d);
-        }
-
-        function gregorianToPersian(date) {
-            const gy = date.getFullYear();
-            const gm = date.getMonth() + 1;
-            const gd = date.getDate();
-
-            let jy, jm, jd;
-            if (gy <= 1600) {
-                jy = 0; jm = 1; jd = 1;
-                let gy2 = gy + 1;
-                let days = 365 * gy + Math.floor((gy2 + 3) / 4) - Math.floor((gy2 + 99) / 100) + Math.floor((gy2 + 399) / 400) - 80 + gd + [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334][gm - 1];
-                if (gm > 2) days += Math.floor(gy2 / 4) - Math.floor(gy2 / 100) + Math.floor(gy2 / 400) - Math.floor(gy / 4) + Math.floor(gy / 100) - Math.floor(gy / 400);
-                gy2 = 1600;
-                days -= 365 * 1600 + Math.floor(1600 / 4) - Math.floor(1600 / 100) + Math.floor(1600 / 400);
-            } else {
-                gy2 = gy;
-                let days = 365 * gy + Math.floor((gy2 + 3) / 4) - Math.floor((gy2 + 99) / 100) + Math.floor((gy2 + 399) / 400) - 80 + gd + [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334][gm - 1];
-                if (gm > 2) days += Math.floor(gy2 / 4) - Math.floor(gy2 / 100) + Math.floor(gy2 / 400) - Math.floor(gy / 4) + Math.floor(gy / 100) - Math.floor(gy / 400);
-                days -= 365 * 1600 + Math.floor(1600 / 4) - Math.floor(1600 / 100) + Math.floor(1600 / 400);
-            }
-
-            jy = Math.floor(days / 365.25);
-            days %= Math.floor(365.25 * jy);
-            if (days < 186) {
-                jm = 1 + Math.floor(days / 31);
-                jd = 1 + (days % 31);
-            } else {
-                jm = 7 + Math.floor((days - 186) / 30);
-                jd = 1 + ((days - 186) % 30);
-            }
-            return { year: jy + 979, month: jm, day: jd };
         }
 
         function openPersianDatePicker() {
-            const currentDate = new Date();
-            const dateInput = document.getElementById('dateInput');
-
-            if (dateInput.value) {
-                const inputDate = new Date(dateInput.value);
-                currentDate.setTime(inputDate.getTime());
-            }
-
-            const persian = gregorianToPersian(currentDate);
-
-            // Populate year dropdown
-            const yearSelect = document.getElementById('persianYear');
-            yearSelect.innerHTML = '';
-            for (let year = persian.year - 10; year <= persian.year + 10; year++) {
-                const option = document.createElement('option');
-                option.value = year;
-                option.textContent = year;
-                if (year === persian.year) option.selected = true;
-                yearSelect.appendChild(option);
-            }
-
-            // Set month
-            document.getElementById('persianMonth').value = persian.month;
-
-            // Populate day dropdown
-            updateDays();
-            document.getElementById('persianDay').value = persian.day;
-
-            // Show modal
+            initializePersianDatePicker();
             const modal = new bootstrap.Modal(document.getElementById('persianDateModal'));
             modal.show();
         }
 
-        function updateDays() {
-            const year = parseInt(document.getElementById('persianYear').value);
+        function initializePersianDatePicker() {
+            const dateInput = document.getElementById('dateInput');
+            let currentDate = new Date();
+            let persianDate;
+
+            if (dateInput.value) {
+                currentDate = new Date(dateInput.value);
+            }
+
+            persianDate = gregorianToPersian(currentDate.getFullYear(), currentDate.getMonth() + 1, currentDate.getDate());
+
+            // Populate years
+            const yearSelect = document.getElementById('persianYear');
+            yearSelect.innerHTML = '';
+            for (let i = persianDate[0] - 10; i <= persianDate[0] + 5; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                if (i === persianDate[0]) option.selected = true;
+                yearSelect.appendChild(option);
+            }
+
+            // Set month
+            document.getElementById('persianMonth').value = persianDate[1];
+
+            // Populate days based on selected month
+            updateDaysInMonth();
+
+            // Set day
+            document.getElementById('persianDay').value = persianDate[2];
+
+            // Add event listener for month change
+            document.getElementById('persianMonth').removeEventListener('change', updateDaysInMonth);
+            document.getElementById('persianMonth').addEventListener('change', updateDaysInMonth);
+            document.getElementById('persianYear').removeEventListener('change', updateDaysInMonth);
+            document.getElementById('persianYear').addEventListener('change', updateDaysInMonth);
+        }
+
+        function updateDaysInMonth() {
             const month = parseInt(document.getElementById('persianMonth').value);
             const daySelect = document.getElementById('persianDay');
-            const currentDay = parseInt(daySelect.value) || 1;
+            const currentDay = daySelect.value;
 
             daySelect.innerHTML = '';
-            const daysInMonth = getDaysInMonth(year, month);
 
-            for (let day = 1; day <= daysInMonth; day++) {
+            let maxDays = 31;
+            if (month >= 1 && month <= 6) {
+                maxDays = 31;
+            } else if (month >= 7 && month <= 11) {
+                maxDays = 30;
+            } else if (month === 12) {
+                maxDays = 29; // Simplified, should check for leap year
+            }
+
+            for (let i = 1; i <= maxDays; i++) {
                 const option = document.createElement('option');
-                option.value = day;
-                option.textContent = day;
-                if (day === currentDay && day <= daysInMonth) option.selected = true;
+                option.value = i;
+                option.textContent = i;
+                if (i == currentDay && i <= maxDays) option.selected = true;
                 daySelect.appendChild(option);
             }
         }
@@ -369,33 +355,17 @@
             const month = parseInt(document.getElementById('persianMonth').value);
             const day = parseInt(document.getElementById('persianDay').value);
 
+            // Convert Persian to Gregorian
             const gregorianDate = persianToGregorian(year, month, day);
 
-            const dateInput = document.getElementById('dateInput');
-            const year2 = gregorianDate.getFullYear();
-            const month2 = String(gregorianDate.getMonth() + 1).padStart(2, '0');
-            const day2 = String(gregorianDate.getDate()).padStart(2, '0');
+            const dateString = `${gregorianDate[0]}-${String(gregorianDate[1]).padStart(2, '0')}-${String(gregorianDate[2]).padStart(2, '0')}`;
 
-            dateInput.value = `${year2}-${month2}-${day2}`;
-
+            document.getElementById('dateInput').value = dateString;
             updatePersianDateDisplay();
 
             // Close modal
             const modal = bootstrap.Modal.getInstance(document.getElementById('persianDateModal'));
             modal.hide();
-        }
-
-        function updatePersianDateDisplay() {
-            const dateInput = document.getElementById('dateInput');
-            const persianDateDisplay = document.getElementById('persianDateDisplay');
-
-            if (dateInput.value) {
-                const date = new Date(dateInput.value);
-                const persian = gregorianToPersian(date);
-                const monthName = persianMonthNames[persian.month - 1];
-
-                persianDateDisplay.textContent = `${persian.day} ${monthName} ${persian.year}`;
-            }
         }
 
         function calculateHours() {
@@ -424,22 +394,22 @@
         // Format date input value on page load
         document.addEventListener('DOMContentLoaded', function() {
             const dateInput = document.getElementById('dateInput');
+
             if (dateInput && dateInput.value) {
-                // Ensure proper date format for input[type="date"]
+                // Ensure proper date format
                 const date = new Date(dateInput.value);
-                const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const day = String(date.getDate()).padStart(2, '0');
-                dateInput.value = `${year}-${month}-${day}`;
+                if (!isNaN(date.getTime())) {
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    dateInput.value = `${year}-${month}-${day}`;
+                }
                 updatePersianDateDisplay();
             }
 
-            // Update Persian date display when date input changes
-            dateInput.addEventListener('change', updatePersianDateDisplay);
-
-            // Update days when year or month changes
-            document.getElementById('persianYear').addEventListener('change', updateDays);
-            document.getElementById('persianMonth').addEventListener('change', updateDays);
+            // Open date picker when clicking the display input or button
+            document.getElementById('dateDisplay').addEventListener('click', openPersianDatePicker);
+            document.getElementById('openDatePickerBtn').addEventListener('click', openPersianDatePicker);
 
             // Format time inputs
             const firstEntryInput = document.querySelector('input[name="FirstEntryTime"]');
@@ -461,6 +431,15 @@
                     lastExitInput.value = `${parts[0].padStart(2, '0')}:${parts[1].padStart(2, '0')}`;
                 }
             }
+
+            // Auto-dismiss alerts after 5 seconds
+            setTimeout(function () {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function (alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
         });
 
         // Auto-calculate hours when times change

@@ -1,6 +1,10 @@
 ﻿@using static Mehrsam_Darou.Helper.Helper
 @model PaginatedList<Mehrsam_Darou.Models.MaterialRequest>
+@using System.Globalization
 
+@{
+    PersianCalendar pc = new PersianCalendar();
+}
 @{
     ViewData["Title"] = "لیست درخواست‌های مواد";
 }
@@ -323,8 +327,11 @@
                                             }
                                         </td>
                                         <td>
-                                            @request.RequestDate.ToString("yyyy/MM/dd")
-                                            @request.RequestDate.ToString("HH:mm")
+                                            @{
+                                                var requestDate = request.RequestDate;
+                                            }
+                                            @pc.GetYear(requestDate)/@pc.GetMonth(requestDate).ToString("00")/@pc.GetDayOfMonth(requestDate).ToString("00")
+                                            @requestDate.ToString("HH:mm")
                                         </td>
                                         <td>
                                             @{
@@ -377,11 +384,11 @@
                                                     </li>
                                                     @if (request.Status == "در انتظار بررسی")
                                                     {
-                                                        <li>
+                                            @*             <li>
                                                             <a class="dropdown-item text-success" href="#" onclick="quickApprove('@request.RequestId')">
                                                                 <i class="ri-check-fill me-2"></i> تأیید سریع
                                                             </a>
-                                                        </li>
+                                                        </li> *@
                                                     }
                                                 </ul>
                                             </div>

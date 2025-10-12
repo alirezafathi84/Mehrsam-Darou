@@ -97,8 +97,8 @@ namespace Mehrsam_Darou.Controllers
             {
                 try
                 {
-                    // Validate date range
-                    if (vacation.EndDate <= vacation.StartDate)
+                    // Validate date range - FIXED: Changed from <= to < to allow same day vacations
+                    if (vacation.EndDate < vacation.StartDate)
                     {
                         TempData["ErrorMessage"] = "تاریخ پایان باید بعد از تاریخ شروع باشد";
                         await LoadViewBagData();
@@ -181,8 +181,8 @@ namespace Mehrsam_Darou.Controllers
             {
                 try
                 {
-                    // Validate date range
-                    if (vacation.EndDate <= vacation.StartDate)
+                    // Validate date range - FIXED: Changed from <= to < to allow same day vacations
+                    if (vacation.EndDate < vacation.StartDate)
                     {
                         TempData["ErrorMessage"] = "تاریخ پایان باید بعد از تاریخ شروع باشد";
                         await LoadViewBagData();
