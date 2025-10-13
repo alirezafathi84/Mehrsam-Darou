@@ -60,31 +60,25 @@ namespace Mehrsam_Darou.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddRawMaterial(RawMaterial rawMaterial)
         {
-            if (ModelState.IsValid)
+            try
             {
-                try
+                if (await _context.RawMaterials.AnyAsync(r => r.MaterialCode == rawMaterial.MaterialCode))
                 {
-                    if (await _context.RawMaterials.AnyAsync(r => r.MaterialCode == rawMaterial.MaterialCode))
-                    {
-                        TempData["ErrorMessage"] = "ماده اولیه با این کد قبلاً ثبت شده است";
-                        await PopulateRawMaterialDropdowns();
-                        return View(rawMaterial);
-                    }
-
-                    _context.Add(rawMaterial);
-                    await _context.SaveChangesAsync();
-
-                    TempData["SuccessMessage"] = "ماده اولیه جدید با موفقیت ایجاد شد";
-                    return RedirectToAction(nameof(RawMaterialList));
+                    TempData["ErrorMessage"] = "ماده اولیه با این کد قبلاً ثبت شده است";
+                    await PopulateRawMaterialDropdowns();
+                    return View(rawMaterial);
                 }
-                catch (Exception ex)
-                {
-                    TempData["ErrorMessage"] = "خطا در ایجاد ماده اولیه: " + ex.Message;
-                }
+                _context.Add(rawMaterial);
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "ماده اولیه جدید با موفقیت ایجاد شد";
+                return RedirectToAction(nameof(RawMaterialList));
             }
-
-            await PopulateRawMaterialDropdowns();
-            return View(rawMaterial);
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "خطا در ایجاد ماده اولیه: " + ex.Message;
+                await PopulateRawMaterialDropdowns();
+                return View(rawMaterial);
+            }
         }
 
         // GET: RawMaterial/EditRawMaterial/5
