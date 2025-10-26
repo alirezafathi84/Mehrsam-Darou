@@ -104,6 +104,10 @@ namespace Mehrsam_Darou.Controllers
                 return NotFound();
             }
 
+            // Remove Unit and Category from ModelState validation
+            ModelState.Remove("Unit");
+            ModelState.Remove("Category");
+
             if (ModelState.IsValid)
             {
                 try

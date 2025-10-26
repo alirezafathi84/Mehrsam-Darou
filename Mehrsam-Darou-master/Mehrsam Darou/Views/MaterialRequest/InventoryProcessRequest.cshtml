@@ -825,39 +825,151 @@
         }
 
         // Update individual item status
-        async function updateItemStatus(itemId, status) {
-            try {
-                showLoadingSpinner('در حال به‌روزرسانی...');
-                
-                const response = await fetch('@Url.Action("UpdateItemStatus")', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'RequestVerificationToken': getAntiForgeryToken()
-                    },
-                    body: JSON.stringify({ itemId: itemId, status: status })
-                });
+           // Add this JavaScript to your view (ProcessRequest.cshtml or similar)
 
-                const result = await response.json();
-                hideLoadingSpinner();
-                
-                if (result.success) {
-                    // Update UI
-                    updateItemStatusUI(itemId, status);
-                    showSuccessNotification('وضعیت با موفقیت به‌روزرسانی شد');
-                    
-                    // Update summary
-                    updateSummaryCounters();
-                } else {
-                    showErrorNotification(result.message || 'خطا در به‌روزرسانی وضعیت');
+        
+            // Function to update item status
+            function updateItemStatus(itemId, newStatus) {
+                if (!itemId || !newStatus) {
+                    alert('خطا: اطلاعات ناقص است');
+                    return;
                 }
-            } catch (error) {
-                hideLoadingSpinner();
-                showErrorNotification('خطا در ارتباط با سرور');
-                console.error('Error:', error);
-            }
-        }
 
+                // Show loading indicator
+                const button = event.target;
+                const originalText = button.innerText;
+                button.disabled = true;
+                button.innerText = 'در حال به‌روزرسانی...';
+
+                $.ajax({
+                    url: '/MaterialRequest/UpdateItemStatus',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        ItemId: itemId,
+                        Status: newStatus
+                    }),
+                    success: function(response) {
+                        if (response.success) {
+                            // Show success message
+                            alert(response.message);
+
+                            // Update UI
+                            $(`#item-status-${itemId}`).text(newStatus);
+                            $(`#item-badge-${itemId}`)
+                                .removeClass('bg-success bg-warning bg-danger bg-info bg-secondary')
+                                .addClass(getStatusBadgeClass(newStatus))
+                                .text(newStatus);
+
+                            // Reload page to refresh data
+                            location.reload();
+                        } else {
+                            alert('خطا: ' + response.message);
+                            button.disabled = false;
+                            button.innerText = originalText;
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error:', error);
+                        alert('خطا در ارتباط با سرور');
+                        button.disabled = false;
+                        button.innerText = originalText;
+                    }
+                });
+            }
+
+            // Get badge class based on status
+            function getStatusBadgeClass(status) {
+                switch(status) {
+                    case 'موجود':
+                        return 'bg-success';
+                    case 'موجود جزئی':
+                        return 'bg-warning';
+                    case 'ناموجود':
+                        return 'bg-danger';
+                    case 'نیاز به بررسی':
+                        return 'bg-info';
+                    case 'جایگزین موجود':
+                        return 'bg-secondary';
+                    default:
+                        return 'bg-secondary';
+                }
+            }
+
+            // Dropdown change handler
+            $(document).on('change', '.item-status-dropdown', function() {
+                const itemId = $(this).data('item-id');
+                const newStatus = $(this).val();
+
+                if (confirm(`آیا مطمئن هستید که می‌خواهید وضعیت را به "${newStatus}" تغییر دهید؟`)) {
+                    updateItemStatusAjax(itemId, newStatus, this);
+                } else {
+                    // Reset dropdown to original value
+                    $(this).val($(this).data('original-status'));
+                }
+            });
+
+            // AJAX version for dropdown
+            function updateItemStatusAjax(itemId, newStatus, dropdown) {
+                $(dropdown).prop('disabled', true);
+
+                $.ajax({
+                    url: '/MaterialRequest/UpdateItemStatus',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        ItemId: itemId,
+                        Status: newStatus
+                    }),
+                    success: function(response) {
+                        if (response.success) {
+                            // Show success notification
+                            showNotification('success', response.message);
+
+                            // Update original status
+                            $(dropdown).data('original-status', newStatus);
+                            $(dropdown).prop('disabled', false);
+
+                            // Update badge if exists
+                            $(`#item-badge-${itemId}`)
+                                .removeClass('bg-success bg-warning bg-danger bg-info bg-secondary')
+                                .addClass(getStatusBadgeClass(newStatus))
+                                .text(newStatus);
+                        } else {
+                            showNotification('error', response.message);
+                            $(dropdown).val($(dropdown).data('original-status'));
+                            $(dropdown).prop('disabled', false);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        showNotification('error', 'خطا در ارتباط با سرور');
+                        $(dropdown).val($(dropdown).data('original-status'));
+                        $(dropdown).prop('disabled', false);
+                    }
+                });
+            }
+
+            // Show notification helper
+            function showNotification(type, message) {
+                const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+                const notification = `
+                    <div class="alert ${alertClass} alert-dismissible fade show position-fixed"
+                         style="top: 20px; right: 20px; z-index: 9999;" role="alert">
+                        ${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                `;
+
+                $('body').append(notification);
+
+                // Auto dismiss after 3 seconds
+                setTimeout(function() {
+                    $('.alert').fadeOut('slow', function() {
+                        $(this).remove();
+                    });
+                }, 3000);
+            }
+    
         // Update item status in UI
         function updateItemStatusUI(itemId, status) {
             const itemRow = document.getElementById(`item-row-${itemId}`);
