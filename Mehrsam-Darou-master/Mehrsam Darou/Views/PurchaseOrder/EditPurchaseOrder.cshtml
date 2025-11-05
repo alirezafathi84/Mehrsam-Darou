@@ -59,16 +59,28 @@
 
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="mb-3">
-                                <label asp-for="OrderDate" class="form-label">تاریخ سفارش <span class="text-danger">*</span></label>
-                                <input asp-for="OrderDate" type="date" class="form-control" />
+                            <div class="mb-3" data-field="OrderDate">
+                                <label class="form-label">تاریخ سفارش <span class="text-danger">*</span></label>
+                                <input type="text"
+                                       class="form-control"
+                                       data-persian-date="true"
+                                       autocomplete="off"
+                                       readonly
+                                       placeholder="تاریخ سفارش" />
+                                <input type="hidden" asp-for="OrderDate" class="persian-date-hidden" />
                                 <span asp-validation-for="OrderDate" class="text-danger"></span>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="mb-3">
-                                <label asp-for="ExpectedDeliveryDate" class="form-label">تاریخ تحویل مورد انتظار</label>
-                                <input asp-for="ExpectedDeliveryDate" type="date" class="form-control" />
+                            <div class="mb-3" data-field="ExpectedDeliveryDate">
+                                <label class="form-label">تاریخ تحویل مورد انتظار</label>
+                                <input type="text"
+                                       class="form-control"
+                                       data-persian-date="true"
+                                       autocomplete="off"
+                                       readonly
+                                       placeholder="تاریخ تحویل مورد انتظار" />
+                                <input type="hidden" asp-for="ExpectedDeliveryDate" class="persian-date-hidden" />
                                 <span asp-validation-for="ExpectedDeliveryDate" class="text-danger"></span>
                             </div>
                         </div>
@@ -76,9 +88,15 @@
 
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="mb-3">
-                                <label asp-for="ActualDeliveryDate" class="form-label">تاریخ تحویل واقعی</label>
-                                <input asp-for="ActualDeliveryDate" type="date" class="form-control" />
+                            <div class="mb-3" data-field="ActualDeliveryDate">
+                                <label class="form-label">تاریخ تحویل واقعی</label>
+                                <input type="text"
+                                       class="form-control"
+                                       data-persian-date="true"
+                                       autocomplete="off"
+                                       readonly
+                                       placeholder="تاریخ تحویل واقعی" />
+                                <input type="hidden" asp-for="ActualDeliveryDate" class="persian-date-hidden" />
                                 <span asp-validation-for="ActualDeliveryDate" class="text-danger"></span>
                             </div>
                         </div>

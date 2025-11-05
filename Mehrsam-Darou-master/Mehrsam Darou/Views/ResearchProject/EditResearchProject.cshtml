@@ -231,23 +231,47 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-4">
-                            <div class="mb-3">
-                                <label asp-for="StartDate" class="form-label">تاریخ شروع</label>
-                                <input asp-for="StartDate" type="date" class="form-control" id="startDate" />
+                            <div class="mb-3" data-field="StartDate">
+                                <label class="form-label">تاریخ شروع</label>
+                                <input type="text"
+                                       class="form-control"
+                                       data-persian-date="true"
+                                       autocomplete="off"
+                                       readonly
+                                       placeholder="تاریخ شروع"
+                                       id="startDate"
+                                       value="@(Model.StartDate.HasValue ? Model.StartDate.Value.ToString("yyyy/MM/dd", new System.Globalization.CultureInfo("fa-IR")) : "")" />
+                                <input type="hidden" asp-for="StartDate" class="persian-date-hidden" />
                                 <span asp-validation-for="StartDate" class="text-danger"></span>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="mb-3">
-                                <label asp-for="PlannedEndDate" class="form-label">تاریخ پایان برنامه‌ریزی شده</label>
-                                <input asp-for="PlannedEndDate" type="date" class="form-control" id="plannedEndDate" />
+                            <div class="mb-3" data-field="PlannedEndDate">
+                                <label class="form-label">تاریخ برنامه‌ریزی شده پایان</label>
+                                <input type="text"
+                                       class="form-control"
+                                       data-persian-date="true"
+                                       autocomplete="off"
+                                       readonly
+                                       placeholder="تاریخ برنامه‌ریزی شده پایان"
+                                       id="plannedEndDate"
+                                       value="@(Model.PlannedEndDate.HasValue ? Model.PlannedEndDate.Value.ToString("yyyy/MM/dd", new System.Globalization.CultureInfo("fa-IR")) : "")" />
+                                <input type="hidden" asp-for="PlannedEndDate" class="persian-date-hidden" />
                                 <span asp-validation-for="PlannedEndDate" class="text-danger"></span>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="mb-3">
-                                <label asp-for="ActualEndDate" class="form-label">تاریخ پایان واقعی</label>
-                                <input asp-for="ActualEndDate" type="date" class="form-control" id="actualEndDate" />
+                            <div class="mb-3" data-field="ActualEndDate">
+                                <label class="form-label">تاریخ واقعی پایان</label>
+                                <input type="text"
+                                       class="form-control"
+                                       data-persian-date="true"
+                                       autocomplete="off"
+                                       readonly
+                                       placeholder="تاریخ واقعی پایان"
+                                       id="actualEndDate"
+                                       value="@(Model.ActualEndDate.HasValue ? Model.ActualEndDate.Value.ToString("yyyy/MM/dd", new System.Globalization.CultureInfo("fa-IR")) : "")" />
+                                <input type="hidden" asp-for="ActualEndDate" class="persian-date-hidden" />
                                 <span asp-validation-for="ActualEndDate" class="text-danger"></span>
                             </div>
                         </div>

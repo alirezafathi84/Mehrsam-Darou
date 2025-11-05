@@ -54,19 +54,35 @@
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="mb-3">
-                                <label asp-for="OrderDate" class="form-label">تاریخ سفارش <span class="text-danger">*</span></label>
-                                <input asp-for="OrderDate" type="date" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" required />
+                            <div class="mb-3" data-field="OrderDate">
+                                <label class="form-label">تاریخ سفارش <span class="text-danger">*</span></label>
+                                <input type="text"
+                                       class="form-control"
+                                       data-persian-date="true"
+                                       autocomplete="off"
+                                       readonly
+                                       placeholder="تاریخ سفارش"
+                                       value="@(Model.OrderDate != default(DateOnly) ? Model.OrderDate.ToString("yyyy/MM/dd", new System.Globalization.CultureInfo("fa-IR")) : DateOnly.FromDateTime(DateTime.Now).ToString("yyyy/MM/dd", new System.Globalization.CultureInfo("fa-IR")))"
+                                       required />
+                                <input type="hidden" asp-for="OrderDate" class="persian-date-hidden" />
                                 <span asp-validation-for="OrderDate" class="text-danger"></span>
                             </div>
+
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-4">
-                            <div class="mb-3">
-                                <label asp-for="RequestedDeliveryDate" class="form-label">تاریخ تحویل درخواستی</label>
-                                <input asp-for="RequestedDeliveryDate" type="date" class="form-control" />
+                            <div class="mb-3" data-field="RequestedDeliveryDate">
+                                <label class="form-label">تاریخ تحویل درخواستی</label>
+                                <input type="text"
+                                       class="form-control"
+                                       data-persian-date="true"
+                                       autocomplete="off"
+                                       readonly
+                                       placeholder="تاریخ تحویل درخواستی"
+                                       value="@(Model.RequestedDeliveryDate.HasValue ? Model.RequestedDeliveryDate.Value.ToString("yyyy/MM/dd", new System.Globalization.CultureInfo("fa-IR")) : "")" />
+                                <input type="hidden" asp-for="RequestedDeliveryDate" class="persian-date-hidden" />
                                 <span asp-validation-for="RequestedDeliveryDate" class="text-danger"></span>
                                 <small class="form-text text-muted">تاریخ مورد نظر مشتری برای تحویل</small>
                             </div>
