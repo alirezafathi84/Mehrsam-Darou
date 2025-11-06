@@ -10,7 +10,7 @@ builder.Services.AddHttpContextAccessor();
 
 // Register DbContext
 builder.Services.AddDbContext<DarouAppContext>(options =>
-    options.UseSqlServer("Server=DESKTOP-PL06GAP;Database=DarouApp;Trusted_Connection=True;TrustServerCertificate=True;"));
+    options.UseSqlServer("Server=localhost;Database=hourakhshsyst;User Id=hourakhshsyst;Password=hcdU0ng#7f2x333;TrustServerCertificate=True;"));
 
 // Add SignalR
 builder.Services.AddSignalR();
