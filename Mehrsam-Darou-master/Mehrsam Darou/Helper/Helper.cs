@@ -1,6 +1,7 @@
 ﻿using Mehrsam_Darou.Models;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 using System.Security.Cryptography;
 
 namespace Mehrsam_Darou.Helper
@@ -153,5 +154,31 @@ namespace Mehrsam_Darou.Helper
         }
 
 
+
+
+
     }
+
+
+    public static class PersianDateHelper
+    {
+        public static string ToPersianDate(DateOnly date)
+        {
+            if (date == default(DateOnly))
+                return string.Empty;
+
+            var dt = date.ToDateTime(TimeOnly.MinValue);
+            var pc = new PersianCalendar();
+            return $"{pc.GetYear(dt):0000}/{pc.GetMonth(dt):00}/{pc.GetDayOfMonth(dt):00}";
+        }
+
+        public static string ToPersianDate(DateTime date)
+        {
+            var pc = new PersianCalendar();
+            return $"{pc.GetYear(date):0000}/{pc.GetMonth(date):00}/{pc.GetDayOfMonth(date):00}";
+        }
+    }
+
+
+
 }

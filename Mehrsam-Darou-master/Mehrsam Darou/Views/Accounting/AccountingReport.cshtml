@@ -86,9 +86,22 @@
                                 {
                                     <tr>
                                         <td><span class="badge bg-light text-dark">@entry.EntryNumber</span></td>
-                                        <td>
+                 @*                        <td>
                                             @entry.EntryDate.ToString("yyyy/MM/dd")
+                                        </td> *@
+
+                                        <td>
+                                            @{
+                                               
+                                                var entryDateTime = entry.EntryDate.ToDateTime(TimeOnly.MinValue);
+                                                var persianDate = $"{pc.GetYear(entryDateTime)}/{pc.GetMonth(entryDateTime):00}/{pc.GetDayOfMonth(entryDateTime):00}";
+                                            }
+                                            @persianDate
                                         </td>
+
+
+
+
                                         <td>
                                             <div class="d-flex align-items-center">
                                                 <div class="avatar-sm bg-light-subtle rounded me-2">

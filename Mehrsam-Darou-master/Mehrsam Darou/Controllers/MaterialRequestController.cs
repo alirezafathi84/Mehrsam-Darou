@@ -435,7 +435,7 @@ namespace Mehrsam_Darou.Controllers
         }
 
 
-        // متد اصلی ProcessRequest
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ProcessRequest(Guid requestId, string action, string comments)
@@ -464,22 +464,22 @@ namespace Mehrsam_Darou.Controllers
                 switch (action.ToLower())
                 {
                     case "check_inventory":
-                        ProcessCheckInventoryMain(request, currentUserId.Value, comments);
+                        await ProcessCheckInventoryMain(request, currentUserId.Value, comments);
                         break;
                     case "approve":
-                        ProcessApproval(request, currentUserId.Value, comments);
+                        await ProcessApproval(request, currentUserId.Value, comments);
                         break;
                     case "reject":
-                        ProcessRejection(request, currentUserId.Value, comments);
+                        await ProcessRejection(request, currentUserId.Value, comments);
                         break;
                     case "find_substitute":
-                        ProcessFindSubstitute(request, currentUserId.Value, comments);
+                        await ProcessFindSubstitute(request, currentUserId.Value, comments);
                         break;
                     case "request_ceo_approval":
-                        ProcessRequestCeoApproval(request, currentUserId.Value, comments);
+                        await ProcessRequestCeoApproval(request, currentUserId.Value, comments);
                         break;
                     case "deliver":
-                        ProcessDelivery(request, currentUserId.Value, comments);
+                        await ProcessDelivery(request, currentUserId.Value, comments);
                         break;
                     default:
                         TempData["ErrorMessage"] = "عملیات نامعتبر";
@@ -495,23 +495,23 @@ namespace Mehrsam_Darou.Controllers
             {
                 await transaction.RollbackAsync();
 
-                var currentStatus = request?.Status ?? "NULL";
-                var innerMsg = ex.InnerException?.Message ?? ex.Message;
+                var errorDetails = $"Status: '{request?.Status}', WorkflowStage: '{request?.WorkflowStage}', Action: '{action}'";
+                TempData["ErrorMessage"] = $"خطا در پردازش: {ex.InnerException?.Message ?? ex.Message}";
 
-                TempData["ErrorMessage"] = $"خطا در پردازش: {innerMsg}";
-
-                // لاگ برای دیباگ
-                Console.WriteLine($"❌ DB Error - RequestId: {requestId}, Status: '{currentStatus}', Action: '{action}'");
-                Console.WriteLine($"❌ Error: {innerMsg}");
+             //   _logger?.LogError(ex, $"DB Update Error - {errorDetails}");
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
                 TempData["ErrorMessage"] = $"خطا در پردازش: {ex.Message}";
+             //   _logger?.LogError(ex, $"Unexpected error processing request {requestId}");
             }
 
             return RedirectToAction(nameof(ProcessRequest), new { id = requestId });
         }
+
+
+
 
         // GET: MaterialRequest/InventoryRequestList
         public async Task<IActionResult> InventoryRequestList(int? page, string searchKey, string status, string priority, bool urgentOnly = false)
@@ -765,23 +765,23 @@ namespace Mehrsam_Darou.Controllers
                 }
             }
 
-            // ✅ استفاده از مقادیر صحیح از constraint
+            // ✅ استفاده از مقادیر صحیح
             if (allItemsAvailable)
             {
-                request.Status = MaterialRequestStatus.Approved; // "تأیید شده"
-                request.WorkflowStage = "تحویل";
+                request.Status = MaterialRequestStatus.Approved;
+                request.WorkflowStage = MaterialRequestWorkflowStage.Delivery; // "تحویل"
                 await SendNotificationToRequester(request, "درخواست شما آماده تحویل است");
             }
             else if (someItemsAvailable && request.IsSubstituteAllowed == true)
             {
-                request.Status = MaterialRequestStatus.NeedSubstitute; // "نیاز به جایگزین"
-                request.WorkflowStage = "جستجوی جایگزین";
+                request.Status = MaterialRequestStatus.NeedSubstitute;
+                request.WorkflowStage = MaterialRequestWorkflowStage.FindingSubstitute; // "جستجوی جایگزین"
                 await SendNotificationToRequester(request, "برخی اقلام موجود نیستند");
             }
             else
             {
-                request.Status = MaterialRequestStatus.InProcurement; // "در حال تأمین"
-                request.WorkflowStage = "درخواست خرید";
+                request.Status = MaterialRequestStatus.InProcurement;
+                request.WorkflowStage = MaterialRequestWorkflowStage.PurchaseRequest; // "درخواست خرید"
                 await SendNotificationToProcurement(request, "درخواست نیاز به خرید دارد");
             }
 
@@ -791,19 +791,19 @@ namespace Mehrsam_Darou.Controllers
 
         private async Task ProcessApproval(MaterialRequest request, Guid processedBy, string comments)
         {
-            request.Status = MaterialRequestStatus.Approved; // "تأیید شده"
+            request.Status = MaterialRequestStatus.Approved;
             request.ApprovedBy = processedBy;
             request.ApprovalDate = DateTime.Now;
             request.ApprovalStatus = "تأیید شده";
 
             if (request.MaterialRequestItems.Any(i => i.ItemStatus == "ناموجود"))
             {
-                request.WorkflowStage = "درخواست خرید";
+                request.WorkflowStage = MaterialRequestWorkflowStage.PurchaseRequest; // "درخواست خرید"
                 await SendNotificationToProcurement(request, "درخواست تأیید شده");
             }
             else
             {
-                request.WorkflowStage = "تحویل";
+                request.WorkflowStage = MaterialRequestWorkflowStage.Delivery; // "تحویل"
                 await SendNotificationToRequester(request, "درخواست تأیید شد");
             }
 
@@ -813,11 +813,12 @@ namespace Mehrsam_Darou.Controllers
 
         private async Task ProcessRejection(MaterialRequest request, Guid processedBy, string comments)
         {
-            request.Status = MaterialRequestStatus.Rejected; // "رد شده"
+            request.Status = MaterialRequestStatus.Rejected;
             request.ApprovedBy = processedBy;
             request.ApprovalDate = DateTime.Now;
             request.ApprovalStatus = "رد شده";
-            request.WorkflowStage = "رد شده";
+            // ✅ "رد شده" در constraint نیست، پس از یکی از مقادیر موجود استفاده می‌کنیم
+            request.WorkflowStage = MaterialRequestWorkflowStage.Completed; // "تکمیل"
 
             await SendNotificationToRequester(request, "درخواست رد شد");
             await AddWorkflowHistory(request.RequestId, "رد", MaterialRequestStatus.Rejected,
@@ -826,8 +827,8 @@ namespace Mehrsam_Darou.Controllers
 
         private async Task ProcessFindSubstitute(MaterialRequest request, Guid processedBy, string comments)
         {
-            request.Status = MaterialRequestStatus.NeedSubstitute; // "نیاز به جایگزین"
-            request.WorkflowStage = "جستجوی جایگزین";
+            request.Status = MaterialRequestStatus.NeedSubstitute;
+            request.WorkflowStage = MaterialRequestWorkflowStage.FindingSubstitute; // "جستجوی جایگزین"
 
             await SendNotificationToRequester(request, "در حال جستجوی جایگزین");
             await AddWorkflowHistory(request.RequestId, "جستجوی جایگزین", request.Status,
@@ -836,8 +837,8 @@ namespace Mehrsam_Darou.Controllers
 
         private async Task ProcessRequestCeoApproval(MaterialRequest request, Guid processedBy, string comments)
         {
-            request.Status = MaterialRequestStatus.WaitingCeoApproval; // "منتظر تأیید مدیرعامل"
-            request.WorkflowStage = "تأیید مدیرعامل";
+            request.Status = MaterialRequestStatus.WaitingCeoApproval;
+            request.WorkflowStage = MaterialRequestWorkflowStage.CeoApproval; // "تأیید مدیرعامل"
 
             var ceoUser = await _context.Users
                 .Join(_context.Teams, u => u.TeamId, t => t.Id, (u, t) => new { User = u, Team = t })
@@ -857,14 +858,17 @@ namespace Mehrsam_Darou.Controllers
 
         private async Task ProcessDelivery(MaterialRequest request, Guid processedBy, string comments)
         {
-            request.Status = MaterialRequestStatus.Delivered; // "تحویل شده"
-            request.WorkflowStage = "تحویل";
+            request.Status = MaterialRequestStatus.Delivered;
+            request.WorkflowStage = MaterialRequestWorkflowStage.Delivery; // "تحویل"
             request.CompletionDate = DateTime.Now;
 
             await SendNotificationToRequester(request, "تحویل شد");
             await AddWorkflowHistory(request.RequestId, "تحویل", MaterialRequestStatus.Delivered,
                 comments ?? "تحویل داده شد", processedBy);
         }
+
+
+
 
 
         private async Task AddWorkflowHistory(Guid requestId, string stage, string status, string comments, Guid processedBy)

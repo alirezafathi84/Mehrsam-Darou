@@ -1,5 +1,5 @@
 ﻿@model Mehrsam_Darou.Models.JournalEntry
-
+@using Mehrsam_Darou.Helper
 @{
     ViewData["Title"] = "ویرایش سند حسابداری";
 }
@@ -44,10 +44,19 @@
                                 <span asp-validation-for="EntryNumber" class="text-danger"></span>
                             </div>
                         </div>
+                        <!-- Entry Date - Using Persian DatePicker -->
+                        <!-- Entry Date - Using Persian DatePicker -->
                         <div class="col-md-6">
-                            <div class="mb-3">
-                                <label asp-for="EntryDate" class="form-label">تاریخ سند <span class="text-danger">*</span></label>
-                                <input asp-for="EntryDate" type="date" class="form-control" />
+                            <div class="mb-3" data-field="EntryDate">
+                                <label class="form-label">تاریخ سند <span class="text-danger">*</span></label>
+                                <input type="text"
+                                       class="form-control"
+                                       data-persian-date="true"
+                                       autocomplete="off"
+                                       readonly
+                                       placeholder="تاریخ سند"
+                                       value="@PersianDateHelper.ToPersianDate(Model.EntryDate)" />
+                                <input type="hidden" asp-for="EntryDate" class="persian-date-hidden" />
                                 <span asp-validation-for="EntryDate" class="text-danger"></span>
                             </div>
                         </div>
