@@ -856,19 +856,151 @@ namespace Mehrsam_Darou.Controllers
                 comments ?? "ارسال به مدیرعامل", processedBy);
         }
 
+        //private async Task ProcessDelivery(MaterialRequest request, Guid processedBy, string comments)
+        //{
+        //    request.Status = MaterialRequestStatus.Delivered;
+        //    request.WorkflowStage = MaterialRequestWorkflowStage.Delivery; // "تحویل"
+        //    request.CompletionDate = DateTime.Now;
+
+        //    await SendNotificationToRequester(request, "تحویل شد");
+        //    await AddWorkflowHistory(request.RequestId, "تحویل", MaterialRequestStatus.Delivered,
+        //        comments ?? "تحویل داده شد", processedBy);
+        //}
+
+
         private async Task ProcessDelivery(MaterialRequest request, Guid processedBy, string comments)
         {
+            bool allItemsDelivered = true;
+            bool someItemsDelivered = false;
+            var deliveryNotes = new List<string>();
+
+            // Calculate date for expiry check (30 days from now)
+            var minExpiryDate = DateOnly.FromDateTime(DateTime.Now.AddDays(30));
+
+            // Process each item and reduce inventory
+            foreach (var item in request.MaterialRequestItems)
+            {
+                if (item.MaterialId.HasValue && item.QuantityRequested > 0)
+                {
+                    // Get the requested unit's conversion factor
+                    var requestedUnit = await _context.Units
+                        .FirstOrDefaultAsync(u => u.UnitId == item.UnitId);
+
+                    if (requestedUnit == null)
+                    {
+                        deliveryNotes.Add($"{item.ItemName}: خطا - واحد یافت نشد");
+                        allItemsDelivered = false;
+                        continue;
+                    }
+
+                    // Get available batches
+                    var availableBatches = await _context.MaterialBatches
+                        .Include(b => b.Unit) // Include unit for conversion
+                        .Where(b => b.MaterialId == item.MaterialId &&
+                                   (b.Status == "قرنطینه" || b.Status == "آزاد شده") &&
+                                   b.CurrentQuantity > 0 &&
+                                   (!b.ExpiryDate.HasValue || b.ExpiryDate.Value > minExpiryDate))
+                        .OrderBy(b => b.BatchId)
+                        .ThenBy(b => b.ExpiryDate)
+                        .ToListAsync();
+
+                    // Convert requested quantity to base unit for comparison
+                    decimal requestedQuantityInBaseUnit = item.QuantityRequested * (requestedUnit.ConversionFactor ?? 1);
+                    decimal remainingQuantity = requestedQuantityInBaseUnit;
+                    decimal deliveredQuantity = 0;
+
+                    foreach (var batch in availableBatches)
+                    {
+                        if (remainingQuantity <= 0)
+                            break;
+
+                        // Get batch unit's conversion factor
+                        var batchUnit = batch.Unit;
+                        if (batchUnit == null)
+                        {
+                            continue;
+                        }
+
+                        // Convert batch quantity to base unit
+                        decimal batchQuantityInBaseUnit = batch.CurrentQuantity * (batchUnit.ConversionFactor ?? 1);
+
+                        // Calculate how much to deduct in base unit
+                        decimal quantityToDeductInBaseUnit = Math.Min(batchQuantityInBaseUnit, remainingQuantity);
+
+                        if (quantityToDeductInBaseUnit > 0)
+                        {
+                            // Convert back to batch unit for deduction
+                            decimal quantityToDeductInBatchUnit = quantityToDeductInBaseUnit / (batchUnit.ConversionFactor ?? 1);
+
+                            // Reduce batch quantity
+                            batch.CurrentQuantity -= quantityToDeductInBatchUnit;
+                            remainingQuantity -= quantityToDeductInBaseUnit;
+                            deliveredQuantity += quantityToDeductInBaseUnit;
+
+                            // Update batch status if fully consumed
+                            if (batch.CurrentQuantity <= 0.001m) // Small threshold for decimal precision
+                            {
+                                batch.Status = "مصرف شده";
+                                batch.CurrentQuantity = 0;
+                            }
+                        }
+                    }
+
+                    // Convert delivered quantity back to requested unit for display
+                    decimal deliveredInRequestedUnit = deliveredQuantity / (requestedUnit.ConversionFactor ?? 1);
+
+                    // Update item status
+                    if (remainingQuantity > 0.001m) // Partial delivery
+                    {
+                        item.ItemStatus = "تحویل جزئی";
+                        item.AvailabilityStatus = "تحویل جزئی";
+                        deliveryNotes.Add($"{item.ItemName}: {deliveredInRequestedUnit:F3} {requestedUnit.UnitSymbol} از {item.QuantityRequested} {requestedUnit.UnitSymbol} تحویل داده شد");
+                        allItemsDelivered = false;
+                        someItemsDelivered = true;
+                    }
+                    else // Full delivery
+                    {
+                        item.ItemStatus = "تحویل شده";
+                        item.AvailabilityStatus = "موجود";
+                        deliveryNotes.Add($"{item.ItemName}: {deliveredInRequestedUnit:F3} {requestedUnit.UnitSymbol} تحویل داده شد");
+                        someItemsDelivered = true;
+                    }
+                }
+                else
+                {
+                    // Items without MaterialId (non-inventory items)
+                    item.ItemStatus = "تحویل شده";
+                    someItemsDelivered = true;
+                }
+            }
+
+            // Update request status
             request.Status = MaterialRequestStatus.Delivered;
-            request.WorkflowStage = MaterialRequestWorkflowStage.Delivery; // "تحویل"
+            request.WorkflowStage = MaterialRequestWorkflowStage.Delivery;
             request.CompletionDate = DateTime.Now;
 
-            await SendNotificationToRequester(request, "تحویل شد");
-            await AddWorkflowHistory(request.RequestId, "تحویل", MaterialRequestStatus.Delivered,
-                comments ?? "تحویل داده شد", processedBy);
+            // Send notification with delivery details
+            var deliveryMessage = allItemsDelivered
+                ? "تمام اقلام درخواست شما تحویل داده شد"
+                : $"تحویل: {string.Join(", ", deliveryNotes)}";
+
+            await SendNotificationToRequester(request, deliveryMessage);
+
+            // Add workflow history with detailed notes
+            var historyComments = comments ?? "تحویل داده شد و موجودی کسر گردید";
+            if (deliveryNotes.Any())
+            {
+                historyComments += "\n" + string.Join("\n", deliveryNotes);
+            }
+
+            await AddWorkflowHistory(
+                request.RequestId,
+                "تحویل",
+                MaterialRequestStatus.Delivered,
+                historyComments,
+                processedBy
+            );
         }
-
-
-
 
 
         private async Task AddWorkflowHistory(Guid requestId, string stage, string status, string comments, Guid processedBy)

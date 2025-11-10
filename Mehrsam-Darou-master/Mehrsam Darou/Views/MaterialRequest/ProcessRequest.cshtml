@@ -378,6 +378,7 @@
     <!-- Sidebar -->
     <div class="col-lg-4">
         <!-- Quick Actions -->
+        <!-- Quick Actions -->
         <div class="card">
             <div class="card-header">
                 <h5 class="card-title mb-0">
@@ -387,6 +388,12 @@
             </div>
             <div class="card-body">
                 <div class="d-grid gap-2">
+                    @* Print Button - Available for everyone *@
+                    <button type="button" class="btn btn-outline-info" onclick="printRequest()">
+                        <i class="ri-printer-line me-1"></i>
+                        چاپ درخواست
+                    </button>
+
                     @* ✅ استفاده از MaterialRequestStatus Constants *@
                     @if (isOwner && Model.Status == MaterialRequestStatus.Pending)
                     {
@@ -438,7 +445,6 @@
                             }
                         }
 
-                        @* ✅ حذف "آماده تحویل" - این مقدار در constraint نیست *@
                         @if (Model.Status == MaterialRequestStatus.Approved || Model.Status == MaterialRequestStatus.InProcurement)
                         {
                             <button type="button" class="btn btn-success" onclick="processAction('deliver')">
@@ -619,6 +625,57 @@
 
 @section Scripts {
     <script>
+        function printRequest() {
+            // Hide elements that shouldn't be printed
+            const elementsToHide = [
+                '.breadcrumb',
+                '.alert',
+                '.page-title-box',
+                '.btn',
+                '.dropdown',
+                '.card-header .ri-settings-line',
+                '.sidebar' // If you want to hide the entire sidebar
+            ];
+
+            // Store original display values
+            const originalDisplays = [];
+            elementsToHide.forEach(selector => {
+                document.querySelectorAll(selector).forEach(element => {
+                    originalDisplays.push({
+                        element: element,
+                        display: element.style.display
+                    });
+                    element.style.display = 'none';
+                });
+            });
+
+            // Add print-specific styling
+            const style = document.createElement('style');
+            style.id = 'print-styles';
+            style.innerHTML = `
+        @@media print {
+                    body { direction: rtl; }
+                    .col-lg-4 { display: none !important; }
+                    .col-lg-8 { width: 100% !important; max-width: 100% !important; }
+                    .card { page-break-inside: avoid; }
+                    .table { font-size: 12px; }
+                    .badge { border: 1px solid #000; }
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Print
+            window.print();
+
+            // Restore original display values
+            originalDisplays.forEach(item => {
+                item.element.style.display = item.display;
+            });
+
+            // Remove print styles
+            document.getElementById('print-styles').remove();
+        }
+
         function processAction(action) {
             document.getElementById('processAction').value = action;
 
@@ -680,7 +737,6 @@
 
         function updateItemStatus(itemId, status) {
             if (confirm(`آیا مطمئن هستید که وضعیت این کالا را به "${status}" تغییر دهید؟`)) {
-                // AJAX call to update item status
                 fetch('@Url.Action("UpdateItemStatus")', {
                     method: 'POST',
                     headers: {
@@ -721,7 +777,6 @@
                 return false;
             }
 
-            // Confirm critical actions
             const criticalActions = ['reject', 'approve', 'deliver'];
             if (criticalActions.includes(action)) {
                 const actionTexts = {
