@@ -1,4 +1,5 @@
 ﻿@model Mehrsam_Darou.Models.MaterialRequest
+@using Mehrsam_Darou.Helper
 @using Mehrsam_Darou.Constants
 
 @{
@@ -75,10 +76,10 @@
                         <div class="row text-muted mb-3">
                             <div class="col-sm-6">
                                 <p class="mb-1"><i class="ri-hashtag me-1"></i><strong>شماره:</strong> @Model.RequestNumber</p>
-                                <p class="mb-1"><i class="ri-calendar-line me-1"></i><strong>تاریخ ثبت:</strong> @Model.RequestDate.ToString("yyyy/MM/dd HH:mm")</p>
+                                <p class="mb-1"><i class="ri-calendar-line me-1"></i><strong>تاریخ ثبت:</strong> @PersianDateHelper.ToPersianDate(Model.RequestDate) @Model.RequestDate.ToString("HH:mm")</p>
                                 @if (Model.RequiredDate.HasValue)
                                 {
-                                    <p class="mb-1"><i class="ri-time-line me-1"></i><strong>تاریخ مورد نیاز:</strong> @Model.RequiredDate.Value.ToString("yyyy/MM/dd")</p>
+                                    <p class="mb-1"><i class="ri-time-line me-1"></i><strong>تاریخ مورد نیاز:</strong> @PersianDateHelper.ToPersianDate(Model.RequiredDate.Value)</p>
                                 }
                             </div>
                             <div class="col-sm-6">

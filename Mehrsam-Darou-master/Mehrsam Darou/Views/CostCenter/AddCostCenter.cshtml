@@ -1,0 +1,141 @@
+@model Mehrsam_Darou.Models.CostCenter
+
+<h2>افزودن مرکز هزینه جدید</h2>
+
+<div class="row">
+    <div class="col-xl-8 col-lg-10 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">اطلاعات مرکز هزینه</h5>
+            </div>
+            <div class="card-body">
+
+                <!-- Error Alert -->
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger px-2" role="alert">
+                        <p class="mb-0">خطا</p>
+                        <p class="mb-0">@TempData["ErrorMessage"]</p>
+                    </div>
+                }
+
+                <!-- Validation Summary -->
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                            {
+                                <li>@error.ErrorMessage</li>
+                            }
+                        </ul>
+                    </div>
+                }
+
+                <form method="post" asp-action="AddCostCenter" asp-controller="CostCenter">
+                    @Html.AntiForgeryToken()
+
+                    <div class="row g-3">
+                        
+                        <!-- Cost Center Code -->
+                        <div class="col-md-6">
+                            <label for="CostCenterCode" class="form-label">
+                                کد مرکز هزینه <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="CostCenterCode" 
+                                   name="CostCenterCode" 
+                                   asp-for="CostCenterCode" 
+                                   required 
+                                   placeholder="مثال: 1001">
+                            <span asp-validation-for="CostCenterCode" class="text-danger"></span>
+                        </div>
+
+                        <!-- Cost Center Name -->
+                        <div class="col-md-6">
+                            <label for="CostCenterName" class="form-label">
+                                نام مرکز هزینه <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="CostCenterName" 
+                                   name="CostCenterName" 
+                                   asp-for="CostCenterName" 
+                                   required 
+                                   placeholder="مثال: دپارتمان تولید">
+                            <span asp-validation-for="CostCenterName" class="text-danger"></span>
+                        </div>
+
+                        <!-- Parent Cost Center -->
+                        <div class="col-md-6">
+                            <label for="ParentCostCenterId" class="form-label">
+                                مرکز هزینه والد
+                            </label>
+                            <select class="form-select" 
+                                    id="ParentCostCenterId" 
+                                    name="ParentCostCenterId" 
+                                    asp-for="ParentCostCenterId">
+                                <option value="">-- انتخاب کنید (اختیاری) --</option>
+                                @if (ViewBag.ParentCostCenters != null)
+                                {
+                                    @foreach (var parent in ViewBag.ParentCostCenters)
+                                    {
+                                        <option value="@parent.CostCenterId">
+                                            @parent.CostCenterCode - @parent.CostCenterName
+                                        </option>
+                                    }
+                                }
+                            </select>
+                            <small class="text-muted">در صورت عدم انتخاب، مرکز هزینه به عنوان ریشه در نظر گرفته می‌شود</small>
+                        </div>
+
+                        <!-- Is Active -->
+                        <div class="col-md-6">
+                            <label for="IsActive" class="form-label">
+                                وضعیت
+                            </label>
+                            <select class="form-select" 
+                                    id="IsActive" 
+                                    name="IsActive" 
+                                    asp-for="IsActive">
+                                <option value="true" selected>فعال</option>
+                                <option value="false">غیرفعال</option>
+                            </select>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="col-12">
+                            <label for="Description" class="form-label">
+                                توضیحات
+                            </label>
+                            <textarea class="form-control" 
+                                      id="Description" 
+                                      name="Description" 
+                                      asp-for="Description" 
+                                      rows="3" 
+                                      placeholder="توضیحات اختیاری در مورد مرکز هزینه"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                    </div>
+
+                    <div class="mt-4 d-flex gap-2 justify-content-end">
+                        <a href="@Url.Action("CostCenterList", "CostCenter")" class="btn btn-secondary">
+                            <i class="bx bx-x me-1"></i>انصراف
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bx bx-save me-1"></i>ذخیره
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
