@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using static Mehrsam_Darou.Helper.Helper;
+using System.Globalization;
 
 namespace Mehrsam_Darou.Controllers
 {
@@ -54,6 +55,7 @@ namespace Mehrsam_Darou.Controllers
 
             return View(new PurchaseOrder
             {
+                PoNumber = await GeneratePONumber(),
                 OrderDate = DateOnly.FromDateTime(DateTime.Now),
                 Status = "پیش‌نویس",
                 Currency = "IRR",
@@ -461,6 +463,35 @@ namespace Mehrsam_Darou.Controllers
                 await _context.SaveChangesAsync();
             }
         }
+
+        private async Task<string> GeneratePONumber()
+        {
+            var persianCalendar = new PersianCalendar();
+            var currentDate = DateTime.Now;
+            var persianYear = persianCalendar.GetYear(currentDate);
+            var yearSuffix = (persianYear % 100).ToString("00");
+            var yearPattern = $"PO-{yearSuffix}";
+
+            var lastRequestNumber = await _context.PurchaseOrders
+                .Where(r => r.PoNumber.StartsWith(yearPattern))
+                .OrderByDescending(r => r.PoNumber)
+                .Select(r => r.PoNumber)
+                .FirstOrDefaultAsync();
+
+            int nextSequentialNumber = 1;
+            if (!string.IsNullOrEmpty(lastRequestNumber))
+            {
+                var sequentialPart = lastRequestNumber.Substring(lastRequestNumber.Length - 5);
+                if (int.TryParse(sequentialPart, out int lastNumber))
+                {
+                    nextSequentialNumber = lastNumber + 1;
+                }
+            }
+
+            return $"PO-{yearSuffix}{nextSequentialNumber:00000}";
+        }
+
+
 
         #endregion
     }

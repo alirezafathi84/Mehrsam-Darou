@@ -856,16 +856,6 @@ namespace Mehrsam_Darou.Controllers
                 comments ?? "ارسال به مدیرعامل", processedBy);
         }
 
-        //private async Task ProcessDelivery(MaterialRequest request, Guid processedBy, string comments)
-        //{
-        //    request.Status = MaterialRequestStatus.Delivered;
-        //    request.WorkflowStage = MaterialRequestWorkflowStage.Delivery; // "تحویل"
-        //    request.CompletionDate = DateTime.Now;
-
-        //    await SendNotificationToRequester(request, "تحویل شد");
-        //    await AddWorkflowHistory(request.RequestId, "تحویل", MaterialRequestStatus.Delivered,
-        //        comments ?? "تحویل داده شد", processedBy);
-        //}
 
 
         private async Task ProcessDelivery(MaterialRequest request, Guid processedBy, string comments)
@@ -874,15 +864,12 @@ namespace Mehrsam_Darou.Controllers
             bool someItemsDelivered = false;
             var deliveryNotes = new List<string>();
 
-            // Calculate date for expiry check (30 days from now)
             var minExpiryDate = DateOnly.FromDateTime(DateTime.Now.AddDays(30));
 
-            // Process each item and reduce inventory
             foreach (var item in request.MaterialRequestItems)
             {
                 if (item.MaterialId.HasValue && item.QuantityRequested > 0)
                 {
-                    // Get the requested unit's conversion factor
                     var requestedUnit = await _context.Units
                         .FirstOrDefaultAsync(u => u.UnitId == item.UnitId);
 
@@ -893,101 +880,126 @@ namespace Mehrsam_Darou.Controllers
                         continue;
                     }
 
-                    // Get available batches
-                    var availableBatches = await _context.MaterialBatches
-                        .Include(b => b.Unit) // Include unit for conversion
-                        .Where(b => b.MaterialId == item.MaterialId &&
-                                   (b.Status == "قرنطینه" || b.Status == "آزاد شده") &&
-                                   b.CurrentQuantity > 0 &&
-                                   (!b.ExpiryDate.HasValue || b.ExpiryDate.Value > minExpiryDate))
-                        .OrderBy(b => b.BatchId)
-                        .ThenBy(b => b.ExpiryDate)
-                        .ToListAsync();
+                    // ✅ Check if a specific batch was pre-selected
+                    Guid? selectedBatchId = null;
+                    if (!string.IsNullOrEmpty(item.Notes) && item.Notes.StartsWith("BatchId:"))
+                    {
+                        var batchIdStr = item.Notes.Replace("BatchId:", "").Trim();
+                        if (Guid.TryParse(batchIdStr, out Guid parsedBatchId))
+                        {
+                            selectedBatchId = parsedBatchId;
+                        }
+                    }
 
-                    // Convert requested quantity to base unit for comparison
+                    List<MaterialBatch> availableBatches;
+
+                    // ✅ Smart batch selection
+                    if (selectedBatchId.HasValue)
+                    {
+                        var selectedBatch = await _context.MaterialBatches
+                            .Include(b => b.Unit)
+                            .FirstOrDefaultAsync(b => b.BatchId == selectedBatchId.Value &&
+                                                     b.CurrentQuantity > 0);
+
+                        if (selectedBatch != null)
+                        {
+                            availableBatches = new List<MaterialBatch> { selectedBatch };
+                            deliveryNotes.Add($"{item.ItemName}: استفاده از بچ انتخابی {selectedBatch.BatchNumber}");
+                        }
+                        else
+                        {
+                            deliveryNotes.Add($"{item.ItemName}: بچ انتخابی موجود نیست، استفاده از بچ‌های در دسترس");
+                            availableBatches = await GetAvailableBatchesForDelivery(item.MaterialId.Value, minExpiryDate);
+                        }
+                    }
+                    else
+                    {
+                        availableBatches = await GetAvailableBatchesForDelivery(item.MaterialId.Value, minExpiryDate);
+                    }
+
                     decimal requestedQuantityInBaseUnit = item.QuantityRequested * (requestedUnit.ConversionFactor ?? 1);
                     decimal remainingQuantity = requestedQuantityInBaseUnit;
                     decimal deliveredQuantity = 0;
+                    var usedBatches = new List<string>();  // ✅ Track used batches
 
                     foreach (var batch in availableBatches)
                     {
                         if (remainingQuantity <= 0)
                             break;
 
-                        // Get batch unit's conversion factor
                         var batchUnit = batch.Unit;
                         if (batchUnit == null)
                         {
                             continue;
                         }
 
-                        // Convert batch quantity to base unit
                         decimal batchQuantityInBaseUnit = batch.CurrentQuantity * (batchUnit.ConversionFactor ?? 1);
-
-                        // Calculate how much to deduct in base unit
                         decimal quantityToDeductInBaseUnit = Math.Min(batchQuantityInBaseUnit, remainingQuantity);
 
                         if (quantityToDeductInBaseUnit > 0)
                         {
-                            // Convert back to batch unit for deduction
                             decimal quantityToDeductInBatchUnit = quantityToDeductInBaseUnit / (batchUnit.ConversionFactor ?? 1);
 
-                            // Reduce batch quantity
+                            // ✅ Reduce batch quantity
                             batch.CurrentQuantity -= quantityToDeductInBatchUnit;
                             remainingQuantity -= quantityToDeductInBaseUnit;
                             deliveredQuantity += quantityToDeductInBaseUnit;
 
-                            // Update batch status if fully consumed
-                            if (batch.CurrentQuantity <= 0.001m) // Small threshold for decimal precision
+                            // ✅ Track batch usage
+                            usedBatches.Add($"{batch.BatchNumber} ({quantityToDeductInBatchUnit:F3} {batchUnit.UnitSymbol})");
+
+                            // ✅ Update status if consumed
+                            if (batch.CurrentQuantity <= 0.001m)
                             {
                                 batch.Status = "مصرف شده";
                                 batch.CurrentQuantity = 0;
                             }
+
+                            // ✅ Explicit state change
+                            _context.Entry(batch).State = EntityState.Modified;
                         }
                     }
 
-                    // Convert delivered quantity back to requested unit for display
                     decimal deliveredInRequestedUnit = deliveredQuantity / (requestedUnit.ConversionFactor ?? 1);
 
-                    // Update item status
-                    if (remainingQuantity > 0.001m) // Partial delivery
+                    if (remainingQuantity > 0.001m)
                     {
                         item.ItemStatus = "تحویل جزئی";
                         item.AvailabilityStatus = "تحویل جزئی";
-                        deliveryNotes.Add($"{item.ItemName}: {deliveredInRequestedUnit:F3} {requestedUnit.UnitSymbol} از {item.QuantityRequested} {requestedUnit.UnitSymbol} تحویل داده شد");
+                        var batchInfo = usedBatches.Any() ? $" [بچ‌ها: {string.Join(", ", usedBatches)}]" : "";
+                        deliveryNotes.Add($"{item.ItemName}: {deliveredInRequestedUnit:F3} {requestedUnit.UnitSymbol} از {item.QuantityRequested} {requestedUnit.UnitSymbol} تحویل داده شد{batchInfo}");
+                        // ✅ Includes batch info
                         allItemsDelivered = false;
                         someItemsDelivered = true;
                     }
-                    else // Full delivery
+                    else
                     {
                         item.ItemStatus = "تحویل شده";
                         item.AvailabilityStatus = "موجود";
-                        deliveryNotes.Add($"{item.ItemName}: {deliveredInRequestedUnit:F3} {requestedUnit.UnitSymbol} تحویل داده شد");
+                        var batchInfo = usedBatches.Any() ? $" [بچ‌ها: {string.Join(", ", usedBatches)}]" : "";
+                        deliveryNotes.Add($"{item.ItemName}: {deliveredInRequestedUnit:F3} {requestedUnit.UnitSymbol} تحویل داده شد{batchInfo}");
+                        // ✅ Includes batch info
                         someItemsDelivered = true;
                     }
                 }
                 else
                 {
-                    // Items without MaterialId (non-inventory items)
                     item.ItemStatus = "تحویل شده";
                     someItemsDelivered = true;
                 }
             }
 
-            // Update request status
             request.Status = MaterialRequestStatus.Delivered;
             request.WorkflowStage = MaterialRequestWorkflowStage.Delivery;
             request.CompletionDate = DateTime.Now;
 
-            // Send notification with delivery details
             var deliveryMessage = allItemsDelivered
                 ? "تمام اقلام درخواست شما تحویل داده شد"
                 : $"تحویل: {string.Join(", ", deliveryNotes)}";
 
             await SendNotificationToRequester(request, deliveryMessage);
 
-            // Add workflow history with detailed notes
-            var historyComments = comments ?? "تحویل داده شد و موجودی کسر گردید";
+            var historyComments = comments ?? "تحویل داده شد و موجودی از بچ‌های انتخابی کسر گردید";
             if (deliveryNotes.Any())
             {
                 historyComments += "\n" + string.Join("\n", deliveryNotes);
@@ -1001,6 +1013,22 @@ namespace Mehrsam_Darou.Controllers
                 processedBy
             );
         }
+
+        // ✅ NEW HELPER METHOD
+        private async Task<List<MaterialBatch>> GetAvailableBatchesForDelivery(Guid materialId, DateOnly minExpiryDate)
+        {
+            return await _context.MaterialBatches
+                .Include(b => b.Unit)
+                .Where(b => b.MaterialId == materialId &&
+                           b.Status == "آزاد شده" &&
+                           b.CurrentQuantity > 0 &&
+                           (!b.ExpiryDate.HasValue || b.ExpiryDate.Value > minExpiryDate))
+                .OrderBy(b => b.ExpiryDate)
+               // .ThenBy(b => b.ReceivedDate)
+                .ToListAsync();
+        }
+
+
 
 
         private async Task AddWorkflowHistory(Guid requestId, string stage, string status, string comments, Guid processedBy)
@@ -1820,6 +1848,175 @@ namespace Mehrsam_Darou.Controllers
         {
             public Guid RequestId { get; set; }
         }
+
+
+
+
+
+
+        // CORRECTED VERSION - Replace the GetAvailableBatches method with this:
+
+        [HttpPost]
+        public async Task<IActionResult> GetAvailableBatches([FromBody] GetBatchesModel model)
+        {
+            try
+            {
+                var currentUserId = GetCurrentUserId();
+                if (currentUserId == null)
+                {
+                    return Json(new { success = false, message = "کاربر یافت نشد" });
+                }
+
+                if (!await CanUserProcessInventoryRequest(currentUserId.Value))
+                {
+                    return Json(new { success = false, message = "عدم دسترسی" });
+                }
+
+                if (!model.MaterialId.HasValue)
+                {
+                    return Json(new { success = false, message = "ماده مشخص نشده" });
+                }
+
+                // Calculate the date threshold for expiry
+                var expiryThreshold = DateOnly.FromDateTime(DateTime.Now.AddDays(1));
+
+                var batches = await _context.MaterialBatches
+                    .Where(b => b.MaterialId == model.MaterialId &&
+                               b.Status == "آزاد شده" &&
+                               b.CurrentQuantity > 0 &&
+                               (!b.ExpiryDate.HasValue || b.ExpiryDate.Value > expiryThreshold))
+                    .Include(b => b.Unit)
+                    .Include(b => b.Location)
+                    .OrderBy(b => b.ExpiryDate)
+                    .Select(b => new
+                    {
+                        batchId = b.BatchId,
+                        batchNumber = b.BatchNumber,
+                        currentQuantity = b.CurrentQuantity,
+                        unitName = b.Unit.UnitName,
+                        locationName = b.Location != null ? b.Location.LocationName : "نامشخص",
+                        expiryDate = b.ExpiryDate.HasValue ? b.ExpiryDate.Value.ToString("yyyy/MM/dd") : "ندارد",
+                        status = b.Status
+                    })
+                    .ToListAsync();
+
+                return Json(new { success = true, batches = batches });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "خطا: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SetItemBatch([FromBody] SetItemBatchModel model)
+        {
+            try
+            {
+                var currentUserId = GetCurrentUserId();
+                if (currentUserId == null)
+                {
+                    return Json(new { success = false, message = "کاربر یافت نشد" });
+                }
+
+                if (!await CanUserProcessInventoryRequest(currentUserId.Value))
+                {
+                    return Json(new { success = false, message = "عدم دسترسی" });
+                }
+
+                var item = await _context.MaterialRequestItems
+                    .Include(i => i.Unit)
+                    .FirstOrDefaultAsync(i => i.ItemId == model.ItemId);
+
+                if (item == null)
+                {
+                    return Json(new { success = false, message = "قلم یافت نشد" });
+                }
+
+                // Verify batch exists and has enough quantity
+                var batch = await _context.MaterialBatches
+                    .Include(b => b.Unit)
+                    .FirstOrDefaultAsync(b => b.BatchId == model.BatchId);
+
+                if (batch == null)
+                {
+                    return Json(new { success = false, message = "بچ یافت نشد" });
+                }
+
+                // UNIT CONVERSION: Convert both quantities to base unit before comparing
+                var itemUnit = item.Unit;
+                var batchUnit = batch.Unit;
+
+                if (itemUnit == null || batchUnit == null)
+                {
+                    return Json(new { success = false, message = "واحد یافت نشد" });
+                }
+
+                // Convert requested quantity to base unit
+                decimal requestedQuantityInBaseUnit = item.QuantityRequested * (itemUnit.ConversionFactor ?? 1);
+
+                // Convert batch quantity to base unit
+                decimal batchQuantityInBaseUnit = batch.CurrentQuantity * (batchUnit.ConversionFactor ?? 1);
+
+                // Now compare in same unit (base unit)
+                if (batchQuantityInBaseUnit < requestedQuantityInBaseUnit)
+                {
+                    // Calculate what's available in the requested unit for better error message
+                    decimal availableInRequestedUnit = batchQuantityInBaseUnit / (itemUnit.ConversionFactor ?? 1);
+
+                    return Json(new
+                    {
+                        success = false,
+                        message = $"موجودی بچ کافی نیست. موجود: {availableInRequestedUnit:F3} {itemUnit.UnitSymbol}, درخواستی: {item.QuantityRequested:F3} {itemUnit.UnitSymbol}"
+                    });
+                }
+
+                // Store the batch ID in the Notes field
+                item.Notes = $"BatchId:{model.BatchId}";
+
+                await _context.SaveChangesAsync();
+
+                await AddWorkflowHistory(item.RequestId, "انتخاب بچ",
+                    "بچ انتخاب شد",
+                    $"بچ {batch.BatchNumber} برای '{item.ItemName}' انتخاب شد",
+                    currentUserId.Value);
+
+                return Json(new
+                {
+                    success = true,
+                    message = "بچ انتخاب شد",
+                    batchNumber = batch.BatchNumber
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "خطا: " + ex.Message });
+            }
+        }
+
+
+
+        public class GetBatchesModel
+        {
+            public Guid? MaterialId { get; set; }
+        }
+
+        public class SetItemBatchModel
+        {
+            public Guid ItemId { get; set; }
+            public Guid BatchId { get; set; }
+        }
+
+
+
+
+
+
+
+
+
+
+
     }
 
     public class MaterialRequestItemViewModel

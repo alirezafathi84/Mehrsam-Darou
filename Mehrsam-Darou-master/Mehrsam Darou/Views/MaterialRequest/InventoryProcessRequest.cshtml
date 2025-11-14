@@ -1,4 +1,6 @@
 ﻿@model Mehrsam_Darou.Models.MaterialRequest
+@using Mehrsam_Darou.Helper
+@using Mehrsam_Darou.Constants
 
 @{
     ViewData["Title"] = $"بررسی درخواست انبار - {Model.RequestNumber}";
@@ -34,7 +36,11 @@
     <div class="col-12">
         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
             <h4 class="mb-sm-0">بررسی درخواست مواد - انبارداری</h4>
-            <div class="page-title-right">
+            <div class="page-title-right d-flex align-items-center gap-2">
+                <button type="button" class="btn btn-sm btn-soft-secondary" onclick="printRequest()">
+                    <i class="ri-printer-line me-1"></i>
+                    چاپ
+                </button>
                 <ol class="breadcrumb m-0">
                     <li class="breadcrumb-item"><a href="@Url.Action("InventoryRequestList")">درخواست‌های انبار</a></li>
                     <li class="breadcrumb-item active">@Model.RequestNumber</li>
@@ -84,10 +90,10 @@
                         <div class="row text-muted mb-3">
                             <div class="col-sm-6">
                                 <p class="mb-1"><i class="ri-hashtag me-1"></i><strong>شماره:</strong> @Model.RequestNumber</p>
-                                <p class="mb-1"><i class="ri-calendar-line me-1"></i><strong>تاریخ ثبت:</strong> @Model.RequestDate.ToString("yyyy/MM/dd HH:mm")</p>
+                                <p class="mb-1"><i class="ri-calendar-line me-1"></i><strong>تاریخ ثبت:</strong> @PersianDateHelper.ToPersianDate(Model.RequestDate) @Model.RequestDate.ToString("HH:mm")</p>
                                 @if (Model.RequiredDate.HasValue)
                                 {
-                                    <p class="mb-1"><i class="ri-time-line me-1"></i><strong>تاریخ مورد نیاز:</strong> @Model.RequiredDate.Value.ToString("yyyy/MM/dd")</p>
+                                    <p class="mb-1"><i class="ri-time-line me-1"></i><strong>تاریخ مورد نیاز:</strong> @PersianDateHelper.ToPersianDate(Model.RequiredDate.Value)</p>
                                 }
                             </div>
                             <div class="col-sm-6">
@@ -109,14 +115,19 @@
 
                     <div class="flex-shrink-0 ms-3">
                         @{
+                            // ✅ استفاده از MaterialRequestStatus Constants
                             var statusClass = Model.Status switch
                             {
-                                "در انتظار بررسی" => "bg-warning-subtle text-warning",
-                                "در حال بررسی" => "bg-info-subtle text-info",
-                                "آماده تحویل" => "bg-success-subtle text-success",
-                                "نیاز به جایگزین" => "bg-primary-subtle text-primary",
-                                "نیاز به خرید" => "bg-danger-subtle text-danger",
-                                "تحویل شده" => "bg-dark-subtle text-body",
+                                MaterialRequestStatus.Pending => "bg-warning-subtle text-warning",
+                                MaterialRequestStatus.Reviewing => "bg-info-subtle text-info",
+                                MaterialRequestStatus.Approved => "bg-success-subtle text-success",
+                                MaterialRequestStatus.Rejected => "bg-danger-subtle text-danger",
+                                MaterialRequestStatus.InProcurement => "bg-primary-subtle text-primary",
+                                MaterialRequestStatus.Delivered => "bg-success-subtle text-success",
+                                MaterialRequestStatus.Completed => "bg-dark-subtle text-body",
+                                MaterialRequestStatus.Cancelled => "bg-secondary-subtle text-secondary",
+                                MaterialRequestStatus.NeedSubstitute => "bg-warning-subtle text-warning",
+                                MaterialRequestStatus.WaitingCeoApproval => "bg-info-subtle text-info",
                                 _ => "bg-light text-dark"
                             };
                         }
@@ -139,7 +150,7 @@
                     <i class="ri-list-check me-1"></i>
                     بررسی موجودی اقلام (@totalItems قلم)
                 </h5>
-                @if (canProcess && (Model.Status == "در انتظار بررسی" || Model.Status == "در حال بررسی"))
+                @if (canProcess && (Model.Status == MaterialRequestStatus.Pending || Model.Status == MaterialRequestStatus.Reviewing))
                 {
                     <div class="btn-group" role="group">
                         <button type="button" class="btn btn-sm btn-info" onclick="checkAllInventory()">
@@ -164,6 +175,7 @@
                                     <th>نام کالا</th>
                                     <th>مقدار درخواستی</th>
                                     <th>موجودی فعلی</th>
+                                    <th>بچ</th>
                                     <th>وضعیت</th>
                                     <th>جایگزین</th>
                                     <th width="120">عملیات</th>
@@ -232,6 +244,39 @@
 
                                             </div>
                                         </td>
+
+                                        <!-- Batch Selection - NEW -->
+                                        <td>
+                                            <div class="batch-selection" data-item-id="@item.ItemId">
+                                                @if (item.MaterialId.HasValue && (item.ItemStatus == "موجود" || item.ItemStatus == "موجود جزئی"))
+                                                {
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-outline-info"
+                                                            onclick="selectBatch('@item.ItemId', '@item.MaterialId')">
+                                                        <i class="ri-inbox-line me-1"></i>
+                                                        انتخاب بچ
+                                                    </button>
+                                                    <div class="selected-batch-info mt-1" id="batch-info-@item.ItemId" style="display:none;">
+                                                        <small class="text-success">
+                                                            <i class="ri-check-line"></i>
+                                                            <span class="batch-number"></span>
+                                                        </small>
+                                                    </div>
+                                                }
+                                                else if (item.MaterialId.HasValue)
+                                                {
+                                                    <small class="text-muted">موجودی کافی نیست</small>
+                                                }
+                                                else
+                                                {
+                                                    <small class="text-muted">ماده تعریف نشده</small>
+                                                }
+                                            </div>
+                                        </td>
+
+
+
+
                                         <td>
                                             <div class="item-status" data-item-id="@item.ItemId">
                                                 @{
@@ -459,9 +504,18 @@
             </div>
             <div class="card-body">
                 <div class="d-grid gap-2">
+                    @* Print Button - Available for everyone *@
+                    <button type="button" class="btn btn-outline-info" onclick="printRequest()">
+                        <i class="ri-printer-line me-1"></i>
+                        چاپ درخواست
+                    </button>
+
                     @if (canProcess)
                     {
-                        @if (Model.Status == "در انتظار بررسی")
+                        <hr class="my-3">
+
+                        @* ✅ استفاده از MaterialRequestStatus Constants *@
+                        @if (Model.Status == MaterialRequestStatus.Pending)
                         {
                             <button type="button" class="btn btn-info" onclick="startInventoryCheck()">
                                 <i class="ri-search-line me-1"></i>
@@ -469,27 +523,11 @@
                             </button>
                         }
 
-                        @if (Model.Status == "در حال بررسی" || Model.Status == "آماده تحویل")
+                        @if (Model.Status == MaterialRequestStatus.Reviewing || Model.Status == MaterialRequestStatus.Approved)
                         {
                             <button type="button" class="btn btn-success" onclick="processAction('approve')">
                                 <i class="ri-check-line me-1"></i>
                                 تأیید و آماده‌سازی
-                            </button>
-
-                            @if (Model.IsSubstituteAllowed == true)
-                            {
-                                <button type="button" class="btn btn-warning" onclick="processAction('find_substitute')">
-                                    <i class="ri-exchange-line me-1"></i>
-                                    جستجوی جایگزین
-                                </button>
-                            }
-                        }
-
-                        @if (Model.Status == "آماده تحویل")
-                        {
-                            <button type="button" class="btn btn-primary" onclick="processAction('deliver')">
-                                <i class="ri-truck-line me-1"></i>
-                                ثبت تحویل
                             </button>
                         }
 
@@ -1286,6 +1324,224 @@
 
             return true;
         });
+
+        // Add these JavaScript functions to the existing script section
+
+        // Function to open batch selection modal
+        async function selectBatch(itemId, materialId) {
+            try {
+                showLoadingSpinner('در حال بارگذاری بچ‌ها...');
+
+                const response = await fetch('@Url.Action("GetAvailableBatches")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': getAntiForgeryToken()
+                    },
+                    body: JSON.stringify({ materialId: materialId })
+                });
+
+                const data = await response.json();
+                hideLoadingSpinner();
+
+                if (data.success && data.batches && data.batches.length > 0) {
+                    showBatchSelectionModal(itemId, data.batches);
+                } else if (data.success && data.batches.length === 0) {
+                    showErrorNotification('بچ موجود یافت نشد');
+                } else {
+                    showErrorNotification(data.message || 'خطا در بارگذاری بچ‌ها');
+                }
+            } catch (error) {
+                hideLoadingSpinner();
+                showErrorNotification('خطا در ارتباط با سرور');
+                console.error('Error:', error);
+            }
+        }
+
+        // Function to show batch selection modal
+        function showBatchSelectionModal(itemId, batches) {
+            const modalHtml = `
+                <div class="modal fade" id="batchSelectModal" tabindex="-1" aria-labelledby="batchSelectModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="batchSelectModalLabel">
+                                    <i class="ri-inbox-line me-2"></i>
+                                    انتخاب بچ برای تحویل
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>شماره بچ</th>
+                                                <th>موجودی</th>
+                                                <th>مکان</th>
+                                                <th>تاریخ انقضا</th>
+                                                <th>انتخاب</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${batches.map(batch => `
+                                                <tr>
+                                                    <td>
+                                                        <strong>${batch.batchNumber}</strong>
+                                                    </td>
+                                                    <td>
+                                                        <span class="text-success fw-medium">${batch.currentQuantity}</span>
+                                                        <small class="text-muted">${batch.unitName}</small>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-info-subtle text-info">
+                                                            ${batch.locationName}
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <small class="text-muted">${batch.expiryDate}</small>
+                                                    </td>
+                                                    <td>
+                                                        <button type="button"
+                                                                class="btn btn-sm btn-success"
+                                                                onclick="confirmBatchSelection('${itemId}', '${batch.batchId}', '${batch.batchNumber}')">
+                                                            <i class="ri-check-line me-1"></i>
+                                                            انتخاب
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            `).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="ri-close-line me-1"></i>
+                                    بستن
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Remove existing modal if any
+            const existingModal = document.getElementById('batchSelectModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+
+            // Add new modal to body
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('batchSelectModal'));
+            modal.show();
+
+            // Clean up modal after it's hidden
+            document.getElementById('batchSelectModal').addEventListener('hidden.bs.modal', function () {
+                this.remove();
+            });
+        }
+
+        // Function to confirm batch selection
+        async function confirmBatchSelection(itemId, batchId, batchNumber) {
+            try {
+                showLoadingSpinner('در حال ذخیره...');
+
+                const response = await fetch('@Url.Action("SetItemBatch")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': getAntiForgeryToken()
+                    },
+                    body: JSON.stringify({
+                        itemId: itemId,
+                        batchId: batchId
+                    })
+                });
+
+                const data = await response.json();
+                hideLoadingSpinner();
+
+                if (data.success) {
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('batchSelectModal'));
+                    if (modal) {
+                        modal.hide();
+                    }
+
+                    // Update UI to show selected batch
+                    const batchInfo = document.getElementById('batch-info-' + itemId);
+                    if (batchInfo) {
+                        batchInfo.style.display = 'block';
+                        batchInfo.querySelector('.batch-number').textContent = 'بچ: ' + batchNumber;
+                    }
+
+                    showSuccessNotification(data.message);
+                } else {
+                    showErrorNotification(data.message || 'خطا در ذخیره بچ');
+                }
+            } catch (error) {
+                hideLoadingSpinner();
+                showErrorNotification('خطا در ارتباط با سرور');
+                console.error('Error:', error);
+            }
+        }
+
+                // Print request function
+        function printRequest() {
+            // Hide elements that shouldn't be printed
+            const elementsToHide = [
+                '.breadcrumb',
+                '.alert',
+                '.page-title-box',
+                '.btn',
+                '.dropdown',
+                '.card-header .btn-group',
+                '.sidebar'
+            ];
+
+            // Store original display values
+            const originalDisplays = [];
+            elementsToHide.forEach(selector => {
+                document.querySelectorAll(selector).forEach(element => {
+                    originalDisplays.push({
+                        element: element,
+                        display: element.style.display
+                    });
+                    element.style.display = 'none';
+                });
+            });
+
+            // Add print-specific styling
+            const style = document.createElement('style');
+            style.id = 'print-styles';
+            style.innerHTML = `
+        @@media print {
+                    body { direction: rtl; }
+                    .col-lg-4 { display: none !important; }
+                    .col-lg-8 { width: 100% !important; max-width: 100% !important; }
+                    .card { page-break-inside: avoid; }
+                    .table { font-size: 12px; }
+                    .badge { border: 1px solid #000; }
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Print
+            window.print();
+
+            // Restore original display values
+            originalDisplays.forEach(item => {
+                item.element.style.display = item.display;
+            });
+
+            // Remove print styles
+            document.getElementById('print-styles').remove();
+        }
+
     </script>
 
     <style>
