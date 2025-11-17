@@ -284,6 +284,51 @@ namespace Mehrsam_Darou.Controllers
             return RedirectToAction(nameof(SupplierList));
         }
 
+
+
+        /// <summary>
+        /// دریافت لیست تمام تأمین‌کنندگان فعال
+        /// </summary>
+        /// <summary>
+        /// دریافت لیست تمام تأمین‌کنندگان فعال
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> GetSuppliers()
+        {
+            try
+            {
+                var suppliers = await _context.Suppliers
+                    .Where(s => s.IsActive == true)
+                    .OrderBy(s => s.SupplierName)
+                    .Select(s => new
+                    {
+                        supplierId = s.SupplierId.ToString(), // Convert Guid to string for JSON
+                        s.SupplierName,
+                        s.ContactPerson,
+                        s.Phone,
+                        s.Email
+                    })
+                    .ToListAsync();
+
+                return Json(suppliers);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"خطا در دریافت لیست تأمین‌کنندگان: {ex.Message}" });
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
         // GET: Supplier/GetSupplierDetails/5
         public async Task<IActionResult> GetSupplierDetails(Guid id)
         {

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using static Mehrsam_Darou.Helper.Helper;
 using System.Globalization;
+using Mehrsam_Darou.ModelsDto;
 
 namespace Mehrsam_Darou.Controllers
 {
@@ -47,6 +48,187 @@ namespace Mehrsam_Darou.Controllers
 
             return View(paginatedList);
         }
+
+
+
+
+        /// <summary>
+        /// ایجاد سفارش خرید جدید
+        /// </summary>
+        [HttpPost]
+        public async Task<IActionResult> CreatePurchaseOrder([FromBody] PurchaseOrderDto dto)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                // Validation
+                if (string.IsNullOrEmpty(dto.PoNumber))
+                {
+                    return Json(new { success = false, message = "شماره سفارش الزامی است" });
+                }
+
+                if (dto.SupplierId == Guid.Empty)
+                {
+                    return Json(new { success = false, message = "انتخاب تأمین‌کننده الزامی است" });
+                }
+
+                if (dto.Items == null || !dto.Items.Any())
+                {
+                    return Json(new { success = false, message = "حداقل یک قلم باید در سفارش وجود داشته باشد" });
+                }
+
+                // بررسی تکراری نبودن شماره سفارش
+                var existingOrder = await _context.PurchaseOrders
+                    .FirstOrDefaultAsync(po => po.PoNumber == dto.PoNumber);
+
+                if (existingOrder != null)
+                {
+                    return Json(new { success = false, message = "شماره سفارش تکراری است" });
+                }
+
+                // دریافت اطلاعات کاربر جاری
+                var createdByGuid = GetCurrentUserId();
+
+                // ایجاد سفارش خرید
+                var purchaseOrder = new PurchaseOrder
+                {
+                    PurchaseOrderId = Guid.NewGuid(),
+                    PoNumber = dto.PoNumber,
+                    OrderDate = dto.OrderDate,
+                    SupplierId = dto.SupplierId,
+                    ExpectedDeliveryDate = dto.ExpectedDeliveryDate,
+                    Status = dto.Status ?? "پیش‌نویس",
+                    Notes = dto.Notes,
+                    TotalAmount = dto.TotalAmount,
+                    Currency = dto.Currency ?? "IRR",
+                    CreatedBy = createdByGuid,
+                    CreatedDate = DateTime.Now
+                };
+
+                _context.PurchaseOrders.Add(purchaseOrder);
+                await _context.SaveChangesAsync();
+
+                // ایجاد اقلام سفارش
+                foreach (var itemDto in dto.Items)
+                {
+                    // Validate MaterialId and UnitId
+                    if (itemDto.MaterialId == Guid.Empty)
+                    {
+                        throw new Exception("شناسه ماده نامعتبر است");
+                    }
+
+                    if (itemDto.UnitId == Guid.Empty)
+                    {
+                        throw new Exception("شناسه واحد نامعتبر است");
+                    }
+
+                    var orderItem = new PurchaseOrderItem
+                    {
+                        PoItemId = Guid.NewGuid(),
+                        PurchaseOrderId = purchaseOrder.PurchaseOrderId,
+                        MaterialId = itemDto.MaterialId,
+                        UnitId = itemDto.UnitId,
+                        Quantity = itemDto.Quantity,
+                        UnitPrice = itemDto.UnitPrice,
+                        TotalPrice = itemDto.TotalPrice,
+                        ReceivedQuantity = 0,
+                        Notes = itemDto.Notes
+                    };
+
+                    _context.PurchaseOrderItems.Add(orderItem);
+                }
+
+                await _context.SaveChangesAsync();
+
+                // Commit transaction
+                await transaction.CommitAsync();
+
+                return Json(new
+                {
+                    success = true,
+                    message = "سفارش خرید با موفقیت ایجاد شد",
+                    purchaseOrderId = purchaseOrder.PurchaseOrderId.ToString(),
+                    poNumber = purchaseOrder.PoNumber
+                });
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+
+                // Log error
+                Console.WriteLine($"Error creating purchase order: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+
+                return Json(new
+                {
+                    success = false,
+                    message = $"خطا در ایجاد سفارش خرید: {ex.Message}"
+                });
+            }
+        }
+
+        /// <summary>
+        /// دریافت جزئیات سفارش خرید
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> GetPurchaseOrderDetails(Guid id)
+        {
+            try
+            {
+                var order = await _context.PurchaseOrders
+                    .Include(po => po.Supplier)
+                    .Include(po => po.PurchaseOrderItems)
+                        .ThenInclude(i => i.Material)
+                    .FirstOrDefaultAsync(po => po.PurchaseOrderId == id);
+
+                if (order == null)
+                {
+                    return Json(new { success = false, message = "سفارش خرید یافت نشد" });
+                }
+
+                return Json(new
+                {
+                    success = true,
+                    order = new
+                    {
+                        purchaseOrderId = order.PurchaseOrderId.ToString(),
+                        order.PoNumber,
+                        orderDate = order.OrderDate.ToString("yyyy-MM-dd"),
+                        order.Status,
+                        order.TotalAmount,
+                        supplierName = order.Supplier?.SupplierName,
+                        items = order.PurchaseOrderItems.Select(i => new
+                        {
+                            poItemId = i.PoItemId.ToString(),
+                            materialName = i.Material?.MaterialName,
+                            i.Quantity,
+                            i.UnitPrice,
+                            i.TotalPrice
+                        })
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"خطا: {ex.Message}" });
+            }
+        }
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         // GET: PurchaseOrder/AddPurchaseOrder
         public async Task<IActionResult> AddPurchaseOrder()

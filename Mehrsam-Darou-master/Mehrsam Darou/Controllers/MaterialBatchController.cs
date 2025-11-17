@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using static Mehrsam_Darou.Helper.Helper;
+using System.Globalization;
 
 namespace Mehrsam_Darou.Controllers
 {
@@ -51,6 +52,38 @@ namespace Mehrsam_Darou.Controllers
             return View(paginatedList);
         }
 
+
+        private async Task<string> GenerateBatchNumber()
+        {
+            var persianCalendar = new PersianCalendar();
+            var currentDate = DateTime.Now;
+            var persianYear = persianCalendar.GetYear(currentDate);
+            var yearSuffix = (persianYear % 100).ToString("00");
+            var yearPattern = $"BTH-{yearSuffix}";
+
+            var lastRequestNumber = await _context.MaterialBatches
+                .Where(r => r.BatchNumber.StartsWith(yearPattern))
+                .OrderByDescending(r => r.BatchNumber)
+                .Select(r => r.BatchNumber)
+                .FirstOrDefaultAsync();
+
+            int nextSequentialNumber = 1;
+            if (!string.IsNullOrEmpty(lastRequestNumber))
+            {
+                var sequentialPart = lastRequestNumber.Substring(lastRequestNumber.Length - 5);
+                if (int.TryParse(sequentialPart, out int lastNumber))
+                {
+                    nextSequentialNumber = lastNumber + 1;
+                }
+            }
+
+            return $"BTH-{yearSuffix}{nextSequentialNumber:00000}";
+        }
+
+
+
+
+
         // GET: MaterialBatch/AddMaterialBatch
         public async Task<IActionResult> AddMaterialBatch()
         {
@@ -72,7 +105,7 @@ namespace Mehrsam_Darou.Controllers
                 .Select(l => new { l.LocationId, l.LocationName, l.LocationCode })
                 .ToListAsync();
 
-            return View(new MaterialBatch { Status = "قرنطینه" });
+            return View(new MaterialBatch {BatchNumber = await GenerateBatchNumber(), Status = "قرنطینه" });
         }
 
         // POST: MaterialBatch/AddMaterialBatch

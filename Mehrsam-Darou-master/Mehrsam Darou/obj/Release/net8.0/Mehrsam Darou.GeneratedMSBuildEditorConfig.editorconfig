@@ -108,6 +108,18 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2xpZW50XExvZ2luLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/CostCenter/AddCostCenter.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29zdENlbnRlclxBZGRDb3N0Q2VudGVyLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/CostCenter/CostCenterList.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29zdENlbnRlclxDb3N0Q2VudGVyTGlzdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/CostCenter/EditCostCenter.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29zdENlbnRlclxFZGl0Q29zdENlbnRlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/git Proj/MD/Mehrsam-Darou-master/Mehrsam Darou/Views/Customer/AddCustomer.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3VzdG9tZXJcQWRkQ3VzdG9tZXIuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
